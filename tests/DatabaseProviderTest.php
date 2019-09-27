@@ -1,18 +1,18 @@
 <?php
 
-namespace Adldap\Laravel\Tests;
+namespace LdapRecord\Laravel\Tests;
 
 use Adldap\Models\User;
 use Adldap\AdldapInterface;
-use Adldap\Laravel\Commands\Import;
+use LdapRecord\Laravel\Commands\Import;
 use Illuminate\Support\Facades\App;
-use Adldap\Laravel\Facades\Resolver;
+use LdapRecord\Laravel\Facades\Resolver;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Foundation\Testing\WithFaker;
-use Adldap\Laravel\Tests\Scopes\JohnDoeScope;
-use Adldap\Laravel\Tests\Handlers\LdapAttributeHandler;
-use Adldap\Laravel\Tests\Models\TestUser as EloquentUser;
+use LdapRecord\Laravel\Tests\Scopes\JohnDoeScope;
+use LdapRecord\Laravel\Tests\Handlers\LdapAttributeHandler;
+use LdapRecord\Laravel\Tests\Models\TestUser as EloquentUser;
 
 class DatabaseProviderTest extends DatabaseTestCase
 {
@@ -374,7 +374,7 @@ class DatabaseProviderTest extends DatabaseTestCase
     {
         config([
             'ldap_auth.login_fallback' => false,
-            'ldap_auth.rules'          => [\Adldap\Laravel\Validation\Rules\DenyTrashed::class],
+            'ldap_auth.rules'          => [\LdapRecord\Laravel\Validation\Rules\DenyTrashed::class],
         ]);
 
         $credentials = [
@@ -403,7 +403,7 @@ class DatabaseProviderTest extends DatabaseTestCase
     {
         config([
             'ldap_auth.login_fallback' => false,
-            'ldap_auth.rules'          => [\Adldap\Laravel\Validation\Rules\OnlyImported::class],
+            'ldap_auth.rules'          => [\LdapRecord\Laravel\Validation\Rules\OnlyImported::class],
         ]);
 
         $credentials = [

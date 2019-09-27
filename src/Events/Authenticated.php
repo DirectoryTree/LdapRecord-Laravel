@@ -1,6 +1,6 @@
 <?php
 
-namespace Adldap\Laravel\Events;
+namespace LdapRecord\Laravel\Events;
 
 use Adldap\Models\User;
 

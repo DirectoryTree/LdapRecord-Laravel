@@ -1,9 +1,9 @@
 <?php
 
-namespace Adldap\Laravel\Tests\Scopes;
+namespace LdapRecord\Laravel\Tests\Scopes;
 
 use Adldap\Query\Builder;
-use Adldap\Laravel\Scopes\ScopeInterface;
+use LdapRecord\Laravel\Scopes\ScopeInterface;
 
 class JohnDoeScope implements ScopeInterface
 {

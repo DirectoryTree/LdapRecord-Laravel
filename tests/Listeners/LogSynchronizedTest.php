@@ -1,14 +1,14 @@
 <?php
 
-namespace Adldap\Laravel\Tests\Listeners;
+namespace LdapRecord\Laravel\Tests\Listeners;
 
 use Mockery as m;
 use Adldap\Models\User;
-use Adldap\Laravel\Tests\TestCase;
+use LdapRecord\Laravel\Tests\TestCase;
 use Illuminate\Support\Facades\Log;
-use Adldap\Laravel\Events\Synchronized;
-use Adldap\Laravel\Tests\Models\TestUser;
-use Adldap\Laravel\Listeners\LogSynchronized;
+use LdapRecord\Laravel\Events\Synchronized;
+use LdapRecord\Laravel\Tests\Models\TestUser;
+use LdapRecord\Laravel\Listeners\LogSynchronized;
 
 class LogSynchronizedTest extends TestCase
 {

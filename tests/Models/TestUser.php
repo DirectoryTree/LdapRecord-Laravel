@@ -1,8 +1,8 @@
 <?php
 
-namespace Adldap\Laravel\Tests\Models;
+namespace LdapRecord\Laravel\Tests\Models;
 
-use Adldap\Laravel\Traits\HasLdapUser;
+use LdapRecord\Laravel\Traits\HasLdapUser;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 

@@ -1,13 +1,13 @@
 <?php
 
-namespace Adldap\Laravel\Tests;
+namespace LdapRecord\Laravel\Tests;
 
 use Mockery as m;
 use Adldap\Query\Builder;
-use Adldap\Laravel\Facades\Resolver;
-use Adldap\Laravel\Tests\Models\TestUser;
-use Adldap\Laravel\Validation\Rules\DenyTrashed;
-use Adldap\Laravel\Middleware\WindowsAuthenticate;
+use LdapRecord\Laravel\Facades\Resolver;
+use LdapRecord\Laravel\Tests\Models\TestUser;
+use LdapRecord\Laravel\Validation\Rules\DenyTrashed;
+use LdapRecord\Laravel\Middleware\WindowsAuthenticate;
 
 class WindowsAuthenticateTest extends DatabaseTestCase
 {

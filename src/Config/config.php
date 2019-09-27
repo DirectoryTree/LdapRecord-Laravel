@@ -54,21 +54,6 @@ return [
 
             /*
             |--------------------------------------------------------------------------
-            | Connection
-            |--------------------------------------------------------------------------
-            |
-            | The connection class to use to run raw LDAP operations on.
-            |
-            | Custom connection classes must implement:
-            |
-            |  Adldap\Connections\ConnectionInterface
-            |
-            */
-
-            'connection' => Adldap\Connections\Ldap::class,
-
-            /*
-            |--------------------------------------------------------------------------
             | Connection Settings
             |--------------------------------------------------------------------------
             |
@@ -79,55 +64,6 @@ return [
             */
 
             'settings' => [
-
-                /*
-                |--------------------------------------------------------------------------
-                | Schema
-                |--------------------------------------------------------------------------
-                |
-                | The schema class to use for retrieving attributes and generating models.
-                |
-                | You can also set this option to `null` to use the default schema class.
-                |
-                | For OpenLDAP, you must use the schema:
-                |
-                |   Adldap\Schemas\OpenLDAP::class
-                |
-                | For FreeIPA, you must use the schema:
-                |
-                |   Adldap\Schemas\FreeIPA::class
-                |
-                | Custom schema classes must implement Adldap\Schemas\SchemaInterface
-                |
-                */
-
-                'schema' => Adldap\Schemas\ActiveDirectory::class,
-
-                /*
-                |--------------------------------------------------------------------------
-                | Account Prefix
-                |--------------------------------------------------------------------------
-                |
-                | The account prefix option is the prefix of your user accounts in LDAP directory.
-                |
-                | This string is prepended to all authenticating users usernames.
-                |
-                */
-
-                'account_prefix' => env('LDAP_ACCOUNT_PREFIX', ''),
-
-                /*
-                |--------------------------------------------------------------------------
-                | Account Suffix
-                |--------------------------------------------------------------------------
-                |
-                | The account suffix option is the suffix of your user accounts in your LDAP directory.
-                |
-                | This string is appended to all authenticating users usernames.
-                |
-                */
-
-                'account_suffix' => env('LDAP_ACCOUNT_SUFFIX', ''),
 
                 /*
                 |--------------------------------------------------------------------------
@@ -200,22 +136,6 @@ return [
 
                 'username' => env('LDAP_USERNAME'),
                 'password' => env('LDAP_PASSWORD'),
-
-                /*
-                |--------------------------------------------------------------------------
-                | Follow Referrals
-                |--------------------------------------------------------------------------
-                |
-                | The follow referrals option is a boolean to tell active directory
-                | to follow a referral to another server on your network if the
-                | server queried knows the information your asking for exists,
-                | but does not yet contain a copy of it locally.
-                |
-                | This option is defaulted to false.
-                |
-                */
-
-                'follow_referrals' => false,
 
                 /*
                 |--------------------------------------------------------------------------

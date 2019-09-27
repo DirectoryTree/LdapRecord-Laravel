@@ -1,13 +1,13 @@
 <?php
 
-namespace Adldap\Laravel\Tests\Listeners;
+namespace LdapRecord\Laravel\Tests\Listeners;
 
 use Mockery as m;
 use Adldap\Models\User;
-use Adldap\Laravel\Tests\TestCase;
+use LdapRecord\Laravel\Tests\TestCase;
 use Illuminate\Support\Facades\Log;
-use Adldap\Laravel\Events\AuthenticationSuccessful;
-use Adldap\Laravel\Listeners\LogAuthenticationSuccess;
+use LdapRecord\Laravel\Events\AuthenticationSuccessful;
+use LdapRecord\Laravel\Listeners\LogAuthenticationSuccess;
 
 class LogAuthenticationSuccessTest extends TestCase
 {

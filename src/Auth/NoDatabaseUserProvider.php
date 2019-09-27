@@ -1,16 +1,16 @@
 <?php
 
-namespace Adldap\Laravel\Auth;
+namespace LdapRecord\Laravel\Auth;
 
-use Adldap\Laravel\Facades\Resolver;
 use Illuminate\Support\Facades\Event;
-use Adldap\Laravel\Traits\ValidatesUsers;
+use LdapRecord\Laravel\Facades\Resolver;
 use Illuminate\Contracts\Auth\UserProvider;
+use LdapRecord\Laravel\Traits\ValidatesUsers;
 use Illuminate\Contracts\Auth\Authenticatable;
-use Adldap\Laravel\Events\AuthenticationRejected;
-use Adldap\Laravel\Events\AuthenticationSuccessful;
-use Adldap\Laravel\Events\DiscoveredWithCredentials;
-use Adldap\Laravel\Events\AuthenticatedWithCredentials;
+use LdapRecord\Laravel\Events\AuthenticationRejected;
+use LdapRecord\Laravel\Events\AuthenticationSuccessful;
+use LdapRecord\Laravel\Events\DiscoveredWithCredentials;
+use LdapRecord\Laravel\Events\AuthenticatedWithCredentials;
 
 class NoDatabaseUserProvider implements UserProvider
 {

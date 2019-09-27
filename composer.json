@@ -1,12 +1,12 @@
 {
-    "name": "adldap2/adldap2-laravel",
+    "name": "directorytree/ldaprecord-laravel",
     "description": "LDAP Authentication & Management for Laravel.",
-    "keywords": ["adldap", "adldap2", "ldap", "laravel"],
+    "keywords": ["ldaprecord", "adldap2", "ldap", "laravel"],
     "license": "MIT",
     "type": "project",
     "require": {
         "php": ">=7.1",
-        "adldap2/adldap2": "^10.1",
+        "directorytree/ldaprecord": "*",
         "illuminate/support": "~5.5|~6.0"
     },
     "require-dev": {
@@ -19,23 +19,20 @@
     },
     "autoload": {
         "psr-4": {
-            "Adldap\\Laravel\\": "src/"
+            "LdapRecord\\Laravel\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Adldap\\Laravel\\Tests\\": "tests/"
+            "LdapRecord\\Laravel\\Tests\\": "tests/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Adldap\\Laravel\\AdldapServiceProvider",
-                "Adldap\\Laravel\\AdldapAuthServiceProvider"
-            ],
-            "aliases": {
-                "Adldap": "Adldap\\Laravel\\Facades\\Adldap"
-            }
+                "LdapRecord\\Laravel\\LdapRecordServiceProvider",
+                "LdapRecord\\Laravel\\LdapRecordAuthServiceProvider"
+            ]
         }
     }
 }

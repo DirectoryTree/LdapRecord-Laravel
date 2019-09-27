@@ -1,15 +1,15 @@
 <?php
 
-namespace Adldap\Laravel\Tests;
+namespace LdapRecord\Laravel\Tests;
 
 use Adldap\Connections\Ldap;
-use Adldap\Laravel\Facades\Adldap;
+use LdapRecord\Laravel\Facades\Adldap;
 use Adldap\Schemas\ActiveDirectory;
 use Illuminate\Support\Facades\Hash;
-use Adldap\Laravel\AdldapServiceProvider;
-use Adldap\Laravel\Tests\Models\TestUser;
-use Adldap\Laravel\AdldapAuthServiceProvider;
-use Adldap\Laravel\Auth\DatabaseUserProvider;
+use LdapRecord\Laravel\LdapRecordServiceProvider;
+use LdapRecord\Laravel\Tests\Models\TestUser;
+use LdapRecord\Laravel\LdapRecordAuthServiceProvider;
+use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 
 class TestCase extends BaseTestCase
@@ -26,8 +26,8 @@ class TestCase extends BaseTestCase
     protected function getPackageProviders($app)
     {
         return [
-            AdldapServiceProvider::class,
-            AdldapAuthServiceProvider::class,
+            LdapRecordServiceProvider::class,
+            LdapRecordAuthServiceProvider::class,
         ];
     }
 

@@ -1,16 +1,16 @@
 <?php
 
-namespace Adldap\Laravel\Validation\Rules;
+namespace LdapRecord\Laravel\Validation\Rules;
 
-use Adldap\Models\User;
 use Illuminate\Database\Eloquent\Model;
+use LdapRecord\Models\Model as LdapModel;
 
 abstract class Rule
 {
     /**
      * The LDAP user.
      *
-     * @var User
+     * @var LdapModel
      */
     protected $user;
 
@@ -24,10 +24,10 @@ abstract class Rule
     /**
      * Constructor.
      *
-     * @param User       $user
+     * @param LdapModel  $user
      * @param Model|null $model
      */
-    public function __construct(User $user, Model $model = null)
+    public function __construct(LdapModel $user, Model $model = null)
     {
         $this->user = $user;
         $this->model = $model;

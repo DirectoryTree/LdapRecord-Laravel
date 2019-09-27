@@ -1,23 +1,23 @@
 <?php
 
-namespace Adldap\Laravel\Traits;
+namespace LdapRecord\Laravel\Traits;
 
-use Adldap\Models\User;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Database\Eloquent\Model;
-use Adldap\Laravel\Validation\Validator;
+use LdapRecord\Models\Model as LdapModel;
+use LdapRecord\Laravel\Validation\Validator;
 
 trait ValidatesUsers
 {
     /**
      * Determines if the model passes validation.
      *
-     * @param User  $user
-     * @param Model $model
+     * @param LdapModel  $user
+     * @param Model      $model
      *
      * @return bool
      */
-    protected function passesValidation(User $user, Model $model = null)
+    protected function passesValidation(LdapModel $user, Model $model = null)
     {
         return (new Validator(
             $this->rules($user, $model)
@@ -27,12 +27,12 @@ trait ValidatesUsers
     /**
      * Returns an array of constructed rules.
      *
-     * @param User       $user
+     * @param LdapModel  $user
      * @param Model|null $model
      *
      * @return array
      */
-    protected function rules(User $user, Model $model = null)
+    protected function rules(LdapModel $user, Model $model = null)
     {
         $rules = [];
 

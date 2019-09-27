@@ -1,8 +1,8 @@
 <?php
 
-namespace Adldap\Laravel\Validation;
+namespace LdapRecord\Laravel\Validation;
 
-use Adldap\Laravel\Validation\Rules\Rule;
+use LdapRecord\Laravel\Validation\Rules\Rule;
 
 class Validator
 {

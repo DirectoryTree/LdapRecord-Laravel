@@ -1,6 +1,6 @@
 <?php
 
-namespace Adldap\Laravel\Commands\Console;
+namespace LdapRecord\Laravel\Commands\Console;
 
 use Exception;
 use RuntimeException;
@@ -8,14 +8,14 @@ use Adldap\Models\User;
 use Illuminate\Support\Arr;
 use UnexpectedValueException;
 use Illuminate\Console\Command;
-use Adldap\Laravel\Events\Imported;
+use LdapRecord\Laravel\Events\Imported;
 use Illuminate\Support\Facades\Bus;
-use Adldap\Laravel\Facades\Resolver;
+use LdapRecord\Laravel\Facades\Resolver;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Database\Eloquent\Model;
-use Adldap\Laravel\Commands\SyncPassword;
-use Adldap\Laravel\Commands\Import as ImportUser;
+use LdapRecord\Laravel\Commands\SyncPassword;
+use LdapRecord\Laravel\Commands\Import as ImportUser;
 
 class Import extends Command
 {

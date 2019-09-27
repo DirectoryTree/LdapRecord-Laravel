@@ -33,7 +33,7 @@ return [
     |
     */
 
-    'provider' => Adldap\Laravel\Auth\DatabaseUserProvider::class,
+    'provider' => LdapRecord\Laravel\Auth\DatabaseUserProvider::class,
 
     /*
     |--------------------------------------------------------------------------
@@ -67,7 +67,7 @@ return [
 
         // Denys deleted users from authenticating.
 
-        Adldap\Laravel\Validation\Rules\DenyTrashed::class,
+        LdapRecord\Laravel\Validation\Rules\DenyTrashed::class,
 
         // Allows only manually imported users to authenticate.
 
@@ -321,17 +321,17 @@ return [
 
         'events' => [
 
-            \Adldap\Laravel\Events\Importing::class                 => \Adldap\Laravel\Listeners\LogImport::class,
-            \Adldap\Laravel\Events\Synchronized::class              => \Adldap\Laravel\Listeners\LogSynchronized::class,
-            \Adldap\Laravel\Events\Synchronizing::class             => \Adldap\Laravel\Listeners\LogSynchronizing::class,
-            \Adldap\Laravel\Events\Authenticated::class             => \Adldap\Laravel\Listeners\LogAuthenticated::class,
-            \Adldap\Laravel\Events\Authenticating::class            => \Adldap\Laravel\Listeners\LogAuthentication::class,
-            \Adldap\Laravel\Events\AuthenticationFailed::class      => \Adldap\Laravel\Listeners\LogAuthenticationFailure::class,
-            \Adldap\Laravel\Events\AuthenticationRejected::class    => \Adldap\Laravel\Listeners\LogAuthenticationRejection::class,
-            \Adldap\Laravel\Events\AuthenticationSuccessful::class  => \Adldap\Laravel\Listeners\LogAuthenticationSuccess::class,
-            \Adldap\Laravel\Events\DiscoveredWithCredentials::class => \Adldap\Laravel\Listeners\LogDiscovery::class,
-            \Adldap\Laravel\Events\AuthenticatedWithWindows::class  => \Adldap\Laravel\Listeners\LogWindowsAuth::class,
-            \Adldap\Laravel\Events\AuthenticatedModelTrashed::class => \Adldap\Laravel\Listeners\LogTrashedModel::class,
+            \LdapRecord\Laravel\Events\Importing::class                 => \LdapRecord\Laravel\Listeners\LogImport::class,
+            \LdapRecord\Laravel\Events\Synchronized::class              => \LdapRecord\Laravel\Listeners\LogSynchronized::class,
+            \LdapRecord\Laravel\Events\Synchronizing::class             => \LdapRecord\Laravel\Listeners\LogSynchronizing::class,
+            \LdapRecord\Laravel\Events\Authenticated::class             => \LdapRecord\Laravel\Listeners\LogAuthenticated::class,
+            \LdapRecord\Laravel\Events\Authenticating::class            => \LdapRecord\Laravel\Listeners\LogAuthentication::class,
+            \LdapRecord\Laravel\Events\AuthenticationFailed::class      => \LdapRecord\Laravel\Listeners\LogAuthenticationFailure::class,
+            \LdapRecord\Laravel\Events\AuthenticationRejected::class    => \LdapRecord\Laravel\Listeners\LogAuthenticationRejection::class,
+            \LdapRecord\Laravel\Events\AuthenticationSuccessful::class  => \LdapRecord\Laravel\Listeners\LogAuthenticationSuccess::class,
+            \LdapRecord\Laravel\Events\DiscoveredWithCredentials::class => \LdapRecord\Laravel\Listeners\LogDiscovery::class,
+            \LdapRecord\Laravel\Events\AuthenticatedWithWindows::class  => \LdapRecord\Laravel\Listeners\LogWindowsAuth::class,
+            \LdapRecord\Laravel\Events\AuthenticatedModelTrashed::class => \LdapRecord\Laravel\Listeners\LogTrashedModel::class,
 
         ],
     ],

@@ -1,22 +1,22 @@
 <?php
 
-namespace Adldap\Laravel\Auth;
+namespace LdapRecord\Laravel\Auth;
 
-use Adldap\Models\User;
-use Adldap\Laravel\Commands\Import;
-use Adldap\Laravel\Events\Imported;
+use LdapRecord\Models\Model;
+use LdapRecord\Laravel\Commands\Import;
+use LdapRecord\Laravel\Events\Imported;
 use Illuminate\Support\Facades\Bus;
-use Adldap\Laravel\Facades\Resolver;
+use LdapRecord\Laravel\Facades\Resolver;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Config;
-use Adldap\Laravel\Commands\SyncPassword;
-use Adldap\Laravel\Traits\ValidatesUsers;
+use LdapRecord\Laravel\Commands\SyncPassword;
+use LdapRecord\Laravel\Traits\ValidatesUsers;
 use Illuminate\Auth\EloquentUserProvider;
 use Illuminate\Contracts\Auth\Authenticatable;
-use Adldap\Laravel\Events\AuthenticationRejected;
-use Adldap\Laravel\Events\AuthenticationSuccessful;
-use Adldap\Laravel\Events\DiscoveredWithCredentials;
-use Adldap\Laravel\Events\AuthenticatedWithCredentials;
+use LdapRecord\Laravel\Events\AuthenticationRejected;
+use LdapRecord\Laravel\Events\AuthenticationSuccessful;
+use LdapRecord\Laravel\Events\DiscoveredWithCredentials;
+use LdapRecord\Laravel\Events\AuthenticatedWithCredentials;
 
 class DatabaseUserProvider extends EloquentUserProvider
 {
@@ -25,7 +25,7 @@ class DatabaseUserProvider extends EloquentUserProvider
     /**
      * The currently authenticated LDAP user.
      *
-     * @var User|null
+     * @var Model|null
      */
     protected $user;
 
@@ -37,7 +37,7 @@ class DatabaseUserProvider extends EloquentUserProvider
         // Retrieve the LDAP user who is authenticating.
         $user = Resolver::byCredentials($credentials);
 
-        if ($user instanceof User) {
+        if ($user instanceof Model) {
             // Set the currently authenticating LDAP user.
             $this->user = $user;
 
@@ -59,7 +59,7 @@ class DatabaseUserProvider extends EloquentUserProvider
      */
     public function validateCredentials(Authenticatable $model, array $credentials)
     {
-        if ($this->user instanceof User) {
+        if ($this->user instanceof Model) {
             // If an LDAP user was discovered, we can go
             // ahead and try to authenticate them.
             if (Resolver::authenticate($this->user, $credentials)) {

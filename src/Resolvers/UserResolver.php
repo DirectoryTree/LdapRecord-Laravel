@@ -1,46 +1,31 @@
 <?php
 
-namespace Adldap\Laravel\Resolvers;
+namespace LdapRecord\Laravel\Resolvers;
 
 use RuntimeException;
-use Adldap\Models\User;
-use Adldap\Query\Builder;
-use Adldap\AdldapInterface;
+use LdapRecord\Container;
 use Illuminate\Support\Arr;
+use LdapRecord\Models\Model;
+use LdapRecord\ConnectionInterface;
+use LdapRecord\Query\Model\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Config;
-use Adldap\Laravel\Events\Authenticated;
-use Adldap\Connections\ProviderInterface;
-use Adldap\Laravel\Events\Authenticating;
 use Illuminate\Contracts\Auth\UserProvider;
+use LdapRecord\Laravel\Events\Authenticated;
+use LdapRecord\Laravel\Events\Authenticating;
 use Illuminate\Contracts\Auth\Authenticatable;
-use Adldap\Laravel\Auth\NoDatabaseUserProvider;
-use Adldap\Laravel\Events\AuthenticationFailed;
+use LdapRecord\Laravel\Auth\NoDatabaseUserProvider;
+use LdapRecord\Laravel\Events\AuthenticationFailed;
 
 class UserResolver implements ResolverInterface
 {
-    /**
-     * The Adldap instance.
-     *
-     * @var AdldapInterface
-     */
-    protected $ldap;
-
     /**
      * The name of the LDAP connection to utilize.
      *
      * @var string|null
      */
     protected $connection;
-
-    /**
-     * {@inheritdoc}
-     */
-    public function __construct(AdldapInterface $ldap)
-    {
-        $this->ldap = $ldap;
-    }
 
     /**
      * {@inheritdoc}
@@ -99,24 +84,21 @@ class UserResolver implements ResolverInterface
     /**
      * {@inheritdoc}
      */
-    public function authenticate(User $user, array $credentials = [])
+    public function authenticate(Model $user, array $credentials = [])
     {
         $attribute = $this->getLdapAuthAttribute();
 
-        // If the developer has inserted 'dn' as their LDAP
-        // authentication attribute, we'll convert it to
-        // the full attribute name for convenience.
-        if ($attribute == 'dn') {
-            $attribute = $user->getSchema()->distinguishedName();
+        if (in_array($attribute, ['dn', 'distinguishedname'])) {
+            $username = $user->getDn();
+        } else {
+            $username = $user->getFirstAttribute($attribute);
         }
-
-        $username = $user->getFirstAttribute($attribute);
 
         $password = $this->getPasswordFromCredentials($credentials);
 
         Event::dispatch(new Authenticating($user, $username));
 
-        if ($this->getLdapAuthProvider()->auth()->attempt($username, $password)) {
+        if ($this->getLdapConnection()->auth()->attempt($username, $password)) {
             Event::dispatch(new Authenticated($user));
 
             return true;
@@ -132,7 +114,7 @@ class UserResolver implements ResolverInterface
      */
     public function query() : Builder
     {
-        $query = $this->getLdapAuthProvider()->search()->users();
+        $query = $this->getLdapConnection()->search()->users();
 
         // We will ensure our object GUID attribute is always selected
         // along will all attributes. Otherwise, if the object GUID
@@ -195,13 +177,13 @@ class UserResolver implements ResolverInterface
     /**
      * Retrieves the provider for the current connection.
      *
-     * @throws \Adldap\AdldapException
+     * @throws \LdapRecord\ContainerException
      *
-     * @return ProviderInterface
+     * @return ConnectionInterface
      */
-    protected function getLdapAuthProvider() : ProviderInterface
+    protected function getLdapConnection() : ConnectionInterface
     {
-        return $this->ldap->getProvider($this->connection ?? $this->getLdapAuthConnectionName());
+        return  Container::getInstance()->get($this->connection ?? $this->getLdapAuthConnectionName());
     }
 
     /**

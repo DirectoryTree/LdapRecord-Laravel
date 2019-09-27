@@ -1,6 +1,6 @@
 <?php
 
-namespace Adldap\Laravel\Scopes;
+namespace LdapRecord\Laravel\Scopes;
 
 use Adldap\Query\Builder;
 

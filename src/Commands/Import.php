@@ -1,16 +1,16 @@
 <?php
 
-namespace Adldap\Laravel\Commands;
+namespace LdapRecord\Laravel\Commands;
 
 use Adldap\Models\User;
 use UnexpectedValueException;
-use Adldap\Laravel\Events\Importing;
-use Adldap\Laravel\Facades\Resolver;
+use LdapRecord\Laravel\Events\Importing;
+use LdapRecord\Laravel\Facades\Resolver;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Config;
-use Adldap\Laravel\Events\Synchronized;
+use LdapRecord\Laravel\Events\Synchronized;
 use Illuminate\Database\Eloquent\Model;
-use Adldap\Laravel\Events\Synchronizing;
+use LdapRecord\Laravel\Events\Synchronizing;
 
 class Import
 {

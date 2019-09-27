@@ -1,11 +1,11 @@
 <?php
 
-namespace Adldap\Laravel\Tests;
+namespace LdapRecord\Laravel\Tests;
 
 use Mockery as m;
 use Adldap\Models\User as LdapUser;
-use Adldap\Laravel\Traits\HasLdapUser;
-use Adldap\Laravel\Tests\Models\TestUser as EloquentUser;
+use LdapRecord\Laravel\Traits\HasLdapUser;
+use LdapRecord\Laravel\Tests\Models\TestUser as EloquentUser;
 
 class HasLdapUserTest extends TestCase
 {

@@ -12,8 +12,8 @@ namespace Tests\Feature;
 
 use App\User;
 use Tests\TestCase;
-use Adldap\Laravel\Facades\Adldap;
-use Adldap\Laravel\Facades\Resolver;
+use LdapRecord\Laravel\Facades\Adldap;
+use LdapRecord\Laravel\Facades\Resolver;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Testing\WithFaker;
 

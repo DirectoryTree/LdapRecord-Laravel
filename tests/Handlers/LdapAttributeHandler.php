@@ -1,6 +1,6 @@
 <?php
 
-namespace Adldap\Laravel\Tests\Handlers;
+namespace LdapRecord\Laravel\Tests\Handlers;
 
 use Adldap\Models\User;
 use Illuminate\Database\Eloquent\Model;

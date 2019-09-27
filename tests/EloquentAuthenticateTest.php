@@ -1,11 +1,11 @@
 <?php
 
-namespace Adldap\Laravel\Tests;
+namespace LdapRecord\Laravel\Tests;
 
-use Adldap\Laravel\Commands\Import;
-use Adldap\Laravel\Facades\Resolver;
+use LdapRecord\Laravel\Commands\Import;
+use LdapRecord\Laravel\Facades\Resolver;
 use Illuminate\Support\Facades\Auth;
-use Adldap\Laravel\Tests\Models\TestUser;
+use LdapRecord\Laravel\Tests\Models\TestUser;
 
 class EloquentAuthenticateTest extends DatabaseTestCase
 {

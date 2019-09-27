@@ -1,21 +1,13 @@
 <?php
 
-namespace Adldap\Laravel\Resolvers;
+namespace LdapRecord\Laravel\Resolvers;
 
-use Adldap\Models\User;
-use Adldap\Query\Builder;
-use Adldap\AdldapInterface;
+use LdapRecord\Models\Model;
+use LdapRecord\Query\Model\Builder;
 use Illuminate\Contracts\Auth\Authenticatable;
 
 interface ResolverInterface
 {
-    /**
-     * Constructor.
-     *
-     * @param AdldapInterface $ldap
-     */
-    public function __construct(AdldapInterface $ldap);
-
     /**
      * Sets the LDAP connection to use.
      *
@@ -30,7 +22,7 @@ interface ResolverInterface
      *
      * @param string $identifier The users object GUID.
      *
-     * @return \Adldap\Models\Model|null
+     * @return Model|null
      */
     public function byId($identifier);
 
@@ -39,7 +31,7 @@ interface ResolverInterface
      *
      * @param array $credentials The users credentials
      *
-     * @return \Adldap\Models\User|null
+     * @return Model|null
      */
     public function byCredentials(array $credentials = []);
 
@@ -48,24 +40,24 @@ interface ResolverInterface
      *
      * @param Authenticatable $model The users eloquent model
      *
-     * @return \Adldap\Models\User|null
+     * @return Model|null
      */
     public function byModel(Authenticatable $model);
 
     /**
      * Authenticates the user against the current provider.
      *
-     * @param User  $user        The LDAP users model
+     * @param Model $user        The LDAP users model
      * @param array $credentials The LDAP users credentials
      *
      * @return bool
      */
-    public function authenticate(User $user, array $credentials = []);
+    public function authenticate(Model $user, array $credentials = []);
 
     /**
      * Returns a new user query.
      *
-     * @return \Adldap\Query\Builder
+     * @return Builder
      */
     public function query() : Builder;
 

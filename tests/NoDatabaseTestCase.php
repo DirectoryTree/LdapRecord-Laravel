@@ -1,10 +1,10 @@
 <?php
 
-namespace Adldap\Laravel\Tests;
+namespace LdapRecord\Laravel\Tests;
 
 use Adldap\Connections\Ldap;
 use Adldap\Schemas\ActiveDirectory;
-use Adldap\Laravel\Auth\NoDatabaseUserProvider;
+use LdapRecord\Laravel\Auth\NoDatabaseUserProvider;
 
 class NoDatabaseTestCase extends TestCase
 {

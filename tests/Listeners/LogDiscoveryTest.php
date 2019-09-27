@@ -1,13 +1,13 @@
 <?php
 
-namespace Adldap\Laravel\Tests\Listeners;
+namespace LdapRecord\Laravel\Tests\Listeners;
 
 use Mockery as m;
 use Adldap\Models\User;
-use Adldap\Laravel\Tests\TestCase;
+use LdapRecord\Laravel\Tests\TestCase;
 use Illuminate\Support\Facades\Log;
-use Adldap\Laravel\Listeners\LogDiscovery;
-use Adldap\Laravel\Events\DiscoveredWithCredentials;
+use LdapRecord\Laravel\Listeners\LogDiscovery;
+use LdapRecord\Laravel\Events\DiscoveredWithCredentials;
 
 class LogDiscoveryTest extends TestCase
 {

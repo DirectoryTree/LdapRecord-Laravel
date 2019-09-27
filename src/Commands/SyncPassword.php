@@ -1,6 +1,6 @@
 <?php
 
-namespace Adldap\Laravel\Commands;
+namespace LdapRecord\Laravel\Commands;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;

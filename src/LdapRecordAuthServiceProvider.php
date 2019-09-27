@@ -1,9 +1,8 @@
 <?php
 
-namespace Adldap\Laravel;
+namespace LdapRecord\Laravel;
 
 use RuntimeException;
-use Adldap\AdldapInterface;
 use Illuminate\Support\Arr;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\Auth;
@@ -12,12 +11,12 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Contracts\Hashing\Hasher;
 use Illuminate\Auth\Events\Authenticated;
-use Adldap\Laravel\Resolvers\UserResolver;
-use Adldap\Laravel\Commands\Console\Import;
-use Adldap\Laravel\Auth\DatabaseUserProvider;
-use Adldap\Laravel\Resolvers\ResolverInterface;
+use LdapRecord\Laravel\Resolvers\UserResolver;
+use LdapRecord\Laravel\Commands\Console\Import;
+use LdapRecord\Laravel\Auth\DatabaseUserProvider;
+use LdapRecord\Laravel\Resolvers\ResolverInterface;
 
-class AdldapAuthServiceProvider extends ServiceProvider
+class LdapRecordAuthServiceProvider extends ServiceProvider
 {
     /**
      * Run service provider boot operations.
@@ -61,7 +60,7 @@ class AdldapAuthServiceProvider extends ServiceProvider
         // model to their Eloquent model upon authentication (if configured).
         // This allows us to utilize their LDAP model right
         // after authentication has passed.
-        Event::listen([Login::class, Authenticated::class], Listeners\BindsLdapUserModel::class);
+        Event::listen([Login::class, Authenticated::class], LdapRecord\Laravel\Listeners\BindsLdapUserModel::class);
 
         if ($this->isLogging()) {
             // If logging is enabled, we will set up our event listeners that
@@ -73,7 +72,7 @@ class AdldapAuthServiceProvider extends ServiceProvider
     }
 
     /**
-     * Returns a new Adldap user provider.
+     * Make a new LDAP user provider.
      *
      * @param Hasher $hasher
      * @param array  $config

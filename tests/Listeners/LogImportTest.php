@@ -1,14 +1,14 @@
 <?php
 
-namespace Adldap\Laravel\Tests\Listeners;
+namespace LdapRecord\Laravel\Tests\Listeners;
 
 use Mockery as m;
 use Adldap\Models\User;
-use Adldap\Laravel\Tests\TestCase;
+use LdapRecord\Laravel\Tests\TestCase;
 use Illuminate\Support\Facades\Log;
-use Adldap\Laravel\Events\Importing;
-use Adldap\Laravel\Listeners\LogImport;
-use Adldap\Laravel\Tests\Models\TestUser;
+use LdapRecord\Laravel\Events\Importing;
+use LdapRecord\Laravel\Listeners\LogImport;
+use LdapRecord\Laravel\Tests\Models\TestUser;
 
 class LogImportTest extends TestCase
 {

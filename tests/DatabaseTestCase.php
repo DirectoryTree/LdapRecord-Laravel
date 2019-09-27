@@ -1,6 +1,6 @@
 <?php
 
-namespace Adldap\Laravel\Tests;
+namespace LdapRecord\Laravel\Tests;
 
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;

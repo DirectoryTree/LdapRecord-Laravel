@@ -1,12 +1,12 @@
 <?php
 
-namespace Adldap\Laravel\Listeners;
+namespace LdapRecord\Laravel\Listeners;
 
-use Adldap\Laravel\Facades\Resolver;
 use Illuminate\Support\Facades\Auth;
-use Adldap\Laravel\Traits\HasLdapUser;
-use Adldap\Laravel\Auth\DatabaseUserProvider;
+use LdapRecord\Laravel\Facades\Resolver;
+use LdapRecord\Laravel\Traits\HasLdapUser;
 use Illuminate\Contracts\Auth\Authenticatable;
+use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 
 class BindsLdapUserModel
 {

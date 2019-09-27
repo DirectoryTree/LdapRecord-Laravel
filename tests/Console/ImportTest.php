@@ -1,13 +1,13 @@
 <?php
 
-namespace Adldap\Laravel\Tests\Console;
+namespace LdapRecord\Laravel\Tests\Console;
 
 use Mockery as m;
 use Adldap\Query\Builder;
-use Adldap\Laravel\Facades\Resolver;
+use LdapRecord\Laravel\Facades\Resolver;
 use Illuminate\Support\Facades\Hash;
-use Adldap\Laravel\Tests\Models\TestUser;
-use Adldap\Laravel\Tests\DatabaseTestCase;
+use LdapRecord\Laravel\Tests\Models\TestUser;
+use LdapRecord\Laravel\Tests\DatabaseTestCase;
 use Adldap\Models\Attributes\AccountControl;
 
 class ImportTest extends DatabaseTestCase

@@ -1,6 +1,6 @@
 <?php
 
-namespace Adldap\Laravel\Traits;
+namespace LdapRecord\Laravel\Traits;
 
 use Adldap\Models\User;
 
