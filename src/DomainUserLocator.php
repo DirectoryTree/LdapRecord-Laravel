@@ -125,8 +125,12 @@ class DomainUserLocator
      */
     protected function getNewLdapModel()
     {
-        $model = $this->domain->getLdapModel();
+        $modelClass = $this->domain->getLdapModel();
 
-        return new $model;
+        /** @var \LdapRecord\Models\Model $model */
+        $model = new $modelClass;
+        $model->setConnection($this->domain->getName());
+
+        return $model;
     }
 }
