@@ -60,10 +60,32 @@ class DomainRegistrar
      * @param string|null $name
      *
      * @return Domain|Domain[]
+     *
+     * @throws RegistrarException
      */
     public function get($name = null)
     {
-        return $name ? $this->domains[$name] : $this->domains;
+        if (is_null($name)) {
+            return $this->domains;
+        }
+
+        if (!$this->exists($name)) {
+            throw new RegistrarException("Domain '$name' does not exist.");
+        }
+
+        return $this->domains[$name];
+    }
+
+    /**
+     * Determine if the domain exists in the registrar.
+     *
+     * @param string $name
+     *
+     * @return bool
+     */
+    public function exists($name)
+    {
+        return array_key_exists($name, $this->domains);
     }
 
     /**
