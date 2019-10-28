@@ -2,9 +2,9 @@
 
 namespace LdapRecord\Laravel\Listeners;
 
-use Illuminate\Support\Facades\Auth;
+use LdapRecord\Laravel\DomainRegistrar;
 use LdapRecord\Laravel\Traits\HasLdapUser;
-use Illuminate\Contracts\Auth\Authenticatable;
+use LdapRecord\Laravel\Auth\LdapAuthenticatable;
 
 class BindsLdapUserModel
 {
@@ -17,42 +17,24 @@ class BindsLdapUserModel
      */
     public function handle($event)
     {
-        $guard = null;
+        if ($event->user instanceof LdapAuthenticatable && $this->canBind($event->user)) {
+            /** @var \LdapRecord\Laravel\Domain $domain */
+            $domain = app(DomainRegistrar::class)->get($event->user->getLdapDomain());
 
-        // We'll retrieve the auth guard if available.
-        if (property_exists($event, 'guard')) {
-            $guard = $event->guard;
-        }
-
-        // Before we bind the users LDAP model, we will verify they are using
-        // the Adldap authentication provider, and the required trait.
-        if ($this->isUsingAdldapProvider($guard) && $this->canBind($event->user)) {
             $event->user->setLdapUser(
-                Resolver::byModel($event->user)
+                $domain->locate()->byModel($event->user)
             );
         }
     }
 
     /**
-     * Determines if the Auth Provider is an instance of the Adldap Provider.
-     *
-     * @param string|null $guard
-     *
-     * @return bool
-     */
-    protected function isUsingAdldapProvider($guard = null) : bool
-    {
-        return Auth::guard($guard)->getProvider() instanceof LdapUserProvider;
-    }
-
-    /**
      * Determines if we're able to bind to the user.
      *
-     * @param Authenticatable $user
+     * @param LdapAuthenticatable $user
      *
      * @return bool
      */
-    protected function canBind(Authenticatable $user) : bool
+    protected function canBind(LdapAuthenticatable $user): bool
     {
         return array_key_exists(HasLdapUser::class, class_uses_recursive($user)) && is_null($user->ldap);
     }
