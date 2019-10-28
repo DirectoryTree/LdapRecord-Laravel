@@ -1,3 +1,7 @@
+build:
+  tests:
+    override:
+      command: "php -v"
 filter:
     excluded_paths:
         - tests/*
