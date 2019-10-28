@@ -40,7 +40,7 @@ class DomainRegistrar
                 try {
                     $connection->connect();
                 } catch (LdapRecordException $ex) {
-                    if (config('ldap.logging', false)) {
+                    if (config('ldap.logging.enabled', false)) {
                         logger()->error($ex->getMessage());
                     }
                 }

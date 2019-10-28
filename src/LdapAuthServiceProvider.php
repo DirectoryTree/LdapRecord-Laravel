@@ -22,14 +22,6 @@ class LdapAuthServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        if ($this->app->runningInConsole()) {
-            $config = __DIR__.'/Config/auth.php';
-
-            $this->publishes([
-                $config => config_path('ldap_auth.php'),
-            ]);
-        }
-
         // Register the import command.
         $this->commands(Import::class);
 
@@ -73,7 +65,7 @@ class LdapAuthServiceProvider extends ServiceProvider
      */
     protected function isLogging()
     {
-        return Config::get('ldap_auth.logging.enabled', false);
+        return Config::get('ldap.logging.enabled', false);
     }
 
     /**
@@ -83,6 +75,6 @@ class LdapAuthServiceProvider extends ServiceProvider
      */
     protected function getLoggingEvents()
     {
-        return Config::get('ldap_auth.logging.events', []);
+        return Config::get('ldap.logging.events', []);
     }
 }

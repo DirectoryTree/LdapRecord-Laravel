@@ -63,7 +63,7 @@ class LdapServiceProvider extends ServiceProvider
      */
     protected function isLogging()
     {
-        return config('ldap.logging', false);
+        return config('ldap.logging.enabled', false);
     }
 
     /**
