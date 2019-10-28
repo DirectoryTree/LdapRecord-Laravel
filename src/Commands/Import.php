@@ -4,14 +4,12 @@ namespace LdapRecord\Laravel\Commands;
 
 use Exception;
 use RuntimeException;
-use Illuminate\Support\Arr;
-use UnexpectedValueException;
-use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Config;
-use Illuminate\Database\Eloquent\Model;
+use LdapRecord\Laravel\Domain;
+use LdapRecord\Laravel\DomainRegistrar;
 use LdapRecord\Laravel\Events\Imported;
 use LdapRecord\Models\Model as LdapModel;
+use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Model;
 
 class Import extends Command
 {
@@ -45,30 +43,30 @@ class Import extends Command
     /**
      * Execute the console command.
      *
-     * @throws RuntimeException
-     * @throws \LdapRecord\Models\ModelNotFoundException
+     * @param DomainRegistrar $registrar
      *
      * @return void
+     *
+     * @throws \LdapRecord\Models\ModelNotFoundException
      */
-    public function handle()
+    public function handle(DomainRegistrar $registrar)
     {
-        foreach (config('ldap.domains', []) as $domainClass) {
-            /** @var \LdapRecord\Laravel\Domain $domain */
-            $domain = app($domainClass);
+        $domainName = $this->argument('domain');
 
-            if ($domain->isUsingDatabase()) {
-                // Run Import.
-            }
+        $domain = $registrar->get($domainName);
+
+        if (! $domain->isUsingDatabase()) {
+            throw new RuntimeException("Domain '$domainName' is not configured for importing.");
         }
 
-        $users = $this->getUsers();
+        $users = $this->getUsers($domain);
 
         $count = count($users);
 
         if ($count === 0) {
             throw new RuntimeException('There were no users found to import.');
         } elseif ($count === 1) {
-            $this->info("Found user '{$users[0]->getCommonName()}'.");
+            $this->info("Found user '{$users[0]->getRdn()}'.");
         } else {
             $this->info("Found {$count} user(s).");
         }
@@ -84,7 +82,7 @@ class Import extends Command
             ! $this->input->isInteractive() ||
             $this->confirm('Would you like these users to be imported / synchronized?', $default = true)
         ) {
-            $imported = $this->import($users);
+            $imported = $this->import($domain, $users);
 
             $this->info("Successfully imported / synchronized {$imported} user(s).");
         } else {
@@ -92,35 +90,31 @@ class Import extends Command
         }
     }
 
-    protected function getDomainToImport()
-    {
-        foreach (config('ldap.domains') as $domainClass) {
-        }
-    }
-
     /**
      * Imports the specified users and returns the total
      * number of users successfully imported.
      *
-     * @param array $users
+     * @param Domain $domain
+     * @param array  $users
      *
      * @return int
      */
-    public function import(array $users = []) : int
+    public function import(Domain $domain, array $users = []) : int
     {
         $imported = 0;
 
         $this->output->progressStart(count($users));
 
+        $databaseModel = $domain->getDatabaseModel();
+
         /** @var LdapModel $user */
         foreach ($users as $user) {
             try {
-                // TODO: Get configured LDAP domains.
                 // Import the user and retrieve it's model.
-                $model = (new Importer())->run($user);
+                $model = $domain->importer()->run(new $databaseModel);
 
                 // Set the users password.
-                (new PasswordSync())->run($user);
+                $domain->passwordSynchronizer()->run($model);
 
                 // Save the returned model.
                 $this->save($user, $model);
@@ -207,14 +201,15 @@ class Import extends Command
     /**
      * Retrieves users to be imported.
      *
-     * @throws \LdapRecord\Models\ModelNotFoundException
+     * @param Domain $domain
      *
-     * @return array
+     * @return \LdapRecord\Models\Model[]
+     *
+     * @throws \LdapRecord\Models\ModelNotFoundException
      */
-    public function getUsers() : array
+    public function getUsers(Domain $domain) : array
     {
-        /** @var \Adldap\Query\Builder $query */
-        $query = Resolver::query();
+        $query = $domain->locate()->query();
 
         if ($filter = $this->option('filter')) {
             // If the filter option was given, we'll
@@ -223,38 +218,30 @@ class Import extends Command
         }
 
         if ($user = $this->argument('user')) {
-            $users = [$query->findOrFail($user)];
-        } else {
-            // Retrieve all users. We'll paginate our search in case we
-            // hit the 1000 record hard limit of active directory.
-            $users = $query->paginate()->getResults();
+            return [$query->findByAnrOrFail($user)];
         }
 
-        // We need to filter our results to make sure they are
-        // only users. In some cases, Contact models may be
-        // returned due the possibility of them
-        // existing in the same scope.
-        return array_filter($users, function ($user) {
-            return $user instanceof User;
-        });
+        // Retrieve all users. We'll paginate our search in case we
+        // hit the 1000 record hard limit of active directory.
+        return $query->paginate()->toArray();
     }
 
     /**
      * Saves the specified user with its model.
      *
-     * @param User  $user
-     * @param Model $model
+     * @param LdapModel $user
+     * @param Model     $model
      *
      * @return bool
      */
-    protected function save(User $user, Model $model) : bool
+    protected function save(LdapModel $user, Model $model) : bool
     {
         if ($model->save() && $model->wasRecentlyCreated) {
-            Event::dispatch(new Imported($user, $model));
+            event(new Imported($user, $model));
 
             // Log the successful import.
             if ($this->isLogging()) {
-                logger()->info("Imported user {$user->getCommonName()}");
+                logger()->info("Imported user {$user->getRdn()}");
             }
 
             return true;
@@ -266,12 +253,12 @@ class Import extends Command
     /**
      * Restores soft-deleted models if their LDAP account is enabled.
      *
-     * @param User  $user
-     * @param Model $model
+     * @param LdapModel $user
+     * @param Model     $model
      *
      * @return void
      */
-    protected function restore(User $user, Model $model)
+    protected function restore(LdapModel $user, Model $model)
     {
         if (
             $this->isUsingSoftDeletes($model) &&
@@ -284,9 +271,7 @@ class Import extends Command
             $model->restore();
 
             if ($this->isLogging()) {
-                $type = get_class($user->getSchema());
-
-                logger()->info("Restored user {$user->getCommonName()}. Their {$type} user account has been re-enabled.");
+                logger()->info("Restored user {$user->getRdn()}. Their user account has been re-enabled.");
             }
         }
     }
@@ -294,14 +279,14 @@ class Import extends Command
     /**
      * Soft deletes the specified model if their LDAP account is disabled.
      *
-     * @param User  $user
-     * @param Model $model
+     * @param LdapModel $user
+     * @param Model     $model
      *
      * @throws Exception
      *
      * @return void
      */
-    protected function delete(User $user, Model $model)
+    protected function delete(LdapModel $user, Model $model)
     {
         if (
             $this->isUsingSoftDeletes($model) &&
@@ -314,50 +299,9 @@ class Import extends Command
             $model->delete();
 
             if ($this->isLogging()) {
-                $type = get_class($user->getSchema());
-
-                logger()->info("Soft-deleted user {$user->getCommonName()}. Their {$type} user account is disabled.");
+                logger()->info("Soft-deleted user {$user->getRdn()}. Their user account is disabled.");
             }
         }
-    }
-
-    /**
-     * Set and create a new instance of the eloquent model to use.
-     *
-     * @return Model
-     */
-    protected function model() : Model
-    {
-        if (! $this->model) {
-            $this->model = $this->option('model') ?? Config::get('ldap_auth.model') ?: $this->determineModel();
-        }
-
-        return new $this->model();
-    }
-
-    /**
-     * Retrieves the model by checking the configured LDAP authentication providers.
-     *
-     * @throws UnexpectedValueException
-     *
-     * @return string
-     */
-    protected function determineModel()
-    {
-        // Retrieve all of the configured authentication providers that
-        // use the LDAP driver and have a configured model.
-        $providers = Arr::where(Config::get('auth.providers'), function ($value, $key) {
-            return $value['driver'] == 'ldap' && array_key_exists('model', $value);
-        });
-
-        // Pull the first driver and return a new model instance.
-        if ($ldap = reset($providers)) {
-            return $ldap['model'];
-        }
-
-        throw new UnexpectedValueException(
-            'Unable to retrieve LDAP authentication driver. Did you forget to configure it?'
-        );
     }
 
     /**
