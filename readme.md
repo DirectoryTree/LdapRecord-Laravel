@@ -1,25 +1,24 @@
-<h1 align="center">Adldap2 - Laravel</h1>
+<h1 align="center">LdapRecord - Laravel</h1>
 
 <p align="center">
     <a href="https://laravel.com"><img src="https://img.shields.io/badge/Built_for-Laravel-green.svg?style=flat-square"></a>
-    <a href="https://travis-ci.org/Adldap2/Adldap2-Laravel"><img src="https://img.shields.io/travis/Adldap2/Adldap2-Laravel.svg?style=flat-square"></a>
-    <a href="https://scrutinizer-ci.com/g/Adldap2/Adldap2-Laravel"><img src="https://img.shields.io/scrutinizer/g/Adldap2/Adldap2-laravel/master.svg?style=flat-square"></a>
-    <a href="https://packagist.org/packages/adldap2/adldap2-laravel"><img src="https://img.shields.io/packagist/dt/adldap2/adldap2-laravel.svg?style=flat-square"></a>
-    <a href="https://packagist.org/packages/adldap2/adldap2-laravel"><img src="https://img.shields.io/packagist/v/adldap2/adldap2-laravel.svg?style=flat-square"></a>
-    <a href="https://packagist.org/packages/adldap2/adldap2-laravel"><img src="https://img.shields.io/packagist/l/adldap2/adldap2-laravel.svg?style=flat-square"></a>
+    <a href="https://travis-ci.org/directorytree/ldaprecord-laravel"><img src="https://img.shields.io/travis/directorytree/ldaprecord-laravel.svg?style=flat-square"></a>
+    <a href="https://scrutinizer-ci.com/g/directorytree/ldaprecord-laravel"><img src="https://img.shields.io/scrutinizer/g/directorytree/ldaprecord-laravel/master.svg?style=flat-square"></a>
+    <a href="https://packagist.org/packages/directorytree/ldaprecord-laravel"><img src="https://img.shields.io/packagist/dt/directorytree/ldaprecord-laravel.svg?style=flat-square"></a>
+    <a href="https://packagist.org/packages/directorytree/ldaprecord-laravel"><img src="https://img.shields.io/packagist/v/directorytree/ldaprecord-laravel.svg?style=flat-square"></a>
+    <a href="https://packagist.org/packages/directorytree/ldaprecord-laravel"><img src="https://img.shields.io/packagist/l/directorytree/ldaprecord-laravel.svg?style=flat-square"></a>
 </p>
 
 <p align="center">
-    Easy configuration, access, management and authentication to LDAP servers utilizing the core
-    <a href="http://www.github.com/Adldap2/Adldap2">Adldap2</a> repository.
+    Easily authenticate and synchronize LDAP users into your Laravel app.
 </p>
 
 <h4 align="center">
-    <a href="http://adldap2.github.io/Adldap2-Laravel/#/?id=quick-start">Quickstart</a>
+    <a href="https://ldaprecord.com/laravel?id=quick-start">Quickstart</a>
     <span> · </span>
-    <a href="http://adldap2.github.io/Adldap2-Laravel/">Documentation</a>
+    <a href="https://ldaprecord.com/laravel">Documentation</a>
     <span> · </span>
-    <a href="http://adldap2.github.io/Adldap2/">Adldap2 Documentation (Core)</a>
+    <a href="https://ldaprecord.com">LdapRecord Documentation (Core)</a>
 </h4>
 
 - **Authenticate LDAP users into your application.** Using the built-in authentication driver, easily allow
