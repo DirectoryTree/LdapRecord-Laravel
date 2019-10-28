@@ -4,11 +4,11 @@ namespace LdapRecord\Laravel\Tests;
 
 use Adldap\Models\User;
 use Adldap\AdldapInterface;
-use LdapRecord\Laravel\Commands\Importer;
 use Illuminate\Support\Facades\App;
-use LdapRecord\Laravel\Facades\Resolver;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use LdapRecord\Laravel\Facades\Resolver;
+use LdapRecord\Laravel\Commands\Importer;
 use Illuminate\Foundation\Testing\WithFaker;
 use LdapRecord\Laravel\Tests\Scopes\JohnDoeScope;
 use LdapRecord\Laravel\Tests\Handlers\LdapAttributeHandler;

@@ -7,13 +7,11 @@ use RuntimeException;
 use Illuminate\Support\Arr;
 use UnexpectedValueException;
 use Illuminate\Console\Command;
-use LdapRecord\Laravel\Events\Imported;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Database\Eloquent\Model;
+use LdapRecord\Laravel\Events\Imported;
 use LdapRecord\Models\Model as LdapModel;
-use LdapRecord\Laravel\Commands\Importer;
-use LdapRecord\Laravel\Commands\PasswordSync;
 
 class Import extends Command
 {
@@ -97,7 +95,6 @@ class Import extends Command
     protected function getDomainToImport()
     {
         foreach (config('ldap.domains') as $domainClass) {
-
         }
     }
 

@@ -4,10 +4,10 @@ namespace LdapRecord\Laravel\Database;
 
 use UnexpectedValueException;
 use LdapRecord\Laravel\Domain;
+use Illuminate\Database\Eloquent\Model;
 use LdapRecord\Laravel\Events\Importing;
 use LdapRecord\Models\Model as LdapModel;
 use LdapRecord\Laravel\Events\Synchronized;
-use Illuminate\Database\Eloquent\Model;
 use LdapRecord\Laravel\Events\Synchronizing;
 use LdapRecord\Laravel\Auth\LdapAuthenticatable;
 

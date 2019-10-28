@@ -3,11 +3,11 @@
 namespace LdapRecord\Laravel\Database;
 
 use LdapRecord\Laravel\Domain;
-use LdapRecord\Models\Model as LdapModel;
-use LdapRecord\Laravel\Auth\LdapAuthenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
 use Illuminate\Database\Eloquent\Builder;
+use LdapRecord\Models\Model as LdapModel;
+use LdapRecord\Laravel\Auth\LdapAuthenticatable;
 
 class UserImportScope implements Scope
 {

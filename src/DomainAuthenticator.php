@@ -66,7 +66,7 @@ class DomainAuthenticator
     }
 
     /**
-     * Get the password
+     * Get the password.
      *
      * @param array $credentials
      *

@@ -3,8 +3,8 @@
 namespace LdapRecord\Laravel\Tests;
 
 use Adldap\Models\User;
-use LdapRecord\Laravel\Facades\Resolver;
 use Illuminate\Support\Facades\Auth;
+use LdapRecord\Laravel\Facades\Resolver;
 
 class NoDatabaseProviderTest extends NoDatabaseTestCase
 {

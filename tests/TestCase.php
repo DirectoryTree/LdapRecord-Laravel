@@ -3,13 +3,13 @@
 namespace LdapRecord\Laravel\Tests;
 
 use Adldap\Connections\Ldap;
-use LdapRecord\Laravel\Facades\Adldap;
 use Adldap\Schemas\ActiveDirectory;
 use Illuminate\Support\Facades\Hash;
+use LdapRecord\Laravel\Facades\Adldap;
 use LdapRecord\Laravel\LdapServiceProvider;
+use LdapRecord\Laravel\Auth\LdapUserProvider;
 use LdapRecord\Laravel\Tests\Models\TestUser;
 use LdapRecord\Laravel\LdapAuthServiceProvider;
-use LdapRecord\Laravel\Auth\LdapUserProvider;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 
 class TestCase extends BaseTestCase

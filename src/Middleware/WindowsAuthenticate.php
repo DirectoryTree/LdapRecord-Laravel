@@ -3,9 +3,9 @@
 namespace LdapRecord\Laravel\Middleware;
 
 use Closure;
-use Illuminate\Contracts\Auth\Guard;
 use LdapRecord\Models\Model;
 use LdapRecord\Laravel\Domain;
+use Illuminate\Contracts\Auth\Guard;
 use LdapRecord\Laravel\Auth\UserProvider;
 use LdapRecord\Laravel\Events\AuthenticatedWithWindows;
 
@@ -70,7 +70,7 @@ class WindowsAuthenticate
     {
         $user = $domain->locate()->by('samaccountname', $username);
 
-        if (!$user) {
+        if (! $user) {
             return;
         }
 

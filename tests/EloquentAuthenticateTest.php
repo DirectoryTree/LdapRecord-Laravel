@@ -2,9 +2,9 @@
 
 namespace LdapRecord\Laravel\Tests;
 
-use LdapRecord\Laravel\Commands\Importer;
-use LdapRecord\Laravel\Facades\Resolver;
 use Illuminate\Support\Facades\Auth;
+use LdapRecord\Laravel\Facades\Resolver;
+use LdapRecord\Laravel\Commands\Importer;
 use LdapRecord\Laravel\Tests\Models\TestUser;
 
 class EloquentAuthenticateTest extends DatabaseTestCase
