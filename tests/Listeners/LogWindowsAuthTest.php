@@ -4,10 +4,10 @@ namespace LdapRecord\Laravel\Tests\Listeners;
 
 use Mockery as m;
 use Adldap\Models\User;
-use LdapRecord\Laravel\Tests\TestCase;
 use Illuminate\Support\Facades\Log;
-use LdapRecord\Laravel\Listeners\LogWindowsAuth;
+use LdapRecord\Laravel\Tests\TestCase;
 use Illuminate\Contracts\Auth\Authenticatable;
+use LdapRecord\Laravel\Listeners\LogWindowsAuth;
 use LdapRecord\Laravel\Events\AuthenticatedWithWindows;
 
 class LogWindowsAuthTest extends TestCase

@@ -4,8 +4,8 @@ namespace LdapRecord\Laravel\Tests\Listeners;
 
 use Mockery as m;
 use Adldap\Models\User;
-use LdapRecord\Laravel\Tests\TestCase;
 use Illuminate\Support\Facades\Log;
+use LdapRecord\Laravel\Tests\TestCase;
 use LdapRecord\Laravel\Events\AuthenticationSuccessful;
 use LdapRecord\Laravel\Listeners\LogAuthenticationSuccess;
 

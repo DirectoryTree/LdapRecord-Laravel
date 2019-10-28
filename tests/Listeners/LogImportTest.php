@@ -4,8 +4,8 @@ namespace LdapRecord\Laravel\Tests\Listeners;
 
 use Mockery as m;
 use Adldap\Models\User;
-use LdapRecord\Laravel\Tests\TestCase;
 use Illuminate\Support\Facades\Log;
+use LdapRecord\Laravel\Tests\TestCase;
 use LdapRecord\Laravel\Events\Importing;
 use LdapRecord\Laravel\Listeners\LogImport;
 use LdapRecord\Laravel\Tests\Models\TestUser;

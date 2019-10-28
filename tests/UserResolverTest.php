@@ -5,14 +5,14 @@ namespace LdapRecord\Laravel\Tests;
 use Mockery as m;
 use Adldap\Query\Builder;
 use Adldap\AdldapInterface;
-use LdapRecord\Laravel\Scopes\UpnScope;
 use Adldap\Schemas\SchemaInterface;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
+use LdapRecord\Laravel\Scopes\UpnScope;
 use Adldap\Connections\ProviderInterface;
+use Illuminate\Foundation\Testing\WithFaker;
 use LdapRecord\Laravel\Tests\Models\TestUser;
 use LdapRecord\Laravel\Resolvers\UserResolver;
-use Illuminate\Foundation\Testing\WithFaker;
 use LdapRecord\Laravel\Auth\NoDatabaseUserProvider;
 
 class UserResolverTest extends TestCase

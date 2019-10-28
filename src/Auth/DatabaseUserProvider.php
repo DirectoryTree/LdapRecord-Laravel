@@ -43,7 +43,7 @@ class DatabaseUserProvider extends UserProvider
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function retrieveById($identifier)
     {
@@ -51,7 +51,7 @@ class DatabaseUserProvider extends UserProvider
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function retrieveByToken($identifier, $token)
     {
@@ -59,7 +59,7 @@ class DatabaseUserProvider extends UserProvider
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function updateRememberToken(Authenticatable $user, $token)
     {
@@ -95,7 +95,7 @@ class DatabaseUserProvider extends UserProvider
     public function validateCredentials(Authenticatable $model, array $credentials)
     {
         if ($this->user instanceof Model) {
-            if (!$this->domain->auth()->attempt($this->user, $credentials)) {
+            if (! $this->domain->auth()->attempt($this->user, $credentials)) {
                 // LDAP Authentication failed.
                 return false;
             }
@@ -105,7 +105,7 @@ class DatabaseUserProvider extends UserProvider
             // Here we will perform authorization on the LDAP user. If all
             // validation rules pass, we will allow the authentication
             // attempt. Otherwise, it is automatically rejected.
-            if (!$this->domain->userValidator($this->user, $model)->passes()) {
+            if (! $this->domain->userValidator($this->user, $model)->passes()) {
                 event(new AuthenticationRejected($this->user, $model));
 
                 return false;
