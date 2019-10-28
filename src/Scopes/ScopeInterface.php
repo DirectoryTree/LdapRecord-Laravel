@@ -2,12 +2,12 @@
 
 namespace LdapRecord\Laravel\Scopes;
 
-use Adldap\Query\Builder;
+use LdapRecord\Query\Model\Builder;
 
 interface ScopeInterface
 {
     /**
-     * Apply the scope to a given Adldap query builder.
+     * Apply the scope to the query.
      *
      * @param Builder $builder
      *

@@ -2,7 +2,7 @@
 
 namespace LdapRecord\Laravel\Scopes;
 
-use Adldap\Query\Builder;
+use LdapRecord\Query\Model\Builder;
 
 class UpnScope implements ScopeInterface
 {
@@ -11,6 +11,6 @@ class UpnScope implements ScopeInterface
      */
     public function apply(Builder $builder)
     {
-        $builder->whereHas($builder->getSchema()->userPrincipalName());
+        $builder->whereHas('userprincipalname');
     }
 }

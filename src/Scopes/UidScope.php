@@ -2,7 +2,7 @@
 
 namespace LdapRecord\Laravel\Scopes;
 
-use Adldap\Query\Builder;
+use LdapRecord\Query\Model\Builder;
 
 class UidScope implements ScopeInterface
 {
@@ -11,6 +11,6 @@ class UidScope implements ScopeInterface
      */
     public function apply(Builder $builder)
     {
-        $builder->whereHas($builder->getSchema()->userId());
+        $builder->whereHas('uid');
     }
 }

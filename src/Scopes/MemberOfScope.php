@@ -2,7 +2,7 @@
 
 namespace LdapRecord\Laravel\Scopes;
 
-use Adldap\Query\Builder;
+use LdapRecord\Query\Model\Builder;
 
 class MemberOfScope implements ScopeInterface
 {
@@ -28,8 +28,6 @@ class MemberOfScope implements ScopeInterface
     {
         $selected = $builder->getSelects();
 
-        return array_merge($selected, [
-            $builder->getSchema()->memberOf(),
-        ]);
+        return array_merge($selected, ['memberof']);
     }
 }
