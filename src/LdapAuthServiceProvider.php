@@ -36,13 +36,11 @@ class LdapAuthServiceProvider extends ServiceProvider
         // Register the lDAP auth provider.
         Auth::provider('ldap', function ($app, array $config) {
             /** @var Domain $domain */
-            $domain = app($config['domain']);
+            $domain = app(DomainRegistrar::class)->get($config['domain']);
 
-            if ($domain->isUsingDatabase()) {
-                return new DatabaseUserProvider($app['hash'], $domain);
-            }
-
-            return new NoDatabaseUserProvider($domain);
+            return $domain->isUsingDatabase() ?
+                new DatabaseUserProvider($app['hash'], $domain) :
+                new NoDatabaseUserProvider($domain);
         });
     }
 

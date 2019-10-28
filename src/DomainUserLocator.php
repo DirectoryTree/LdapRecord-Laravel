@@ -52,9 +52,6 @@ class DomainUserLocator
             return;
         }
 
-        // Depending on the configured user provider, the
-        // username field will differ for retrieving
-        // users by their credentials.
         $attribute = $this->domain->isUsingDatabase() ?
             $this->domain->getDatabaseUsernameColumn() :
             $this->domain->getAuthUsername();

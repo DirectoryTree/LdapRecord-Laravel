@@ -4,7 +4,6 @@ namespace LdapRecord\Laravel;
 
 use Illuminate\Support\Arr;
 use LdapRecord\Models\Model;
-use LdapRecord\Laravel\Domain;
 use LdapRecord\Laravel\Events\Authenticated;
 use LdapRecord\Laravel\Events\Authenticating;
 use LdapRecord\Laravel\Events\AuthenticationFailed;

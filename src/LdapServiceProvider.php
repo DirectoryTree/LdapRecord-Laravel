@@ -4,7 +4,6 @@ namespace LdapRecord\Laravel;
 
 use LdapRecord\Container;
 use Illuminate\Support\Str;
-use LdapRecord\LdapRecordException;
 use Illuminate\Support\ServiceProvider;
 
 class LdapServiceProvider extends ServiceProvider
@@ -31,6 +30,8 @@ class LdapServiceProvider extends ServiceProvider
                 $config => config_path('ldap.php'),
             ]);
         }
+
+        app(DomainRegistrar::class)->setup();
     }
 
     /**
@@ -40,22 +41,9 @@ class LdapServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        foreach ($this->getDomains() as $domainClass) {
-            /** @var \LdapRecord\Laravel\Domain $domain */
-            $domain = app($domainClass);
-
-            if ($domain->isAutoConnecting()) {
-                try {
-                    $domain->connect();
-                } catch (LdapRecordException $ex) {
-                    if ($this->isLogging()) {
-                        logger()->error($ex->getMessage());
-                    }
-                }
-            }
-
-            $this->app->singleton($domainClass, $domain);
-        }
+        $this->app->singleton(DomainRegistrar::class, function () {
+            return new DomainRegistrar($this->getDomains());
+        });
     }
 
     /**

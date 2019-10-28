@@ -2,7 +2,6 @@
 
 namespace LdapRecord\Laravel;
 
-use LdapRecord\Container;
 use LdapRecord\Connection;
 use LdapRecord\ConnectionInterface;
 use LdapRecord\Models\ActiveDirectory\User;
@@ -10,9 +9,16 @@ use LdapRecord\Models\ActiveDirectory\User;
 abstract class Domain
 {
     /**
+     * The LDAP domain name.
+     *
+     * @var string
+     */
+    protected $name;
+
+    /**
      * The LDAP domain connection.
      *
-     * @var Connection
+     * @var ConnectionInterface|null
      */
     protected $connection;
 
@@ -45,13 +51,6 @@ abstract class Domain
     protected $loginFallback = false;
 
     /**
-     * Get the name of the domain.
-     *
-     * @return string
-     */
-    abstract public function getName() : string;
-
-    /**
      * Get the configuration of the domain.
      *
      * @return array
@@ -60,10 +59,22 @@ abstract class Domain
 
     /**
      * Constructor.
+     *
+     * @param string $name
      */
-    public function __construct()
+    public function __construct($name)
     {
-        $this->connection = $this->getConnection();
+        $this->name = $name;
+    }
+
+    /**
+     * Get the name of the domain.
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
     }
 
     /**
@@ -71,7 +82,7 @@ abstract class Domain
      *
      * @return bool
      */
-    public function isAutoConnecting() : bool
+    public function shouldAutoConnect() : bool
     {
         return $this->shouldAutoConnect;
     }
@@ -138,23 +149,23 @@ abstract class Domain
     }
 
     /**
+     * Set the domains connection.
+     *
+     * @param ConnectionInterface $connection
+     */
+    public function setConnection(ConnectionInterface $connection)
+    {
+        $this->connection = $connection;
+    }
+
+    /**
      * Get the domains connection.
      *
-     * @return ConnectionInterface
+     * @return ConnectionInterface|null
      */
-    public function getConnection() : ConnectionInterface
+    public function getConnection() : ?ConnectionInterface
     {
-        $container = Container::getInstance();
-
-        if ($container->exists($this->getName())) {
-            return $container->get($this->getName());
-        }
-
-        $connection = $this->getNewConnection();
-
-        $container->add($connection, $this->getName());
-
-        return $connection;
+        return $this->connection;
     }
 
     /**
