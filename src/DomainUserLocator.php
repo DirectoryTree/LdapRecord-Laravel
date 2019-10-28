@@ -4,7 +4,7 @@ namespace LdapRecord\Laravel;
 
 use RuntimeException;
 use LdapRecord\Query\Model\Builder;
-use Illuminate\Contracts\Auth\Authenticatable;
+use LdapRecord\Laravel\Auth\LdapAuthenticatable;
 
 class DomainUserLocator
 {
@@ -23,6 +23,19 @@ class DomainUserLocator
     public function __construct(Domain $domain)
     {
         $this->domain = $domain;
+    }
+
+    /**
+     * Get a user by the attribute and value.
+     *
+     * @param string $attribute
+     * @param string $value
+     *
+     * @return \LdapRecord\Models\Model|null
+     */
+    public function by($attribute, $value)
+    {
+        return $this->query()->findBy($attribute, $value);
     }
 
     /**
@@ -71,13 +84,13 @@ class DomainUserLocator
     /**
      * Get a user by their eloquent model.
      *
-     * @param Authenticatable $model
+     * @param LdapAuthenticatable $model
      *
      * @return \LdapRecord\Models\Model|null
      */
-    public function byModel(Authenticatable $model)
+    public function byModel(LdapAuthenticatable $model)
     {
-        return $this->byGuid($model->{$this->domain->getDatabaseGuidColumn()});
+        return $this->byGuid($model->{$model->getLdapGuid()});
     }
 
     /**
