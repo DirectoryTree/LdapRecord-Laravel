@@ -2,19 +2,15 @@
 
 namespace LdapRecord\Laravel;
 
-use RuntimeException;
-use Illuminate\Support\Arr;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Contracts\Hashing\Hasher;
 use Illuminate\Auth\Events\Authenticated;
-use LdapRecord\Laravel\Resolvers\UserResolver;
 use LdapRecord\Laravel\Commands\Console\Import;
-use LdapRecord\Laravel\Auth\LdapUserProvider;
-use LdapRecord\Laravel\Resolvers\ResolverInterface;
+use LdapRecord\Laravel\Auth\DatabaseUserProvider;
+use LdapRecord\Laravel\Auth\NoDatabaseUserProvider;
 use LdapRecord\Laravel\Listeners\BindsLdapUserModel;
 
 class LdapAuthServiceProvider extends ServiceProvider
@@ -26,11 +22,6 @@ class LdapAuthServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // Register the lDAP auth provider.
-        Auth::provider('ldap', function ($app, array $config) {
-            return $this->makeUserProvider($app['hash'], $config);
-        });
-
         if ($this->app->runningInConsole()) {
             $config = __DIR__.'/Config/auth.php';
 
@@ -41,6 +32,18 @@ class LdapAuthServiceProvider extends ServiceProvider
 
         // Register the import command.
         $this->commands(Import::class);
+
+        // Register the lDAP auth provider.
+        Auth::provider('ldap', function ($app, array $config) {
+            /** @var Domain $domain */
+            $domain = app($config['domain']);
+
+            if ($domain->isUsingDatabase()) {
+                return new DatabaseUserProvider($app['hash'], $domain);
+            }
+
+            return new NoDatabaseUserProvider($domain);
+        });
     }
 
     /**
@@ -50,13 +53,6 @@ class LdapAuthServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        // Bind the user resolver instance into the IoC.
-        $this->app->bind(ResolverInterface::class, function () {
-            return new UserResolver(
-                $this->app->make(AdldapInterface::class)
-            );
-        });
-
         // Here we will register the event listener that will bind the users LDAP
         // model to their Eloquent model upon authentication (if configured).
         // This allows us to utilize their LDAP model right
@@ -70,39 +66,6 @@ class LdapAuthServiceProvider extends ServiceProvider
                 Event::listen($event, $listener);
             }
         }
-    }
-
-    /**
-     * Make a new LDAP user provider.
-     *
-     * @param Hasher $hasher
-     * @param array  $config
-     *
-     * @throws RuntimeException
-     *
-     * @return \Illuminate\Contracts\Auth\UserProvider
-     */
-    protected function makeUserProvider(Hasher $hasher, array $config)
-    {
-        $provider = Config::get('ldap_auth.provider', LdapUserProvider::class);
-
-        // The DatabaseUserProvider requires a model to be configured
-        // in the configuration. We will validate this here.
-        if (is_a($provider, LdapUserProvider::class, $allowString = true)) {
-            // We will try to retrieve their model from the config file,
-            // otherwise we will try to use the providers config array.
-            $model = Config::get('ldap_auth.model') ?? Arr::get($config, 'model');
-
-            if (! $model) {
-                throw new RuntimeException(
-                    "No model is configured. You must configure a model to use with the {$provider}."
-                );
-            }
-
-            return new $provider($hasher, $model);
-        }
-
-        return new $provider();
     }
 
     /**

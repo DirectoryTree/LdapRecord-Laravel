@@ -5,11 +5,17 @@ namespace LdapRecord\Laravel;
 use LdapRecord\Container;
 use LdapRecord\Connection;
 use LdapRecord\ConnectionInterface;
-use LdapRecord\Laravel\Authenticators\DomainAuthenticator;
 use LdapRecord\Models\ActiveDirectory\User;
 
 abstract class Domain
 {
+    /**
+     * The LDAP domain connection.
+     *
+     * @var Connection
+     */
+    protected $connection;
+
     /**
      * Whether to automatically connect to the domain.
      *
@@ -51,6 +57,14 @@ abstract class Domain
      * @return array
      */
     abstract public function getConfig() : array;
+
+    /**
+     * Constructor.
+     */
+    public function __construct()
+    {
+        $this->connection = $this->getConnection();
+    }
 
     /**
      * Get whether the domain is being automatically connected to.
@@ -124,7 +138,7 @@ abstract class Domain
     }
 
     /**
-     * Get the domains connection from the container.
+     * Get the domains connection.
      *
      * @return ConnectionInterface
      */
@@ -136,11 +150,21 @@ abstract class Domain
             return $container->get($this->getName());
         }
 
-        $connection = new Connection($this->getConfig());
+        $connection = $this->getNewConnection();
 
         $container->add($connection, $this->getName());
 
         return $connection;
+    }
+
+    /**
+     * Get a new connection for the domain.
+     *
+     * @return Connection
+     */
+    public function getNewConnection() : ConnectionInterface
+    {
+        return new Connection($this->getConfig());
     }
 
     /**

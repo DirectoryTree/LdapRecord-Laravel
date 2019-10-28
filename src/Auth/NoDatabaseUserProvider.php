@@ -2,8 +2,7 @@
 
 namespace LdapRecord\Laravel\Auth;
 
-use Illuminate\Support\Facades\Event;
-use LdapRecord\Laravel\Facades\Resolver;
+use LdapRecord\Laravel\Domain;
 use Illuminate\Contracts\Auth\UserProvider;
 use LdapRecord\Laravel\Traits\ValidatesUsers;
 use Illuminate\Contracts\Auth\Authenticatable;
@@ -17,11 +16,28 @@ class NoDatabaseUserProvider implements UserProvider
     use ValidatesUsers;
 
     /**
+     * The LDAP domain to use for authentication.
+     *
+     * @var Domain
+     */
+    protected $domain;
+
+    /**
+     * Constructor.
+     *
+     * @param Domain $domain
+     */
+    public function __construct(Domain $domain)
+    {
+        $this->domain = $domain;
+    }
+
+    /**
      *  {@inheritdoc}
      */
     public function retrieveById($identifier)
     {
-        $user = Resolver::byId($identifier);
+        $user = $this->domain->locate()->byGuid($identifier);
 
         // We'll verify we have the correct instance just to ensure we
         // don't return an incompatible model that may be returned.
@@ -50,8 +66,8 @@ class NoDatabaseUserProvider implements UserProvider
      */
     public function retrieveByCredentials(array $credentials)
     {
-        if ($user = Resolver::byCredentials($credentials)) {
-            Event::dispatch(new DiscoveredWithCredentials($user));
+        if ($user = $this->domain->locate()->byCredentials($credentials)) {
+            event(new DiscoveredWithCredentials($user));
 
             return $user;
         }
@@ -62,16 +78,16 @@ class NoDatabaseUserProvider implements UserProvider
      */
     public function validateCredentials(Authenticatable $user, array $credentials)
     {
-        if (Resolver::authenticate($user, $credentials)) {
-            Event::dispatch(new AuthenticatedWithCredentials($user));
+        if ($this->domain->auth()->attempt($user, $credentials)) {
+            event(new AuthenticatedWithCredentials($user));
 
             if ($this->getLdapUserValidator($user)) {
-                Event::dispatch(new AuthenticationSuccessful($user));
+                event(new AuthenticationSuccessful($user));
 
                 return true;
             }
 
-            Event::dispatch(new AuthenticationRejected($user));
+            event(new AuthenticationRejected($user));
         }
 
         return false;

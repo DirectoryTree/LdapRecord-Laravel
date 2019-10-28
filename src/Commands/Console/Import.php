@@ -4,18 +4,16 @@ namespace LdapRecord\Laravel\Commands\Console;
 
 use Exception;
 use RuntimeException;
-use Adldap\Models\User;
 use Illuminate\Support\Arr;
 use UnexpectedValueException;
 use Illuminate\Console\Command;
 use LdapRecord\Laravel\Events\Imported;
-use Illuminate\Support\Facades\Bus;
-use LdapRecord\Laravel\Facades\Resolver;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Database\Eloquent\Model;
+use LdapRecord\Models\Model as LdapModel;
+use LdapRecord\Laravel\Commands\Importer;
 use LdapRecord\Laravel\Commands\PasswordSync;
-use LdapRecord\Laravel\Commands\Importer as ImportUser;
 
 class Import extends Command
 {
@@ -31,7 +29,8 @@ class Import extends Command
      *
      * @var string
      */
-    protected $signature = 'adldap:import {user? : The specific user to import.}
+    protected $signature = 'ldap:import {domain : The name of the domain to import.}
+            {user? : The specific user to import.}
             {--f|filter= : The raw LDAP filter for limiting users imported.}
             {--m|model= : The model to use for importing users.}
             {--d|delete : Soft-delete the users model if their LDAP account is disabled.}
@@ -49,12 +48,21 @@ class Import extends Command
      * Execute the console command.
      *
      * @throws RuntimeException
-     * @throws \Adldap\Models\ModelNotFoundException
+     * @throws \LdapRecord\Models\ModelNotFoundException
      *
      * @return void
      */
     public function handle()
     {
+        foreach (config('ldap.domains', []) as $domainClass) {
+            /** @var \LdapRecord\Laravel\Domain $domain */
+            $domain = app($domainClass);
+
+            if ($domain->isUsingDatabase()) {
+                // Run Import.
+            }
+        }
+
         $users = $this->getUsers();
 
         $count = count($users);
@@ -86,6 +94,13 @@ class Import extends Command
         }
     }
 
+    protected function getDomainToImport()
+    {
+        foreach (config('ldap.domains') as $domainClass) {
+
+        }
+    }
+
     /**
      * Imports the specified users and returns the total
      * number of users successfully imported.
@@ -100,15 +115,15 @@ class Import extends Command
 
         $this->output->progressStart(count($users));
 
+        /** @var LdapModel $user */
         foreach ($users as $user) {
             try {
+                // TODO: Get configured LDAP domains.
                 // Import the user and retrieve it's model.
-                $model = Bus::dispatch(
-                    new ImportUser($user, $this->model())
-                );
+                $model = (new Importer())->run($user);
 
                 // Set the users password.
-                Bus::dispatch(new PasswordSync($model));
+                (new PasswordSync())->run($user);
 
                 // Save the returned model.
                 $this->save($user, $model);
@@ -146,15 +161,14 @@ class Import extends Command
      */
     public function display(array $users = [])
     {
-        $headers = ['Name', 'Account Name', 'UPN'];
+        $headers = ['Name', 'Distinguished Name'];
 
         $data = [];
 
-        array_map(function (User $user) use (&$data) {
+        array_map(function (LdapModel $user) use (&$data) {
             $data[] = [
-                'name'         => $user->getCommonName(),
-                'account_name' => $user->getAccountName(),
-                'upn'          => $user->getUserPrincipalName(),
+                'name' => $user->getRdn(),
+                'dn' => $user->getDn(),
             ];
         }, $users);
 
@@ -196,7 +210,7 @@ class Import extends Command
     /**
      * Retrieves users to be imported.
      *
-     * @throws \Adldap\Models\ModelNotFoundException
+     * @throws \LdapRecord\Models\ModelNotFoundException
      *
      * @return array
      */

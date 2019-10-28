@@ -3,10 +3,8 @@
 namespace LdapRecord\Laravel\Listeners;
 
 use Illuminate\Support\Facades\Auth;
-use LdapRecord\Laravel\Facades\Resolver;
 use LdapRecord\Laravel\Traits\HasLdapUser;
 use Illuminate\Contracts\Auth\Authenticatable;
-use LdapRecord\Laravel\Auth\LdapUserProvider;
 
 class BindsLdapUserModel
 {

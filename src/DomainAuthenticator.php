@@ -1,6 +1,6 @@
 <?php
 
-namespace LdapRecord\Laravel\Authenticators;
+namespace LdapRecord\Laravel;
 
 use Illuminate\Support\Arr;
 use LdapRecord\Models\Model;

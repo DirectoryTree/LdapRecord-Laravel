@@ -6,8 +6,6 @@ use LdapRecord\Models\Model;
 use LdapRecord\Laravel\Domain;
 use LdapRecord\Laravel\Commands\Importer;
 use LdapRecord\Laravel\Events\Imported;
-use LdapRecord\Laravel\Facades\Resolver;
-use Illuminate\Support\Facades\Event;
 use LdapRecord\Laravel\Commands\PasswordSync;
 use LdapRecord\Laravel\Traits\ValidatesUsers;
 use Illuminate\Contracts\Hashing\Hasher;
@@ -87,13 +85,13 @@ class DatabaseUserProvider implements UserProvider
     public function retrieveByCredentials(array $credentials)
     {
         // Retrieve the LDAP user who is authenticating.
-        $user = Resolver::byCredentials($credentials);
+        $user = $this->domain->locate()->byCredentials($credentials);
 
         if ($user instanceof Model) {
             // Set the currently authenticating LDAP user.
             $this->user = $user;
 
-            Event::dispatch(new DiscoveredWithCredentials($user));
+            event(new DiscoveredWithCredentials($user));
 
             // Import / locate the local user account.
             return (new Importer($this->domain))->run($user);
@@ -110,18 +108,18 @@ class DatabaseUserProvider implements UserProvider
     public function validateCredentials(Authenticatable $model, array $credentials)
     {
         if ($this->user instanceof Model) {
-            if (!Resolver::authenticate($this->user, $credentials)) {
+            if (!$this->domain->auth()->attempt($this->user, $credentials)) {
                 // LDAP Authentication failed.
                 return false;
             }
 
-            Event::dispatch(new AuthenticatedWithCredentials($this->user, $model));
+            event(new AuthenticatedWithCredentials($this->user, $model));
 
             // Here we will perform authorization on the LDAP user. If all
             // validation rules pass, we will allow the authentication
             // attempt. Otherwise, it is automatically rejected.
             if (!$this->getLdapUserValidator($this->user, $model)->passes()) {
-                Event::dispatch(new AuthenticationRejected($this->user, $model));
+                event(new AuthenticationRejected($this->user, $model));
 
                 return false;
             }
@@ -135,10 +133,10 @@ class DatabaseUserProvider implements UserProvider
             if ($model->wasRecentlyCreated) {
                 // If the model was recently created, they
                 // have been imported successfully.
-                Event::dispatch(new Imported($this->user, $model));
+                event(new Imported($this->user, $model));
             }
 
-            Event::dispatch(new AuthenticationSuccessful($this->user, $model));
+            event(new AuthenticationSuccessful($this->user, $model));
 
             return true;
         }

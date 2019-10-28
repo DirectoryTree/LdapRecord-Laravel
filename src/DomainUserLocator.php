@@ -2,6 +2,7 @@
 
 namespace LdapRecord\Laravel;
 
+use RuntimeException;
 use LdapRecord\Query\Model\Builder;
 use Illuminate\Contracts\Auth\Authenticatable;
 
@@ -54,9 +55,9 @@ class DomainUserLocator
         // Depending on the configured user provider, the
         // username field will differ for retrieving
         // users by their credentials.
-        $attribute = $this->getAppAuthProvider() instanceof NoDatabaseUserProvider ?
-            $this->getLdapDiscoveryAttribute() :
-            $this->getDatabaseUsernameColumn();
+        $attribute = $this->domain->isUsingDatabase() ?
+            $this->domain->getDatabaseUsernameColumn() :
+            $this->domain->getAuthUsername();
 
         if (! array_key_exists($attribute, $credentials)) {
             throw new RuntimeException(
@@ -65,7 +66,7 @@ class DomainUserLocator
         }
 
         return $this->query()->whereEquals(
-            $this->getLdapDiscoveryAttribute(),
+            $this->domain->getAuthUsername(),
             $credentials[$attribute]
         )->first();
     }
