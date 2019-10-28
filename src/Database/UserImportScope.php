@@ -1,9 +1,10 @@
 <?php
 
-namespace LdapRecord\Laravel\Commands;
+namespace LdapRecord\Laravel\Database;
 
 use LdapRecord\Laravel\Domain;
 use LdapRecord\Models\Model as LdapModel;
+use LdapRecord\Laravel\Auth\LdapAuthenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
 use Illuminate\Database\Eloquent\Builder;
@@ -46,20 +47,21 @@ class UserImportScope implements Scope
      */
     public function apply(Builder $query, Model $model)
     {
-        $this->user($query);
+        $this->user($query, $model);
     }
 
     /**
      * Applies the user scope to the given Eloquent query builder.
      *
-     * @param Builder $query
+     * @param Builder             $query
+     * @param LdapAuthenticatable $model
      */
-    protected function user(Builder $query)
+    protected function user(Builder $query, LdapAuthenticatable $model)
     {
         // We'll try to locate the user by their object guid,
         // otherwise we'll locate them by their username.
         $query
-            ->where($this->domain->getDatabaseGuidColumn(), '=', $this->getGuid())
+            ->where($model->getLdapGuidName(), '=', $this->getGuid())
             ->orWhere($this->domain->getDatabaseUsernameColumn(), '=', $this->getUsername());
     }
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace LdapRecord\Laravel\Commands;
+namespace LdapRecord\Laravel\Database;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -8,7 +8,7 @@ use LdapRecord\Laravel\Domain;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Eloquent\Model;
 
-class PasswordSync
+class PasswordSynchronizer
 {
     /**
      * The LDAP domain.

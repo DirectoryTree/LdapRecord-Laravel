@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Auth\Events\Authenticated;
-use LdapRecord\Laravel\Commands\Console\Import;
+use LdapRecord\Laravel\Commands\Import;
 use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use LdapRecord\Laravel\Auth\NoDatabaseUserProvider;
 use LdapRecord\Laravel\Listeners\BindsLdapUserModel;

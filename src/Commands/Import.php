@@ -1,6 +1,6 @@
 <?php
 
-namespace LdapRecord\Laravel\Commands\Console;
+namespace LdapRecord\Laravel\Commands;
 
 use Exception;
 use RuntimeException;

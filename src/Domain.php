@@ -4,7 +4,10 @@ namespace LdapRecord\Laravel;
 
 use LdapRecord\Connection;
 use LdapRecord\ConnectionInterface;
+use LdapRecord\Laravel\Database\Importer;
 use LdapRecord\Models\ActiveDirectory\User;
+use LdapRecord\Laravel\Validation\Validator;
+use LdapRecord\Laravel\Database\PasswordSynchronizer;
 
 abstract class Domain
 {
@@ -146,6 +149,45 @@ abstract class Domain
     public function locate()
     {
         return new DomainUserLocator($this);
+    }
+
+    /**
+     * Create a new domain importer.
+     *
+     * @return Importer
+     */
+    public function importer()
+    {
+        return new Importer($this);
+    }
+
+    /**
+     * Create a new user validator.
+     *
+     * @param \LdapRecord\Models\Model                 $user
+     * @param \Illuminate\Database\Eloquent\Model|null $model
+     *
+     * @return Validator
+     */
+    public function userValidator($user, $model = null)
+    {
+        $rules = [];
+
+        foreach ($this->getAuthRules() as $rule) {
+            $rules[] = new $rule($user, $model);
+        }
+
+        return new Validator($rules);
+    }
+
+    /**
+     * Create a new password synchronizer.
+     *
+     * @return PasswordSynchronizer
+     */
+    public function passwordSynchronizer()
+    {
+        return new PasswordSynchronizer($this);
     }
 
     /**

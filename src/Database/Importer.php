@@ -1,15 +1,15 @@
 <?php
 
-namespace LdapRecord\Laravel\Commands;
+namespace LdapRecord\Laravel\Database;
 
-use LdapRecord\Laravel\Domain;
 use UnexpectedValueException;
+use LdapRecord\Laravel\Domain;
 use LdapRecord\Laravel\Events\Importing;
 use LdapRecord\Models\Model as LdapModel;
-use Illuminate\Support\Facades\Event;
 use LdapRecord\Laravel\Events\Synchronized;
 use Illuminate\Database\Eloquent\Model;
 use LdapRecord\Laravel\Events\Synchronizing;
+use LdapRecord\Laravel\Auth\LdapAuthenticatable;
 
 class Importer
 {
@@ -64,14 +64,14 @@ class Importer
         $model = $this->locateLdapUserByModel($user, $model) ?: $model->newInstance();
 
         if (! $model->exists) {
-            Event::dispatch(new Importing($user, $model));
+            event(new Importing($user, $model));
         }
 
-        Event::dispatch(new Synchronizing($user, $model));
+        event(new Synchronizing($user, $model));
 
         $this->sync($user, $model);
 
-        Event::dispatch(new Synchronized($user, $model));
+        event(new Synchronized($user, $model));
 
         return $model;
     }
@@ -107,17 +107,16 @@ class Importer
     /**
      * Fills a models attributes by the specified Users attributes.
      *
-     * @param LdapModel $user
-     * @param Model     $model
+     * @param LdapModel           $user
+     * @param LdapAuthenticatable $model
      *
      * @return void
      */
-    protected function sync(LdapModel $user, Model $model)
+    protected function sync(LdapModel $user, LdapAuthenticatable $model)
     {
-        // Set the users LDAP object GUID.
-        $model->setAttribute(
-            $this->domain->getDatabaseGuidColumn(), $user->getObjectGuid()
-        );
+        // Set the users LDAP object GUID and domain.
+        $model->setLdapGuid($user->getObjectGuid());
+        $model->setLdapDomain($this->domain->getName());
 
         // Set the users username.
         $model->setAttribute(

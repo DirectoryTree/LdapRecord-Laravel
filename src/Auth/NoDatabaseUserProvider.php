@@ -2,7 +2,6 @@
 
 namespace LdapRecord\Laravel\Auth;
 
-use LdapRecord\Laravel\Traits\ValidatesUsers;
 use Illuminate\Contracts\Auth\Authenticatable;
 use LdapRecord\Laravel\Events\AuthenticationRejected;
 use LdapRecord\Laravel\Events\AuthenticationSuccessful;
@@ -11,8 +10,6 @@ use LdapRecord\Laravel\Events\AuthenticatedWithCredentials;
 
 class NoDatabaseUserProvider extends UserProvider
 {
-    use ValidatesUsers;
-
     /**
      *  {@inheritdoc}
      */
@@ -62,7 +59,7 @@ class NoDatabaseUserProvider extends UserProvider
         if ($this->domain->auth()->attempt($user, $credentials)) {
             event(new AuthenticatedWithCredentials($user));
 
-            if ($this->getLdapUserValidator($user)->passes()) {
+            if ($this->domain->userValidator($user)->passes()) {
                 event(new AuthenticationSuccessful($user));
 
                 return true;

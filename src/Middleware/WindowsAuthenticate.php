@@ -7,15 +7,10 @@ use Illuminate\Contracts\Auth\Guard;
 use LdapRecord\Models\Model;
 use LdapRecord\Laravel\Domain;
 use LdapRecord\Laravel\Auth\UserProvider;
-use LdapRecord\Laravel\Commands\Importer;
-use LdapRecord\Laravel\Commands\PasswordSync;
-use LdapRecord\Laravel\Traits\ValidatesUsers;
 use LdapRecord\Laravel\Events\AuthenticatedWithWindows;
 
 class WindowsAuthenticate
 {
-    use ValidatesUsers;
-
     /**
      * The authenticator implementation.
      *
@@ -86,16 +81,16 @@ class WindowsAuthenticate
         if ($domain->isUsingDatabase()) {
             // Here we will import the LDAP user. If the user already exists in
             // our local database, it will be returned from the importer.
-            $model = (new Importer($domain))->run($user);
+            $model = $domain->importer()->run($user);
         }
 
         // Here we will validate that the authenticating user
         // passes our LDAP authentication rules in place.
-        if ($this->getLdapUserValidator($user, $model)->passes()) {
+        if ($domain->userValidator($user, $model)->passes()) {
             if ($model) {
                 // We will sync / set the users password after
                 // our model has been synchronized.
-                (new PasswordSync($domain))->run($model);
+                $domain->passwordSynchronizer()->run($model);
 
                 // We also want to save the model in case it doesn't
                 // exist yet, or there are changes to be synced.

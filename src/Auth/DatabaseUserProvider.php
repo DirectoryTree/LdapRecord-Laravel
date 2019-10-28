@@ -4,10 +4,7 @@ namespace LdapRecord\Laravel\Auth;
 
 use LdapRecord\Models\Model;
 use LdapRecord\Laravel\Domain;
-use LdapRecord\Laravel\Commands\Importer;
 use LdapRecord\Laravel\Events\Imported;
-use LdapRecord\Laravel\Commands\PasswordSync;
-use LdapRecord\Laravel\Traits\ValidatesUsers;
 use Illuminate\Contracts\Hashing\Hasher;
 use Illuminate\Auth\EloquentUserProvider;
 use Illuminate\Contracts\Auth\Authenticatable;
@@ -18,8 +15,6 @@ use LdapRecord\Laravel\Events\AuthenticatedWithCredentials;
 
 class DatabaseUserProvider extends UserProvider
 {
-    use ValidatesUsers;
-
     /**
      * The fallback eloquent user provider.
      *
@@ -86,7 +81,7 @@ class DatabaseUserProvider extends UserProvider
             event(new DiscoveredWithCredentials($user));
 
             // Import / locate the local user account.
-            return (new Importer($this->domain))->run($user);
+            return $this->domain->importer()->run($user);
         }
 
         if ($this->domain->isFallingBack()) {
@@ -110,7 +105,7 @@ class DatabaseUserProvider extends UserProvider
             // Here we will perform authorization on the LDAP user. If all
             // validation rules pass, we will allow the authentication
             // attempt. Otherwise, it is automatically rejected.
-            if (!$this->getLdapUserValidator($this->user, $model)->passes()) {
+            if (!$this->domain->userValidator($this->user, $model)->passes()) {
                 event(new AuthenticationRejected($this->user, $model));
 
                 return false;
@@ -118,7 +113,7 @@ class DatabaseUserProvider extends UserProvider
 
             // Here we will synchronize / set the users password as they have
             // successfully passed authentication and validation rules.
-            (new PasswordSync($this->domain))->run($model, $credentials);
+            $this->domain->passwordSynchronizer()->run($model, $credentials);
 
             $model->save();
 
