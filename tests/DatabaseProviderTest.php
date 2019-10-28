@@ -4,7 +4,7 @@ namespace LdapRecord\Laravel\Tests;
 
 use Adldap\Models\User;
 use Adldap\AdldapInterface;
-use LdapRecord\Laravel\Commands\Import;
+use LdapRecord\Laravel\Commands\Importer;
 use Illuminate\Support\Facades\App;
 use LdapRecord\Laravel\Facades\Resolver;
 use Illuminate\Support\Facades\Auth;
@@ -123,13 +123,13 @@ class DatabaseProviderTest extends DatabaseTestCase
             'userprincipalname'     => ['jdoe@email.com'],
         ]);
 
-        $importer = new Import($user, new EloquentUser());
+        $importer = new Importer($user, new EloquentUser());
 
         Resolver::shouldReceive('getDatabaseIdColumn')->andReturn('objectguid')
             ->shouldReceive('getDatabaseUsernameColumn')->once()->andReturn('email')
             ->shouldReceive('getLdapDiscoveryAttribute')->once()->andReturn('userprincipalname');
 
-        $this->assertInstanceOf(EloquentUser::class, $importer->handle());
+        $this->assertInstanceOf(EloquentUser::class, $importer->run());
     }
 
     /** @test */
@@ -148,9 +148,9 @@ class DatabaseProviderTest extends DatabaseTestCase
             'userprincipalname' => ['jdoe@email.com'],
         ]);
 
-        $importer = new Import($user, new EloquentUser());
+        $importer = new Importer($user, new EloquentUser());
 
-        $model = $importer->handle();
+        $model = $importer->run();
 
         $this->assertInstanceOf(EloquentUser::class, $model);
         $this->assertNull($model->name);
@@ -175,9 +175,9 @@ class DatabaseProviderTest extends DatabaseTestCase
             'userprincipalname' => ['jdoe@email.com'],
         ]);
 
-        $importer = new Import($user, new EloquentUser());
+        $importer = new Importer($user, new EloquentUser());
 
-        $model = $importer->handle();
+        $model = $importer->run();
 
         $this->assertInstanceOf(EloquentUser::class, $model);
         $this->assertNull($model->string);

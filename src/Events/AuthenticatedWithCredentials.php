@@ -2,7 +2,7 @@
 
 namespace LdapRecord\Laravel\Events;
 
-use Adldap\Models\User;
+use LdapRecord\Models\Model;
 use Illuminate\Contracts\Auth\Authenticatable;
 
 class AuthenticatedWithCredentials
@@ -10,12 +10,12 @@ class AuthenticatedWithCredentials
     /**
      * The authenticated LDAP user.
      *
-     * @var User
+     * @var Model
      */
     public $user;
 
     /**
-     * The authenticated LDAP users model.
+     * The LDAP users authenticatable model.
      *
      * @var Authenticatable
      */
@@ -24,10 +24,10 @@ class AuthenticatedWithCredentials
     /**
      * Constructor.
      *
-     * @param User                 $user
+     * @param Model                $user
      * @param Authenticatable|null $model
      */
-    public function __construct(User $user, Authenticatable $model = null)
+    public function __construct(Model $user, Authenticatable $model = null)
     {
         $this->user = $user;
         $this->model = $model;

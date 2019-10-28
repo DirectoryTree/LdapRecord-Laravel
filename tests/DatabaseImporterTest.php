@@ -3,7 +3,7 @@
 namespace LdapRecord\Laravel\Tests;
 
 use Illuminate\Support\Str;
-use LdapRecord\Laravel\Commands\Import;
+use LdapRecord\Laravel\Commands\Importer;
 use LdapRecord\Laravel\Tests\Models\TestUser;
 
 class DatabaseImporterTest extends DatabaseTestCase
@@ -13,9 +13,9 @@ class DatabaseImporterTest extends DatabaseTestCase
     {
         $user = $this->makeLdapUser();
 
-        $importer = new Import($user, new TestUser());
+        $importer = new Importer($user, new TestUser());
 
-        $model = $importer->handle();
+        $model = $importer->run();
 
         $this->assertEquals($user->getCommonName(), $model->name);
         $this->assertEquals($user->getUserPrincipalName(), $model->email);
@@ -29,7 +29,7 @@ class DatabaseImporterTest extends DatabaseTestCase
 
         $firstUser->setUserPrincipalName('JDOE@EMAIL.com');
 
-        $m1 = (new Import($firstUser, new TestUser()))->handle();
+        $m1 = (new Importer($firstUser, new TestUser()))->run();
 
         $m1->password = bcrypt(Str::random(16));
 
@@ -39,7 +39,7 @@ class DatabaseImporterTest extends DatabaseTestCase
 
         $secondUser->setUserPrincipalName('jdoe@email.com');
 
-        $m2 = (new Import($secondUser, new TestUser()))->handle();
+        $m2 = (new Importer($secondUser, new TestUser()))->run();
 
         $this->assertTrue($m1->is($m2));
     }
@@ -54,7 +54,7 @@ class DatabaseImporterTest extends DatabaseTestCase
             'objectguid' => null,
         ]);
 
-        (new Import($u, new TestUser()))->handle();
+        (new Importer($u, new TestUser()))->run();
     }
 
     /**
@@ -67,7 +67,7 @@ class DatabaseImporterTest extends DatabaseTestCase
             'objectguid' => ' ',
         ]);
 
-        (new Import($u, new TestUser()))->handle();
+        (new Importer($u, new TestUser()))->run();
     }
 
     /**
@@ -80,7 +80,7 @@ class DatabaseImporterTest extends DatabaseTestCase
             'userprincipalname' => null,
         ]);
 
-        (new Import($u, new TestUser()))->handle();
+        (new Importer($u, new TestUser()))->run();
     }
 
     /**
@@ -93,6 +93,6 @@ class DatabaseImporterTest extends DatabaseTestCase
             'userprincipalname' => ' ',
         ]);
 
-        (new Import($u, new TestUser()))->handle();
+        (new Importer($u, new TestUser()))->run();
     }
 }

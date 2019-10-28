@@ -2,7 +2,7 @@
 
 namespace LdapRecord\Laravel\Tests;
 
-use LdapRecord\Laravel\Commands\Import;
+use LdapRecord\Laravel\Commands\Importer;
 use LdapRecord\Laravel\Facades\Resolver;
 use Illuminate\Support\Facades\Auth;
 use LdapRecord\Laravel\Tests\Models\TestUser;
@@ -20,9 +20,9 @@ class EloquentAuthenticateTest extends DatabaseTestCase
             'userprincipalname' => ['jdoe@email.com'],
         ]);
 
-        $importer = new Import($user, new TestUser());
+        $importer = new Importer($user, new TestUser());
 
-        $model = $importer->handle();
+        $model = $importer->run();
 
         Resolver::spy();
         Resolver::shouldNotReceive('byModel');

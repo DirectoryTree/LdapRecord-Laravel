@@ -3,13 +3,11 @@
 namespace LdapRecord\Laravel;
 
 use LdapRecord\Container;
-use LdapRecord\Connection;
 use Illuminate\Support\Str;
 use LdapRecord\LdapRecordException;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
 
-class LdapRecordServiceProvider extends ServiceProvider
+class LdapServiceProvider extends ServiceProvider
 {
     /**
      * Run service provider boot operations.
@@ -36,55 +34,48 @@ class LdapRecordServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register the service provider.
+     * Register the configured LDAP domains.
      *
      * @return void
      */
     public function register()
     {
-        $container = Container::getInstance();
+        foreach ($this->getDomains() as $domainClass) {
+            /** @var \LdapRecord\Laravel\Domain $domain */
+            $domain = app($domainClass);
 
-        foreach (config('ldap.connections', []) as $name => $config) {
-            $connection = new Connection($config['settings']);
-
-            $container->add($connection, $name);
-
-            // If auto connect is enabled, an attempt will be made to bind to
-            // the LDAP server with the configured credentials. If this
-            // fails then the exception will be logged (if enabled).
-            if ($this->shouldAutoConnect($config)) {
+            if ($domain->isAutoConnecting()) {
                 try {
-                    $connection->connect();
-                } catch (LdapRecordException $e) {
+                    $domain->connect();
+                } catch (LdapRecordException $ex) {
                     if ($this->isLogging()) {
-                        logger()->error($e);
+                        logger()->error($ex->getMessage());
                     }
                 }
             }
+
+            $this->app->singleton($domainClass, $domain);
         }
     }
 
     /**
-     * Determines if the given settings has auto connect enabled.
+     * Get the configured LDAP domains.
      *
-     * @param array $settings
-     *
-     * @return bool
+     * @return array
      */
-    protected function shouldAutoConnect(array $settings)
+    protected function getDomains()
     {
-        return array_key_exists('auto_connect', $settings)
-            && $settings['auto_connect'] === true;
+        return config('ldap.domains', []);
     }
 
     /**
-     * Determines whether logging is enabled.
+     * Determine whether LDAP logging is enabled.
      *
      * @return bool
      */
     protected function isLogging()
     {
-        return Config::get('ldap.logging', false);
+        return config('ldap.logging', false);
     }
 
     /**

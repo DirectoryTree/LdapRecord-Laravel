@@ -14,8 +14,8 @@ use LdapRecord\Laravel\Facades\Resolver;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Database\Eloquent\Model;
-use LdapRecord\Laravel\Commands\SyncPassword;
-use LdapRecord\Laravel\Commands\Import as ImportUser;
+use LdapRecord\Laravel\Commands\PasswordSync;
+use LdapRecord\Laravel\Commands\Importer as ImportUser;
 
 class Import extends Command
 {
@@ -108,7 +108,7 @@ class Import extends Command
                 );
 
                 // Set the users password.
-                Bus::dispatch(new SyncPassword($model));
+                Bus::dispatch(new PasswordSync($model));
 
                 // Save the returned model.
                 $this->save($user, $model);

@@ -2,14 +2,14 @@
 
 namespace LdapRecord\Laravel\Events;
 
-use Adldap\Models\User;
+use LdapRecord\Models\Model;
 
 class Authenticating
 {
     /**
      * The LDAP user that is authenticating.
      *
-     * @var User
+     * @var Model
      */
     public $user;
 
@@ -23,10 +23,10 @@ class Authenticating
     /**
      * Constructor.
      *
-     * @param User   $user
+     * @param Model  $user
      * @param string $username
      */
-    public function __construct(User $user, $username = '')
+    public function __construct(Model $user, $username = '')
     {
         $this->user = $user;
         $this->username = $username;

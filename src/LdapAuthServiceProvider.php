@@ -13,10 +13,11 @@ use Illuminate\Contracts\Hashing\Hasher;
 use Illuminate\Auth\Events\Authenticated;
 use LdapRecord\Laravel\Resolvers\UserResolver;
 use LdapRecord\Laravel\Commands\Console\Import;
-use LdapRecord\Laravel\Auth\DatabaseUserProvider;
+use LdapRecord\Laravel\Auth\LdapUserProvider;
 use LdapRecord\Laravel\Resolvers\ResolverInterface;
+use LdapRecord\Laravel\Listeners\BindsLdapUserModel;
 
-class LdapRecordAuthServiceProvider extends ServiceProvider
+class LdapAuthServiceProvider extends ServiceProvider
 {
     /**
      * Run service provider boot operations.
@@ -60,7 +61,7 @@ class LdapRecordAuthServiceProvider extends ServiceProvider
         // model to their Eloquent model upon authentication (if configured).
         // This allows us to utilize their LDAP model right
         // after authentication has passed.
-        Event::listen([Login::class, Authenticated::class], LdapRecord\Laravel\Listeners\BindsLdapUserModel::class);
+        Event::listen([Login::class, Authenticated::class], BindsLdapUserModel::class);
 
         if ($this->isLogging()) {
             // If logging is enabled, we will set up our event listeners that
@@ -83,11 +84,11 @@ class LdapRecordAuthServiceProvider extends ServiceProvider
      */
     protected function makeUserProvider(Hasher $hasher, array $config)
     {
-        $provider = Config::get('ldap_auth.provider', DatabaseUserProvider::class);
+        $provider = Config::get('ldap_auth.provider', LdapUserProvider::class);
 
         // The DatabaseUserProvider requires a model to be configured
         // in the configuration. We will validate this here.
-        if (is_a($provider, DatabaseUserProvider::class, $allowString = true)) {
+        if (is_a($provider, LdapUserProvider::class, $allowString = true)) {
             // We will try to retrieve their model from the config file,
             // otherwise we will try to use the providers config array.
             $model = Config::get('ldap_auth.model') ?? Arr::get($config, 'model');

@@ -5,15 +5,15 @@ namespace LdapRecord\Laravel\Middleware;
 use Closure;
 use Adldap\Models\User;
 use Illuminate\Http\Request;
-use LdapRecord\Laravel\Commands\Import;
+use LdapRecord\Laravel\Commands\Importer;
 use Illuminate\Support\Facades\Bus;
 use LdapRecord\Laravel\Facades\Resolver;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Config;
-use LdapRecord\Laravel\Commands\SyncPassword;
+use LdapRecord\Laravel\Commands\PasswordSync;
 use LdapRecord\Laravel\Traits\ValidatesUsers;
-use LdapRecord\Laravel\Auth\DatabaseUserProvider;
+use LdapRecord\Laravel\Auth\LdapUserProvider;
 use LdapRecord\Laravel\Events\AuthenticatedWithWindows;
 
 class WindowsAuthenticate
@@ -78,21 +78,21 @@ class WindowsAuthenticate
 
             // If we are using the DatabaseUserProvider, we must locate or import
             // the users model that is currently authenticated with SSO.
-            if ($this->auth->getProvider() instanceof DatabaseUserProvider) {
+            if ($this->auth->getProvider() instanceof LdapUserProvider) {
                 // Here we will import the LDAP user. If the user already exists in
                 // our local database, it will be returned from the importer.
                 $model = Bus::dispatch(
-                    new Import($user, $this->model())
+                    new Importer($user, $this->model())
                 );
             }
 
             // Here we will validate that the authenticating user
             // passes our LDAP authentication rules in place.
-            if ($this->passesValidation($user, $model)) {
+            if ($this->getLdapUserValidator($user, $model)) {
                 if ($model) {
                     // We will sync / set the users password after
                     // our model has been synchronized.
-                    Bus::dispatch(new SyncPassword($model));
+                    Bus::dispatch(new PasswordSync($model));
 
                     // We also want to save the model in case it doesn't
                     // exist yet, or there are changes to be synced.

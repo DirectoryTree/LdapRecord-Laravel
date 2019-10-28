@@ -6,10 +6,10 @@ use Adldap\Connections\Ldap;
 use LdapRecord\Laravel\Facades\Adldap;
 use Adldap\Schemas\ActiveDirectory;
 use Illuminate\Support\Facades\Hash;
-use LdapRecord\Laravel\LdapRecordServiceProvider;
+use LdapRecord\Laravel\LdapServiceProvider;
 use LdapRecord\Laravel\Tests\Models\TestUser;
-use LdapRecord\Laravel\LdapRecordAuthServiceProvider;
-use LdapRecord\Laravel\Auth\DatabaseUserProvider;
+use LdapRecord\Laravel\LdapAuthServiceProvider;
+use LdapRecord\Laravel\Auth\LdapUserProvider;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 
 class TestCase extends BaseTestCase
@@ -26,8 +26,8 @@ class TestCase extends BaseTestCase
     protected function getPackageProviders($app)
     {
         return [
-            LdapRecordServiceProvider::class,
-            LdapRecordAuthServiceProvider::class,
+            LdapServiceProvider::class,
+            LdapAuthServiceProvider::class,
         ];
     }
 
@@ -58,7 +58,7 @@ class TestCase extends BaseTestCase
         ]);
 
         // Adldap auth setup.
-        $config->set('ldap_auth.provider', DatabaseUserProvider::class);
+        $config->set('ldap_auth.provider', LdapUserProvider::class);
         $config->set('ldap_auth.sync_attributes', [
             'email' => 'userprincipalname',
             'name'  => 'cn',

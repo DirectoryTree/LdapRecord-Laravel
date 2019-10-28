@@ -2,7 +2,6 @@
 
 namespace LdapRecord\Laravel\Traits;
 
-use Illuminate\Support\Facades\Config;
 use Illuminate\Database\Eloquent\Model;
 use LdapRecord\Models\Model as LdapModel;
 use LdapRecord\Laravel\Validation\Validator;
@@ -15,13 +14,11 @@ trait ValidatesUsers
      * @param LdapModel  $user
      * @param Model      $model
      *
-     * @return bool
+     * @return Validator
      */
-    protected function passesValidation(LdapModel $user, Model $model = null)
+    protected function getLdapUserValidator(LdapModel $user, Model $model = null)
     {
-        return (new Validator(
-            $this->rules($user, $model)
-        ))->passes();
+        return new Validator($this->getLdapRules($user, $model));
     }
 
     /**
@@ -32,24 +29,14 @@ trait ValidatesUsers
      *
      * @return array
      */
-    protected function rules(LdapModel $user, Model $model = null)
+    protected function getLdapRules(LdapModel $user, Model $model = null)
     {
         $rules = [];
 
-        foreach ($this->getRules() as $rule) {
+        foreach (config('ldap_auth.rules', []) as $rule) {
             $rules[] = new $rule($user, $model);
         }
 
         return $rules;
-    }
-
-    /**
-     * Retrieves the configured authentication rules.
-     *
-     * @return array
-     */
-    protected function getRules()
-    {
-        return Config::get('ldap_auth.rules', []);
     }
 }

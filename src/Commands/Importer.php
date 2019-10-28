@@ -2,17 +2,16 @@
 
 namespace LdapRecord\Laravel\Commands;
 
-use Adldap\Models\User;
+use LdapRecord\Laravel\Domain;
 use UnexpectedValueException;
 use LdapRecord\Laravel\Events\Importing;
-use LdapRecord\Laravel\Facades\Resolver;
+use LdapRecord\Models\Model as LdapModel;
 use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Config;
 use LdapRecord\Laravel\Events\Synchronized;
 use Illuminate\Database\Eloquent\Model;
 use LdapRecord\Laravel\Events\Synchronizing;
 
-class Import
+class Importer
 {
     /**
      * The scope to utilize for locating the LDAP user to synchronize.
@@ -22,18 +21,11 @@ class Import
     public static $scope = UserImportScope::class;
 
     /**
-     * The LDAP user that is being imported.
+     * The LDAP domain to use for importing.
      *
-     * @var User
+     * @var Domain
      */
-    protected $user;
-
-    /**
-     * The LDAP users database model.
-     *
-     * @var Model
-     */
-    protected $model;
+    protected $domain;
 
     /**
      * Sets the scope to use for locating LDAP users.
@@ -48,36 +40,38 @@ class Import
     /**
      * Constructor.
      *
-     * @param User  $user  The LDAP user being imported.
-     * @param Model $model The users eloquent model.
+     * @param Domain $domain
      */
-    public function __construct(User $user, Model $model)
+    public function __construct(Domain $domain)
     {
-        $this->user = $user;
-        $this->model = $model;
+        $this->domain = $domain;
     }
 
     /**
-     * Imports the current LDAP user.
+     * Import the LDAP user.
+     *
+     * @param LdapModel $user
      *
      * @return Model
      */
-    public function handle()
+    public function run(LdapModel $user)
     {
+        $model = $this->getNewDatabaseModel();
+
         // Here we'll try to locate our local user model from
         // the LDAP users model. If one isn't located,
         // we'll create a new one for them.
-        $model = $this->findUser() ?: $this->model->newInstance();
+        $model = $this->locateLdapUserByModel($user, $model) ?: $model->newInstance();
 
         if (! $model->exists) {
-            Event::dispatch(new Importing($this->user, $model));
+            Event::dispatch(new Importing($user, $model));
         }
 
-        Event::dispatch(new Synchronizing($this->user, $model));
+        Event::dispatch(new Synchronizing($user, $model));
 
-        $this->sync($model);
+        $this->sync($user, $model);
 
-        Event::dispatch(new Synchronized($this->user, $model));
+        Event::dispatch(new Synchronized($user, $model));
 
         return $model;
     }
@@ -85,13 +79,15 @@ class Import
     /**
      * Retrieves an eloquent user by their GUID or their username.
      *
-     * @throws UnexpectedValueException
+     * @param LdapModel $user
+     *
+     * @param Model $model
      *
      * @return Model|null
      */
-    protected function findUser()
+    protected function locateLdapUserByModel(LdapModel $user, Model $model)
     {
-        $query = $this->model->newQuery();
+        $query = $model->newQuery();
 
         if ($query->getMacro('withTrashed')) {
             // If the withTrashed macro exists on our User model, then we must be
@@ -100,13 +96,10 @@ class Import
             $query->withTrashed();
         }
 
-        /** @var \Illuminate\Database\Eloquent\Scope $scope */
-        $scope = new static::$scope(
-            $this->getUserObjectGuid(),
-            $this->getUserUsername()
-        );
+        /** @var UserImportScope $scope */
+        $scope = new static::$scope($this->domain, $user);
 
-        $scope->apply($query, $this->model);
+        $scope->apply($query, $model);
 
         return $query->first();
     }
@@ -114,18 +107,24 @@ class Import
     /**
      * Fills a models attributes by the specified Users attributes.
      *
-     * @param Model $model
+     * @param LdapModel $user
+     * @param Model     $model
      *
      * @return void
      */
-    protected function sync(Model $model)
+    protected function sync(LdapModel $user, Model $model)
     {
-        // Set the users LDAP identifier.
+        // Set the users LDAP object GUID.
         $model->setAttribute(
-            Resolver::getDatabaseIdColumn(), $this->getUserObjectGuid()
+            $this->domain->getDatabaseGuidColumn(), $user->getObjectGuid()
         );
 
-        foreach ($this->getLdapSyncAttributes() as $modelField => $ldapField) {
+        // Set the users username.
+        $model->setAttribute(
+            $this->domain->getDatabaseUsernameColumn(), $this->getUserUsername($user)
+        );
+
+        foreach ($this->domain->getSyncAttributes() as $modelField => $ldapField) {
             // If the field is a loaded class and contains a `handle()` method,
             // we need to construct the attribute handler.
             if ($this->isHandler($ldapField)) {
@@ -135,58 +134,48 @@ class Import
                 /** @var mixed $handler */
                 $handler = app($ldapField);
 
-                $handler->handle($this->user, $model);
+                $handler->handle($user, $model);
             } else {
                 // We'll try to retrieve the value from the LDAP model. If the LDAP field is a string,
                 // we'll assume the developer wants the attribute, or a null value. Otherwise,
                 // the raw value of the LDAP field will be used.
-                $model->{$modelField} = is_string($ldapField) ? $this->user->getFirstAttribute($ldapField) : $ldapField;
+                $model->{$modelField} = is_string($ldapField) ? $user->getFirstAttribute($ldapField) : $ldapField;
             }
         }
     }
 
     /**
+     * Get a new domain database model.
+     *
+     * @return \Illuminate\Database\Eloquent\Model
+     */
+    protected function getNewDatabaseModel()
+    {
+        $model = $this->domain->getDatabaseModel();
+
+        return new $model;
+    }
+
+    /**
      * Returns the LDAP users configured username.
      *
-     * @throws UnexpectedValueException
+     * @param LdapModel $user
      *
      * @return string
+     *
+     * @throws UnexpectedValueException
      */
-    protected function getUserUsername()
+    protected function getUserUsername(LdapModel $user)
     {
-        $attribute = Resolver::getLdapDiscoveryAttribute();
-
-        $username = $this->user->getFirstAttribute($attribute);
+        $username = $user->getFirstAttribute($this->domain->getAuthUsername());
 
         if (trim($username) == false) {
             throw new UnexpectedValueException(
-                "Unable to locate a user without a {$attribute}"
+                "Unable to locate a user without a {$this->domain->getAuthUsername()}"
             );
         }
 
         return $username;
-    }
-
-    /**
-     * Returns the LDAP users object GUID.
-     *
-     * @throws UnexpectedValueException
-     *
-     * @return string
-     */
-    protected function getUserObjectGuid()
-    {
-        $guid = $this->user->getConvertedGuid();
-
-        if (trim($guid) == false) {
-            $attribute = $this->user->getSchema()->objectGuid();
-
-            throw new UnexpectedValueException(
-                "Unable to locate a user without a {$attribute}"
-            );
-        }
-
-        return $guid;
     }
 
     /**
@@ -199,18 +188,5 @@ class Import
     protected function isHandler($handler)
     {
         return is_string($handler) && class_exists($handler) && method_exists($handler, 'handle');
-    }
-
-    /**
-     * Returns the configured LDAP sync attributes.
-     *
-     * @return array
-     */
-    protected function getLdapSyncAttributes()
-    {
-        return Config::get('ldap_auth.sync_attributes', [
-            'email' => 'userprincipalname',
-            'name'  => 'cn',
-        ]);
     }
 }

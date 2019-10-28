@@ -2,15 +2,15 @@
 
 namespace LdapRecord\Laravel\Events;
 
-use Adldap\Models\User;
 use Illuminate\Database\Eloquent\Model;
+use LdapRecord\Models\Model as LdapModel;
 
 class Imported
 {
     /**
      * The LDAP user that was successfully imported.
      *
-     * @var User
+     * @var LdapModel
      */
     public $user;
 
@@ -24,10 +24,10 @@ class Imported
     /**
      * Constructor.
      *
-     * @param User  $user
-     * @param Model $model
+     * @param LdapModel $user
+     * @param Model     $model
      */
-    public function __construct(User $user, Model $model)
+    public function __construct(LdapModel $user, Model $model)
     {
         $this->user = $user;
         $this->model = $model;

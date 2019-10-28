@@ -2,7 +2,8 @@
 
 namespace LdapRecord\Laravel\Commands;
 
-use LdapRecord\Laravel\Facades\Resolver;
+use LdapRecord\Laravel\Domain;
+use LdapRecord\Models\Model as LdapModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
 use Illuminate\Database\Eloquent\Builder;
@@ -10,29 +11,29 @@ use Illuminate\Database\Eloquent\Builder;
 class UserImportScope implements Scope
 {
     /**
-     * The LDAP users object guid.
+     * The LDAP domain that the user belongs to.
      *
-     * @var string
+     * @var Domain
      */
-    protected $guid;
+    protected $domain;
 
     /**
-     * The LDAP users username.
+     * The LDAP user being located for import.
      *
-     * @var string
+     * @var LdapModel
      */
-    protected $username;
+    protected $user;
 
     /**
      * Constructor.
      *
-     * @param string $guid
-     * @param string $username
+     * @param Domain    $domain
+     * @param LdapModel $user
      */
-    public function __construct($guid, $username)
+    public function __construct(Domain $domain, LdapModel $user)
     {
-        $this->guid = $guid;
-        $this->username = $username;
+        $this->domain = $domain;
+        $this->user = $user;
     }
 
     /**
@@ -58,8 +59,8 @@ class UserImportScope implements Scope
         // We'll try to locate the user by their object guid,
         // otherwise we'll locate them by their username.
         $query
-            ->where(Resolver::getDatabaseIdColumn(), '=', $this->getGuid())
-            ->orWhere(Resolver::getDatabaseUsernameColumn(), '=', $this->getUsername());
+            ->where($this->domain->getDatabaseGuidColumn(), '=', $this->getGuid())
+            ->orWhere($this->domain->getDatabaseUsernameColumn(), '=', $this->getUsername());
     }
 
     /**
@@ -69,7 +70,7 @@ class UserImportScope implements Scope
      */
     protected function getGuid()
     {
-        return $this->guid;
+        return $this->user->getObjectGuid();
     }
 
     /**
@@ -79,6 +80,6 @@ class UserImportScope implements Scope
      */
     protected function getUsername()
     {
-        return $this->username;
+        return $this->user->getFirstAttribute($this->domain->getDatabaseUsernameColumn());
     }
 }

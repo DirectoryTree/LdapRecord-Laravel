@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use LdapRecord\Laravel\Facades\Resolver;
 use LdapRecord\Laravel\Traits\HasLdapUser;
 use Illuminate\Contracts\Auth\Authenticatable;
-use LdapRecord\Laravel\Auth\DatabaseUserProvider;
+use LdapRecord\Laravel\Auth\LdapUserProvider;
 
 class BindsLdapUserModel
 {
@@ -44,7 +44,7 @@ class BindsLdapUserModel
      */
     protected function isUsingAdldapProvider($guard = null) : bool
     {
-        return Auth::guard($guard)->getProvider() instanceof DatabaseUserProvider;
+        return Auth::guard($guard)->getProvider() instanceof LdapUserProvider;
     }
 
     /**

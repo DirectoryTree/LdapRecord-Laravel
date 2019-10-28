@@ -2,32 +2,32 @@
 
 namespace LdapRecord\Laravel\Events;
 
-use Adldap\Models\User;
-use Illuminate\Database\Eloquent\Model;
+use LdapRecord\Models\Model as LdapModel;
+use Illuminate\Contracts\Auth\Authenticatable;
 
 class AuthenticationSuccessful
 {
     /**
      * The LDAP user that has successfully authenticated.
      *
-     * @var User
+     * @var LdapModel
      */
     public $user;
 
     /**
-     * The authenticated LDAP users model.
+     * The LDAP users authenticatable model.
      *
-     * @var Model|null
+     * @var Authenticatable
      */
     public $model;
 
     /**
      * Constructor.
      *
-     * @param User       $user
-     * @param Model|null $model
+     * @param LdapModel       $user
+     * @param Authenticatable $model
      */
-    public function __construct(User $user, Model $model = null)
+    public function __construct(LdapModel $user, Authenticatable $model)
     {
         $this->user = $user;
         $this->model = $model;

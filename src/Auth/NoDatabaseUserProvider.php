@@ -65,7 +65,7 @@ class NoDatabaseUserProvider implements UserProvider
         if (Resolver::authenticate($user, $credentials)) {
             Event::dispatch(new AuthenticatedWithCredentials($user));
 
-            if ($this->passesValidation($user)) {
+            if ($this->getLdapUserValidator($user)) {
                 Event::dispatch(new AuthenticationSuccessful($user));
 
                 return true;

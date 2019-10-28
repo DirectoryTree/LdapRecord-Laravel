@@ -2,23 +2,23 @@
 
 namespace LdapRecord\Laravel\Events;
 
-use Adldap\Models\User;
+use LdapRecord\Models\Model;
 
 class AuthenticationFailed
 {
     /**
      * The user that failed authentication.
      *
-     * @var User
+     * @var Model
      */
     public $user;
 
     /**
      * Constructor.
      *
-     * @param User $user
+     * @param Model $user
      */
-    public function __construct(User $user)
+    public function __construct(Model $user)
     {
         $this->user = $user;
     }
