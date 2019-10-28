@@ -69,7 +69,7 @@ class DomainRegistrar
             return $this->domains;
         }
 
-        if (!$this->exists($name)) {
+        if (! $this->exists($name)) {
             throw new RegistrarException("Domain '$name' does not exist.");
         }
 
