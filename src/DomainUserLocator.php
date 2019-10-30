@@ -65,19 +65,19 @@ class DomainUserLocator
             return;
         }
 
-        $attribute = $this->domain->isUsingDatabase() ?
+        $usernameKey = $this->domain instanceof SynchronizedDomain ?
             $this->domain->getDatabaseUsernameColumn() :
             $this->domain->getAuthUsername();
 
-        if (! array_key_exists($attribute, $credentials)) {
+        if (! array_key_exists($usernameKey, $credentials)) {
             throw new RuntimeException(
-                "The '$attribute' key is missing from the given credentials array."
+                "The '$usernameKey' key is missing from the given credentials array."
             );
         }
 
         return $this->query()->whereEquals(
             $this->domain->getAuthUsername(),
-            $credentials[$attribute]
+            $credentials[$usernameKey]
         )->first();
     }
 

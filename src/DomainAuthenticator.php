@@ -39,12 +39,11 @@ class DomainAuthenticator
      */
     public function attempt(Model $user, array $credentials = [])
     {
-        $username = $user->getDn();
+        event(new Authenticating($user, $user->getDn()));
+
         $password = $this->getPasswordFromCredentials($credentials);
 
-        event(new Authenticating($user, $username));
-
-        if ($this->getDomainGuard()->attempt($username, $password)) {
+        if ($this->getDomainGuard()->attempt($user->getDn(), $password)) {
             event(new Authenticated($user));
 
             return true;
@@ -66,7 +65,7 @@ class DomainAuthenticator
     }
 
     /**
-     * Get the password.
+     * Get the password from the users credentials.
      *
      * @param array $credentials
      *

@@ -61,8 +61,8 @@ class UserImportScope implements Scope
         // We'll try to locate the user by their object guid,
         // otherwise we'll locate them by their username.
         $query
-            ->where($model->getLdapGuidName(), '=', $this->getGuid())
-            ->orWhere($this->domain->getDatabaseUsernameColumn(), '=', $this->getUsername());
+            ->where($model->getLdapGuidColumn(), '=', $this->getUserGuid())
+            ->orWhere($this->domain->getDatabaseUsernameColumn(), '=', $this->getUserUsername());
     }
 
     /**
@@ -70,7 +70,7 @@ class UserImportScope implements Scope
      *
      * @return string
      */
-    protected function getGuid()
+    protected function getUserGuid()
     {
         return $this->user->getObjectGuid();
     }
@@ -80,7 +80,7 @@ class UserImportScope implements Scope
      *
      * @return string
      */
-    protected function getUsername()
+    protected function getUserUsername()
     {
         return $this->user->getFirstAttribute($this->domain->getDatabaseUsernameColumn());
     }

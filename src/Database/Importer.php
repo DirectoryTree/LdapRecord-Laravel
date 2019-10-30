@@ -3,10 +3,10 @@
 namespace LdapRecord\Laravel\Database;
 
 use UnexpectedValueException;
-use LdapRecord\Laravel\Domain;
 use Illuminate\Database\Eloquent\Model;
 use LdapRecord\Laravel\Events\Importing;
 use LdapRecord\Models\Model as LdapModel;
+use LdapRecord\Laravel\SynchronizedDomain;
 use LdapRecord\Laravel\Events\Synchronized;
 use LdapRecord\Laravel\Events\Synchronizing;
 use LdapRecord\Laravel\Auth\LdapAuthenticatable;
@@ -23,7 +23,7 @@ class Importer
     /**
      * The LDAP domain to use for importing.
      *
-     * @var Domain
+     * @var SynchronizedDomain
      */
     protected $domain;
 
@@ -38,23 +38,17 @@ class Importer
     }
 
     /**
-     * Constructor.
-     *
-     * @param Domain $domain
+     * {@inheritDoc}
      */
-    public function __construct(Domain $domain)
+    public function __construct(SynchronizedDomain $domain)
     {
         $this->domain = $domain;
     }
 
     /**
-     * Import the LDAP user.
-     *
-     * @param LdapModel $user
-     *
-     * @return Model
+     * {@inheritDoc}
      */
-    public function run(LdapModel $user)
+    public function run(LdapModel $user) : Model
     {
         $model = $this->getNewDatabaseModel();
 
@@ -115,7 +109,7 @@ class Importer
     protected function sync(LdapModel $user, LdapAuthenticatable $model)
     {
         // Set the users LDAP object GUID and domain.
-        $model->setLdapGuid($user->getObjectGuid());
+        $model->setLdapGuid($user->getConvertedGuid());
         $model->setLdapDomain($this->domain->getName());
 
         // Set the users username.

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use LdapRecord\Laravel\DomainRegistrar;
 use LdapRecord\Laravel\Events\Imported;
 use LdapRecord\Models\Model as LdapModel;
+use LdapRecord\Laravel\SynchronizedDomain;
 
 class Import extends Command
 {
@@ -55,8 +56,8 @@ class Import extends Command
 
         $domain = $registrar->get($domainName);
 
-        if (! $domain->isUsingDatabase()) {
-            throw new RuntimeException("Domain '$domainName' is not configured for importing.");
+        if (! $domain instanceof SynchronizedDomain) {
+            throw new RuntimeException("Domain '$domainName' is not configured for synchronization.");
         }
 
         $users = $this->getUsers($domain);
@@ -105,13 +106,11 @@ class Import extends Command
 
         $this->output->progressStart(count($users));
 
-        $databaseModel = $domain->getDatabaseModel();
-
         /** @var LdapModel $user */
         foreach ($users as $user) {
             try {
                 // Import the user and retrieve it's model.
-                $model = $domain->importer()->run(new $databaseModel);
+                $model = $domain->importer()->run($user);
 
                 // Set the users password.
                 $domain->passwordSynchronizer()->run($model);
@@ -131,7 +130,7 @@ class Import extends Command
             } catch (Exception $e) {
                 // Log the unsuccessful import.
                 if ($this->isLogging()) {
-                    logger()->error("Unable to import user {$user->getCommonName()}. {$e->getMessage()}");
+                    logger()->error("Importing user '{$user->getRdn()}' failed. {$e->getMessage()}");
                 }
             }
 
@@ -241,7 +240,7 @@ class Import extends Command
 
             // Log the successful import.
             if ($this->isLogging()) {
-                logger()->info("Imported user {$user->getRdn()}");
+                logger()->info("Imported user '{$user->getRdn()}'");
             }
 
             return true;
@@ -271,7 +270,7 @@ class Import extends Command
             $model->restore();
 
             if ($this->isLogging()) {
-                logger()->info("Restored user {$user->getRdn()}. Their user account has been re-enabled.");
+                logger()->info("Restored user '{$user->getRdn()}'. Their user account has been re-enabled.");
             }
         }
     }
@@ -299,7 +298,7 @@ class Import extends Command
             $model->delete();
 
             if ($this->isLogging()) {
-                logger()->info("Soft-deleted user {$user->getRdn()}. Their user account is disabled.");
+                logger()->info("Soft-deleted user '{$user->getRdn()}'. Their user account is disabled.");
             }
         }
     }

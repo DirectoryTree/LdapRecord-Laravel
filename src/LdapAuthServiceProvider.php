@@ -22,16 +22,14 @@ class LdapAuthServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // Register the import command.
         $this->commands(Import::class);
 
-        // Register the lDAP auth provider.
         Auth::provider('ldap', function ($app, array $config) {
             /** @var Domain $domain */
             $domain = app(DomainRegistrar::class)->get($config['domain']);
 
-            return $domain->isUsingDatabase() ?
-                new DatabaseUserProvider($app['hash'], $domain) :
+            return $domain instanceof SynchronizedDomain ?
+                new DatabaseUserProvider($domain, $app['hash']) :
                 new NoDatabaseUserProvider($domain);
         });
     }

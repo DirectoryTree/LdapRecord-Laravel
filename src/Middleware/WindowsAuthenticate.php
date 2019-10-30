@@ -7,6 +7,7 @@ use LdapRecord\Models\Model;
 use LdapRecord\Laravel\Domain;
 use Illuminate\Contracts\Auth\Guard;
 use LdapRecord\Laravel\Auth\UserProvider;
+use LdapRecord\Laravel\SynchronizedDomain;
 use LdapRecord\Laravel\Events\AuthenticatedWithWindows;
 
 class WindowsAuthenticate
@@ -78,7 +79,7 @@ class WindowsAuthenticate
 
         // If we are using the DatabaseUserProvider, we must locate or import
         // the users model that is currently authenticated with SSO.
-        if ($domain->isUsingDatabase()) {
+        if ($domain instanceof SynchronizedDomain) {
             // Here we will import the LDAP user. If the user already exists in
             // our local database, it will be returned from the importer.
             $model = $domain->importer()->run($user);

@@ -4,10 +4,8 @@ namespace LdapRecord\Laravel;
 
 use LdapRecord\Connection;
 use LdapRecord\ConnectionInterface;
-use LdapRecord\Laravel\Database\Importer;
 use LdapRecord\Models\ActiveDirectory\User;
 use LdapRecord\Laravel\Validation\Validator;
-use LdapRecord\Laravel\Database\PasswordSynchronizer;
 
 abstract class Domain
 {
@@ -33,30 +31,7 @@ abstract class Domain
     protected $shouldAutoConnect = true;
 
     /**
-     * Whether the domain uses the local database to store users.
-     *
-     * @var bool
-     */
-    protected $usesDatabase = false;
-
-    /**
-     * Whether passwords should be synchronized to the local database.
-     *
-     * @var bool
-     */
-    protected $syncPasswords = false;
-
-    /**
-     * Whether authentication attempts should fall back to the local database.
-     *
-     * @var bool
-     */
-    protected $loginFallback = false;
-
-    /**
-     * Get the configuration of the domain.
-     *
-     * @return array
+     * {@inheritDoc}
      */
     abstract public function getConfig() : array;
 
@@ -71,64 +46,19 @@ abstract class Domain
     }
 
     /**
-     * Get the name of the domain.
-     *
-     * @return string
+     * {@inheritDoc}
      */
-    public function getName()
+    public function getName() : string
     {
         return $this->name;
     }
 
     /**
-     * Get whether the domain is being automatically connected to.
-     *
-     * @return bool
+     * {@inheritDoc}
      */
     public function shouldAutoConnect() : bool
     {
         return $this->shouldAutoConnect;
-    }
-
-    /**
-     * Get whether the domain is falling back to local database authentication.
-     *
-     * @return bool
-     */
-    public function isFallingBack() : bool
-    {
-        return $this->loginFallback;
-    }
-
-    /**
-     * Get whether the domain is syncing passwords to the local database.
-     *
-     * @return bool
-     */
-    public function isSyncingPasswords() : bool
-    {
-        return $this->syncPasswords;
-    }
-
-    /**
-     * Get whether the domain is syncing to the local database.
-     *
-     * @return bool
-     */
-    public function isUsingDatabase() : bool
-    {
-        return $this->usesDatabase;
-    }
-
-    /**
-     * Connect to the LDAP domain.
-     *
-     * @throws \LdapRecord\Auth\BindException
-     * @throws \LdapRecord\ConnectionException
-     */
-    public function connect()
-    {
-        $this->getConnection()->connect();
     }
 
     /**
@@ -138,7 +68,7 @@ abstract class Domain
      */
     public function auth()
     {
-        return new DomainAuthenticator($this);
+        return app(DomainAuthenticator::class, ['domain' => $this]);
     }
 
     /**
@@ -148,17 +78,7 @@ abstract class Domain
      */
     public function locate()
     {
-        return new DomainUserLocator($this);
-    }
-
-    /**
-     * Create a new domain importer.
-     *
-     * @return Importer
-     */
-    public function importer()
-    {
-        return new Importer($this);
+        return app(DomainUserLocator::class, ['domain' => $this]);
     }
 
     /**
@@ -178,16 +98,6 @@ abstract class Domain
         }
 
         return new Validator($rules);
-    }
-
-    /**
-     * Create a new password synchronizer.
-     *
-     * @return PasswordSynchronizer
-     */
-    public function passwordSynchronizer()
-    {
-        return new PasswordSynchronizer($this);
     }
 
     /**
@@ -231,59 +141,7 @@ abstract class Domain
     }
 
     /**
-     * Get the attributes to sync.
-     *
-     * @return array|null
-     */
-    public function getSyncAttributes() : ?array
-    {
-        return ['name' => 'cn'];
-    }
-
-    /**
-     * Get the eloquent database model for the domain.
-     *
-     * @return string|null
-     */
-    public function getDatabaseModel() : ?string
-    {
-        //
-    }
-
-    /**
-     * Get the name of the database column that stores the users object GUID.
-     *
-     * @return string|null
-     */
-    public function getDatabaseGuidColumn() : ?string
-    {
-        return 'objectguid';
-    }
-
-    /**
-     * Get the name of the database column that stores the users username.
-     *
-     * @return string|null
-     */
-    public function getDatabaseUsernameColumn() : ?string
-    {
-        return 'email';
-    }
-
-    /**
-     * Get the name of the database column that stores the users password.
-     *
-     * @return string|null
-     */
-    public function getDatabasePasswordColumn() : ?string
-    {
-        return 'password';
-    }
-
-    /**
-     * Get the attribute for authenticating users with.
-     *
-     * @return string
+     * {@inheritDoc}
      */
     public function getAuthUsername() : string
     {
@@ -291,9 +149,7 @@ abstract class Domain
     }
 
     /**
-     * Get the authentication scopes for the domain.
-     *
-     * @return array
+     * {@inheritDoc}
      */
     public function getAuthScopes() : array
     {
@@ -301,9 +157,7 @@ abstract class Domain
     }
 
     /**
-     * Get the authentication rules for the domain.
-     *
-     * @return array
+     * {@inheritDoc}
      */
     public function getAuthRules() : array
     {

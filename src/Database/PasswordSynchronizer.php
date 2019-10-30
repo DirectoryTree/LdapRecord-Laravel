@@ -4,36 +4,29 @@ namespace LdapRecord\Laravel\Database;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
-use LdapRecord\Laravel\Domain;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Eloquent\Model;
+use LdapRecord\Laravel\SynchronizedDomain;
 
 class PasswordSynchronizer
 {
     /**
      * The LDAP domain.
      *
-     * @var Domain
+     * @var SynchronizedDomain
      */
     protected $domain;
 
     /**
-     * Constructor.
-     *
-     * @param Domain $domain
+     * {@inheritDoc}
      */
-    public function __construct(Domain $domain)
+    public function __construct(SynchronizedDomain $domain)
     {
         $this->domain = $domain;
     }
 
     /**
-     * Sets the password on the users model.
-     *
-     * @param Model $model
-     * @param array $credentials
-     *
-     * @return Model
+     * {@inheritDoc}
      */
     public function run(Model $model, array $credentials = []) : Model
     {
