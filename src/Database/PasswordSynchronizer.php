@@ -17,17 +17,11 @@ class PasswordSynchronizer
      */
     protected $domain;
 
-    /**
-     * {@inheritDoc}
-     */
     public function __construct(SynchronizedDomain $domain)
     {
         $this->domain = $domain;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function run(Model $model, array $credentials = []) : Model
     {
         if ($this->hasPasswordColumn()) {

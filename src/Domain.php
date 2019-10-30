@@ -30,9 +30,6 @@ abstract class Domain
      */
     protected $shouldAutoConnect = true;
 
-    /**
-     * {@inheritDoc}
-     */
     abstract public function getConfig() : array;
 
     /**
@@ -45,17 +42,11 @@ abstract class Domain
         $this->name = $name;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getName() : string
     {
         return $this->name;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function shouldAutoConnect() : bool
     {
         return $this->shouldAutoConnect;
@@ -140,25 +131,16 @@ abstract class Domain
         return User::class;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getAuthUsername() : string
     {
         return 'userprincipalname';
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getAuthScopes() : array
     {
         return [];
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getAuthRules() : array
     {
         return [];

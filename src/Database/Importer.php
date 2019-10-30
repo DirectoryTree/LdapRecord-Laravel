@@ -37,17 +37,11 @@ class Importer
         static::$scope = $scope;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function __construct(SynchronizedDomain $domain)
     {
         $this->domain = $domain;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function run(LdapModel $user) : Model
     {
         $model = $this->getNewDatabaseModel();
