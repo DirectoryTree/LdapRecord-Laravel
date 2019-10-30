@@ -5,6 +5,13 @@ namespace LdapRecord\Laravel\Auth;
 interface LdapAuthenticatable
 {
     /**
+     * Get the database column name for the LDAP domain.
+     *
+     * @return string
+     */
+    public function getLdapDomainColumn();
+
+    /**
      * Get the users LDAP domain.
      *
      * @return string
@@ -21,18 +28,18 @@ interface LdapAuthenticatable
     public function setLdapDomain($domain);
 
     /**
+     * Get the database column name for the LDAP guid.
+     *
+     * @return string
+     */
+    public function getLdapGuidColumn();
+
+    /**
      * Get the users LDAP GUID.
      *
      * @return string
      */
     public function getLdapGuid();
-
-    /**
-     * Get the users LDAP GUID database column name.
-     *
-     * @return string
-     */
-    public function getLdapGuidName();
 
     /**
      * Set the users LDAP GUID.
