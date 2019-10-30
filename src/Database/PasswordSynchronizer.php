@@ -18,7 +18,9 @@ class PasswordSynchronizer
     protected $domain;
 
     /**
-     * {@inheritDoc}
+     * Constructor.
+     *
+     * @param SynchronizedDomain $domain
      */
     public function __construct(SynchronizedDomain $domain)
     {
@@ -26,7 +28,12 @@ class PasswordSynchronizer
     }
 
     /**
-     * {@inheritDoc}
+     * Synchronize the models password.
+     *
+     * @param Model $model
+     * @param array $credentials
+     *
+     * @return Model
      */
     public function run(Model $model, array $credentials = []) : Model
     {

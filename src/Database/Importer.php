@@ -38,7 +38,9 @@ class Importer
     }
 
     /**
-     * {@inheritDoc}
+     * Constructor.
+     *
+     * @param SynchronizedDomain $domain
      */
     public function __construct(SynchronizedDomain $domain)
     {
@@ -46,7 +48,11 @@ class Importer
     }
 
     /**
-     * {@inheritDoc}
+     * Import / synchronize the LDAP user.
+     *
+     * @param LdapModel $user
+     *
+     * @return Model
      */
     public function run(LdapModel $user) : Model
     {
@@ -117,7 +123,7 @@ class Importer
             $this->domain->getDatabaseUsernameColumn(), $this->getUserUsername($user)
         );
 
-        foreach ($this->domain->getSyncAttributes() as $modelField => $ldapField) {
+        foreach ($this->domain->getDatabaseSyncAttributes() as $modelField => $ldapField) {
             // If the field is a loaded class and contains a `handle()` method,
             // we need to construct the attribute handler.
             if ($this->isHandler($ldapField)) {

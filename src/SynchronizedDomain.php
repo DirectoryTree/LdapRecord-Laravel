@@ -62,15 +62,19 @@ abstract class SynchronizedDomain extends Domain
     }
 
     /**
-     * {@inheritDoc}
+     * Get the database sync attributes.
+     *
+     * @return array
      */
-    public function getSyncAttributes() : array
+    public function getDatabaseSyncAttributes() : array
     {
         return ['name' => 'cn'];
     }
 
     /**
-     * {@inheritDoc}
+     * Get the database model.
+     *
+     * @return string
      */
     public function getDatabaseModel() : string
     {
@@ -78,7 +82,9 @@ abstract class SynchronizedDomain extends Domain
     }
 
     /**
-     * {@inheritDoc}
+     * Get the database username column.
+     *
+     * @return string
      */
     public function getDatabaseUsernameColumn() : string
     {
@@ -86,7 +92,9 @@ abstract class SynchronizedDomain extends Domain
     }
 
     /**
-     * {@inheritDoc}
+     * Get the database password column.
+     *
+     * @return string
      */
     public function getDatabasePasswordColumn() : string
     {

@@ -31,7 +31,9 @@ abstract class Domain
     protected $shouldAutoConnect = true;
 
     /**
-     * {@inheritDoc}
+     * Get the domains configuration.
+     *
+     * @return array
      */
     abstract public function getConfig() : array;
 
@@ -46,7 +48,9 @@ abstract class Domain
     }
 
     /**
-     * {@inheritDoc}
+     * Get the name of the domain.
+     *
+     * @return string
      */
     public function getName() : string
     {
@@ -54,7 +58,9 @@ abstract class Domain
     }
 
     /**
-     * {@inheritDoc}
+     * Determine if the domain should auto connect.
+     *
+     * @return bool
      */
     public function shouldAutoConnect() : bool
     {
@@ -141,7 +147,9 @@ abstract class Domain
     }
 
     /**
-     * {@inheritDoc}
+     * Get the LDAP authentication username.
+     *
+     * @return array
      */
     public function getAuthUsername() : string
     {
@@ -149,7 +157,9 @@ abstract class Domain
     }
 
     /**
-     * {@inheritDoc}
+     * Get the LDAP authentication scopes.
+     *
+     * @return array
      */
     public function getAuthScopes() : array
     {
@@ -157,7 +167,9 @@ abstract class Domain
     }
 
     /**
-     * {@inheritDoc}
+     * Get the LDAP authentication rules.
+     *
+     * @return array
      */
     public function getAuthRules() : array
     {
