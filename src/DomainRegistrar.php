@@ -113,7 +113,7 @@ class DomainRegistrar
      */
     public function setDomains(array $domains = [])
     {
-        foreach($domains as $domain) {
+        foreach ($domains as $domain) {
             $this->add($domain);
         }
     }
