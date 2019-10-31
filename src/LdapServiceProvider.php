@@ -53,7 +53,9 @@ class LdapServiceProvider extends ServiceProvider
      */
     protected function getDomains()
     {
-        return config('ldap.domains', []);
+        return collect(config('ldap.domains', []))->transform(function ($domain, $name) {
+            return new $domain($name);
+        })->toArray();
     }
 
     /**
