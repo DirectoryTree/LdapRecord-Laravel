@@ -9,7 +9,7 @@ use LdapRecord\Laravel\LdapServiceProvider;
 use LdapRecord\Laravel\LdapAuthServiceProvider;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 
-class TestCase extends BaseTestCase
+abstract class TestCase extends BaseTestCase
 {
     public function createApplication()
     {

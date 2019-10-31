@@ -10,8 +10,7 @@ class DomainRegistrarTest extends TestCase
 {
     public function test_domains_can_be_added()
     {
-        $domains = ['test' => TestDomain::class];
-
+        $domains = [new TestDomain('test')];
         $registrar = new DomainRegistrar($domains);
 
         $this->assertCount(1, $registrar->get());
@@ -20,6 +19,30 @@ class DomainRegistrarTest extends TestCase
         $this->assertInstanceOf(TestDomain::class, $registrar->get('test'));
 
         $registrar->add(new TestDomain('other'));
+    }
+
+    public function test_domains_can_be_removed()
+    {
+        $domains = [new TestDomain('test')];
+        $registrar = new DomainRegistrar($domains);
+
+        $this->assertInstanceOf(TestDomain::class, $registrar->get('test'));
+
+        $registrar->remove('test');
+
+        $this->expectException(RegistrarException::class);
+
+        $registrar->get('test');
+    }
+
+    public function test_domains_can_be_set()
+    {
+        $domains = [new TestDomain('test'), new TestDomain('other')];
+        $registrar = new DomainRegistrar($domains);
+
+        $this->assertInstanceOf(TestDomain::class, $registrar->get('test'));
+        $this->assertInstanceOf(TestDomain::class, $registrar->get('other'));
+        $this->assertCount(2, $registrar->get());
     }
 
     public function test_exception_is_thrown_when_domain_does_not_exist()
