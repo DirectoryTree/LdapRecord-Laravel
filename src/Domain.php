@@ -7,7 +7,7 @@ use LdapRecord\ConnectionInterface;
 use LdapRecord\Models\ActiveDirectory\User;
 use LdapRecord\Laravel\Validation\Validator;
 
-abstract class Domain
+class Domain
 {
     /**
      * The LDAP domain name.
@@ -31,13 +31,6 @@ abstract class Domain
     protected $shouldAutoConnect = true;
 
     /**
-     * Get the domains configuration.
-     *
-     * @return array
-     */
-    abstract public function getConfig() : array;
-
-    /**
      * Constructor.
      *
      * @param string $name
@@ -55,6 +48,16 @@ abstract class Domain
     public function getName() : string
     {
         return $this->name;
+    }
+
+    /**
+     * Get the domains configuration.
+     *
+     * @return array
+     */
+    public function getConfig() : array
+    {
+        return [];
     }
 
     /**
