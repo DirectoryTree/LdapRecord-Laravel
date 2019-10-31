@@ -58,7 +58,7 @@ abstract class SynchronizedDomain extends Domain
      */
     public function passwordSynchronizer() : PasswordSynchronizer
     {
-        return new PasswordSynchronizer($this);
+        return app(PasswordSynchronizer::class, ['domain' => $this]);
     }
 
     /**
