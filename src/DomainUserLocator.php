@@ -100,7 +100,7 @@ class DomainUserLocator
      */
     public function query() : Builder
     {
-        $model = $this->getNewLdapModel();
+        $model = $this->getNewDomainModel();
 
         $query = $model->newQuery();
 
@@ -123,14 +123,8 @@ class DomainUserLocator
      *
      * @return \LdapRecord\Models\Model
      */
-    protected function getNewLdapModel()
+    protected function getNewDomainModel()
     {
-        $modelClass = $this->domain->getLdapModel();
-
-        /** @var \LdapRecord\Models\Model $model */
-        $model = new $modelClass;
-        $model->setConnection($this->domain->getName());
-
-        return $model;
+        return app(DomainModelFactory::class)->createForDomain($this->domain);
     }
 }
