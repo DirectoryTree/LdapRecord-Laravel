@@ -95,7 +95,7 @@ class DatabaseUserProvider extends UserProvider
     public function validateCredentials(Authenticatable $model, array $credentials)
     {
         if ($this->user instanceof Model) {
-            if (! $this->domain->auth()->attempt($this->user, $credentials)) {
+            if (! $this->domain->auth()->attempt($this->user, $credentials['password'])) {
                 // LDAP Authentication failed.
                 return false;
             }
@@ -113,7 +113,7 @@ class DatabaseUserProvider extends UserProvider
 
             // Here we will synchronize / set the users password as they have
             // successfully passed authentication and validation rules.
-            $this->domain->passwordSynchronizer()->run($model, $credentials);
+            $this->domain->passwordSynchronizer()->run($model, $credentials['password']);
 
             $model->save();
 

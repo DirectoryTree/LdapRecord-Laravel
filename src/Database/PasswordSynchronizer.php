@@ -2,7 +2,6 @@
 
 namespace LdapRecord\Laravel\Database;
 
-use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Eloquent\Model;
@@ -30,16 +29,16 @@ class PasswordSynchronizer
     /**
      * Synchronize the models password.
      *
-     * @param Model $model
-     * @param array $credentials
+     * @param Model       $model
+     * @param string|null $password
      *
      * @return Model
      */
-    public function run(Model $model, array $credentials = []) : Model
+    public function run(Model $model, string $password = null) : Model
     {
         if ($this->hasPasswordColumn()) {
-            $password = $this->canSync($credentials) ?
-                $this->getPassword($credentials) : Str::random();
+            $password = $this->domain->isSyncingPasswords() ?
+                $password : Str::random();
 
             if ($this->passwordNeedsUpdate($model, $password)) {
                 $this->setPassword($model, $password);
@@ -100,18 +99,6 @@ class PasswordSynchronizer
     }
 
     /**
-     * Get the password from the users credentials.
-     *
-     * @param array $credentials
-     *
-     * @return string|null
-     */
-    protected function getPassword(array $credentials = [])
-    {
-        return Arr::get($credentials, 'password');
-    }
-
-    /**
      * Get the current models hashed password.
      *
      * @param Model $model
@@ -121,18 +108,6 @@ class PasswordSynchronizer
     protected function currentModelPassword(Model $model)
     {
         return $model->getAttribute($this->column());
-    }
-
-    /**
-     * Determine we are able to sync the models password with the given credentials.
-     *
-     * @param array $credentials
-     *
-     * @return bool
-     */
-    protected function canSync(array $credentials = []) : bool
-    {
-        return array_key_exists('password', $credentials) && $this->domain->isSyncingPasswords();
     }
 
     /**

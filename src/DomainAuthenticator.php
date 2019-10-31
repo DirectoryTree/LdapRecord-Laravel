@@ -2,7 +2,6 @@
 
 namespace LdapRecord\Laravel;
 
-use Illuminate\Support\Arr;
 use LdapRecord\Models\Model;
 use LdapRecord\Laravel\Events\Authenticated;
 use LdapRecord\Laravel\Events\Authenticating;
@@ -30,18 +29,14 @@ class DomainAuthenticator
     /**
      * Attempt authenticating against the domain.
      *
-     * @param Model $user
-     * @param array $credentials
+     * @param Model  $user
+     * @param string $password
      *
      * @return bool
-     *
-     * @throws \LdapRecord\Auth\BindException
      */
-    public function attempt(Model $user, array $credentials = [])
+    public function attempt(Model $user, string $password) : bool
     {
         event(new Authenticating($user, $user->getDn()));
-
-        $password = $this->getPasswordFromCredentials($credentials);
 
         if ($this->getDomainGuard()->attempt($user->getDn(), $password)) {
             event(new Authenticated($user));
@@ -62,17 +57,5 @@ class DomainAuthenticator
     protected function getDomainGuard()
     {
         return $this->domain->getConnection()->auth();
-    }
-
-    /**
-     * Get the password from the users credentials.
-     *
-     * @param array $credentials
-     *
-     * @return string|null
-     */
-    protected function getPasswordFromCredentials(array $credentials = [])
-    {
-        return Arr::get($credentials, 'password');
     }
 }
