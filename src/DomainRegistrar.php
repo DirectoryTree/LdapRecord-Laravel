@@ -17,13 +17,11 @@ class DomainRegistrar
     /**
      * Constructor.
      *
-     * @param string[] $domains
+     * @param Domain[] $domains
      */
     public function __construct(array $domains = [])
     {
-        foreach ($domains as $name => $domain) {
-            $this->add(new $domain($name));
-        }
+        $this->setDomains($domains);
     }
 
     /**
@@ -99,12 +97,24 @@ class DomainRegistrar
     }
 
     /**
+     * Remove a domain from the registrar.
+     *
+     * @param string $name
+     */
+    public function remove($name)
+    {
+        unset($this->domains[$name]);
+    }
+
+    /**
      * Set the LDAP domains of the application.
      *
      * @param Domain[] $domains
      */
     public function setDomains(array $domains = [])
     {
-        $this->domains = $domains;
+        foreach($domains as $domain) {
+            $this->add($domain);
+        }
     }
 }
