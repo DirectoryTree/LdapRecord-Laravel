@@ -2,14 +2,14 @@
 
 namespace LdapRecord\Laravel\Tests;
 
-use Mockery as m;
-use LdapRecord\Models\Entry;
-use LdapRecord\Laravel\Domain;
 use LdapRecord\ConnectionInterface;
+use LdapRecord\Laravel\Domain;
 use LdapRecord\Laravel\DomainAuthenticator;
 use LdapRecord\Laravel\Events\Authenticated;
 use LdapRecord\Laravel\Events\Authenticating;
 use LdapRecord\Laravel\Events\AuthenticationFailed;
+use LdapRecord\Models\Entry;
+use Mockery as m;
 
 class DomainAuthenticatorTest extends TestCase
 {

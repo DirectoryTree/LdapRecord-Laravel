@@ -3,8 +3,8 @@
 namespace LdapRecord\Laravel\Commands;
 
 use Illuminate\Console\GeneratorCommand;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 
 class MakeDomain extends GeneratorCommand
 {
@@ -30,7 +30,7 @@ class MakeDomain extends GeneratorCommand
     protected $type = 'LDAP Domain';
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     protected function getStub()
     {
@@ -69,7 +69,7 @@ class MakeDomain extends GeneratorCommand
     protected function getOptions()
     {
         return [
-            ['type', 't', InputOption::VALUE_OPTIONAL, 'The type of domain to create']
+            ['type', 't', InputOption::VALUE_OPTIONAL, 'The type of domain to create'],
         ];
     }
 }

@@ -2,14 +2,14 @@
 
 namespace LdapRecord\Laravel\Database;
 
-use UnexpectedValueException;
 use Illuminate\Database\Eloquent\Model;
+use LdapRecord\Laravel\Auth\LdapAuthenticatable;
 use LdapRecord\Laravel\Events\Importing;
-use LdapRecord\Models\Model as LdapModel;
-use LdapRecord\Laravel\SynchronizedDomain;
 use LdapRecord\Laravel\Events\Synchronized;
 use LdapRecord\Laravel\Events\Synchronizing;
-use LdapRecord\Laravel\Auth\LdapAuthenticatable;
+use LdapRecord\Laravel\SynchronizedDomain;
+use LdapRecord\Models\Model as LdapModel;
+use UnexpectedValueException;
 
 class Importer
 {

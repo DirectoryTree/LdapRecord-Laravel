@@ -2,9 +2,9 @@
 
 namespace LdapRecord\Laravel;
 
-use RuntimeException;
-use LdapRecord\Query\Model\Builder;
 use LdapRecord\Laravel\Auth\LdapAuthenticatable;
+use LdapRecord\Query\Model\Builder;
+use RuntimeException;
 
 class DomainUserLocator
 {

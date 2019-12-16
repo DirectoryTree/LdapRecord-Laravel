@@ -2,8 +2,8 @@
 
 namespace LdapRecord\Laravel\Auth;
 
-use LdapRecord\Laravel\Domain;
 use Illuminate\Contracts\Auth\UserProvider as LaravelUserProvider;
+use LdapRecord\Laravel\Domain;
 
 abstract class UserProvider implements LaravelUserProvider
 {

@@ -2,9 +2,9 @@
 
 namespace LdapRecord\Laravel\Listeners;
 
+use LdapRecord\Laravel\Auth\LdapAuthenticatable;
 use LdapRecord\Laravel\DomainRegistrar;
 use LdapRecord\Laravel\Traits\HasLdapUser;
-use LdapRecord\Laravel\Auth\LdapAuthenticatable;
 
 class BindsLdapUserModel
 {

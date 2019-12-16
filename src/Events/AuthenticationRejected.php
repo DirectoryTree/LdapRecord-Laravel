@@ -2,8 +2,8 @@
 
 namespace LdapRecord\Laravel\Events;
 
-use LdapRecord\Models\Model as LdapModel;
 use Illuminate\Contracts\Auth\Authenticatable;
+use LdapRecord\Models\Model as LdapModel;
 
 class AuthenticationRejected
 {
