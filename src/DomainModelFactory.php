@@ -17,10 +17,8 @@ class DomainModelFactory
     {
         $modelClass = $domain->getLdapModel();
 
-        /** @var \LdapRecord\Models\Model $model */
-        $model = new $modelClass;
-        $model->setConnection($domain->getName());
-
-        return $model;
+        return tap(new $modelClass, function (Model $model) use ($domain) {
+            $model->setConnection($domain->getName());
+        });
     }
 }
