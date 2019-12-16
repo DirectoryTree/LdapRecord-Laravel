@@ -2,6 +2,9 @@
 
 namespace LdapRecord\Laravel\Tests;
 
+use Mockery as m;
+use LdapRecord\Container;
+use LdapRecord\ConnectionInterface;
 use LdapRecord\Laravel\Domain;
 use LdapRecord\Laravel\DomainRegistrar;
 use LdapRecord\Laravel\RegistrarException;
@@ -50,6 +53,46 @@ class DomainRegistrarTest extends TestCase
         $this->expectException(RegistrarException::class);
 
         (new DomainRegistrar())->get('invalid');
+    }
+
+    public function test_domains_can_be_setup_and_added_to_the_container()
+    {
+        $connection = m::mock(ConnectionInterface::class);
+        $connection->shouldNotReceive('connect');
+
+        $domain = m::mock(Domain::class);
+        $domain->shouldReceive('getName')->once()->andReturn('test');
+        $domain->shouldReceive('getNewConnection')->once()->andReturn($connection);
+        $domain->shouldReceive('shouldAutoConnect')->once()->andReturnFalse();
+        $domain->shouldReceive('setConnection')->once()->withArgs([$connection]);
+
+        $registrar = new DomainRegistrar();
+        $registrar->add($domain);
+        $registrar->setup();
+
+        $container = Container::getInstance();
+        $this->assertTrue($container->exists('test'));
+        $this->assertInstanceOf(ConnectionInterface::class, $container->get('test'));
+    }
+
+    public function test_domain_connections_are_replaced_in_the_container_when_calling_setup_multiple_times()
+    {
+        $connection = m::mock(ConnectionInterface::class);
+        $connection->shouldNotReceive('connect');
+
+        $domain = m::mock(Domain::class);
+        $domain->shouldReceive('getName')->once()->andReturn('test');
+        $domain->shouldReceive('getNewConnection')->once()->andReturn($connection);
+        $domain->shouldReceive('shouldAutoConnect')->once()->andReturnFalse();
+        $domain->shouldReceive('setConnection')->once()->withArgs([$connection]);
+
+        $registrar = new DomainRegistrar();
+        $registrar->add($domain);
+        $registrar->setup();
+
+        $container = Container::getInstance();
+        $this->assertTrue($container->exists('test'));
+        $this->assertInstanceOf(ConnectionInterface::class, $container->get('test'));
     }
 }
 

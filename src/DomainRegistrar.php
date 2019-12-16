@@ -32,9 +32,10 @@ class DomainRegistrar
         $instance = Container::getInstance();
 
         foreach ($this->domains as $name => $domain) {
-            $connection = $domain->getNewConnection();
+            $connection = $instance->exists($name) ?
+                $instance->get($name) : $domain->getNewConnection();
 
-            if ($domain->shouldAutoConnect()) {
+            if ($domain->shouldAutoConnect() && ! $connection->isConnected()) {
                 try {
                     $connection->connect();
                 } catch (LdapRecordException $ex) {
@@ -44,9 +45,8 @@ class DomainRegistrar
                 }
             }
 
-            if (! $instance->exists($name)) {
-                $instance->add($connection, $name);
-            }
+            // Replace the connection in the container.
+            $instance->add($connection, $name);
 
             $domain->setConnection($connection);
         }
