@@ -11,10 +11,30 @@ use LdapRecord\Laravel\Commands\Import;
 use Illuminate\Auth\Events\Authenticated;
 use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use LdapRecord\Laravel\Auth\NoDatabaseUserProvider;
+use LdapRecord\Laravel\Commands\MakeDomain;
 use LdapRecord\Laravel\Listeners\BindsLdapUserModel;
 
 class LdapAuthServiceProvider extends ServiceProvider
 {
+    /**
+     * The events to log (if enabled).
+     *
+     * @var array
+     */
+    protected $events = [
+        Events\Importing::class                 => Listeners\LogImport::class,
+        Events\Synchronized::class              => Listeners\LogSynchronized::class,
+        Events\Synchronizing::class             => Listeners\LogSynchronizing::class,
+        Events\Authenticated::class             => Listeners\LogAuthenticated::class,
+        Events\Authenticating::class            => Listeners\LogAuthentication::class,
+        Events\AuthenticationFailed::class      => Listeners\LogAuthenticationFailure::class,
+        Events\AuthenticationRejected::class    => Listeners\LogAuthenticationRejection::class,
+        Events\AuthenticationSuccessful::class  => Listeners\LogAuthenticationSuccess::class,
+        Events\DiscoveredWithCredentials::class => Listeners\LogDiscovery::class,
+        Events\AuthenticatedWithWindows::class  => Listeners\LogWindowsAuth::class,
+        Events\AuthenticatedModelTrashed::class => Listeners\LogTrashedModel::class,
+    ];
+
     /**
      * Run service provider boot operations.
      *
@@ -22,7 +42,7 @@ class LdapAuthServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->commands(Import::class);
+        $this->commands([Import::class, MakeDomain::class]);
 
         Auth::provider('ldap', function ($app, array $config) {
             /** @var Domain $domain */
@@ -50,7 +70,7 @@ class LdapAuthServiceProvider extends ServiceProvider
         if ($this->isLogging()) {
             // If logging is enabled, we will set up our event listeners that
             // log each event fired throughout the authentication process.
-            foreach ($this->getLoggingEvents() as $event => $listener) {
+            foreach ($this->events as $event => $listener) {
                 Event::listen($event, $listener);
             }
         }
@@ -64,15 +84,5 @@ class LdapAuthServiceProvider extends ServiceProvider
     protected function isLogging()
     {
         return Config::get('ldap.logging.enabled', false);
-    }
-
-    /**
-     * Returns the configured authentication events to log.
-     *
-     * @return array
-     */
-    protected function getLoggingEvents()
-    {
-        return Config::get('ldap.logging.events', []);
     }
 }
