@@ -3,12 +3,12 @@
 namespace LdapRecord\Laravel\Middleware;
 
 use Closure;
-use LdapRecord\Models\Model;
-use LdapRecord\Laravel\Domain;
 use Illuminate\Contracts\Auth\Guard;
 use LdapRecord\Laravel\Auth\UserProvider;
-use LdapRecord\Laravel\SynchronizedDomain;
+use LdapRecord\Laravel\Domain;
 use LdapRecord\Laravel\Events\AuthenticatedWithWindows;
+use LdapRecord\Laravel\SynchronizedDomain;
+use LdapRecord\Models\Model;
 
 class WindowsAuthenticate
 {

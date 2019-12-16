@@ -2,8 +2,8 @@
 
 namespace LdapRecord\Laravel\Listeners;
 
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Log;
 use LdapRecord\Laravel\Events\Authenticating;
 
 class LogAuthentication

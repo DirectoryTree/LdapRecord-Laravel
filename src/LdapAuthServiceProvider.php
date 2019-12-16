@@ -2,15 +2,15 @@
 
 namespace LdapRecord\Laravel;
 
+use Illuminate\Auth\Events\Authenticated;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
-use LdapRecord\Laravel\Commands\Import;
-use Illuminate\Auth\Events\Authenticated;
 use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use LdapRecord\Laravel\Auth\NoDatabaseUserProvider;
+use LdapRecord\Laravel\Commands\Import;
 use LdapRecord\Laravel\Commands\MakeDomain;
 use LdapRecord\Laravel\Listeners\BindsLdapUserModel;
 

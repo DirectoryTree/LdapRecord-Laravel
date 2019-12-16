@@ -2,14 +2,14 @@
 
 namespace LdapRecord\Laravel\Tests;
 
-use Mockery as m;
+use LdapRecord\Laravel\Domain;
+use LdapRecord\Laravel\DomainModelFactory;
+use LdapRecord\Laravel\DomainUserLocator;
+use LdapRecord\Laravel\Scopes\ScopeInterface;
 use LdapRecord\Ldap;
 use LdapRecord\Models\Model;
-use LdapRecord\Laravel\Domain;
 use LdapRecord\Query\Model\Builder;
-use LdapRecord\Laravel\DomainUserLocator;
-use LdapRecord\Laravel\DomainModelFactory;
-use LdapRecord\Laravel\Scopes\ScopeInterface;
+use Mockery as m;
 
 class DomainUserLocatorTest extends TestCase
 {

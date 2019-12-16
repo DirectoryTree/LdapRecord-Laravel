@@ -3,14 +3,14 @@
 namespace LdapRecord\Laravel\Commands;
 
 use Exception;
-use RuntimeException;
-use LdapRecord\Laravel\Domain;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
+use LdapRecord\Laravel\Domain;
 use LdapRecord\Laravel\DomainRegistrar;
 use LdapRecord\Laravel\Events\Imported;
-use LdapRecord\Models\Model as LdapModel;
 use LdapRecord\Laravel\SynchronizedDomain;
+use LdapRecord\Models\Model as LdapModel;
+use RuntimeException;
 
 class Import extends Command
 {

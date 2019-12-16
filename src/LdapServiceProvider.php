@@ -2,9 +2,9 @@
 
 namespace LdapRecord\Laravel;
 
-use LdapRecord\Container;
-use Illuminate\Support\Str;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Str;
+use LdapRecord\Container;
 
 class LdapServiceProvider extends ServiceProvider
 {

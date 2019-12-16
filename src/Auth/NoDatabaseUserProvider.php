@@ -3,10 +3,10 @@
 namespace LdapRecord\Laravel\Auth;
 
 use Illuminate\Contracts\Auth\Authenticatable;
+use LdapRecord\Laravel\Events\AuthenticatedWithCredentials;
 use LdapRecord\Laravel\Events\AuthenticationRejected;
 use LdapRecord\Laravel\Events\AuthenticationSuccessful;
 use LdapRecord\Laravel\Events\DiscoveredWithCredentials;
-use LdapRecord\Laravel\Events\AuthenticatedWithCredentials;
 
 class NoDatabaseUserProvider extends UserProvider
 {

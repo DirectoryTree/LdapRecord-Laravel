@@ -2,12 +2,12 @@
 
 namespace LdapRecord\Laravel\Tests;
 
-use Mockery as m;
-use LdapRecord\Container;
 use LdapRecord\ConnectionInterface;
+use LdapRecord\Container;
 use LdapRecord\Laravel\Domain;
 use LdapRecord\Laravel\DomainRegistrar;
 use LdapRecord\Laravel\RegistrarException;
+use Mockery as m;
 
 class DomainRegistrarTest extends TestCase
 {

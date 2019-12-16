@@ -2,10 +2,10 @@
 
 namespace LdapRecord\Laravel;
 
-use LdapRecord\Models\Model;
 use LdapRecord\Laravel\Events\Authenticated;
 use LdapRecord\Laravel\Events\Authenticating;
 use LdapRecord\Laravel\Events\AuthenticationFailed;
+use LdapRecord\Models\Model;
 
 class DomainAuthenticator
 {
