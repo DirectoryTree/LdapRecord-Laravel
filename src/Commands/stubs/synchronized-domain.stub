@@ -1,0 +1,66 @@
+<?php
+
+namespace DummyNamespace;
+
+use App\User as EloquentUser;
+use LdapRecord\Laravel\SynchronizedDomain;
+use LdapRecord\Models\ActiveDirectory\User;
+
+class DummyClass extends SynchronizedDomain
+{
+    /**
+     * Get the domains configuration.
+     *
+     * @return array
+     */
+    public function getConfig()
+    {
+        return [
+            'hosts' => [env('LDAP_HOST', '127.0.0.1')],
+            'port' => env('LDAP_PORT', 389),
+            'username' => env('LDAP_USERNAME', 'user'),
+            'password' => env('LDAP_PASSWORD', 'secret'),
+            'base_dn' => env('LDAP_BASE_DN', 'dc=local,dc=com')
+        ];
+    }
+
+    /**
+     * Get the LDAP model for the domain.
+     *
+     * @return string
+     */
+    public function getLdapModel()
+    {
+        return User::class;
+    }
+
+    /**
+     * Get the database model.
+     *
+     * @return string
+     */
+    public function getDatabaseModel()
+    {
+        return EloquentUser::class;
+    }
+
+    /**
+     * Get the database username column.
+     *
+     * @return string
+     */
+    public function getDatabaseUsernameColumn()
+    {
+        return 'email';
+    }
+
+    /**
+     * Get the database sync attributes.
+     *
+     * @return array
+     */
+    public function getDatabaseSyncAttributes()
+    {
+        return ['name' => 'cn'];
+    }
+}

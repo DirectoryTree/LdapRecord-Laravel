@@ -12,9 +12,15 @@ class DummyClass extends Domain
      *
      * @return array
      */
-    public function getConfig() : array
+    public function getConfig()
     {
-        return [];
+        return [
+            'hosts' => [env('LDAP_HOST', '127.0.0.1')],
+            'port' => env('LDAP_PORT', 389),
+            'username' => env('LDAP_USERNAME', 'user'),
+            'password' => env('LDAP_PASSWORD', 'secret'),
+            'base_dn' => env('LDAP_BASE_DN', 'dc=local,dc=com')
+        ];
     }
 
     /**
@@ -22,28 +28,8 @@ class DummyClass extends Domain
      *
      * @return string
      */
-    public function getLdapModel() : string
+    public function getLdapModel()
     {
         return User::class;
-    }
-
-    /**
-     * Get the LDAP authentication scopes.
-     *
-     * @return array
-     */
-    public function getAuthScopes() : array
-    {
-        return [];
-    }
-
-    /**
-     * Get the LDAP authentication rules.
-     *
-     * @return array
-     */
-    public function getAuthRules() : array
-    {
-        return [];
     }
 }
