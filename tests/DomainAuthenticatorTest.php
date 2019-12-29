@@ -2,7 +2,7 @@
 
 namespace LdapRecord\Laravel\Tests;
 
-use LdapRecord\ConnectionInterface;
+use LdapRecord\Connection;
 use LdapRecord\Laravel\Domain;
 use LdapRecord\Laravel\DomainAuthenticator;
 use LdapRecord\Laravel\Events\Authenticated;
@@ -20,7 +20,7 @@ class DomainAuthenticatorTest extends TestCase
         $model = new Entry();
         $model->setDn($dn);
 
-        $connection = m::mock(ConnectionInterface::class);
+        $connection = m::mock(Connection::class);
         $connection->shouldReceive('auth')->once()->andReturnSelf();
         $connection->shouldReceive('attempt')->once()->withArgs([$dn, 'password'])->andReturnTrue();
 
@@ -46,7 +46,7 @@ class DomainAuthenticatorTest extends TestCase
         $model = new Entry();
         $model->setDn($dn);
 
-        $connection = m::mock(ConnectionInterface::class);
+        $connection = m::mock(Connection::class);
         $connection->shouldReceive('auth')->once()->andReturnSelf();
         $connection->shouldReceive('attempt')->once()->withArgs([$dn, 'password'])->andReturnFalse();
 

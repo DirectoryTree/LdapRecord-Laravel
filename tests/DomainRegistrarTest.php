@@ -2,8 +2,8 @@
 
 namespace LdapRecord\Laravel\Tests;
 
-use LdapRecord\ConnectionInterface;
 use LdapRecord\Container;
+use LdapRecord\Connection;
 use LdapRecord\Laravel\Domain;
 use LdapRecord\Laravel\DomainRegistrar;
 use LdapRecord\Laravel\RegistrarException;
@@ -11,6 +11,14 @@ use Mockery as m;
 
 class DomainRegistrarTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Flush the container instance.
+        Container::getNewInstance();
+    }
+
     public function test_domains_can_be_added()
     {
         $domains = [new TestDomain('test')];
@@ -57,7 +65,7 @@ class DomainRegistrarTest extends TestCase
 
     public function test_domains_can_be_setup_and_added_to_the_container()
     {
-        $connection = m::mock(ConnectionInterface::class);
+        $connection = m::mock(Connection::class);
         $connection->shouldNotReceive('connect');
 
         $domain = m::mock(Domain::class);
@@ -72,12 +80,12 @@ class DomainRegistrarTest extends TestCase
 
         $container = Container::getInstance();
         $this->assertTrue($container->exists('test'));
-        $this->assertInstanceOf(ConnectionInterface::class, $container->get('test'));
+        $this->assertInstanceOf(Connection::class, $container->get('test'));
     }
 
     public function test_domain_connections_are_replaced_in_the_container_when_calling_setup_multiple_times()
     {
-        $connection = m::mock(ConnectionInterface::class);
+        $connection = m::mock(Connection::class);
         $connection->shouldNotReceive('connect');
 
         $domain = m::mock(Domain::class);
@@ -92,7 +100,7 @@ class DomainRegistrarTest extends TestCase
 
         $container = Container::getInstance();
         $this->assertTrue($container->exists('test'));
-        $this->assertInstanceOf(ConnectionInterface::class, $container->get('test'));
+        $this->assertInstanceOf(Connection::class, $container->get('test'));
     }
 }
 

@@ -3,7 +3,6 @@
 namespace LdapRecord\Laravel;
 
 use LdapRecord\Connection;
-use LdapRecord\ConnectionInterface;
 use LdapRecord\Laravel\Validation\Validator;
 use LdapRecord\Models\ActiveDirectory\User;
 
@@ -19,7 +18,7 @@ class Domain
     /**
      * The LDAP domain connection.
      *
-     * @var ConnectionInterface|null
+     * @var Connection|null
      */
     protected $connection;
 
@@ -55,7 +54,7 @@ class Domain
      *
      * @return array
      */
-    public function getConfig() : array
+    public function getConfig()
     {
         return [];
     }
@@ -65,7 +64,7 @@ class Domain
      *
      * @return bool
      */
-    public function shouldAutoConnect() : bool
+    public function shouldAutoConnect()
     {
         return $this->shouldAutoConnect;
     }
@@ -112,9 +111,9 @@ class Domain
     /**
      * Set the domains connection.
      *
-     * @param ConnectionInterface $connection
+     * @param Connection $connection
      */
-    public function setConnection(ConnectionInterface $connection)
+    public function setConnection(Connection $connection)
     {
         $this->connection = $connection;
     }
@@ -122,9 +121,9 @@ class Domain
     /**
      * Get the domains connection.
      *
-     * @return ConnectionInterface|null
+     * @return Connection|null
      */
-    public function getConnection() : ?ConnectionInterface
+    public function getConnection()
     {
         return $this->connection;
     }
@@ -134,7 +133,7 @@ class Domain
      *
      * @return Connection
      */
-    public function getNewConnection() : ConnectionInterface
+    public function getNewConnection()
     {
         return new Connection($this->getConfig());
     }
@@ -144,7 +143,7 @@ class Domain
      *
      * @return string
      */
-    public function getLdapModel() : string
+    public function getLdapModel()
     {
         return User::class;
     }
@@ -152,9 +151,9 @@ class Domain
     /**
      * Get the LDAP authentication username.
      *
-     * @return array
+     * @return string
      */
-    public function getAuthUsername() : string
+    public function getAuthUsername()
     {
         return 'userprincipalname';
     }
@@ -164,7 +163,7 @@ class Domain
      *
      * @return array
      */
-    public function getAuthScopes() : array
+    public function getAuthScopes()
     {
         return [];
     }
@@ -174,7 +173,7 @@ class Domain
      *
      * @return array
      */
-    public function getAuthRules() : array
+    public function getAuthRules()
     {
         return [];
     }

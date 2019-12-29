@@ -5,16 +5,23 @@ namespace LdapRecord\Laravel\Auth;
 use Illuminate\Auth\EloquentUserProvider;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Hashing\Hasher;
-use LdapRecord\Laravel\Domain;
 use LdapRecord\Laravel\Events\AuthenticatedWithCredentials;
 use LdapRecord\Laravel\Events\AuthenticationRejected;
 use LdapRecord\Laravel\Events\AuthenticationSuccessful;
 use LdapRecord\Laravel\Events\DiscoveredWithCredentials;
 use LdapRecord\Laravel\Events\Imported;
+use LdapRecord\Laravel\SynchronizedDomain;
 use LdapRecord\Models\Model;
 
 class DatabaseUserProvider extends UserProvider
 {
+    /**
+     * The LDAP domain to use for authentication.
+     *
+     * @var SynchronizedDomain
+     */
+    protected $domain;
+
     /**
      * The fallback eloquent user provider.
      *
@@ -32,10 +39,10 @@ class DatabaseUserProvider extends UserProvider
     /**
      * Create a new LDAP user provider.
      *
-     * @param Domain $domain
-     * @param Hasher $hasher
+     * @param SynchronizedDomain $domain
+     * @param Hasher             $hasher
      */
-    public function __construct(Domain $domain, Hasher $hasher)
+    public function __construct(SynchronizedDomain $domain, Hasher $hasher)
     {
         parent::__construct($domain);
 

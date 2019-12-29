@@ -5,7 +5,6 @@ namespace LdapRecord\Laravel\Commands;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
-use LdapRecord\Laravel\Domain;
 use LdapRecord\Laravel\DomainRegistrar;
 use LdapRecord\Laravel\Events\Imported;
 use LdapRecord\Laravel\SynchronizedDomain;
@@ -49,6 +48,7 @@ class Import extends Command
      * @return void
      *
      * @throws \LdapRecord\Models\ModelNotFoundException
+     * @throws \LdapRecord\Laravel\RegistrarException
      */
     public function handle(DomainRegistrar $registrar)
     {
@@ -57,7 +57,7 @@ class Import extends Command
         $domain = $registrar->get($domainName);
 
         if (! $domain instanceof SynchronizedDomain) {
-            throw new RuntimeException("Domain '$domainName' is not configured for synchronization.");
+            throw new RuntimeException("Domain [$domainName] is not configured for synchronization.");
         }
 
         $users = $this->getUsers($domain);
@@ -95,12 +95,12 @@ class Import extends Command
      * Imports the specified users and returns the total
      * number of users successfully imported.
      *
-     * @param Domain $domain
-     * @param array  $users
+     * @param SynchronizedDomain $domain
+     * @param array              $users
      *
      * @return int
      */
-    public function import(Domain $domain, array $users = []) : int
+    public function import(SynchronizedDomain $domain, array $users = []) : int
     {
         $imported = 0;
 
@@ -200,13 +200,13 @@ class Import extends Command
     /**
      * Retrieves users to be imported.
      *
-     * @param Domain $domain
+     * @param SynchronizedDomain $domain
      *
      * @return \LdapRecord\Models\Model[]
      *
      * @throws \LdapRecord\Models\ModelNotFoundException
      */
-    public function getUsers(Domain $domain) : array
+    public function getUsers(SynchronizedDomain $domain) : array
     {
         $query = $domain->locate()->query();
 

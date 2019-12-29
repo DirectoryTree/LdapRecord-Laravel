@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
 use LdapRecord\Laravel\Auth\LdapAuthenticatable;
-use LdapRecord\Laravel\Domain;
+use LdapRecord\Laravel\SynchronizedDomain;
 use LdapRecord\Models\Model as LdapModel;
 
 class UserImportScope implements Scope
@@ -14,7 +14,7 @@ class UserImportScope implements Scope
     /**
      * The LDAP domain that the user belongs to.
      *
-     * @var Domain
+     * @var SynchronizedDomain
      */
     protected $domain;
 
@@ -28,10 +28,10 @@ class UserImportScope implements Scope
     /**
      * Constructor.
      *
-     * @param Domain    $domain
-     * @param LdapModel $user
+     * @param SynchronizedDomain $domain
+     * @param LdapModel          $user
      */
-    public function __construct(Domain $domain, LdapModel $user)
+    public function __construct(SynchronizedDomain $domain, LdapModel $user)
     {
         $this->domain = $domain;
         $this->user = $user;

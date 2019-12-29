@@ -2,11 +2,11 @@
 
 namespace LdapRecord\Laravel\Tests;
 
+use LdapRecord\Connection;
 use LdapRecord\Laravel\Domain;
 use LdapRecord\Laravel\DomainModelFactory;
 use LdapRecord\Laravel\DomainUserLocator;
 use LdapRecord\Laravel\Scopes\ScopeInterface;
-use LdapRecord\Ldap;
 use LdapRecord\Models\Model;
 use LdapRecord\Query\Model\Builder;
 use Mockery as m;
@@ -20,7 +20,7 @@ class DomainUserLocatorTest extends TestCase
         $locator = new DomainUserLocator($domain);
 
         $model = m::mock(Model::class);
-        $model->shouldReceive('newQuery')->once()->andReturn(new Builder(new Ldap()));
+        $model->shouldReceive('newQuery')->once()->andReturn(new Builder(new Connection));
         $model->shouldReceive('getGuidKey')->once()->andReturn('objectguid');
 
         $factory = m::mock(DomainModelFactory::class);
@@ -41,7 +41,7 @@ class DomainUserLocatorTest extends TestCase
         $locator = new DomainUserLocator($domain);
 
         $model = m::mock(Model::class);
-        $model->shouldReceive('newQuery')->once()->andReturn(new Builder(new Ldap()));
+        $model->shouldReceive('newQuery')->once()->andReturn(new Builder(new Connection));
         $model->shouldReceive('getGuidKey')->once()->andReturn('objectguid');
 
         $factory = m::mock(DomainModelFactory::class);

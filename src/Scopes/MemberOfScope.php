@@ -26,8 +26,6 @@ class MemberOfScope implements ScopeInterface
      */
     protected function getSelectedAttributes(Builder $builder)
     {
-        $selected = $builder->getSelects();
-
-        return array_merge($selected, ['memberof']);
+        return array_merge($builder->getSelects(), ['memberof']);
     }
 }

@@ -26,7 +26,7 @@ abstract class SynchronizedDomain extends Domain
      *
      * @return bool
      */
-    public function isFallingBack() : bool
+    public function isFallingBack()
     {
         return $this->loginFallback;
     }
@@ -36,7 +36,7 @@ abstract class SynchronizedDomain extends Domain
      *
      * @return bool
      */
-    public function isSyncingPasswords() : bool
+    public function isSyncingPasswords()
     {
         return $this->syncPasswords;
     }
@@ -46,7 +46,7 @@ abstract class SynchronizedDomain extends Domain
      *
      * @return Importer
      */
-    public function importer() : Importer
+    public function importer()
     {
         return app(Importer::class, ['domain' => $this]);
     }
@@ -56,7 +56,7 @@ abstract class SynchronizedDomain extends Domain
      *
      * @return PasswordSynchronizer
      */
-    public function passwordSynchronizer() : PasswordSynchronizer
+    public function passwordSynchronizer()
     {
         return app(PasswordSynchronizer::class, ['domain' => $this]);
     }
@@ -66,7 +66,7 @@ abstract class SynchronizedDomain extends Domain
      *
      * @return array
      */
-    public function getDatabaseSyncAttributes() : array
+    public function getDatabaseSyncAttributes()
     {
         return ['name' => 'cn'];
     }
@@ -76,7 +76,7 @@ abstract class SynchronizedDomain extends Domain
      *
      * @return string
      */
-    public function getDatabaseModel() : string
+    public function getDatabaseModel()
     {
         return 'App\User';
     }
@@ -86,7 +86,7 @@ abstract class SynchronizedDomain extends Domain
      *
      * @return string
      */
-    public function getDatabaseUsernameColumn() : string
+    public function getDatabaseUsernameColumn()
     {
         return 'email';
     }
@@ -96,7 +96,7 @@ abstract class SynchronizedDomain extends Domain
      *
      * @return string
      */
-    public function getDatabasePasswordColumn() : string
+    public function getDatabasePasswordColumn()
     {
         return 'password';
     }
