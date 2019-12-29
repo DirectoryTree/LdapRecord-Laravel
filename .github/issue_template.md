@@ -1,5 +1,4 @@
 - Laravel Version: #.#
-- Adldap2-Laravel Version: #.#
 - PHP Version: #.#
 - LDAP Type: <!-- ActiveDirectory / OpenLDAP / FreeIPA? -->
 
