@@ -19,6 +19,8 @@ class LdapServiceProvider extends ServiceProvider
             Container::setLogger(logger());
         }
 
+        app(DomainRegistrar::class)->setup();
+
         if ($this->isLumen()) {
             return;
         }
@@ -30,8 +32,6 @@ class LdapServiceProvider extends ServiceProvider
                 $config => config_path('ldap.php'),
             ]);
         }
-
-        app(DomainRegistrar::class)->setup();
     }
 
     /**
