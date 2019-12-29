@@ -5,7 +5,7 @@ namespace LdapRecord\Laravel;
 use LdapRecord\Laravel\Database\Importer;
 use LdapRecord\Laravel\Database\PasswordSynchronizer;
 
-abstract class SynchronizedDomain extends Domain
+class SynchronizedDomain extends Domain
 {
     /**
      * Whether passwords should be synchronized to the local database.
@@ -48,7 +48,7 @@ abstract class SynchronizedDomain extends Domain
      */
     public function importer()
     {
-        return app(Importer::class, ['domain' => $this]);
+        return new Importer($this);
     }
 
     /**
@@ -58,7 +58,7 @@ abstract class SynchronizedDomain extends Domain
      */
     public function passwordSynchronizer()
     {
-        return app(PasswordSynchronizer::class, ['domain' => $this]);
+        return new PasswordSynchronizer($this);
     }
 
     /**

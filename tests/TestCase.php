@@ -5,8 +5,10 @@ namespace LdapRecord\Laravel\Tests;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
+use LdapRecord\Laravel\Domain;
 use LdapRecord\Laravel\LdapAuthServiceProvider;
 use LdapRecord\Laravel\LdapServiceProvider;
+use LdapRecord\Laravel\SynchronizedDomain;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
@@ -42,7 +44,11 @@ abstract class TestCase extends BaseTestCase
         $config->set('database.connections.testbench', [
             'driver'   => 'sqlite',
             'database' => ':memory:',
-            'prefix'   => '',
+        ]);
+
+        $config->set('ldap.domains', [
+            'plain' => Domain::class,
+            'synchronized' => SynchronizedDomain::class,
         ]);
 
         // Auth setup.
@@ -50,11 +56,12 @@ abstract class TestCase extends BaseTestCase
         $config->set('auth.providers', [
             'ldap' => [
                 'driver' => 'ldap',
-                'model'  => TestUser::class,
+                'domain' => 'plain',
             ],
             'users'  => [
-                'driver' => 'eloquent',
+                'driver' => 'ldap',
                 'model'  => TestUser::class,
+                'domain' => 'synchronized',
             ],
         ]);
 
@@ -66,6 +73,8 @@ abstract class TestCase extends BaseTestCase
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
+
+            // Additional fields for LdapRecord.
             $table->string('guid')->unique()->nullable();
             $table->string('domain')->nullable();
         });

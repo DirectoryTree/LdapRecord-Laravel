@@ -52,15 +52,7 @@ class LdapAuthServiceProvider extends ServiceProvider
                 new DatabaseUserProvider($domain, $app['hash']) :
                 new NoDatabaseUserProvider($domain);
         });
-    }
 
-    /**
-     * Register the service provider.
-     *
-     * @return void
-     */
-    public function register()
-    {
         // Here we will register the event listener that will bind the users LDAP
         // model to their Eloquent model upon authentication (if configured).
         // This allows us to utilize their LDAP model right

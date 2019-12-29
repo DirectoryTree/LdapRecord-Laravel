@@ -135,9 +135,9 @@ class Importer
 
                 $handler->handle($user, $model);
             } else {
-                // We'll try to retrieve the value from the LDAP model. If the LDAP field is a string,
-                // we'll assume the developer wants the attribute, or a null value. Otherwise,
-                // the raw value of the LDAP field will be used.
+                // We'll try to retrieve the value from the LDAP model. If the LDAP field is
+                // a string, we'll assume the developer wants the attribute, or a null
+                // value. Otherwise, the raw value of the LDAP field will be used.
                 $model->{$modelField} = is_string($ldapField) ? $user->getFirstAttribute($ldapField) : $ldapField;
             }
         }

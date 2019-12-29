@@ -68,7 +68,7 @@ class DomainRegistrar
         }
 
         if (! $this->exists($name)) {
-            throw new RegistrarException("Domain '$name' does not exist.");
+            throw new RegistrarException("Domain [$name] does not exist.");
         }
 
         return $this->domains[$name];

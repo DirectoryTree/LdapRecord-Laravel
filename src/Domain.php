@@ -3,8 +3,8 @@
 namespace LdapRecord\Laravel;
 
 use LdapRecord\Connection;
-use LdapRecord\Laravel\Validation\Validator;
 use LdapRecord\Models\ActiveDirectory\User;
+use LdapRecord\Laravel\Validation\Validator;
 
 class Domain
 {
@@ -44,7 +44,7 @@ class Domain
      *
      * @return string
      */
-    public function getName() : string
+    public function getName()
     {
         return $this->name;
     }
@@ -76,7 +76,7 @@ class Domain
      */
     public function auth()
     {
-        return app(DomainAuthenticator::class, ['domain' => $this]);
+        return new DomainAuthenticator($this);
     }
 
     /**
@@ -86,7 +86,7 @@ class Domain
      */
     public function locate()
     {
-        return app(DomainUserLocator::class, ['domain' => $this]);
+        return new DomainUserLocator($this);
     }
 
     /**
