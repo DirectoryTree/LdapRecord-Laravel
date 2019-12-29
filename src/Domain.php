@@ -3,8 +3,8 @@
 namespace LdapRecord\Laravel;
 
 use LdapRecord\Connection;
-use LdapRecord\Models\ActiveDirectory\User;
 use LdapRecord\Laravel\Validation\Validator;
+use LdapRecord\Models\ActiveDirectory\User;
 
 class Domain
 {
