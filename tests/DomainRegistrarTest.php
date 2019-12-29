@@ -2,8 +2,8 @@
 
 namespace LdapRecord\Laravel\Tests;
 
-use LdapRecord\Container;
 use LdapRecord\Connection;
+use LdapRecord\Container;
 use LdapRecord\Laravel\Domain;
 use LdapRecord\Laravel\DomainRegistrar;
 use LdapRecord\Laravel\RegistrarException;
