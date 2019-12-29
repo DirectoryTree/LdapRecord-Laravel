@@ -2,9 +2,9 @@
 
 namespace LdapRecord\Laravel\Tests;
 
-use LdapRecord\Models\Model;
 use LdapRecord\Laravel\Domain;
 use LdapRecord\Laravel\DomainModelFactory;
+use LdapRecord\Models\Model;
 
 class DomainModelFactoryTest extends TestCase
 {
