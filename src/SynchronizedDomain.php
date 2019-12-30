@@ -66,7 +66,7 @@ class SynchronizedDomain extends Domain
      *
      * @return array
      */
-    public function getDatabaseSyncAttributes()
+    public static function getDatabaseSyncAttributes()
     {
         return ['name' => 'cn'];
     }
@@ -76,7 +76,7 @@ class SynchronizedDomain extends Domain
      *
      * @return string
      */
-    public function getDatabaseModel()
+    public static function getDatabaseModel()
     {
         return 'App\User';
     }
@@ -86,7 +86,7 @@ class SynchronizedDomain extends Domain
      *
      * @return string
      */
-    public function getDatabaseUsernameColumn()
+    public static function getDatabaseUsernameColumn()
     {
         return 'email';
     }
@@ -96,7 +96,7 @@ class SynchronizedDomain extends Domain
      *
      * @return string
      */
-    public function getDatabasePasswordColumn()
+    public static function getDatabasePasswordColumn()
     {
         return 'password';
     }

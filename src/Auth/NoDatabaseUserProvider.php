@@ -59,7 +59,7 @@ class NoDatabaseUserProvider extends UserProvider
         if ($this->domain->auth()->attempt($user, $credentials)) {
             event(new AuthenticatedWithCredentials($user));
 
-            if ($this->domain->userValidator($user)->passes()) {
+            if ($this->domain->validator($user)->passes()) {
                 event(new AuthenticationSuccessful($user));
 
                 return true;

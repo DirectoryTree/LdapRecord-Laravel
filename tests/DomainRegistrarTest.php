@@ -2,11 +2,12 @@
 
 namespace LdapRecord\Laravel\Tests;
 
+use Illuminate\Support\Facades\Log;
 use LdapRecord\Connection;
 use LdapRecord\Container;
 use LdapRecord\Laravel\Domain;
 use LdapRecord\Laravel\DomainRegistrar;
-use LdapRecord\Laravel\RegistrarException;
+use LdapRecord\LdapRecordException;
 use Mockery as m;
 
 class DomainRegistrarTest extends TestCase
@@ -15,104 +16,75 @@ class DomainRegistrarTest extends TestCase
     {
         parent::setUp();
 
+        // Flush registered domains.
+        DomainRegistrar::register([]);
+
         // Flush the container instance.
         Container::getNewInstance();
     }
 
     public function test_domains_can_be_added()
     {
-        $domains = [new TestDomain('test')];
-        $registrar = new DomainRegistrar($domains);
+        DomainRegistrar::register(Domain::class);
 
-        $this->assertCount(1, $registrar->get());
-        $this->assertTrue($registrar->exists('test'));
-        $this->assertFalse($registrar->exists('invalid'));
-        $this->assertInstanceOf(TestDomain::class, $registrar->get('test'));
-
-        $registrar->add(new TestDomain('other'));
+        $this->assertCount(1, DomainRegistrar::$domains);
+        $this->assertEquals(Domain::class, DomainRegistrar::$domains[0]);
     }
 
-    public function test_domains_can_be_removed()
+    public function test_setup_does_nothing_when_no_domains_registered()
     {
-        $domains = [new TestDomain('test')];
-        $registrar = new DomainRegistrar($domains);
+        DomainRegistrar::setup();
 
-        $this->assertInstanceOf(TestDomain::class, $registrar->get('test'));
-
-        $registrar->remove('test');
-
-        $this->expectException(RegistrarException::class);
-
-        $registrar->get('test');
+        $this->assertEmpty(Container::getInstance()->all());
     }
 
-    public function test_domains_can_be_set()
+    public function test_domain_connections_are_added_into_the_container_when_setup()
     {
-        $domains = [new TestDomain('test'), new TestDomain('other')];
-        $registrar = new DomainRegistrar($domains);
-
-        $this->assertInstanceOf(TestDomain::class, $registrar->get('test'));
-        $this->assertInstanceOf(TestDomain::class, $registrar->get('other'));
-        $this->assertCount(2, $registrar->get());
+        DomainRegistrar::register(Domain::class);
+        DomainRegistrar::setup();
+        $this->assertInstanceOf(Connection::class, Container::getConnection(Domain::class));
     }
 
-    public function test_exception_is_thrown_when_domain_does_not_exist()
+    public function test_domain_connections_are_attempted_when_auto_connect_is_enabled()
     {
-        $this->expectException(RegistrarException::class);
-
-        (new DomainRegistrar())->get('invalid');
+        DomainRegistrar::register(TestDomainWithSuccessfulConnectionStub::class);
+        DomainRegistrar::setup();
+        $this->assertInstanceOf(Connection::class, Container::getConnection(TestDomainWithSuccessfulConnectionStub::class));
     }
 
-    public function test_domains_can_be_setup_and_added_to_the_container()
+    public function test_failed_domain_connections_are_logged_when_logging_is_enabled()
     {
-        $connection = m::mock(Connection::class);
-        $connection->shouldNotReceive('connect');
+        DomainRegistrar::logging(true);
+        DomainRegistrar::register(TestDomainWithFailingConnectionStub::class);
 
-        $domain = m::mock(Domain::class);
-        $domain->shouldReceive('getName')->once()->andReturn('test');
-        $domain->shouldReceive('getNewConnection')->once()->andReturn($connection);
-        $domain->shouldReceive('shouldAutoConnect')->once()->andReturnFalse();
-        $domain->shouldReceive('setConnection')->once()->withArgs([$connection]);
+        Log::shouldReceive('error')->once()->withArgs(['Failed connecting']);
 
-        $registrar = new DomainRegistrar();
-        $registrar->add($domain);
-        $registrar->setup();
-
-        $container = Container::getInstance();
-        $this->assertTrue($container->exists('test'));
-        $this->assertInstanceOf(Connection::class, $container->get('test'));
-    }
-
-    public function test_domain_connections_are_replaced_in_the_container_when_calling_setup_multiple_times()
-    {
-        $connection = m::mock(Connection::class);
-        $connection->shouldNotReceive('connect');
-
-        $domain = m::mock(Domain::class);
-        $domain->shouldReceive('getName')->once()->andReturn('test');
-        $domain->shouldReceive('getNewConnection')->once()->andReturn($connection);
-        $domain->shouldReceive('shouldAutoConnect')->once()->andReturnFalse();
-        $domain->shouldReceive('setConnection')->once()->withArgs([$connection]);
-
-        $registrar = new DomainRegistrar();
-        $registrar->add($domain);
-        $registrar->setup();
-
-        $container = Container::getInstance();
-        $this->assertTrue($container->exists('test'));
-        $this->assertInstanceOf(Connection::class, $container->get('test'));
+        DomainRegistrar::setup();
     }
 }
 
-class TestDomain extends Domain
+class TestDomainWithSuccessfulConnectionStub extends Domain
 {
-    /**
-     * Get the configuration of the domain.
-     *
-     * @return array
-     */
-    public function getConfig(): array
+    public static $shouldAutoConnect = true;
+
+    public static function getNewConnection()
     {
-        return [];
+        $conn = m::mock(Connection::class);
+        $conn->shouldReceive('isConnected')->once()->withNoArgs()->andReturnFalse();
+        $conn->shouldReceive('connect')->once()->withNoArgs();
+        return $conn;
+    }
+}
+
+class TestDomainWithFailingConnectionStub extends Domain
+{
+    public static $shouldAutoConnect = true;
+
+    public static function getNewConnection()
+    {
+        $conn = m::mock(Connection::class);
+        $conn->shouldReceive('isConnected')->once()->withNoArgs()->andReturnFalse();
+        $conn->shouldReceive('connect')->once()->andThrow(new LdapRecordException('Failed connecting'));
+        return $conn;
     }
 }

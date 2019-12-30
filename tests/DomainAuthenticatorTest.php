@@ -2,8 +2,7 @@
 
 namespace LdapRecord\Laravel\Tests;
 
-use LdapRecord\Connection;
-use LdapRecord\Laravel\Domain;
+use LdapRecord\Auth\Guard;
 use LdapRecord\Laravel\DomainAuthenticator;
 use LdapRecord\Laravel\Events\Authenticated;
 use LdapRecord\Laravel\Events\Authenticating;
@@ -20,14 +19,10 @@ class DomainAuthenticatorTest extends TestCase
         $model = new Entry();
         $model->setDn($dn);
 
-        $connection = m::mock(Connection::class);
-        $connection->shouldReceive('auth')->once()->andReturnSelf();
-        $connection->shouldReceive('attempt')->once()->withArgs([$dn, 'password'])->andReturnTrue();
+        $auth = m::mock(Guard::class);
+        $auth->shouldReceive('attempt')->once()->withArgs([$dn, 'password'])->andReturnTrue();
 
-        $domain = new Domain('test');
-        $domain->setConnection($connection);
-
-        $auth = new DomainAuthenticator($domain);
+        $auth = new DomainAuthenticator($auth);
 
         $this->expectsEvents([
             Authenticating::class,
@@ -46,14 +41,10 @@ class DomainAuthenticatorTest extends TestCase
         $model = new Entry();
         $model->setDn($dn);
 
-        $connection = m::mock(Connection::class);
-        $connection->shouldReceive('auth')->once()->andReturnSelf();
-        $connection->shouldReceive('attempt')->once()->withArgs([$dn, 'password'])->andReturnFalse();
+        $auth = m::mock(Guard::class);
+        $auth->shouldReceive('attempt')->once()->withArgs([$dn, 'password'])->andReturnFalse();
 
-        $domain = new Domain('test');
-        $domain->setConnection($connection);
-
-        $auth = new DomainAuthenticator($domain);
+        $auth = new DomainAuthenticator($auth);
 
         $this->expectsEvents([
             Authenticating::class,

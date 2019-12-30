@@ -11,7 +11,7 @@ use LdapRecord\Laravel\SynchronizedDomain;
 use LdapRecord\Models\Model as LdapModel;
 use RuntimeException;
 
-class Import extends Command
+class ImportDomain extends Command
 {
     /**
      * The user model to use for importing.

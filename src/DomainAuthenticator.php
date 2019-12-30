@@ -2,6 +2,7 @@
 
 namespace LdapRecord\Laravel;
 
+use LdapRecord\Auth\Guard;
 use LdapRecord\Laravel\Events\Authenticated;
 use LdapRecord\Laravel\Events\Authenticating;
 use LdapRecord\Laravel\Events\AuthenticationFailed;
@@ -10,20 +11,20 @@ use LdapRecord\Models\Model;
 class DomainAuthenticator
 {
     /**
-     * The LDAP domain being used for authentication.
+     * The LDAP auth guard.
      *
-     * @var Domain
+     * @var Guard
      */
-    protected $domain;
+    protected $auth;
 
     /**
      * Constructor.
      *
-     * @param Domain $domain
+     * @param Guard $auth
      */
-    public function __construct(Domain $domain)
+    public function __construct(Guard $auth)
     {
-        $this->domain = $domain;
+        $this->auth = $auth;
     }
 
     /**
@@ -34,11 +35,11 @@ class DomainAuthenticator
      *
      * @return bool
      */
-    public function attempt(Model $user, string $password) : bool
+    public function attempt(Model $user, $password)
     {
         event(new Authenticating($user, $user->getDn()));
 
-        if ($this->getDomainGuard()->attempt($user->getDn(), $password)) {
+        if ($this->auth->attempt($user->getDn(), $password)) {
             event(new Authenticated($user));
 
             return true;
@@ -47,15 +48,5 @@ class DomainAuthenticator
         event(new AuthenticationFailed($user));
 
         return false;
-    }
-
-    /**
-     * Get the domain connection guard.
-     *
-     * @return \LdapRecord\Auth\Guard
-     */
-    protected function getDomainGuard()
-    {
-        return $this->domain->getConnection()->auth();
     }
 }

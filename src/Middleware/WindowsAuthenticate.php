@@ -87,7 +87,7 @@ class WindowsAuthenticate
 
         // Here we will validate that the authenticating user
         // passes our LDAP authentication rules in place.
-        if ($domain->userValidator($user, $model)->passes()) {
+        if ($domain->validator($user, $model)->passes()) {
             if ($model) {
                 // We will sync / set the users password after
                 // our model has been synchronized.

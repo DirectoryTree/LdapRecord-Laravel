@@ -3,6 +3,7 @@
 namespace LdapRecord\Laravel;
 
 use LdapRecord\Laravel\Auth\LdapAuthenticatable;
+use LdapRecord\Laravel\Scopes\ScopeInterface;
 use LdapRecord\Query\Model\Builder;
 use RuntimeException;
 
@@ -71,7 +72,7 @@ class DomainUserLocator
 
         if (! array_key_exists($usernameKey, $credentials)) {
             throw new RuntimeException(
-                "The '$usernameKey' key is missing from the given credentials array."
+                "The [$usernameKey] key is missing from the given credentials array."
             );
         }
 
@@ -100,7 +101,7 @@ class DomainUserLocator
      */
     public function query() : Builder
     {
-        $model = $this->getNewDomainModel();
+        $model = $this->domain->ldapModel();
 
         $query = $model->newQuery();
 
@@ -111,20 +112,11 @@ class DomainUserLocator
 
         $query->select($selects);
 
-        foreach ($this->domain->getAuthScopes() as $scope) {
-            app($scope)->apply($query);
+        /** @var ScopeInterface $scope */
+        foreach ($this->domain->scopes() as $scope) {
+            $scope->apply($query);
         }
 
         return $query;
-    }
-
-    /**
-     * Get a new LDAP model for the domain.
-     *
-     * @return \LdapRecord\Models\Model
-     */
-    protected function getNewDomainModel()
-    {
-        return app(DomainModelFactory::class)->createForDomain($this->domain);
     }
 }

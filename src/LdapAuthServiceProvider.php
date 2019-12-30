@@ -5,12 +5,11 @@ namespace LdapRecord\Laravel;
 use Illuminate\Auth\Events\Authenticated;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use LdapRecord\Laravel\Auth\NoDatabaseUserProvider;
-use LdapRecord\Laravel\Commands\Import;
+use LdapRecord\Laravel\Commands\ImportDomain;
 use LdapRecord\Laravel\Commands\MakeDomain;
 use LdapRecord\Laravel\Listeners\BindsLdapUserModel;
 
@@ -42,11 +41,11 @@ class LdapAuthServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->commands([Import::class, MakeDomain::class]);
+        $this->commands([ImportDomain::class, MakeDomain::class]);
 
         Auth::provider('ldap', function ($app, array $config) {
             /** @var Domain $domain */
-            $domain = app(DomainRegistrar::class)->get($config['domain']);
+            $domain = new $config['domain'];
 
             return $domain instanceof SynchronizedDomain ?
                 new DatabaseUserProvider($domain, $app['hash']) :
@@ -59,22 +58,12 @@ class LdapAuthServiceProvider extends ServiceProvider
         // after authentication has passed.
         Event::listen([Login::class, Authenticated::class], BindsLdapUserModel::class);
 
-        if ($this->isLogging()) {
+        if (DomainRegistrar::$logging) {
             // If logging is enabled, we will set up our event listeners that
             // log each event fired throughout the authentication process.
             foreach ($this->events as $event => $listener) {
                 Event::listen($event, $listener);
             }
         }
-    }
-
-    /**
-     * Determines if authentication requests are logged.
-     *
-     * @return bool
-     */
-    protected function isLogging()
-    {
-        return Config::get('ldap.logging.enabled', false);
     }
 }

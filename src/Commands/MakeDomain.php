@@ -13,7 +13,7 @@ class MakeDomain extends GeneratorCommand
      *
      * @var string
      */
-    protected $name = 'ldap:domain';
+    protected $name = 'make:ldap-domain';
 
     /**
      * The console command description.
@@ -34,7 +34,12 @@ class MakeDomain extends GeneratorCommand
      */
     protected function getStub()
     {
-        return __DIR__.'/Stubs/domain.stub';
+        $types = [
+            'sync' => __DIR__.'./Stubs/synchronized-domain.stub',
+            'default' => __DIR__.'./Stubs/domain.stub',
+        ];
+
+        return $types[$this->option('type') == 'sync' ? 'sync' : 'default'];
     }
 
     /**
@@ -69,7 +74,7 @@ class MakeDomain extends GeneratorCommand
     protected function getOptions()
     {
         return [
-            ['type', 't', InputOption::VALUE_OPTIONAL, 'The type of domain to create'],
+            ['type', 't', InputOption::VALUE_OPTIONAL, 'The type of domain to create (synchronized / plain)'],
         ];
     }
 }

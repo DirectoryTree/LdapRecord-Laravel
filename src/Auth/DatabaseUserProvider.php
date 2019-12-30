@@ -112,7 +112,7 @@ class DatabaseUserProvider extends UserProvider
             // Here we will perform authorization on the LDAP user. If all
             // validation rules pass, we will allow the authentication
             // attempt. Otherwise, it is automatically rejected.
-            if (! $this->domain->userValidator($this->user, $model)->passes()) {
+            if (! $this->domain->validator($this->user, $model)->passes()) {
                 event(new AuthenticationRejected($this->user, $model));
 
                 return false;

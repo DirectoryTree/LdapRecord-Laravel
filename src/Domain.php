@@ -3,50 +3,34 @@
 namespace LdapRecord\Laravel;
 
 use LdapRecord\Connection;
+use LdapRecord\Container;
 use LdapRecord\Laravel\Validation\Validator;
 use LdapRecord\Models\ActiveDirectory\User;
 
 class Domain
 {
     /**
-     * The LDAP domain name.
-     *
-     * @var string
-     */
-    protected $name;
-
-    /**
-     * The LDAP domain connection.
-     *
-     * @var Connection|null
-     */
-    protected $connection;
-
-    /**
      * Whether to automatically connect to the domain.
      *
      * @var bool
      */
-    protected $shouldAutoConnect = true;
+    public static $shouldAutoConnect = true;
 
     /**
-     * Constructor.
+     * The LDAP model class name.
      *
-     * @param string $name
+     * @var string
      */
-    public function __construct($name)
-    {
-        $this->name = $name;
-    }
+    public static $ldapModel = User::class;
 
     /**
-     * Get the name of the domain.
+     * Determine if the domain should auto connect.
      *
-     * @return string
+     * @param bool $enabled
      */
-    public function getName()
+    public static function shouldAutoConnect($enabled = true)
     {
-        return $this->name;
+        static::$shouldAutoConnect = $enabled;
     }
 
     /**
@@ -54,19 +38,86 @@ class Domain
      *
      * @return array
      */
-    public function getConfig()
+    public static function getConfig()
     {
         return [];
     }
 
     /**
-     * Determine if the domain should auto connect.
+     * Get the LDAP model for the domain.
      *
-     * @return bool
+     * @return string
      */
-    public function shouldAutoConnect()
+    public static function getLdapModel()
     {
-        return $this->shouldAutoConnect;
+        return User::class;
+    }
+
+    /**
+     * Get the LDAP authentication username.
+     *
+     * @return string
+     */
+    public static function getAuthUsername()
+    {
+        return 'userprincipalname';
+    }
+
+    /**
+     * Get the LDAP authentication scopes.
+     *
+     * @return string[]
+     */
+    public static function getAuthScopes()
+    {
+        return [];
+    }
+
+    /**
+     * Get the LDAP authentication rules.
+     *
+     * @return string[]
+     */
+    public static function getAuthRules()
+    {
+        return [];
+    }
+
+    /**
+     * Get a new LDAP model instance.
+     *
+     * @return \LdapRecord\Models\Model
+     */
+    public static function ldapModel()
+    {
+        return new static::$ldapModel;
+    }
+
+    /**
+     * Get the authentication scopes for the domain.
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public static function scopes()
+    {
+        return collect(static::getAuthScopes())->map(function ($scope) {
+            return app($scope);
+        })->values();
+    }
+
+    /**
+     * Get the authentication rules for the domain.
+     *
+     * @param \LdapRecord\Models\Model                 $user
+     * @param \Illuminate\Database\Eloquent\Model|null $model
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public static function rules($user, $model = null)
+    {
+        return collect(static::getAuthRules())->map(function ($rule) use ($user, $model) {
+            return new $rule($user, $model);
+        })->values();
     }
 
     /**
@@ -74,9 +125,9 @@ class Domain
      *
      * @return DomainAuthenticator
      */
-    public function auth()
+    public static function auth()
     {
-        return new DomainAuthenticator($this);
+        return new DomainAuthenticator(static::resolveConnection()->auth());
     }
 
     /**
@@ -84,9 +135,9 @@ class Domain
      *
      * @return DomainUserLocator
      */
-    public function locate()
+    public static function locate()
     {
-        return new DomainUserLocator($this);
+        return new DomainUserLocator(new static);
     }
 
     /**
@@ -97,35 +148,21 @@ class Domain
      *
      * @return Validator
      */
-    public function userValidator($user, $model = null)
+    public static function validator($user, $model = null)
     {
-        $rules = [];
-
-        foreach ($this->getAuthRules() as $rule) {
-            $rules[] = new $rule($user, $model);
-        }
-
-        return new Validator($rules);
-    }
-
-    /**
-     * Set the domains connection.
-     *
-     * @param Connection $connection
-     */
-    public function setConnection(Connection $connection)
-    {
-        $this->connection = $connection;
+        return new Validator(static::rules($user, $model));
     }
 
     /**
      * Get the domains connection.
      *
-     * @return Connection|null
+     * @return Connection
+     *
+     * @throws \LdapRecord\ContainerException
      */
-    public function getConnection()
+    public static function resolveConnection()
     {
-        return $this->connection;
+        return Container::getConnection(get_called_class());
     }
 
     /**
@@ -133,48 +170,8 @@ class Domain
      *
      * @return Connection
      */
-    public function getNewConnection()
+    public static function getNewConnection()
     {
-        return new Connection($this->getConfig());
-    }
-
-    /**
-     * Get the LDAP model for the domain.
-     *
-     * @return string
-     */
-    public function getLdapModel()
-    {
-        return User::class;
-    }
-
-    /**
-     * Get the LDAP authentication username.
-     *
-     * @return string
-     */
-    public function getAuthUsername()
-    {
-        return 'userprincipalname';
-    }
-
-    /**
-     * Get the LDAP authentication scopes.
-     *
-     * @return array
-     */
-    public function getAuthScopes()
-    {
-        return [];
-    }
-
-    /**
-     * Get the LDAP authentication rules.
-     *
-     * @return array
-     */
-    public function getAuthRules()
-    {
-        return [];
+        return new Connection(static::getConfig());
     }
 }
