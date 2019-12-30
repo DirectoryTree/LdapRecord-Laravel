@@ -72,6 +72,7 @@ class TestDomainWithSuccessfulConnectionStub extends Domain
         $conn = m::mock(Connection::class);
         $conn->shouldReceive('isConnected')->once()->withNoArgs()->andReturnFalse();
         $conn->shouldReceive('connect')->once()->withNoArgs();
+
         return $conn;
     }
 }
@@ -85,6 +86,7 @@ class TestDomainWithFailingConnectionStub extends Domain
         $conn = m::mock(Connection::class);
         $conn->shouldReceive('isConnected')->once()->withNoArgs()->andReturnFalse();
         $conn->shouldReceive('connect')->once()->andThrow(new LdapRecordException('Failed connecting'));
+
         return $conn;
     }
 }

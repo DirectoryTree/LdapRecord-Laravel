@@ -20,6 +20,7 @@ class DomainUserLocatorTest extends TestCase
                 $model = m::mock(Model::class);
                 $model->shouldReceive('newQuery')->once()->andReturn(new Builder(new Connection));
                 $model->shouldReceive('getGuidKey')->once()->andReturn('objectguid');
+
                 return $model;
             }
         };
@@ -40,19 +41,19 @@ class DomainUserLocatorTest extends TestCase
                 $model = m::mock(Model::class);
                 $model->shouldReceive('newQuery')->once()->andReturn(new Builder(new Connection));
                 $model->shouldReceive('getGuidKey')->once()->andReturn('objectguid');
+
                 return $model;
             }
 
             public static function scopes()
             {
                 return [
-                    new class implements ScopeInterface
-                    {
+                    new class implements ScopeInterface {
                         public function apply(Builder $builder)
                         {
                             $builder->select('attribute');
                         }
-                    }
+                    },
                 ];
             }
         };
@@ -62,4 +63,3 @@ class DomainUserLocatorTest extends TestCase
         $this->assertEquals(['attribute', 'objectclass'], $locator->query()->getSelects());
     }
 }
-
