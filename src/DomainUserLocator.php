@@ -99,7 +99,7 @@ class DomainUserLocator
      *
      * @return Builder
      */
-    public function query() : Builder
+    public function query(): Builder
     {
         $model = $this->domain->ldapModel();
 
