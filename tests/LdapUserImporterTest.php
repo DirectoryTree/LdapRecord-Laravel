@@ -5,9 +5,9 @@ namespace LdapRecord\Laravel\Tests;
 use LdapRecord\Laravel\Events\Importing;
 use LdapRecord\Laravel\Events\Synchronized;
 use LdapRecord\Laravel\Events\Synchronizing;
-use Mockery as m;
 use LdapRecord\Laravel\LdapUserImporter;
 use LdapRecord\Models\Model;
+use Mockery as m;
 
 class LdapUserImporterTest extends TestCase
 {
