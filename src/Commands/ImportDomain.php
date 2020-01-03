@@ -106,7 +106,7 @@ class ImportDomain extends Command
      *
      * @return int
      */
-    public function import(SynchronizedDomain $domain, array $users = []) : int
+    public function import(SynchronizedDomain $domain, array $users = []): int
     {
         $imported = 0;
 
@@ -176,7 +176,7 @@ class ImportDomain extends Command
      *
      * @return bool
      */
-    public function isLogging() : bool
+    public function isLogging(): bool
     {
         return ! $this->option('no-log');
     }
@@ -187,7 +187,7 @@ class ImportDomain extends Command
      *
      * @return bool
      */
-    public function isDeleting() : bool
+    public function isDeleting(): bool
     {
         return $this->option('delete') == 'true';
     }
@@ -198,7 +198,7 @@ class ImportDomain extends Command
      *
      * @return bool
      */
-    public function isRestoring() : bool
+    public function isRestoring(): bool
     {
         return $this->option('restore') == 'true';
     }
@@ -212,7 +212,7 @@ class ImportDomain extends Command
      *
      * @throws \LdapRecord\Models\ModelNotFoundException
      */
-    public function getUsers(SynchronizedDomain $domain) : array
+    public function getUsers(SynchronizedDomain $domain): array
     {
         $query = $domain->locate()->query();
 
@@ -239,7 +239,7 @@ class ImportDomain extends Command
      *
      * @return bool
      */
-    protected function save(LdapModel $user, Model $model) : bool
+    protected function save(LdapModel $user, Model $model): bool
     {
         if ($model->save() && $model->wasRecentlyCreated) {
             event(new Imported($user, $model));
@@ -317,7 +317,7 @@ class ImportDomain extends Command
      *
      * @return bool
      */
-    protected function isUsingSoftDeletes(Model $model) : bool
+    protected function isUsingSoftDeletes(Model $model): bool
     {
         return method_exists($model, 'trashed');
     }
