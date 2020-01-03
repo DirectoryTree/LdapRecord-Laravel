@@ -3,8 +3,6 @@
 namespace LdapRecord\Laravel\Listeners;
 
 use LdapRecord\Laravel\Auth\LdapAuthenticatable;
-use LdapRecord\Laravel\Domain;
-use LdapRecord\Laravel\DomainRegistrar;
 use LdapRecord\Laravel\Traits\HasLdapUser;
 
 class BindsLdapUserModel
@@ -18,15 +16,15 @@ class BindsLdapUserModel
      */
     public function handle($event)
     {
-        if ($event->user instanceof LdapAuthenticatable && $this->canBind($event->user)) {
-            $domain = DomainRegistrar::$domains[$event->user->getLdapDomain()];
-
-            tap(new $domain, function (Domain $domain) use ($event) {
-                $event->user->setLdapUser(
-                    $domain->locate()->byModel($event->user)
-                );
-            });
-        }
+//        if ($event->user instanceof LdapAuthenticatable && $this->canBind($event->user)) {
+//            $domain = DomainRegistrar::$domains[$event->user->getLdapDomain()];
+//
+//            tap(new $domain, function (Domain $domain) use ($event) {
+//                $event->user->setLdapUser(
+//                    $domain->locate()->byModel($event->user)
+//                );
+//            });
+//        }
     }
 
     /**

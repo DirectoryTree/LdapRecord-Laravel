@@ -15,7 +15,7 @@ class NoDatabaseUserProvider extends UserProvider
      */
     public function retrieveById($identifier)
     {
-        $user = $this->domain->locate()->byGuid($identifier);
+        $user = $this->users->findByGuid($identifier);
 
         // We'll verify we have the correct instance just to ensure we
         // don't return an incompatible model that may be returned.
@@ -44,7 +44,7 @@ class NoDatabaseUserProvider extends UserProvider
      */
     public function retrieveByCredentials(array $credentials)
     {
-        if ($user = $this->domain->locate()->byCredentials($credentials)) {
+        if ($user = $this->users->findByCredentials($credentials)) {
             event(new DiscoveredWithCredentials($user));
 
             return $user;
@@ -56,7 +56,7 @@ class NoDatabaseUserProvider extends UserProvider
      */
     public function validateCredentials(Authenticatable $user, array $credentials)
     {
-        if ($this->domain->auth()->attempt($user, $credentials)) {
+        if ($this->auth->attempt($user, $credentials['password'])) {
             event(new AuthenticatedWithCredentials($user));
 
             if ($this->domain->validator($user)->passes()) {

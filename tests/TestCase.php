@@ -46,9 +46,13 @@ abstract class TestCase extends BaseTestCase
             'database' => ':memory:',
         ]);
 
-        $config->set('ldap.domains', [
-            'plain' => Domain::class,
-            'synchronized' => SynchronizedDomain::class,
+        $config->set('ldap.default', 'default');
+        $config->set('ldap.connections.default', [
+            'hosts' => ['localhost'],
+            'username' => 'user',
+            'password' => 'secret',
+            'base_dn' => 'dc=local,dc=com',
+            'port' => 389,
         ]);
 
         // Auth setup.
@@ -56,12 +60,16 @@ abstract class TestCase extends BaseTestCase
         $config->set('auth.providers', [
             'ldap' => [
                 'driver' => 'ldap',
-                'domain' => 'plain',
-            ],
-            'users'  => [
-                'driver' => 'ldap',
-                'model'  => TestUser::class,
-                'domain' => 'synchronized',
+                'rules' => [],
+                'model' => \LdapRecord\Models\ActiveDirectory\User::class,
+                'database' => [
+                    'sync_passwords' => true,
+                    'sync_attributes' => [
+                        'name' => 'cn',
+                        'email' => 'userprincipalname',
+                    ],
+                    'model' => \LdapRecord\Laravel\Tests\TestUser::class,
+                ],
             ],
         ]);
 

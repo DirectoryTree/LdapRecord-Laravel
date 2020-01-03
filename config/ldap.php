@@ -41,4 +41,17 @@ return [
 
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | LDAP Logging
+    |--------------------------------------------------------------------------
+    |
+    | When LDAP logging is enabled, all LDAP search and authentication
+    | operations are logged using the default application logging
+    | driver. This can assist in debugging issues and more.
+    |
+    */
+
+    'logging' => env('LDAP_LOGGING', true),
+
 ];

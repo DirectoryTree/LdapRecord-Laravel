@@ -41,15 +41,22 @@ class LdapAuthServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->commands([ImportDomain::class, MakeDomain::class]);
+        $this->commands([ImportDomain::class]);
 
         Auth::provider('ldap', function ($app, array $config) {
-            /** @var Domain $domain */
-            $domain = new $config['domain'];
+            $users = $this->makeLdapUserRepository($config);
+            $auth = $this->makeLdapUserAuthenticator($users, $config);
 
-            return $domain instanceof SynchronizedDomain ?
-                new DatabaseUserProvider($domain, $app['hash']) :
-                new NoDatabaseUserProvider($domain);
+            if (array_key_exists('database', $config)) {
+                return new DatabaseUserProvider(
+                    $users,
+                    $auth,
+                    $this->makeLdapUserImporter($config['database']),
+                    $app['hash']
+                );
+            }
+
+            return new NoDatabaseUserProvider($users, $auth);
         });
 
         // Here we will register the event listener that will bind the users LDAP
@@ -58,12 +65,49 @@ class LdapAuthServiceProvider extends ServiceProvider
         // after authentication has passed.
         Event::listen([Login::class, Authenticated::class], BindsLdapUserModel::class);
 
-        if (DomainRegistrar::$logging) {
+        if (config('ldap.logging', true)) {
             // If logging is enabled, we will set up our event listeners that
             // log each event fired throughout the authentication process.
             foreach ($this->events as $event => $listener) {
                 Event::listen($event, $listener);
             }
         }
+    }
+
+    /**
+     * Make a new LDAP user authenticator.
+     *
+     * @param LdapUserRepository $repository
+     * @param array              $config
+     *
+     * @return LdapUserAuthenticator
+     */
+    protected function makeLdapUserAuthenticator(LdapUserRepository $repository, array $config)
+    {
+        return new LdapUserAuthenticator($repository->createModel()->getConnection(), $config['rules'] ?? []);
+    }
+
+    /**
+     * Make a new LDAP user repository.
+     *
+     * @param array $config
+     *
+     * @return LdapUserRepository
+     */
+    protected function makeLdapUserRepository(array $config)
+    {
+        return new LdapUserRepository($config['model'], $config['scopes']);
+    }
+
+    /**
+     * Make a new LDAP user importer.
+     *
+     * @param array $config
+     *
+     * @return LdapUserImporter
+     */
+    protected function makeLdapUserImporter(array $config)
+    {
+        return new LdapUserImporter($config['model'], $config['sync_attributes']);
     }
 }

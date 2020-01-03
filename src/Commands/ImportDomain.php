@@ -5,6 +5,7 @@ namespace LdapRecord\Laravel\Commands;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
+use LdapRecord\Laravel\Domain;
 use LdapRecord\Laravel\DomainRegistrar;
 use LdapRecord\Laravel\Events\Imported;
 use LdapRecord\Laravel\SynchronizedDomain;
@@ -25,7 +26,7 @@ class ImportDomain extends Command
      *
      * @var string
      */
-    protected $signature = 'ldap:import {domain : The name of the domain to import.}
+    protected $signature = 'ldap:import {domain : The domain to import.}
             {user? : The specific user to import.}
             {--f|filter= : The raw LDAP filter for limiting users imported.}
             {--m|model= : The model to use for importing users.}
@@ -43,51 +44,56 @@ class ImportDomain extends Command
     /**
      * Execute the console command.
      *
-     * @param DomainRegistrar $registrar
-     *
      * @return void
      *
      * @throws \LdapRecord\Models\ModelNotFoundException
-     * @throws \LdapRecord\Laravel\RegistrarException
      */
-    public function handle(DomainRegistrar $registrar)
+    public function handle()
     {
-        $domainName = $this->argument('domain');
-
-        $domain = $registrar->get($domainName);
-
-        if (! $domain instanceof SynchronizedDomain) {
-            throw new RuntimeException("Domain [$domainName] is not configured for synchronization.");
-        }
-
-        $users = $this->getUsers($domain);
-
-        $count = count($users);
-
-        if ($count === 0) {
-            throw new RuntimeException('There were no users found to import.');
-        } elseif ($count === 1) {
-            $this->info("Found user '{$users[0]->getRdn()}'.");
+        if ($domainClass = $this->argument('domain')) {
+            $domains = [$domainClass];
         } else {
-            $this->info("Found {$count} user(s).");
+            $domains = DomainRegistrar::domains();
         }
 
-        if (
-            $this->input->isInteractive() &&
-            $this->confirm('Would you like to display the user(s) to be imported / synchronized?', $default = false)
-        ) {
-            $this->display($users);
-        }
+        foreach ($domains as $domainClass) {
+            /** @var Domain $domain */
+            $domain = app($domainClass);
 
-        if (
-            ! $this->input->isInteractive() ||
-            $this->confirm('Would you like these users to be imported / synchronized?', $default = true)
-        ) {
-            $imported = $this->import($domain, $users);
+            if (! $domain instanceof SynchronizedDomain) {
+                $this->info("Domain [$domainClass] is not configured for synchronization. Skipping...");
+                continue;
+            }
 
-            $this->info("Successfully imported / synchronized {$imported} user(s).");
-        } else {
-            $this->info('Okay, no users were imported / synchronized.');
+            $users = $this->getUsers($domain);
+
+            $count = count($users);
+
+            if ($count === 0) {
+                throw new RuntimeException('There were no users found to import.');
+            } elseif ($count === 1) {
+                $this->info("Found user '{$users[0]->getRdn()}'.");
+            } else {
+                $this->info("Found {$count} user(s).");
+            }
+
+            if (
+                $this->input->isInteractive() &&
+                $this->confirm('Would you like to display the user(s) to be imported / synchronized?', $default = false)
+            ) {
+                $this->display($users);
+            }
+
+            if (
+                ! $this->input->isInteractive() ||
+                $this->confirm('Would you like these users to be imported / synchronized?', $default = true)
+            ) {
+                $imported = $this->import($domain, $users);
+
+                $this->info("Successfully imported / synchronized {$imported} user(s).");
+            } else {
+                $this->info('Okay, no users were imported / synchronized.');
+            }
         }
     }
 
