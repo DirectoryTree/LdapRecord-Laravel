@@ -153,9 +153,9 @@ class LdapUserRepository
         // We will ensure our object GUID attribute is always selected
         // along will all attributes. Otherwise, if the object GUID
         // attribute is virtual, it may not be returned.
-        $selects = array_unique(array_merge(['*', $model->getGuidKey()], $query->getSelects()));
-
-        return $query->select($selects);
+        return $query->select(
+            array_unique(array_merge(['*', $model->getGuidKey()], $query->getSelects()))
+        );
     }
 
     /**
