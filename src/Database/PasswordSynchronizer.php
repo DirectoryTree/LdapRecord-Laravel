@@ -34,7 +34,7 @@ class PasswordSynchronizer
      *
      * @return Model
      */
-    public function run(Model $model, string $password = null) : Model
+    public function run(Model $model, string $password = null): Model
     {
         if ($this->hasPasswordColumn()) {
             $password = $this->domain->isSyncingPasswords() ?
@@ -77,7 +77,7 @@ class PasswordSynchronizer
      *
      * @return bool
      */
-    protected function passwordNeedsUpdate(Model $model, $password = null) : bool
+    protected function passwordNeedsUpdate(Model $model, $password = null): bool
     {
         $current = $this->currentModelPassword($model);
 
@@ -93,7 +93,7 @@ class PasswordSynchronizer
      *
      * @return bool
      */
-    protected function hasPasswordColumn() : bool
+    protected function hasPasswordColumn(): bool
     {
         return ! is_null($this->column());
     }

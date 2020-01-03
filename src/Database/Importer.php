@@ -54,7 +54,7 @@ class Importer
      *
      * @return Model
      */
-    public function run(LdapModel $user) : Model
+    public function run(LdapModel $user): Model
     {
         $model = $this->getNewDatabaseModel();
 
