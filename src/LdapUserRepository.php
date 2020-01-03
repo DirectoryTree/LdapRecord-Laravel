@@ -104,6 +104,20 @@ class LdapUserRepository
     }
 
     /**
+     * Get a new model query.
+     *
+     * @return \LdapRecord\Query\Model\Builder
+     */
+    public function query()
+    {
+        return tap($this->newModelQuery(), function ($query) {
+            foreach ($this->scopes() as $scope) {
+                $scope->apply($query);
+            }
+        });
+    }
+
+    /**
      * Create a new instance of the LdapRecord model.
      *
      * @return \LdapRecord\Models\Model
@@ -126,30 +140,6 @@ class LdapUserRepository
     }
 
     /**
-     * Get a new model query.
-     *
-     * @return \LdapRecord\Query\Model\Builder
-     */
-    protected function query()
-    {
-        $query = $this->newModelQuery();
-
-        // We will ensure our object GUID attribute is always selected
-        // along will all attributes. Otherwise, if the object GUID
-        // attribute is virtual, it may not be returned.
-        $selects = array_unique(array_merge(['*', $this->model->getGuidKey()], $query->getSelects()));
-
-        $query->select($selects);
-
-        /** @var \LdapRecord\Laravel\Scopes\ScopeInterface $scope */
-        foreach ($this->scopes() as $scope) {
-            $scope->apply($query);
-        }
-
-        return $query;
-    }
-
-    /**
      * Get a new query builder for the model instance.
      *
      * @param \LdapRecord\Models\Model|null $model
@@ -158,9 +148,16 @@ class LdapUserRepository
      */
     protected function newModelQuery($model = null)
     {
-        return is_null($model)
-            ? $this->createModel()->newQuery()
-            : $model->newQuery();
+        $model = is_null($model) ? $this->createModel() : $model;
+
+        $query = $model->newQuery();
+
+        // We will ensure our object GUID attribute is always selected
+        // along will all attributes. Otherwise, if the object GUID
+        // attribute is virtual, it may not be returned.
+        $selects = array_unique(array_merge(['*', $model->getGuidKey()], $query->getSelects()));
+
+        return $query->select($selects);
     }
 
     /**
