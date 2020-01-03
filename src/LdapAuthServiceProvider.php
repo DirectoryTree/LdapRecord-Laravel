@@ -4,6 +4,7 @@ namespace LdapRecord\Laravel;
 
 use Illuminate\Auth\Events\Authenticated;
 use Illuminate\Auth\Events\Login;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
@@ -95,7 +96,7 @@ class LdapAuthServiceProvider extends ServiceProvider
      */
     protected function makeLdapUserRepository(array $config)
     {
-        return new LdapUserRepository($config['model'], $config['scopes']);
+        return new LdapUserRepository($config['model'], Arr::get($config, 'scopes', $default = []));
     }
 
     /**
