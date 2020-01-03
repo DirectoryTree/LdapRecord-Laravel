@@ -1,4 +1,8 @@
-<h1 align="center">LdapRecord - Laravel</h1>
+<!-- readme.md -->
+
+<p align="center">
+    <img src="https://ldaprecord.com/assets/img/logo.png" width="400">
+</p>
 
 <p align="center">
     <a href="https://laravel.com"><img src="https://img.shields.io/badge/Built_for-Laravel-green.svg?style=flat-square"></a>
