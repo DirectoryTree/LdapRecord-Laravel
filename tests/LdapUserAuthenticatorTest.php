@@ -111,10 +111,10 @@ class DomainAuthenticatorTest extends TestCase
 
         $this->expectsEvents([
             Authenticating::class,
-            Authenticated::class
+            Authenticated::class,
         ])->doesntExpectEvents([
             AuthenticationRejected::class,
-            AuthenticationFailed::class
+            AuthenticationFailed::class,
         ]);
 
         $this->assertTrue($auth->attempt($model, 'password'));
