@@ -5,13 +5,13 @@ namespace LdapRecord\Laravel\Auth;
 use Illuminate\Auth\EloquentUserProvider;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Hashing\Hasher;
-use LdapRecord\Laravel\LdapUserAuthenticator;
-use LdapRecord\Laravel\LdapUserImporter;
 use LdapRecord\Laravel\Events\AuthenticatedWithCredentials;
 use LdapRecord\Laravel\Events\AuthenticationRejected;
 use LdapRecord\Laravel\Events\AuthenticationSuccessful;
 use LdapRecord\Laravel\Events\DiscoveredWithCredentials;
 use LdapRecord\Laravel\Events\Imported;
+use LdapRecord\Laravel\LdapUserAuthenticator;
+use LdapRecord\Laravel\LdapUserImporter;
 use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Models\Model;
 
