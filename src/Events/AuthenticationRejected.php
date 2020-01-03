@@ -17,17 +17,17 @@ class AuthenticationRejected
     /**
      * The LDAP users authenticatable model.
      *
-     * @var Authenticatable
+     * @var Authenticatable|null
      */
     public $model;
 
     /**
      * Constructor.
      *
-     * @param LdapModel       $user
-     * @param Authenticatable $model
+     * @param LdapModel            $user
+     * @param Authenticatable|null $model
      */
-    public function __construct(LdapModel $user, Authenticatable $model)
+    public function __construct(LdapModel $user, Authenticatable $model = null)
     {
         $this->user = $user;
         $this->model = $model;

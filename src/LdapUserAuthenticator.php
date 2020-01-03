@@ -7,6 +7,7 @@ use LdapRecord\Connection;
 use LdapRecord\Laravel\Events\Authenticated;
 use LdapRecord\Laravel\Events\Authenticating;
 use LdapRecord\Laravel\Events\AuthenticationFailed;
+use LdapRecord\Laravel\Events\AuthenticationRejected;
 use LdapRecord\Laravel\Validation\Validator;
 use LdapRecord\Models\Model;
 
@@ -59,6 +60,15 @@ class LdapUserAuthenticator
 
         if ($this->connection->auth()->attempt($user->getDn(), $password)) {
             event(new Authenticated($user));
+
+            // Here we will perform authorization on the LDAP user. If all
+            // validation rules pass, we will allow the authentication
+            // attempt. Otherwise, it is automatically rejected.
+            if (! $this->validator($user, $this->eloquentModel)->passes()) {
+                event(new AuthenticationRejected($user, $this->eloquentModel));
+
+                return false;
+            }
 
             return true;
         }
