@@ -47,6 +47,20 @@ class LdapUserAuthenticator
     }
 
     /**
+     * Set the eloquent model.
+     *
+     * @param \Illuminate\Database\Eloquent\Model $model
+     *
+     * @return $this
+     */
+    public function setEloquentModel($model)
+    {
+        $this->eloquentModel = $model;
+
+        return $this;
+    }
+
+    /**
      * Attempt authenticating against the domain.
      *
      * @param Model  $user
@@ -59,7 +73,7 @@ class LdapUserAuthenticator
         event(new Authenticating($user, $user->getDn()));
 
         if ($this->connection->auth()->attempt($user->getDn(), $password)) {
-            event(new Authenticated($user));
+            event(new Authenticated($user, $this->eloquentModel));
 
             // Here we will perform authorization on the LDAP user. If all
             // validation rules pass, we will allow the authentication
@@ -73,7 +87,7 @@ class LdapUserAuthenticator
             return true;
         }
 
-        event(new AuthenticationFailed($user));
+        event(new AuthenticationFailed($user, $this->eloquentModel));
 
         return false;
     }

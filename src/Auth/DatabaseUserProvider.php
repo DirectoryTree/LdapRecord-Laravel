@@ -110,6 +110,8 @@ class DatabaseUserProvider extends UserProvider
     public function validateCredentials(Authenticatable $model, array $credentials)
     {
         if ($this->user instanceof Model) {
+            $this->auth->setEloquentModel($model);
+
             if (! $this->auth->attempt($this->user, $credentials['password'])) {
                 // LDAP Authentication failed.
                 return false;
