@@ -10,7 +10,6 @@ use Illuminate\Support\ServiceProvider;
 use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use LdapRecord\Laravel\Auth\NoDatabaseUserProvider;
 use LdapRecord\Laravel\Commands\ImportDomain;
-use LdapRecord\Laravel\Commands\MakeDomain;
 use LdapRecord\Laravel\Listeners\BindsLdapUserModel;
 
 class LdapAuthServiceProvider extends ServiceProvider

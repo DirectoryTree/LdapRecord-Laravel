@@ -4,10 +4,10 @@ namespace LdapRecord\Laravel\Tests;
 
 use LdapRecord\Auth\Guard;
 use LdapRecord\Connection;
-use LdapRecord\Laravel\LdapUserAuthenticator;
 use LdapRecord\Laravel\Events\Authenticated;
 use LdapRecord\Laravel\Events\Authenticating;
 use LdapRecord\Laravel\Events\AuthenticationFailed;
+use LdapRecord\Laravel\LdapUserAuthenticator;
 use LdapRecord\Models\Entry;
 use Mockery as m;
 

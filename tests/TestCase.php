@@ -5,10 +5,8 @@ namespace LdapRecord\Laravel\Tests;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
-use LdapRecord\Laravel\Domain;
 use LdapRecord\Laravel\LdapAuthServiceProvider;
 use LdapRecord\Laravel\LdapServiceProvider;
-use LdapRecord\Laravel\SynchronizedDomain;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
