@@ -9,4 +9,6 @@ use LdapRecord\Laravel\Auth\LdapAuthenticatable;
 class TestUser extends User implements LdapAuthenticatable
 {
     use AuthenticatesWithLdap;
+
+    protected $table = 'users';
 }

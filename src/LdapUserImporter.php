@@ -12,13 +12,6 @@ use LdapRecord\Models\Model as LdapModel;
 class LdapUserImporter
 {
     /**
-     * The LDAP user repository.
-     *
-     * @var LdapUserRepository
-     */
-    protected $users;
-
-    /**
      * The Eloquent model to use for importing.
      *
      * @var string

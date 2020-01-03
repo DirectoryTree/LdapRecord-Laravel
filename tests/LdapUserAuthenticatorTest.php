@@ -87,11 +87,45 @@ class DomainAuthenticatorTest extends TestCase
             Authenticating::class,
             Authenticated::class,
             AuthenticationRejected::class,
-        ]);
-
-        $this->doesntExpectEvents([AuthenticationFailed::class]);
+        ])->doesntExpectEvents([AuthenticationFailed::class]);
 
         $this->assertFalse($auth->attempt($model, 'password'));
+    }
+
+    public function test_eloquent_model_can_be_set()
+    {
+        $dn = 'cn=John Doe,dc=local,dc=com';
+
+        $model = new Entry();
+        $model->setDn($dn);
+
+        $connection = m::mock(Connection::class, function ($connection) use ($dn) {
+            $auth = m::mock(Guard::class);
+            $auth->shouldReceive('attempt')->once()->withArgs([$dn, 'password'])->andReturnTrue();
+
+            $connection->shouldReceive('auth')->once()->andReturn($auth);
+        });
+
+        $auth = new LdapUserAuthenticator($connection, [TestLdapAuthRuleWithEloquentModel::class]);
+        $auth->setEloquentModel(new TestUser());
+
+        $this->expectsEvents([
+            Authenticating::class,
+            Authenticated::class
+        ])->doesntExpectEvents([
+            AuthenticationRejected::class,
+            AuthenticationFailed::class
+        ]);
+
+        $this->assertTrue($auth->attempt($model, 'password'));
+    }
+}
+
+class TestLdapAuthRuleWithEloquentModel extends Rule
+{
+    public function isValid()
+    {
+        return isset($this->model);
     }
 }
 

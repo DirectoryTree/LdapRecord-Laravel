@@ -68,9 +68,7 @@ class LdapUserRepository
      */
     public function findByGuid($guid)
     {
-        if ($user = $this->query()->findByGuid($guid)) {
-            return $user;
-        }
+        return $this->query()->findByGuid($guid);
     }
 
     /**
