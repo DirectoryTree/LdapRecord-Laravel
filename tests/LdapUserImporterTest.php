@@ -92,6 +92,7 @@ class LdapUserImporterTest extends TestCase
         $ldapModel = m::mock(Model::class);
         $ldapModel->shouldReceive('getConnection')->once()->andReturn('default');
         $ldapModel->shouldReceive('getConvertedGuid')->twice()->andReturn('guid');
+
         return $ldapModel;
     }
 }
