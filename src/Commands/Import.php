@@ -11,7 +11,6 @@ use LdapRecord\Laravel\Auth\UserProvider;
 use LdapRecord\Laravel\Events\Imported;
 use LdapRecord\Laravel\LdapUserImporter;
 use LdapRecord\Laravel\LdapUserRepository;
-use LdapRecord\Laravel\SynchronizedDomain;
 use LdapRecord\Models\Model as LdapModel;
 use RuntimeException;
 
@@ -205,7 +204,6 @@ class Import extends Command
      * @param LdapUserRepository $users
      *
      * @return \LdapRecord\Models\Model[]
-     *
      */
     public function getUsers(LdapUserRepository $users)
     {
