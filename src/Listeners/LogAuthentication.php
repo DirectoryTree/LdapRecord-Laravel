@@ -19,7 +19,7 @@ class LogAuthentication
     {
         $username = $this->getPrefix().$event->username.$this->getSuffix();
 
-        Log::info("User '{$event->user->getCommonName()}' is authenticating with username: '{$username}'");
+        Log::info("User '{$event->user->getName()}' is authenticating with username: '{$username}'");
     }
 
     /**

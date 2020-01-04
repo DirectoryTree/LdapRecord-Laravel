@@ -16,6 +16,6 @@ class LogAuthenticated
      */
     public function handle(Authenticated $event)
     {
-        Log::info("User '{$event->user->getCommonName()}' has successfully passed LDAP authentication.");
+        Log::info("User '{$event->user->getName()}' has successfully passed LDAP authentication.");
     }
 }

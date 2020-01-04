@@ -14,6 +14,6 @@ class LogAuthenticationRejection
      */
     public function handle(AuthenticationRejected $event)
     {
-        Log::info("User '{$event->user->getCommonName()}' has failed validation. They have been denied authentication.");
+        Log::info("User '{$event->user->getName()}' has failed validation. They have been denied authentication.");
     }
 }

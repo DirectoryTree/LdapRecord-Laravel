@@ -16,6 +16,6 @@ class LogAuthenticationFailure
      */
     public function handle(AuthenticationFailed $event)
     {
-        Log::info("User '{$event->user->getCommonName()}' has failed LDAP authentication.");
+        Log::info("User '{$event->user->getName()}' has failed LDAP authentication.");
     }
 }

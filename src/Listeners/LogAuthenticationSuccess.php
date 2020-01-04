@@ -16,6 +16,6 @@ class LogAuthenticationSuccess
      */
     public function handle(AuthenticationSuccessful $event)
     {
-        Log::info("User '{$event->user->getCommonName()}' has been successfully logged in.");
+        Log::info("User '{$event->user->getName()}' has been successfully logged in.");
     }
 }

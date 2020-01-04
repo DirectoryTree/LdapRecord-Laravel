@@ -16,6 +16,6 @@ class LogImport
      */
     public function handle(Importing $event)
     {
-        Log::info("User '{$event->user->getCommonName()}' is being imported.");
+        Log::info("User '{$event->user->getName()}' is being imported.");
     }
 }
