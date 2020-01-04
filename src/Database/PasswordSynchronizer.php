@@ -3,7 +3,6 @@
 namespace LdapRecord\Laravel\Database;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use LdapRecord\Laravel\SynchronizedDomain;
 
@@ -47,6 +46,4 @@ class PasswordSynchronizer
 
         return $model;
     }
-
-
 }

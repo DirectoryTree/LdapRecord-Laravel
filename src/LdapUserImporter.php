@@ -71,8 +71,6 @@ class LdapUserImporter
 
         $this->syncAttributes($user, $model);
 
-
-
         event(new Synchronized($user, $model));
 
         return $model;
