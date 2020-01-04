@@ -2,15 +2,17 @@
 
 namespace LdapRecord\Laravel;
 
+use Illuminate\Auth\EloquentUserProvider;
 use Illuminate\Auth\Events\Authenticated;
 use Illuminate\Auth\Events\Login;
+use Illuminate\Contracts\Hashing\Hasher;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use LdapRecord\Laravel\Auth\NoDatabaseUserProvider;
-use LdapRecord\Laravel\Commands\ImportDomain;
+use LdapRecord\Laravel\Commands\Import;
 use LdapRecord\Laravel\Listeners\BindsLdapUserModel;
 
 class LdapAuthServiceProvider extends ServiceProvider
@@ -41,7 +43,7 @@ class LdapAuthServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->commands([ImportDomain::class]);
+        $this->commands([Import::class]);
 
         Auth::provider('ldap', function ($app, array $config) {
             $users = $this->makeLdapUserRepository($config);
@@ -52,7 +54,7 @@ class LdapAuthServiceProvider extends ServiceProvider
                     $users,
                     $auth,
                     $this->makeLdapUserImporter($config['database']),
-                    $app['hash']
+                    $this->makeEloquentUserProvider($app['hash'], $config['database']['model'])
                 );
             }
 
@@ -72,6 +74,19 @@ class LdapAuthServiceProvider extends ServiceProvider
                 Event::listen($event, $listener);
             }
         }
+    }
+
+    /**
+     * Make a new Eloquent user provider.
+     *
+     * @param Hasher $hasher
+     * @param string $model
+     *
+     * @return EloquentUserProvider
+     */
+    protected function makeEloquentUserProvider(Hasher $hasher, $model)
+    {
+        return new EloquentUserProvider($hasher, $model);
     }
 
     /**

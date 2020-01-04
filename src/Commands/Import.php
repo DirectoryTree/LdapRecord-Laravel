@@ -5,14 +5,17 @@ namespace LdapRecord\Laravel\Commands;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
-use LdapRecord\Laravel\Domain;
-use LdapRecord\Laravel\DomainRegistrar;
+use Illuminate\Support\Facades\Auth;
+use LdapRecord\Laravel\Auth\DatabaseUserProvider;
+use LdapRecord\Laravel\Auth\UserProvider;
 use LdapRecord\Laravel\Events\Imported;
+use LdapRecord\Laravel\LdapUserImporter;
+use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Laravel\SynchronizedDomain;
 use LdapRecord\Models\Model as LdapModel;
 use RuntimeException;
 
-class ImportDomain extends Command
+class Import extends Command
 {
     /**
      * The user model to use for importing.
@@ -26,7 +29,7 @@ class ImportDomain extends Command
      *
      * @var string
      */
-    protected $signature = 'ldap:import {domain : The domain to import.}
+    protected $signature = 'ldap:import {provider : The authentication provider to import.}
             {user? : The specific user to import.}
             {--f|filter= : The raw LDAP filter for limiting users imported.}
             {--m|model= : The model to use for importing users.}
@@ -50,50 +53,43 @@ class ImportDomain extends Command
      */
     public function handle()
     {
-        if ($domainClass = $this->argument('domain')) {
-            $domains = [$domainClass];
-        } else {
-            $domains = DomainRegistrar::domains();
+        /** @var \LdapRecord\Laravel\Auth\DatabaseUserProvider $provider */
+        $provider = Auth::createUserProvider($this->argument('provider'));
+
+        if (! $provider instanceof UserProvider) {
+            return $this->error("Provider [{$this->argument('provider')}] is not configured for LDAP authentication.");
+        } elseif (! $provider instanceof DatabaseUserProvider) {
+            return $this->error("Provider [{$this->argument('provider')}] is not configured for database synchronization.");
         }
 
-        foreach ($domains as $domainClass) {
-            /** @var Domain $domain */
-            $domain = app($domainClass);
+        $users = $this->getUsers($provider->getLdapUserRepository());
 
-            if (! $domain instanceof SynchronizedDomain) {
-                $this->info("Domain [$domainClass] is not configured for synchronization. Skipping...");
-                continue;
-            }
+        $count = count($users);
 
-            $users = $this->getUsers($domain);
+        if ($count === 0) {
+            throw new RuntimeException('There were no users found to import.');
+        } elseif ($count === 1) {
+            $this->info("Found user '{$users[0]->getRdn()}'.");
+        } else {
+            $this->info("Found {$count} user(s).");
+        }
 
-            $count = count($users);
+        if (
+            $this->input->isInteractive() &&
+            $this->confirm('Would you like to display the user(s) to be imported / synchronized?', $default = false)
+        ) {
+            $this->display($users);
+        }
 
-            if ($count === 0) {
-                throw new RuntimeException('There were no users found to import.');
-            } elseif ($count === 1) {
-                $this->info("Found user '{$users[0]->getRdn()}'.");
-            } else {
-                $this->info("Found {$count} user(s).");
-            }
+        if (
+            ! $this->input->isInteractive() ||
+            $this->confirm('Would you like these users to be imported / synchronized?', $default = true)
+        ) {
+            $imported = $this->import($provider->getLdapUserImporter(), $users);
 
-            if (
-                $this->input->isInteractive() &&
-                $this->confirm('Would you like to display the user(s) to be imported / synchronized?', $default = false)
-            ) {
-                $this->display($users);
-            }
-
-            if (
-                ! $this->input->isInteractive() ||
-                $this->confirm('Would you like these users to be imported / synchronized?', $default = true)
-            ) {
-                $imported = $this->import($domain, $users);
-
-                $this->info("Successfully imported / synchronized {$imported} user(s).");
-            } else {
-                $this->info('Okay, no users were imported / synchronized.');
-            }
+            $this->info("Successfully imported / synchronized {$imported} user(s).");
+        } else {
+            $this->info('Okay, no users were imported / synchronized.');
         }
     }
 
@@ -101,12 +97,12 @@ class ImportDomain extends Command
      * Imports the specified users and returns the total
      * number of users successfully imported.
      *
-     * @param SynchronizedDomain $domain
-     * @param array              $users
+     * @param LdapUserImporter $importer
+     * @param array            $users
      *
      * @return int
      */
-    public function import(SynchronizedDomain $domain, array $users = []): int
+    public function import(LdapUserImporter $importer, array $users = [])
     {
         $imported = 0;
 
@@ -116,7 +112,7 @@ class ImportDomain extends Command
         foreach ($users as $user) {
             try {
                 // Import the user and retrieve it's model.
-                $model = $domain->importer()->run($user);
+                $model = $importer->run($user);
 
                 // Set the users password.
                 $domain->passwordSynchronizer()->run($model);
@@ -136,7 +132,7 @@ class ImportDomain extends Command
             } catch (Exception $e) {
                 // Log the unsuccessful import.
                 if ($this->isLogging()) {
-                    logger()->error("Importing user '{$user->getRdn()}' failed. {$e->getMessage()}");
+                    logger()->error("Importing user [{$user->getRdn()}] failed. {$e->getMessage()}");
                 }
             }
 
@@ -206,15 +202,14 @@ class ImportDomain extends Command
     /**
      * Retrieves users to be imported.
      *
-     * @param SynchronizedDomain $domain
+     * @param LdapUserRepository $users
      *
      * @return \LdapRecord\Models\Model[]
      *
-     * @throws \LdapRecord\Models\ModelNotFoundException
      */
-    public function getUsers(SynchronizedDomain $domain): array
+    public function getUsers(LdapUserRepository $users)
     {
-        $query = $domain->locate()->query();
+        $query = $users->query();
 
         if ($filter = $this->option('filter')) {
             // If the filter option was given, we'll
@@ -223,7 +218,7 @@ class ImportDomain extends Command
         }
 
         if ($user = $this->argument('user')) {
-            return [$query->findByAnrOrFail($user)];
+            return [$query->findByAnr($user)];
         }
 
         // Retrieve all users. We'll paginate our search in case we
@@ -239,7 +234,7 @@ class ImportDomain extends Command
      *
      * @return bool
      */
-    protected function save(LdapModel $user, Model $model): bool
+    protected function save(LdapModel $user, Model $model)
     {
         if ($model->save() && $model->wasRecentlyCreated) {
             event(new Imported($user, $model));
@@ -317,7 +312,7 @@ class ImportDomain extends Command
      *
      * @return bool
      */
-    protected function isUsingSoftDeletes(Model $model): bool
+    protected function isUsingSoftDeletes(Model $model)
     {
         return method_exists($model, 'trashed');
     }

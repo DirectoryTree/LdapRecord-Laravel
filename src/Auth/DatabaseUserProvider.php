@@ -4,7 +4,6 @@ namespace LdapRecord\Laravel\Auth;
 
 use Illuminate\Auth\EloquentUserProvider;
 use Illuminate\Contracts\Auth\Authenticatable;
-use Illuminate\Contracts\Hashing\Hasher;
 use LdapRecord\Laravel\Events\AuthenticatedWithCredentials;
 use LdapRecord\Laravel\Events\AuthenticationSuccessful;
 use LdapRecord\Laravel\Events\DiscoveredWithCredentials;
@@ -43,18 +42,28 @@ class DatabaseUserProvider extends UserProvider
      * @param LdapUserAuthenticator $auth
      * @param LdapUserRepository    $users
      * @param LdapUserImporter      $importer
-     * @param Hasher                $hasher
+     * @param EloquentUserProvider  $eloquentUserProvider
      */
     public function __construct(
         LdapUserRepository $users,
         LdapUserAuthenticator $auth,
         LdapUserImporter $importer,
-        Hasher $hasher
+        EloquentUserProvider $eloquentUserProvider
     ) {
         parent::__construct($users, $auth);
 
         $this->importer = $importer;
-        $this->eloquent = new EloquentUserProvider($hasher, $importer->getEloquentModel());
+        $this->eloquent = $eloquentUserProvider;
+    }
+
+    /**
+     * Get the LDAP user importer.
+     *
+     * @return LdapUserImporter
+     */
+    public function getLdapUserImporter()
+    {
+        return $this->importer;
     }
 
     /**
@@ -86,16 +95,13 @@ class DatabaseUserProvider extends UserProvider
      */
     public function retrieveByCredentials(array $credentials)
     {
-        // Retrieve the LDAP user who is authenticating.
         $user = $this->users->findByCredentials($credentials);
 
         if ($user instanceof Model) {
-            // Set the currently authenticating LDAP user.
             $this->user = $user;
 
             event(new DiscoveredWithCredentials($user));
 
-            // Import / locate the local user account.
             return $this->importer->run($user);
         }
 
@@ -113,14 +119,13 @@ class DatabaseUserProvider extends UserProvider
             $this->auth->setEloquentModel($model);
 
             if (! $this->auth->attempt($this->user, $credentials['password'])) {
-                // LDAP Authentication failed.
                 return false;
             }
 
             event(new AuthenticatedWithCredentials($this->user, $model));
 
-            // Here we will synchronize / set the users password as they have
-            // successfully passed authentication and validation rules.
+            // Here we will set the users password once they have
+            // passed authentication and any validation rules.
             $this->domain->passwordSynchronizer()->run($model, $credentials['password']);
 
             $model->save();
