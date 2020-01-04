@@ -35,7 +35,7 @@ class LdapUserAuthenticatorTest extends TestCase
             Authenticating::class,
             Authenticated::class,
         ])->doesntExpectEvents([
-            AuthenticationFailed::class
+            AuthenticationFailed::class,
         ]);
 
         $this->assertTrue($auth->attempt($model, 'password'));
@@ -61,7 +61,7 @@ class LdapUserAuthenticatorTest extends TestCase
             Authenticating::class,
             AuthenticationFailed::class,
         ])->doesntExpectEvents([
-            Authenticated::class
+            Authenticated::class,
         ]);
 
         $this->assertFalse($auth->attempt($model, 'password'));
@@ -88,7 +88,7 @@ class LdapUserAuthenticatorTest extends TestCase
             Authenticated::class,
             AuthenticationRejected::class,
         ])->doesntExpectEvents([
-            AuthenticationFailed::class
+            AuthenticationFailed::class,
         ]);
 
         $this->assertFalse($auth->attempt($model, 'password'));
@@ -126,6 +126,7 @@ class LdapUserAuthenticatorTest extends TestCase
     {
         $model = m::mock(Model::class);
         $model->shouldReceive('getDn')->twice()->andReturn($dn);
+
         return $model;
     }
 }

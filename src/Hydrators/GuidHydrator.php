@@ -8,7 +8,7 @@ use LdapRecord\Models\Model as LdapModel;
 class GuidHydrator extends Hydrator
 {
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function hydrate(LdapModel $user, EloquentModel $database)
     {
