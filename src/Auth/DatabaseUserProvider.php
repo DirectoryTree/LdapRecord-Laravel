@@ -42,18 +42,18 @@ class DatabaseUserProvider extends UserProvider
      * @param LdapUserAuthenticator $auth
      * @param LdapUserRepository    $users
      * @param LdapUserImporter      $importer
-     * @param EloquentUserProvider  $eloquentUserProvider
+     * @param EloquentUserProvider  $eloquent
      */
     public function __construct(
         LdapUserRepository $users,
         LdapUserAuthenticator $auth,
         LdapUserImporter $importer,
-        EloquentUserProvider $eloquentUserProvider
+        EloquentUserProvider $eloquent
     ) {
         parent::__construct($users, $auth);
 
         $this->importer = $importer;
-        $this->eloquent = $eloquentUserProvider;
+        $this->eloquent = $eloquent;
     }
 
     /**

@@ -5,7 +5,6 @@ namespace LdapRecord\Laravel;
 use Illuminate\Auth\EloquentUserProvider;
 use Illuminate\Auth\Events\Authenticated;
 use Illuminate\Auth\Events\Login;
-use Illuminate\Contracts\Hashing\Hasher;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
@@ -46,19 +45,9 @@ class LdapAuthServiceProvider extends ServiceProvider
         $this->commands([Import::class]);
 
         Auth::provider('ldap', function ($app, array $config) {
-            $users = $this->makeLdapUserRepository($config);
-            $auth = $this->makeLdapUserAuthenticator($users, $config);
-
-            if (array_key_exists('database', $config)) {
-                return new DatabaseUserProvider(
-                    $users,
-                    $auth,
-                    $this->makeLdapUserImporter($config['database']),
-                    $this->makeEloquentUserProvider($app['hash'], $config['database']['model'])
-                );
-            }
-
-            return new NoDatabaseUserProvider($users, $auth);
+            return array_key_exists('database', $config) ?
+                $this->makeDatabaseUserProvider($config) :
+                $this->makePlainUserProvider($config);
         });
 
         // Here we will register the event listener that will bind the users LDAP
@@ -77,29 +66,47 @@ class LdapAuthServiceProvider extends ServiceProvider
     }
 
     /**
-     * Make a new Eloquent user provider.
+     * Get a new database user provider.
      *
-     * @param Hasher $hasher
-     * @param string $model
+     * @param array $config
      *
-     * @return EloquentUserProvider
+     * @return DatabaseUserProvider
      */
-    protected function makeEloquentUserProvider(Hasher $hasher, $model)
+    protected function makeDatabaseUserProvider(array $config)
     {
-        return new EloquentUserProvider($hasher, $model);
+        return new DatabaseUserProvider(
+            $this->makeLdapUserRepository($config),
+            $this->makeLdapUserAuthenticator($config),
+            $this->makeLdapUserImporter($config['database']),
+            new EloquentUserProvider($this->app->make('hash'), $config['database']['model'])
+        );
+    }
+
+    /**
+     * Get a new plain LDAP user provider.
+     *
+     * @param array $config
+     *
+     * @return NoDatabaseUserProvider
+     */
+    protected function makePlainUserProvider(array $config)
+    {
+        return new NoDatabaseUserProvider(
+            $this->makeLdapUserRepository($config),
+            $this->makeLdapUserAuthenticator($config)
+        );
     }
 
     /**
      * Make a new LDAP user authenticator.
      *
-     * @param LdapUserRepository $repository
-     * @param array              $config
+     * @param array $config
      *
      * @return LdapUserAuthenticator
      */
-    protected function makeLdapUserAuthenticator(LdapUserRepository $repository, array $config)
+    protected function makeLdapUserAuthenticator(array $config)
     {
-        return new LdapUserAuthenticator($repository->createModel()->getConnection(), $config['rules'] ?? []);
+        return new LdapUserAuthenticator($config['rules'] ?? []);
     }
 
     /**
@@ -123,6 +130,6 @@ class LdapAuthServiceProvider extends ServiceProvider
      */
     protected function makeLdapUserImporter(array $config)
     {
-        return new LdapUserImporter($config['model'], $config['sync_attributes']);
+        return new LdapUserImporter($config['model'], $config);
     }
 }

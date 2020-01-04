@@ -2,6 +2,7 @@
 
 namespace LdapRecord\Laravel\Tests;
 
+use Illuminate\Support\Arr;
 use LdapRecord\Laravel\Events\Importing;
 use LdapRecord\Laravel\Events\Synchronized;
 use LdapRecord\Laravel\Events\Synchronizing;
@@ -15,14 +16,14 @@ class LdapUserImporterTest extends TestCase
     {
         $importer = new LdapUserImporter(TestUser::class, []);
         $this->assertSame(TestUser::class, $importer->getEloquentModel());
-        $this->assertInstanceOf(TestUser::class, $importer->getNewEloquentModel());
+        $this->assertInstanceOf(TestUser::class, $importer->createEloquentModel());
     }
 
     public function test_new_ldap_user_has_guid_and_domain_set()
     {
         $ldapModel = $this->getMockLdapModel();
 
-        $importer = new LdapUserImporter(TestUser::class, []);
+        $importer = new LdapUserImporter(TestUser::class, ['sync_attributes' => []]);
 
         $this->expectsEvents([
             Importing::class,
@@ -34,7 +35,7 @@ class LdapUserImporterTest extends TestCase
         $this->assertInstanceOf(TestUser::class, $model);
         $this->assertEquals('guid', $model->getLdapGuid());
         $this->assertEquals('default', $model->getLdapDomain());
-        $this->assertEquals(['domain' => 'default', 'guid' => 'guid'], $model->getAttributes());
+        $this->assertNotEmpty($model->password);
     }
 
     public function test_new_ldap_user_has_attributes_synchronized()
@@ -56,11 +57,8 @@ class LdapUserImporterTest extends TestCase
         $this->assertInstanceOf(TestUser::class, $model);
         $this->assertEquals('guid', $model->getLdapGuid());
         $this->assertEquals('default', $model->getLdapDomain());
-        $this->assertEquals([
-            'domain' => 'default',
-            'guid' => 'guid',
-            'name' => 'cn',
-        ], $model->getAttributes());
+        $this->assertEquals('cn', $model->name);
+        $this->assertNotEmpty($model->password);
     }
 
     public function test_new_ldap_user_has_attributes_synchronized_via_handler()
@@ -80,11 +78,8 @@ class LdapUserImporterTest extends TestCase
         $this->assertInstanceOf(TestUser::class, $model);
         $this->assertEquals('guid', $model->getLdapGuid());
         $this->assertEquals('default', $model->getLdapDomain());
-        $this->assertEquals([
-            'domain' => 'default',
-            'guid' => 'guid',
-            'name' => 'cn',
-        ], $model->getAttributes());
+        $this->assertEquals('cn', $model->name);
+        $this->assertNotEmpty($model->password);
     }
 
     protected function getMockLdapModel()

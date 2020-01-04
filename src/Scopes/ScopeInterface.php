@@ -7,7 +7,7 @@ use LdapRecord\Query\Model\Builder;
 interface ScopeInterface
 {
     /**
-     * Apply the scope to the query.
+     * Apply the scope to the LDAP query.
      *
      * @param Builder $builder
      *

@@ -2,8 +2,6 @@
 
 namespace LdapRecord\Laravel;
 
-use LdapRecord\Auth\Guard;
-use LdapRecord\Connection;
 use LdapRecord\Laravel\Events\Authenticated;
 use LdapRecord\Laravel\Events\Authenticating;
 use LdapRecord\Laravel\Events\AuthenticationFailed;
@@ -13,13 +11,6 @@ use LdapRecord\Models\Model;
 
 class LdapUserAuthenticator
 {
-    /**
-     * The LDAP connection.
-     *
-     * @var Guard
-     */
-    protected $connection;
-
     /**
      * The LDAP authentication rules.
      *
@@ -37,12 +28,10 @@ class LdapUserAuthenticator
     /**
      * Constructor.
      *
-     * @param Connection $connection
-     * @param array      $rules
+     * @param array $rules
      */
-    public function __construct(Connection $connection, array $rules = [])
+    public function __construct(array $rules = [])
     {
-        $this->connection = $connection;
         $this->rules = $rules;
     }
 
@@ -61,7 +50,7 @@ class LdapUserAuthenticator
     }
 
     /**
-     * Attempt authenticating against the domain.
+     * Attempt authenticating against the LDAP domain.
      *
      * @param Model  $user
      * @param string $password
@@ -72,7 +61,7 @@ class LdapUserAuthenticator
     {
         event(new Authenticating($user, $user->getDn()));
 
-        if ($this->connection->auth()->attempt($user->getDn(), $password)) {
+        if ($user->getConnection()->auth()->attempt($user->getDn(), $password)) {
             event(new Authenticated($user, $this->eloquentModel));
 
             // Here we will perform authorization on the LDAP user. If all

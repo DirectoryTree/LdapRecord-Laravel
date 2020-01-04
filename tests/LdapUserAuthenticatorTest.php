@@ -10,33 +10,33 @@ use LdapRecord\Laravel\Events\AuthenticationFailed;
 use LdapRecord\Laravel\Events\AuthenticationRejected;
 use LdapRecord\Laravel\LdapUserAuthenticator;
 use LdapRecord\Laravel\Validation\Rules\Rule;
-use LdapRecord\Models\Entry;
+use LdapRecord\Models\Model;
 use Mockery as m;
 
-class DomainAuthenticatorTest extends TestCase
+class LdapUserAuthenticatorTest extends TestCase
 {
     public function test_attempt_passes()
     {
         $dn = 'cn=John Doe,dc=local,dc=com';
 
-        $model = new Entry();
-        $model->setDn($dn);
+        $model = $this->getAuthenticatingModelMock($dn);
+        $model->shouldReceive('getConnection')->once()->andReturn(
+            m::mock(Connection::class, function ($connection) use ($dn) {
+                $auth = m::mock(Guard::class);
+                $auth->shouldReceive('attempt')->once()->withArgs([$dn, 'password'])->andReturnTrue();
 
-        $connection = m::mock(Connection::class, function ($connection) use ($dn) {
-            $auth = m::mock(Guard::class);
-            $auth->shouldReceive('attempt')->once()->withArgs([$dn, 'password'])->andReturnTrue();
+                $connection->shouldReceive('auth')->once()->andReturn($auth);
+            })
+        );
 
-            $connection->shouldReceive('auth')->once()->andReturn($auth);
-        });
-
-        $auth = new LdapUserAuthenticator($connection);
+        $auth = new LdapUserAuthenticator;
 
         $this->expectsEvents([
             Authenticating::class,
             Authenticated::class,
+        ])->doesntExpectEvents([
+            AuthenticationFailed::class
         ]);
-
-        $this->doesntExpectEvents([AuthenticationFailed::class]);
 
         $this->assertTrue($auth->attempt($model, 'password'));
     }
@@ -45,24 +45,24 @@ class DomainAuthenticatorTest extends TestCase
     {
         $dn = 'cn=John Doe,dc=local,dc=com';
 
-        $model = new Entry();
-        $model->setDn($dn);
+        $model = $this->getAuthenticatingModelMock($dn);
+        $model->shouldReceive('getConnection')->once()->andReturn(
+            m::mock(Connection::class, function ($connection) use ($dn) {
+                $auth = m::mock(Guard::class);
+                $auth->shouldReceive('attempt')->once()->withArgs([$dn, 'password'])->andReturnFalse();
 
-        $connection = m::mock(Connection::class, function ($connection) use ($dn) {
-            $auth = m::mock(Guard::class);
-            $auth->shouldReceive('attempt')->once()->withArgs([$dn, 'password'])->andReturnFalse();
+                $connection->shouldReceive('auth')->once()->andReturn($auth);
+            })
+        );
 
-            $connection->shouldReceive('auth')->once()->andReturn($auth);
-        });
-
-        $auth = new LdapUserAuthenticator($connection);
+        $auth = new LdapUserAuthenticator;
 
         $this->expectsEvents([
             Authenticating::class,
             AuthenticationFailed::class,
+        ])->doesntExpectEvents([
+            Authenticated::class
         ]);
-
-        $this->doesntExpectEvents([Authenticated::class]);
 
         $this->assertFalse($auth->attempt($model, 'password'));
     }
@@ -71,23 +71,25 @@ class DomainAuthenticatorTest extends TestCase
     {
         $dn = 'cn=John Doe,dc=local,dc=com';
 
-        $model = new Entry();
-        $model->setDn($dn);
+        $model = $this->getAuthenticatingModelMock($dn);
+        $model->shouldReceive('getConnection')->once()->andReturn(
+            m::mock(Connection::class, function ($connection) use ($dn) {
+                $auth = m::mock(Guard::class);
+                $auth->shouldReceive('attempt')->once()->withArgs([$dn, 'password'])->andReturnTrue();
 
-        $connection = m::mock(Connection::class, function ($connection) use ($dn) {
-            $auth = m::mock(Guard::class);
-            $auth->shouldReceive('attempt')->once()->withArgs([$dn, 'password'])->andReturnTrue();
+                $connection->shouldReceive('auth')->once()->andReturn($auth);
+            })
+        );
 
-            $connection->shouldReceive('auth')->once()->andReturn($auth);
-        });
-
-        $auth = new LdapUserAuthenticator($connection, [TestLdapAuthRule::class]);
+        $auth = new LdapUserAuthenticator([TestFailingLdapAuthRule::class]);
 
         $this->expectsEvents([
             Authenticating::class,
             Authenticated::class,
             AuthenticationRejected::class,
-        ])->doesntExpectEvents([AuthenticationFailed::class]);
+        ])->doesntExpectEvents([
+            AuthenticationFailed::class
+        ]);
 
         $this->assertFalse($auth->attempt($model, 'password'));
     }
@@ -96,17 +98,17 @@ class DomainAuthenticatorTest extends TestCase
     {
         $dn = 'cn=John Doe,dc=local,dc=com';
 
-        $model = new Entry();
-        $model->setDn($dn);
+        $model = $this->getAuthenticatingModelMock($dn);
+        $model->shouldReceive('getConnection')->once()->andReturn(
+            m::mock(Connection::class, function ($connection) use ($dn) {
+                $auth = m::mock(Guard::class);
+                $auth->shouldReceive('attempt')->once()->withArgs([$dn, 'password'])->andReturnTrue();
 
-        $connection = m::mock(Connection::class, function ($connection) use ($dn) {
-            $auth = m::mock(Guard::class);
-            $auth->shouldReceive('attempt')->once()->withArgs([$dn, 'password'])->andReturnTrue();
+                $connection->shouldReceive('auth')->once()->andReturn($auth);
+            })
+        );
 
-            $connection->shouldReceive('auth')->once()->andReturn($auth);
-        });
-
-        $auth = new LdapUserAuthenticator($connection, [TestLdapAuthRuleWithEloquentModel::class]);
+        $auth = new LdapUserAuthenticator([TestLdapAuthRuleWithEloquentModel::class]);
         $auth->setEloquentModel(new TestUser());
 
         $this->expectsEvents([
@@ -119,6 +121,13 @@ class DomainAuthenticatorTest extends TestCase
 
         $this->assertTrue($auth->attempt($model, 'password'));
     }
+
+    protected function getAuthenticatingModelMock($dn)
+    {
+        $model = m::mock(Model::class);
+        $model->shouldReceive('getDn')->twice()->andReturn($dn);
+        return $model;
+    }
 }
 
 class TestLdapAuthRuleWithEloquentModel extends Rule
@@ -129,7 +138,7 @@ class TestLdapAuthRuleWithEloquentModel extends Rule
     }
 }
 
-class TestLdapAuthRule extends Rule
+class TestFailingLdapAuthRule extends Rule
 {
     public function isValid()
     {
