@@ -77,7 +77,7 @@ class LdapUserImporter
      */
     protected function hydrate(LdapUser $user, $model, array $attributes = [])
     {
-        LdapUserHydrator::hydrate($user, $model, $attributes);
+        EloquentUserHydrator::hydrate($user, $model, $attributes);
     }
 
     /**

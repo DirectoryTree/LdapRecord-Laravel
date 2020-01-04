@@ -5,7 +5,7 @@ namespace LdapRecord\Laravel;
 use LdapRecord\Models\Model as LdapModel;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 
-class LdapUserHydrator
+class EloquentUserHydrator
 {
     /**
      * @var Hydrators\AttributeHydrator[]
