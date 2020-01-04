@@ -2,7 +2,6 @@
 
 namespace LdapRecord\Laravel\Tests;
 
-use Illuminate\Support\Arr;
 use LdapRecord\Laravel\Events\Importing;
 use LdapRecord\Laravel\Events\Synchronized;
 use LdapRecord\Laravel\Events\Synchronizing;

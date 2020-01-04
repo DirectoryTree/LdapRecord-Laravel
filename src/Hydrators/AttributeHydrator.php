@@ -9,7 +9,7 @@ use LdapRecord\Models\Model as LdapModel;
 class AttributeHydrator extends Hydrator
 {
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function hydrate(LdapModel $user, EloquentModel $database)
     {
