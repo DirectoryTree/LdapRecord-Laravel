@@ -14,7 +14,6 @@ class EloquentUserHydrator
         Hydrators\GuidHydrator::class,
         Hydrators\DomainHydrator::class,
         Hydrators\AttributeHydrator::class,
-        Hydrators\PasswordHydrator::class,
     ];
 
     /**
@@ -22,14 +21,14 @@ class EloquentUserHydrator
      *
      * @param LdapModel     $user
      * @param EloquentModel $database
-     * @param array         $attributes
+     * @param array         $config
      *
      * @return void
      */
-    public static function hydrate(LdapModel $user, EloquentModel $database, array $attributes = [])
+    public static function hydrate(LdapModel $user, EloquentModel $database, array $config = [])
     {
         foreach (static::$hydrators as $hydrator) {
-            $hydrator::with($attributes)->hydrate($user, $database);
+            $hydrator::with($config)->hydrate($user, $database);
         }
     }
 }

@@ -3,6 +3,9 @@
 namespace LdapRecord\Laravel;
 
 use Illuminate\Database\Eloquent\Model as EloquentModel;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use LdapRecord\Laravel\Events\Importing;
 use LdapRecord\Laravel\Events\Synchronized;
 use LdapRecord\Laravel\Events\Synchronizing;
@@ -39,31 +42,35 @@ class LdapUserImporter
     /**
      * Import / synchronize the LDAP user.
      *
-     * @param LdapUser   $user
+     * @param LdapUser    $user
      * @param string|null $password
      *
      * @return EloquentModel
      */
     public function run(LdapUser $user, $password = null)
     {
-        // Here we'll try to locate the eloquent user model
-        // from the LDAP users model. If one cannot be
-        // located, we'll create a new instance.
-        $model = $this->createOrFindEloquentModel($user);
+        $eloquent = $this->createOrFindEloquentModel($user);
 
-        if (! $model->exists) {
-            event(new Importing($user, $model));
+        if (! $eloquent->exists) {
+            event(new Importing($user, $eloquent));
         }
 
-        event(new Synchronizing($user, $model));
+        event(new Synchronizing($user, $eloquent));
 
-        $config = array_merge($this->config, compact('password'));
+        $this->hydrate($user, $eloquent, $this->config);
 
-        $this->hydrate($user, $model, $config);
+        if ($this->hasPasswordColumn()) {
+            $password = $this->isSyncingPasswords() ?
+                $password : Str::random();
 
-        event(new Synchronized($user, $model));
+            if ($this->passwordNeedsUpdate($eloquent, $password)) {
+                $this->setPassword($eloquent, $password);
+            }
+        }
 
-        return $model;
+        event(new Synchronized($user, $eloquent));
+
+        return $eloquent;
     }
 
     /**
@@ -71,13 +78,13 @@ class LdapUserImporter
      *
      * @param LdapUser      $user
      * @param EloquentModel $model
-     * @param array         $attributes
+     * @param array         $config
      *
      * @return void
      */
-    protected function hydrate(LdapUser $user, $model, array $attributes = [])
+    protected function hydrate(LdapUser $user, $model, array $config = [])
     {
-        EloquentUserHydrator::hydrate($user, $model, $attributes);
+        EloquentUserHydrator::hydrate($user, $model, $config);
     }
 
     /**
@@ -125,5 +132,97 @@ class LdapUserImporter
         $class = '\\'.ltrim($this->eloquentModel, '\\');
 
         return new $class;
+    }
+
+    /**
+     * Set the password on the users model.
+     *
+     * @param EloquentModel $model
+     * @param string        $password
+     *
+     * @return void
+     */
+    protected function setPassword(EloquentModel $model, $password)
+    {
+        // If the model has a mutator for the password field, we
+        // can assume hashing passwords is taken care of.
+        // Otherwise, we will hash it normally.
+        $password = $model->hasSetMutator($this->passwordColumn()) ? $password : Hash::make($password);
+
+        $model->setAttribute($this->passwordColumn(), $password);
+    }
+
+    /**
+     * Determine if the current model requires a password update.
+     *
+     * This checks if the model does not currently have a
+     * password, or if the password fails a hash check.
+     *
+     * @param EloquentModel $model
+     * @param string|null   $password
+     *
+     * @return bool
+     */
+    protected function passwordNeedsUpdate(EloquentModel $model, $password = null)
+    {
+        $current = $this->currentModelPassword($model);
+
+        if ($current !== null && $this->canSync()) {
+            return ! Hash::check($password, $current);
+        }
+
+        return is_null($current);
+    }
+
+    /**
+     * Determines if we're able to sync the models password.
+     *
+     * @return bool
+     */
+    protected function canSync()
+    {
+        return array_key_exists('password', $this->config) && $this->isSyncingPasswords();
+    }
+
+    /**
+     * Determines if the developer has configured a password column.
+     *
+     * @return bool
+     */
+    protected function hasPasswordColumn()
+    {
+        return $this->passwordColumn() !== false;
+    }
+
+    /**
+     * Get the current models hashed password.
+     *
+     * @param EloquentModel $model
+     *
+     * @return string|null
+     */
+    protected function currentModelPassword(EloquentModel $model)
+    {
+        return $model->getAttribute($this->passwordColumn());
+    }
+
+    /**
+     * Get the configured database password column to use.
+     *
+     * @return string|false
+     */
+    protected function passwordColumn()
+    {
+        return Arr::get($this->config, 'password_column', 'password');
+    }
+
+    /**
+     * Determine whether password sync is enabled.
+     *
+     * @return bool
+     */
+    protected function isSyncingPasswords()
+    {
+        return Arr::get($this->config, 'sync_passwords', false);
     }
 }
