@@ -113,9 +113,6 @@ class Import extends Command
                 // Import the user and retrieve it's model.
                 $model = $importer->run($user);
 
-                // Set the users password.
-                $domain->passwordSynchronizer()->run($model);
-
                 // Save the returned model.
                 $this->save($user, $model);
 

@@ -60,8 +60,15 @@ class LdapUserImporter
         $this->hydrate($user, $eloquent, $this->config);
 
         if ($this->hasPasswordColumn()) {
-            $password = $this->isSyncingPasswords() ?
-                $password : Str::random();
+            // We will ensure that we always have a password to
+            // save to the user, even if one is not given.
+            $password = $password ?? Str::random();
+
+            // If password sync is disabled, we will be sure to overwrite
+            // the password so it is not saved to the eloquent model.
+            if (! $this->isSyncingPasswords()) {
+                $password = Str::random();
+            }
 
             if ($this->passwordNeedsUpdate($eloquent, $password)) {
                 $this->setPassword($eloquent, $password);
@@ -167,21 +174,14 @@ class LdapUserImporter
     {
         $current = $this->currentModelPassword($model);
 
-        if ($current !== null && $this->canSync()) {
+        // If the eloquent model contains a password and password sync is
+        // enabled, we will check the integrity of the given password
+        // against it to determine if it should be updated.
+        if (! is_null($current) && $this->isSyncingPasswords()) {
             return ! Hash::check($password, $current);
         }
 
         return is_null($current);
-    }
-
-    /**
-     * Determines if we're able to sync the models password.
-     *
-     * @return bool
-     */
-    protected function canSync()
-    {
-        return array_key_exists('password', $this->config) && $this->isSyncingPasswords();
     }
 
     /**

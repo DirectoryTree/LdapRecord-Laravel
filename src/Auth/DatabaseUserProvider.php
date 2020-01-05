@@ -102,11 +102,7 @@ class DatabaseUserProvider extends UserProvider
 
             event(new DiscoveredWithCredentials($user));
 
-            return $this->importer->run($user);
-        }
-
-        if ($this->domain->isFallingBack()) {
-            return $this->eloquent->retrieveByCredentials($credentials);
+            return $this->importer->run($user, $credentials['password']);
         }
     }
 
@@ -124,10 +120,6 @@ class DatabaseUserProvider extends UserProvider
 
             event(new AuthenticatedWithCredentials($this->user, $model));
 
-            // Here we will set the users password once they have
-            // passed authentication and any validation rules.
-            $this->domain->passwordSynchronizer()->run($model, $credentials['password']);
-
             $model->save();
 
             if ($model->wasRecentlyCreated) {
@@ -139,12 +131,6 @@ class DatabaseUserProvider extends UserProvider
             event(new AuthenticationSuccessful($this->user, $model));
 
             return true;
-        }
-
-        if ($this->domain->isFallingBack() && $model->exists) {
-            // If the user exists in our local database already and fallback is
-            // enabled, we'll perform standard eloquent authentication.
-            return $this->eloquent->validateCredentials($model, $credentials);
         }
 
         return false;

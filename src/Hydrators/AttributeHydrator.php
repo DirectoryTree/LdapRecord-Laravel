@@ -37,7 +37,7 @@ class AttributeHydrator extends Hydrator
      */
     protected function getSyncAttributes()
     {
-        return Arr::get($this->config, 'sync_attributes', ['name' => 'cn']);
+        return Arr::get($this->config, 'sync_attributes', ['name' => 'cn', 'email' => 'mail']);
     }
 
     /**

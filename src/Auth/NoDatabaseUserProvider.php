@@ -15,11 +15,7 @@ class NoDatabaseUserProvider extends UserProvider
      */
     public function retrieveById($identifier)
     {
-        $user = $this->users->findByGuid($identifier);
-
-        // We'll verify we have the correct instance just to ensure we
-        // don't return an incompatible model that may be returned.
-        return $user instanceof Authenticatable ? $user : null;
+        return $this->users->findByGuid($identifier);
     }
 
     /**
@@ -56,18 +52,6 @@ class NoDatabaseUserProvider extends UserProvider
      */
     public function validateCredentials(Authenticatable $user, array $credentials)
     {
-        if ($this->auth->attempt($user, $credentials['password'])) {
-            event(new AuthenticatedWithCredentials($user));
-
-            if ($this->domain->validator($user)->passes()) {
-                event(new AuthenticationSuccessful($user));
-
-                return true;
-            }
-
-            event(new AuthenticationRejected($user));
-        }
-
-        return false;
+        return $this->auth->attempt($user, $credentials['password']);
     }
 }
