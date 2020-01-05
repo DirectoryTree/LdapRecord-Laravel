@@ -2,6 +2,7 @@
 
 namespace LdapRecord\Laravel\Tests;
 
+use Illuminate\Support\Facades\Hash;
 use LdapRecord\Laravel\Events\Importing;
 use LdapRecord\Laravel\Events\Synchronized;
 use LdapRecord\Laravel\Events\Synchronizing;
@@ -20,15 +21,11 @@ class LdapUserImporterTest extends TestCase
 
     public function test_new_ldap_user_has_guid_and_domain_set()
     {
+        $this->expectsEvents([Importing::class, Synchronizing::class, Synchronized::class]);
+
         $ldapModel = $this->getMockLdapModel();
 
         $importer = new LdapUserImporter(TestUser::class, ['sync_attributes' => []]);
-
-        $this->expectsEvents([
-            Importing::class,
-            Synchronizing::class,
-            Synchronized::class,
-        ]);
 
         $model = $importer->run($ldapModel);
         $this->assertInstanceOf(TestUser::class, $model);
@@ -39,53 +36,116 @@ class LdapUserImporterTest extends TestCase
 
     public function test_new_ldap_user_has_attributes_synchronized()
     {
-        $ldapModel = $this->getMockLdapModel();
-        $ldapModel->shouldReceive('getFirstAttribute')->once()->withArgs(['cn'])->andReturn('cn');
+        $this->expectsEvents([Importing::class, Synchronizing::class, Synchronized::class]);
+
+        $ldapModel = $this->getMockLdapModel(['cn' => 'john', 'mail' => 'test@email.com']);
 
         $attributesToSynchronize = ['name' => 'cn'];
 
         $importer = new LdapUserImporter(TestUser::class, $attributesToSynchronize);
 
-        $this->expectsEvents([
-            Importing::class,
-            Synchronizing::class,
-            Synchronized::class,
-        ]);
-
         $model = $importer->run($ldapModel);
         $this->assertInstanceOf(TestUser::class, $model);
         $this->assertEquals('guid', $model->getLdapGuid());
         $this->assertEquals('default', $model->getLdapDomain());
-        $this->assertEquals('cn', $model->name);
+        $this->assertEquals('john', $model->name);
+        $this->assertEquals('test@email.com', $model->email);
         $this->assertNotEmpty($model->password);
     }
 
     public function test_new_ldap_user_has_attributes_synchronized_via_handler()
     {
-        $ldapModel = $this->getMockLdapModel();
-        $ldapModel->shouldReceive('getFirstAttribute')->once()->withArgs(['cn'])->andReturn('cn');
+        $this->expectsEvents([Importing::class, Synchronizing::class, Synchronized::class]);
+
+        $ldapModel = $this->getMockLdapModel(['cn' => 'john', 'mail' => 'test@email.com']);
 
         $importer = new LdapUserImporter(TestUser::class, [TestLdapUserAttributeHandler::class]);
-
-        $this->expectsEvents([
-            Importing::class,
-            Synchronizing::class,
-            Synchronized::class,
-        ]);
 
         $model = $importer->run($ldapModel);
         $this->assertInstanceOf(TestUser::class, $model);
         $this->assertEquals('guid', $model->getLdapGuid());
         $this->assertEquals('default', $model->getLdapDomain());
-        $this->assertEquals('cn', $model->name);
+        $this->assertEquals('john', $model->name);
+        $this->assertEquals('test@email.com', $model->email);
         $this->assertNotEmpty($model->password);
     }
 
-    protected function getMockLdapModel()
+    public function test_password_is_synchronized_when_enabled()
+    {
+        $this->expectsEvents([Importing::class, Synchronizing::class, Synchronized::class]);
+
+        $ldapModel = $this->getMockLdapModel();
+
+        $importer = new LdapUserImporter(TestUser::class, ['sync_passwords' => true, 'sync_attributes' => []]);
+
+        $password = 'secret';
+        $model = $importer->run($ldapModel, $password);
+        $this->assertInstanceOf(TestUser::class, $model);
+        $this->assertTrue(Hash::check($password, $model->password));
+    }
+
+    public function test_password_is_not_updated_when_sync_is_disabled_and_password_is_already_set()
+    {
+        $this->expectsEvents([Synchronizing::class, Synchronized::class])->doesntExpectEvents([Importing::class]);
+
+        $ldapModel = $this->getMockLdapModel(['']);
+
+        $importer = new LdapUserImporter(TestUser::class, ['sync_passwords' => false, 'sync_attributes' => []]);
+
+        $model = new TestUser;
+        $model->guid = $ldapModel->getConvertedGuid();
+        $model->name = 'john';
+        $model->email = 'test@email.com';
+        $model->password = 'initial';
+        $model->save();
+
+        $this->assertEquals('initial', $model->password);
+
+        $imported = $importer->run($ldapModel);
+        $imported->save();
+
+        $this->assertTrue($model->is($imported));
+        $this->assertEquals('initial', $imported->password);
+    }
+
+    public function test_user_is_not_updated_when_the_same_hashed_password_already_exists()
+    {
+        $this->expectsEvents([Synchronizing::class, Synchronized::class])->doesntExpectEvents([Importing::class]);
+
+        $ldapModel = $this->getMockLdapModel();
+
+        $importer = new LdapUserImporter(TestUser::class, ['sync_passwords' => true, 'sync_attributes' => []]);
+
+        $hashedPassword = Hash::make('secret');
+
+        $model = new TestUser;
+        $model->guid = $ldapModel->getConvertedGuid();
+        $model->name = 'john';
+        $model->email = 'test@email.com';
+        $model->password = $hashedPassword;
+        $model->save();
+
+        $initialUpdateTimestamp = $model->updated_at;
+
+        $this->assertEquals($hashedPassword, $model->password);
+
+        $imported = $importer->run($ldapModel, 'secret');
+        $imported->save();
+
+        $this->assertTrue($imported->is($model));
+        $this->assertTrue(Hash::check('secret', $model->password));
+        $this->assertEquals($initialUpdateTimestamp, $model->updated_at);
+    }
+
+    protected function getMockLdapModel(array $attributes = [])
     {
         $ldapModel = m::mock(Model::class);
-        $ldapModel->shouldReceive('getConvertedGuid')->twice()->andReturn('guid');
-        $ldapModel->shouldReceive('getConnectionName')->once()->andReturn('default');
+        $ldapModel->shouldReceive('getConvertedGuid')->andReturn('guid');
+        $ldapModel->shouldReceive('getConnectionName')->andReturn('default');
+
+        foreach ($attributes as $name => $value) {
+            $ldapModel->shouldReceive('getFirstAttribute')->withArgs([$name])->andReturn($value);
+        }
 
         return $ldapModel;
     }
