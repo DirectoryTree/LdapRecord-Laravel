@@ -95,7 +95,7 @@ class LdapUserImporter
     }
 
     /**
-     * Retrieves an eloquent user by their GUID or their username.
+     * Retrieves an eloquent user by their GUID.
      *
      * @param LdapUser $user
      *
@@ -173,6 +173,13 @@ class LdapUserImporter
     protected function passwordNeedsUpdate(EloquentModel $model, $password = null)
     {
         $current = $this->currentModelPassword($model);
+
+        // If the application is running in console, we will assume the
+        // import command is being run. In this case, we do not want
+        // to overwrite a password that's already properly hashed.
+        if (app()->runningInConsole() && ! Hash::needsRehash($current)) {
+            return false;
+        }
 
         // If the eloquent model contains a password and password sync is
         // enabled, we will check the integrity of the given password
