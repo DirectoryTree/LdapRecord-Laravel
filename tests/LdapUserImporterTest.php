@@ -67,7 +67,9 @@ class LdapUserImporterTest extends TestCase
         $this->assertEquals('default', $model->getLdapDomain());
         $this->assertEquals('john', $model->name);
         $this->assertEquals('test@email.com', $model->email);
+        $this->assertFalse($model->exists);
         $this->assertNotEmpty($model->password);
+        $this->assertFalse(Hash::needsRehash($model->password));
     }
 
     public function test_password_is_synchronized_when_enabled()
