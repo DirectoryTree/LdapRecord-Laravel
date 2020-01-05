@@ -17,13 +17,6 @@ use RuntimeException;
 class Import extends Command
 {
     /**
-     * The user model to use for importing.
-     *
-     * @var string
-     */
-    protected $model;
-
-    /**
      * The signature of the console command.
      *
      * @var string
@@ -31,7 +24,6 @@ class Import extends Command
     protected $signature = 'ldap:import {provider : The authentication provider to import.}
             {user? : The specific user to import.}
             {--f|filter= : The raw LDAP filter for limiting users imported.}
-            {--m|model= : The model to use for importing users.}
             {--d|delete : Soft-delete the users model if their LDAP account is disabled.}
             {--r|restore : Restores soft-deleted models if their LDAP account is enabled.}
             {--no-log : Disables logging successful and unsuccessful imports.}';
@@ -41,7 +33,7 @@ class Import extends Command
      *
      * @var string
      */
-    protected $description = 'Imports LDAP users into the local database with a random 16 character hashed password.';
+    protected $description = 'Imports LDAP users into the application database.';
 
     /**
      * Execute the console command.
@@ -236,7 +228,7 @@ class Import extends Command
 
             // Log the successful import.
             if ($this->isLogging()) {
-                logger()->info("Imported user '{$user->getRdn()}'");
+                logger()->info("Imported user [{$user->getRdn()}]");
             }
 
             return true;
@@ -266,7 +258,7 @@ class Import extends Command
             $model->restore();
 
             if ($this->isLogging()) {
-                logger()->info("Restored user '{$user->getRdn()}'. Their user account has been re-enabled.");
+                logger()->info("Restored user [{$user->getRdn()}]. Their user account has been re-enabled.");
             }
         }
     }
@@ -294,7 +286,7 @@ class Import extends Command
             $model->delete();
 
             if ($this->isLogging()) {
-                logger()->info("Soft-deleted user '{$user->getRdn()}'. Their user account is disabled.");
+                logger()->info("Soft-deleted user [{$user->getRdn()}]. Their user account is disabled.");
             }
         }
     }
