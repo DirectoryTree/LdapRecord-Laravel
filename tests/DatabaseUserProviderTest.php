@@ -3,7 +3,6 @@
 namespace LdapRecord\Laravel\Tests;
 
 use Illuminate\Auth\EloquentUserProvider;
-use Illuminate\Support\Facades\Auth;
 use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use LdapRecord\Laravel\LdapUserAuthenticator;
 use LdapRecord\Laravel\LdapUserImporter;

@@ -2,8 +2,6 @@
 
 namespace LdapRecord\Laravel\Tests;
 
-use LdapRecord\Laravel\Tests\TestUser;
-
 trait CreatesTestUsers
 {
     protected function createTestUser(array $attributes = [])

@@ -2,14 +2,14 @@
 
 namespace LdapRecord\Laravel\Tests;
 
-use Mockery as m;
-use LdapRecord\Models\Entry;
-use LdapRecord\Models\ActiveDirectory\User;
-use LdapRecord\Laravel\LdapUserRepository;
-use LdapRecord\Laravel\LdapUserAuthenticator;
 use LdapRecord\Laravel\Auth\NoDatabaseUserProvider;
-use LdapRecord\Laravel\Events\DiscoveredWithCredentials;
 use LdapRecord\Laravel\Events\AuthenticatedWithCredentials;
+use LdapRecord\Laravel\Events\DiscoveredWithCredentials;
+use LdapRecord\Laravel\LdapUserAuthenticator;
+use LdapRecord\Laravel\LdapUserRepository;
+use LdapRecord\Models\ActiveDirectory\User;
+use LdapRecord\Models\Entry;
+use Mockery as m;
 
 class PlainUserProviderTest extends TestCase
 {
