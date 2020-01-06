@@ -4,10 +4,9 @@ namespace LdapRecord\Laravel\Middleware;
 
 use Closure;
 use Illuminate\Contracts\Auth\Guard;
+use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use LdapRecord\Laravel\Auth\UserProvider;
-use LdapRecord\Laravel\Domain;
 use LdapRecord\Laravel\Events\AuthenticatedWithWindows;
-use LdapRecord\Laravel\SynchronizedDomain;
 use LdapRecord\Models\Model;
 
 class WindowsAuthenticate
@@ -49,7 +48,7 @@ class WindowsAuthenticate
                     $username = $this->username($account);
 
                     // Finally, retrieve the users authenticatable model and log them in.
-                    if ($user = $this->retrieveAuthenticatedUser($provider->getDomain(), $username)) {
+                    if ($user = $this->retrieveAuthenticatedUser($provider, $username)) {
                         $this->auth->login($user, $remember = true);
                     }
                 }
@@ -62,14 +61,14 @@ class WindowsAuthenticate
     /**
      * Returns the authenticatable user instance if found.
      *
-     * @param Domain $domain
-     * @param string $username
+     * @param UserProvider $provider
+     * @param string       $username
      *
      * @return \Illuminate\Contracts\Auth\Authenticatable|null
      */
-    protected function retrieveAuthenticatedUser(Domain $domain, $username)
+    protected function retrieveAuthenticatedUser(UserProvider $provider, $username)
     {
-        $user = $domain->locate()->by('samaccountname', $username);
+        $user = $provider->getLdapUserRepository()->findBy('samaccountname', $username);
 
         if (! $user) {
             return;
@@ -79,29 +78,21 @@ class WindowsAuthenticate
 
         // If we are using the DatabaseUserProvider, we must locate or import
         // the users model that is currently authenticated with SSO.
-        if ($domain instanceof SynchronizedDomain) {
+        if ($provider instanceof DatabaseUserProvider) {
             // Here we will import the LDAP user. If the user already exists in
             // our local database, it will be returned from the importer.
-            $model = $domain->importer()->run($user);
+            $model = $provider->getLdapUserImporter()->run($user);
         }
 
-        // Here we will validate that the authenticating user
-        // passes our LDAP authentication rules in place.
-        if ($domain->validator($user, $model)->passes()) {
-            if ($model) {
-                // We will sync / set the users password after
-                // our model has been synchronized.
-                $domain->passwordSynchronizer()->run($model);
-
-                // We also want to save the model in case it doesn't
-                // exist yet, or there are changes to be synced.
-                $model->save();
-            }
-
-            $this->fireAuthenticatedEvent($user, $model);
-
-            return $model ? $model : $user;
+        if ($model) {
+            // We also want to save the model in case it doesn't
+            // exist yet, or there are changes to be synced.
+            $model->save();
         }
+
+        $this->fireAuthenticatedEvent($user, $model);
+
+        return $model ? $model : $user;
     }
 
     /**

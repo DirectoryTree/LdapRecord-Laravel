@@ -2,8 +2,9 @@
 
 namespace LdapRecord\Laravel\Listeners;
 
-use LdapRecord\Laravel\Auth\LdapAuthenticatable;
+use Illuminate\Support\Facades\Auth;
 use LdapRecord\Laravel\Traits\HasLdapUser;
+use LdapRecord\Laravel\Auth\LdapAuthenticatable;
 
 class BindsLdapUserModel
 {
@@ -16,15 +17,28 @@ class BindsLdapUserModel
      */
     public function handle($event)
     {
-//        if ($event->user instanceof LdapAuthenticatable && $this->canBind($event->user)) {
-//            $domain = DomainRegistrar::$domains[$event->user->getLdapDomain()];
-//
-//            tap(new $domain, function (Domain $domain) use ($event) {
-//                $event->user->setLdapUser(
-//                    $domain->locate()->byModel($event->user)
-//                );
-//            });
-//        }
+        /** @var \LdapRecord\Laravel\Auth\UserProvider $provider */
+        if ($provider = $this->getAuthProvider($event->guard)) {
+            if ($event->user instanceof LdapAuthenticatable && $this->canBind($event->user)) {
+                $event->user->setLdapUser(
+                    $provider->getLdapUserRepository()->findByModel($event->user)
+                );
+            }
+        }
+    }
+
+    /**
+     * Get the authentication user provider.
+     *
+     * @param string $guard
+     *
+     * @return \Illuminate\Contracts\Auth\UserProvider|null
+     */
+    protected function getAuthProvider($guard)
+    {
+        return Auth::createUserProvider(
+            config("auth.guards.$guard.provider")
+        );
     }
 
     /**
@@ -34,7 +48,7 @@ class BindsLdapUserModel
      *
      * @return bool
      */
-    protected function canBind(LdapAuthenticatable $user): bool
+    protected function canBind(LdapAuthenticatable $user)
     {
         return array_key_exists(HasLdapUser::class, class_uses_recursive($user)) && is_null($user->ldap);
     }
