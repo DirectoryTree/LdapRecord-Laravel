@@ -29,11 +29,11 @@ class MakeLdapRule extends GeneratorCommand
     protected $type = 'LDAP Rule';
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     protected function getStub()
     {
-        return __DIR__ . '/Stubs/rule.stub';
+        return __DIR__.'/Stubs/rule.stub';
     }
 
     /**
@@ -45,7 +45,7 @@ class MakeLdapRule extends GeneratorCommand
      */
     protected function getDefaultNamespace($rootNamespace)
     {
-        return $rootNamespace . '\Ldap';
+        return $rootNamespace.'\Ldap';
     }
 
     /**
