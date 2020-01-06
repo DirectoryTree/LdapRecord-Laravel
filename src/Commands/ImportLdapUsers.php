@@ -14,7 +14,7 @@ use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Models\Model as LdapModel;
 use RuntimeException;
 
-class Import extends Command
+class ImportLdapUsers extends Command
 {
     /**
      * The signature of the console command.

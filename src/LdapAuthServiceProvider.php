@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use LdapRecord\Laravel\Auth\NoDatabaseUserProvider;
-use LdapRecord\Laravel\Commands\Import;
+use LdapRecord\Laravel\Commands\ImportLdapUsers;
 use LdapRecord\Laravel\Listeners\BindsLdapUserModel;
 
 class LdapAuthServiceProvider extends ServiceProvider
@@ -42,7 +42,15 @@ class LdapAuthServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->commands([Import::class]);
+        if ($this->app->runningInConsole()) {
+            if (! class_exists('AddLdapColumnsToUsersTable')) {
+                $this->publishes([
+                    __DIR__.'/../database/migrations/add_ldap_columns_to_users_table.php.stub' => database_path('migrations/'.date('Y_m_d_His', time()).'_add_ldap_columns_to_users_table.php'),
+                ], 'migrations');
+            }
+        }
+
+        $this->commands([ImportLdapUsers::class]);
 
         Auth::provider('ldap', function ($app, array $config) {
             return array_key_exists('database', $config) ?
