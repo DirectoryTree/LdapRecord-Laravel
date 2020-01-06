@@ -20,7 +20,11 @@ class DatabaseUserProviderTest extends TestCase
     public function test_importer_can_be_retrieved()
     {
         $importer = new LdapUserImporter(TestUser::class, []);
-        $provider = $this->createDatabaseUserProvider();
+        $provider = $this->createDatabaseUserProvider(
+            $this->createLdapUserRepository(),
+            $this->createLdapUserAuthenticator(),
+            $importer
+        );
         $this->assertSame($importer, $provider->getLdapUserImporter());
     }
 
