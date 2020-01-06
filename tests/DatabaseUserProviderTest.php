@@ -2,8 +2,11 @@
 
 namespace LdapRecord\Laravel\Tests;
 
+use Illuminate\Support\Facades\Hash;
+use LdapRecord\Laravel\Events\DiscoveredWithCredentials;
+use LdapRecord\Models\Model;
+use Mockery as m;
 use Illuminate\Auth\EloquentUserProvider;
-use Illuminate\Support\Facades\Auth;
 use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use LdapRecord\Laravel\LdapUserAuthenticator;
 use LdapRecord\Laravel\LdapUserImporter;
@@ -17,12 +20,7 @@ class DatabaseUserProviderTest extends TestCase
     public function test_importer_can_be_retrieved()
     {
         $importer = new LdapUserImporter(TestUser::class, []);
-        $provider = new DatabaseUserProvider(
-            $this->createLdapUserRepository(),
-            $this->createLdapUserAuthenticator(),
-            $importer,
-            $this->createEloquentUserProvider()
-        );
+        $provider = $this->createDatabaseUserProvider();
         $this->assertSame($importer, $provider->getLdapUserImporter());
     }
 
@@ -34,12 +32,7 @@ class DatabaseUserProviderTest extends TestCase
             'password' => 'secret',
         ]);
 
-        $provider = new DatabaseUserProvider(
-            $this->createLdapUserRepository(),
-            $this->createLdapUserAuthenticator(),
-            $this->createLdapUserImporter(),
-            $this->createEloquentUserProvider()
-        );
+        $provider = $this->createDatabaseUserProvider();
 
         $this->assertTrue($model->is($provider->retrieveById($model->id)));
     }
@@ -53,12 +46,7 @@ class DatabaseUserProviderTest extends TestCase
             'remember_token' => 'token',
         ]);
 
-        $provider = new DatabaseUserProvider(
-            $this->createLdapUserRepository(),
-            $this->createLdapUserAuthenticator(),
-            $this->createLdapUserImporter(),
-            $this->createEloquentUserProvider()
-        );
+        $provider = $this->createDatabaseUserProvider();
 
         $this->assertTrue($model->is($provider->retrieveByToken($model->id, $model->remember_token)));
     }
@@ -72,15 +60,96 @@ class DatabaseUserProviderTest extends TestCase
             'remember_token' => 'token',
         ]);
 
-        $provider = new DatabaseUserProvider(
-            $this->createLdapUserRepository(),
-            $this->createLdapUserAuthenticator(),
-            $this->createLdapUserImporter(),
-            $this->createEloquentUserProvider()
-        );
+        $provider = $this->createDatabaseUserProvider();
 
         $provider->updateRememberToken($model, 'new-token');
         $this->assertEquals('new-token', $model->fresh()->remember_token);
+    }
+
+    public function test_retrieve_by_credentials_returns_unsaved_database_model()
+    {
+        $this->expectsEvents([DiscoveredWithCredentials::class]);
+
+        $credentials = ['samaccountname' => 'jdoe', 'password' => 'secret'];
+
+        $ldapUser = $this->getMockLdapModel([
+            'cn' => 'John Doe',
+            'mail' => 'jdoe@test.com'
+        ]);
+
+        $repo = m::mock(LdapUserRepository::class);
+        $repo->shouldReceive('findByCredentials')->once()->withArgs([$credentials])->andReturn($ldapUser);
+
+        $provider = $this->createDatabaseUserProvider($repo);
+
+        $databaseModel = $provider->retrieveByCredentials($credentials);
+        $this->assertFalse($databaseModel->exists);
+        $this->assertEquals('John Doe', $databaseModel->name);
+        $this->assertEquals('jdoe@test.com', $databaseModel->email);
+        $this->assertFalse(Hash::needsRehash($databaseModel->password));
+    }
+
+    public function test_validate_credentials_returns_false_when_no_database_model_is_set()
+    {
+        $databaseModel = new TestUser;
+
+        $provider = $this->createDatabaseUserProvider();
+        $this->assertFalse($provider->validateCredentials($databaseModel, ['password' => 'secret']));
+        $this->assertFalse($databaseModel->exists);
+    }
+
+    public function test_validate_credentials_saves_database_model_after_passing()
+    {
+        $this->expectsEvents([DiscoveredWithCredentials::class]);
+
+        $credentials = ['samaccountname' => 'jdoe', 'password' => 'secret'];
+
+        $ldapUser = $this->getMockLdapModel([
+            'cn' => 'John Doe',
+            'mail' => 'jdoe@test.com'
+        ]);
+
+        $repo = m::mock(LdapUserRepository::class);
+        $repo->shouldReceive('findByCredentials')->once()->withArgs([$credentials])->andReturn($ldapUser);
+
+        $auth = m::mock(LdapUserAuthenticator::class);
+        $auth->shouldReceive('setEloquentModel')->once()->withArgs([TestUser::class]);
+        $auth->shouldReceive('attempt')->once()->withArgs([$ldapUser, 'secret'])->andReturnTrue();
+
+        $provider = $this->createDatabaseUserProvider($repo, $auth);
+
+        $databaseModel = $provider->retrieveByCredentials($credentials);
+        $provider->validateCredentials($databaseModel, ['password' => 'secret']);
+        $this->assertTrue($databaseModel->exists);
+        $this->assertTrue($databaseModel->wasRecentlyCreated);
+    }
+
+    protected function getMockLdapModel(array $attributes = [])
+    {
+        $ldapModel = m::mock(Model::class);
+        $ldapModel->shouldReceive('getName')->andReturn('name');
+        $ldapModel->shouldReceive('getConvertedGuid')->andReturn('guid');
+        $ldapModel->shouldReceive('getConnectionName')->andReturn('default');
+
+        foreach ($attributes as $name => $value) {
+            $ldapModel->shouldReceive('getFirstAttribute')->withArgs([$name])->andReturn($value);
+        }
+
+        return $ldapModel;
+    }
+
+    protected function createDatabaseUserProvider(
+        LdapUserRepository $repo = null,
+        LdapUserAuthenticator $auth = null,
+        LdapUserImporter $importer = null,
+        EloquentUserProvider $eloquent = null
+    ) {
+        return new DatabaseUserProvider(
+            $repo ?? $this->createLdapUserRepository(),
+            $auth ?? $this->createLdapUserAuthenticator(),
+            $importer ?? $this->createLdapUserImporter(),
+            $eloquent ?? $this->createEloquentUserProvider()
+        );
     }
 
     protected function createLdapUserRepository($model = null)
