@@ -2,16 +2,16 @@
 
 namespace LdapRecord\Laravel\Tests;
 
-use Illuminate\Support\Facades\Hash;
-use LdapRecord\Laravel\Events\DiscoveredWithCredentials;
-use LdapRecord\Models\Model;
-use Mockery as m;
 use Illuminate\Auth\EloquentUserProvider;
+use Illuminate\Support\Facades\Hash;
 use LdapRecord\Laravel\Auth\DatabaseUserProvider;
+use LdapRecord\Laravel\Events\DiscoveredWithCredentials;
 use LdapRecord\Laravel\LdapUserAuthenticator;
 use LdapRecord\Laravel\LdapUserImporter;
 use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Models\ActiveDirectory\User;
+use LdapRecord\Models\Model;
+use Mockery as m;
 
 class DatabaseUserProviderTest extends TestCase
 {
@@ -78,7 +78,7 @@ class DatabaseUserProviderTest extends TestCase
 
         $ldapUser = $this->getMockLdapModel([
             'cn' => 'John Doe',
-            'mail' => 'jdoe@test.com'
+            'mail' => 'jdoe@test.com',
         ]);
 
         $repo = m::mock(LdapUserRepository::class);
@@ -110,7 +110,7 @@ class DatabaseUserProviderTest extends TestCase
 
         $ldapUser = $this->getMockLdapModel([
             'cn' => 'John Doe',
-            'mail' => 'jdoe@test.com'
+            'mail' => 'jdoe@test.com',
         ]);
 
         $repo = m::mock(LdapUserRepository::class);
