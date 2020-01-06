@@ -1,0 +1,19 @@
+<?php
+
+namespace DummyNamespace;
+
+use LdapRecord\Query\Model\Builder;
+use LdapRecord\Laravel\Scopes\ScopeInterface;
+
+class DummyClass implements ScopeInterface
+{
+    /**
+     * Apply the scope to the query.
+     *
+     * @param Builder $query
+     */
+    public function apply(Builder $query)
+    {
+        //
+    }
+}

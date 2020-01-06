@@ -5,6 +5,8 @@ namespace LdapRecord\Laravel;
 use Illuminate\Support\ServiceProvider;
 use LdapRecord\Connection;
 use LdapRecord\Container;
+use LdapRecord\Laravel\Commands\MakeLdapRule;
+use LdapRecord\Laravel\Commands\MakeLdapScope;
 
 class LdapServiceProvider extends ServiceProvider
 {
@@ -21,9 +23,13 @@ class LdapServiceProvider extends ServiceProvider
             ]);
         }
 
+        $this->commands([MakeLdapRule::class, MakeLdapScope::class]);
+
         if (config('ldap.logging', true)) {
             Container::setLogger(logger());
         }
+
+        Container::setDefaultConnection(config('ldap.default', 'default'));
 
         foreach (config('ldap.connections', []) as $name => $config) {
             Container::addConnection(new Connection($config), $name);

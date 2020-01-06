@@ -34,7 +34,7 @@ abstract class Rule
     }
 
     /**
-     * Checks if the rule passes validation.
+     * Check if the rule passes validation.
      *
      * @return bool
      */
