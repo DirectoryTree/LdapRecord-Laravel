@@ -29,11 +29,11 @@ class MakeLdapScope extends GeneratorCommand
     protected $type = 'LDAP Scope';
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     protected function getStub()
     {
-        return __DIR__ . '/Stubs/scope.stub';
+        return __DIR__.'/Stubs/scope.stub';
     }
 
     /**
@@ -45,7 +45,7 @@ class MakeLdapScope extends GeneratorCommand
      */
     protected function getDefaultNamespace($rootNamespace)
     {
-        return $rootNamespace . '\Ldap';
+        return $rootNamespace.'\Ldap';
     }
 
     /**
