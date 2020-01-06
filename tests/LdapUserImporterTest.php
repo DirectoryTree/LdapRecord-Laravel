@@ -12,6 +12,8 @@ use Mockery as m;
 
 class LdapUserImporterTest extends TestCase
 {
+    use CreatesTestUsers;
+
     public function test_eloquent_model_can_be_set()
     {
         $importer = new LdapUserImporter(TestUser::class, []);
@@ -94,12 +96,12 @@ class LdapUserImporterTest extends TestCase
 
         $importer = new LdapUserImporter(TestUser::class, ['sync_passwords' => false, 'sync_attributes' => []]);
 
-        $model = new TestUser;
-        $model->guid = $ldapModel->getConvertedGuid();
-        $model->name = 'john';
-        $model->email = 'test@email.com';
-        $model->password = 'initial';
-        $model->save();
+        $model = $this->createTestUser([
+            'guid' => $ldapModel->getConvertedGuid(),
+            'name' => 'john',
+            'email' => 'test@email.com',
+            'password' => 'initial',
+        ]);
 
         $this->assertEquals('initial', $model->password);
 
@@ -120,12 +122,12 @@ class LdapUserImporterTest extends TestCase
 
         $hashedPassword = Hash::make('secret');
 
-        $model = new TestUser;
-        $model->guid = $ldapModel->getConvertedGuid();
-        $model->name = 'john';
-        $model->email = 'test@email.com';
-        $model->password = $hashedPassword;
-        $model->save();
+        $model = $this->createTestUser([
+            'guid' => $ldapModel->getConvertedGuid(),
+            'name' => 'john',
+            'email' => 'test@email.com',
+            'password' => $hashedPassword,
+        ]);
 
         $initialUpdateTimestamp = $model->updated_at;
 
