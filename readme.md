@@ -14,15 +14,13 @@
 </p>
 
 <p align="center">
-    Easily authenticate and synchronize LDAP users into your Laravel app.
+    Easily authenticate and synchronize LDAP users into your Laravel application.
 </p>
 
 <h4 align="center">
-    <a href="https://ldaprecord.com/laravel?id=quick-start">Quickstart</a>
+    <a href="https://ldaprecord.com/laravel/quickstart">Quickstart</a>
     <span> · </span>
     <a href="https://ldaprecord.com/laravel">Documentation</a>
-    <span> · </span>
-    <a href="https://ldaprecord.com">LdapRecord Documentation (Core)</a>
 </h4>
 
 - **Authenticate LDAP users into your application.** Using the built-in authentication driver, easily allow
@@ -31,7 +29,7 @@ LDAP users to log into your application and control which users can login via [S
 - **Easily Import & Synchronize LDAP users.** Users can be imported into your database upon first login,
 or you can import your entire directory via a simple [command](https://adldap2.github.io/Adldap2-Laravel/#/auth/importing): `php artisan adldap:import`.
 
-- **Eloquent Query Builder.** Search for LDAP records with a [fluent and easy to use interface](https://adldap2.github.io/Adldap2/#/searching) you're used to. You'll feel right at home.
+- **Eloquent Query Builder.** Search for LDAP records with a [fluent and easy to use interface](https://ldaprecord.com/docs/searching/) you're used to. You'll feel right at home.
 
-- **Active Record LDAP Models.** LDAP records are returned as [individual models](https://adldap2.github.io/Adldap2/#/models/model). Easily create
+- **Active Record LDAP Models.** LDAP records are returned as [individual models](https://ldaprecord.com/docs/models/). Easily create
 and update models then persist them to your LDAP server with a simple `save()`.
