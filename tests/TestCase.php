@@ -53,24 +53,6 @@ abstract class TestCase extends BaseTestCase
             'port' => 389,
         ]);
 
-        // Auth setup.
-        $config->set('auth.guards.web.provider', 'ldap');
-        $config->set('auth.providers', [
-            'ldap' => [
-                'driver' => 'ldap',
-                'rules' => [],
-                'model' => \LdapRecord\Models\ActiveDirectory\User::class,
-                'database' => [
-                    'sync_passwords' => true,
-                    'sync_attributes' => [
-                        'name' => 'cn',
-                        'email' => 'userprincipalname',
-                    ],
-                    'model' => \LdapRecord\Laravel\Tests\TestUser::class,
-                ],
-            ],
-        ]);
-
         Schema::create('users', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('name');
@@ -84,5 +66,37 @@ abstract class TestCase extends BaseTestCase
             $table->string('guid')->unique()->nullable();
             $table->string('domain')->nullable();
         });
+    }
+
+    protected function setupPlainUserProvider(array $config = [])
+    {
+        config()->set('auth.guards.web.provider', 'ldap');
+        config()->set('auth.providers', array_merge([
+            'ldap' => [
+                'driver' => 'ldap',
+                'rules' => [],
+                'model' => \LdapRecord\Models\ActiveDirectory\User::class,
+            ],
+        ], $config));
+    }
+
+    protected function setupDatabaseUserProvider(array $config = [])
+    {
+        config()->set('auth.guards.web.provider', 'ldap');
+        config()->set('auth.providers', array_merge([
+            'ldap' => [
+                'driver' => 'ldap',
+                'rules' => [],
+                'model' => \LdapRecord\Models\ActiveDirectory\User::class,
+                'database' => [
+                    'sync_passwords' => true,
+                    'sync_attributes' => [
+                        'name' => 'cn',
+                        'email' => 'userprincipalname',
+                    ],
+                    'model' => \LdapRecord\Laravel\Tests\TestUser::class,
+                ],
+            ],
+        ], $config));
     }
 }
