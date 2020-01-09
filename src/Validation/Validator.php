@@ -62,4 +62,14 @@ class Validator
     {
         $this->rules[] = $rule;
     }
+
+    /**
+     * Get the rules on the validator.
+     *
+     * @return array
+     */
+    public function getRules()
+    {
+        return $this->rules;
+    }
 }
