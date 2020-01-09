@@ -3,6 +3,7 @@
 namespace LdapRecord\Laravel\Tests;
 
 use Illuminate\Http\Request;
+use LdapRecord\Laravel\Events\AuthenticatedWithWindows;
 use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Laravel\Middleware\WindowsAuthenticate;
 use LdapRecord\Models\ActiveDirectory\User;
@@ -14,6 +15,8 @@ class WindowsAuthMiddlewareTest extends TestCase
 
     public function test_request_continues_if_user_is_not_set_in_the_server_params()
     {
+        $this->doesntExpectEvents([AuthenticatedWithWindows::class]);
+
         $guard = app('auth')->guard();
         $middleware = new WindowsAuthenticate($guard);
 
@@ -25,6 +28,8 @@ class WindowsAuthMiddlewareTest extends TestCase
 
     public function test_request_continues_if_user_is_already_logged_in()
     {
+        $this->doesntExpectEvents([AuthenticatedWithWindows::class]);
+
         auth()->login($this->createTestUser([
             'name' => 'Steve Bauman',
             'email' => 'sbauman@test.com',
@@ -40,6 +45,8 @@ class WindowsAuthMiddlewareTest extends TestCase
 
     public function test_request_continues_if_ldap_user_cannot_be_located()
     {
+        $this->doesntExpectEvents([AuthenticatedWithWindows::class]);
+
         $this->setupDatabaseUserProvider();
 
         $users = m::mock(LdapUserRepository::class);
@@ -62,6 +69,8 @@ class WindowsAuthMiddlewareTest extends TestCase
 
     public function test_authenticates_with_database_user_provider()
     {
+        $this->expectsEvents([AuthenticatedWithWindows::class]);
+
         $this->setupDatabaseUserProvider();
 
         $user = new User([
@@ -95,6 +104,8 @@ class WindowsAuthMiddlewareTest extends TestCase
 
     public function test_authenticates_with_plain_user_provider()
     {
+        $this->expectsEvents([AuthenticatedWithWindows::class]);
+
         $this->setupPlainUserProvider();
 
         $user = new User([
