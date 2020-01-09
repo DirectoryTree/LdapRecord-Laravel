@@ -2,11 +2,11 @@
 
 namespace LdapRecord\Laravel\Tests;
 
-use LdapRecord\Models\Entry;
 use LdapRecord\Laravel\EloquentUserHydrator;
-use LdapRecord\Laravel\Hydrators\GuidHydrator;
-use LdapRecord\Laravel\Hydrators\DomainHydrator;
 use LdapRecord\Laravel\Hydrators\AttributeHydrator;
+use LdapRecord\Laravel\Hydrators\DomainHydrator;
+use LdapRecord\Laravel\Hydrators\GuidHydrator;
+use LdapRecord\Models\Entry;
 
 class EloquentUserHydratorTest extends TestCase
 {
@@ -47,7 +47,7 @@ class EloquentUserHydratorTest extends TestCase
     {
         $entry = new Entry([
             'bar' => 'baz',
-            'objectguid' => 'bf9679e7-0de6-11d0-a285-00aa003049e2'
+            'objectguid' => 'bf9679e7-0de6-11d0-a285-00aa003049e2',
         ]);
         $model = new TestUser;
 
