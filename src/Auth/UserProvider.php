@@ -35,6 +35,16 @@ abstract class UserProvider implements LaravelUserProvider
     }
 
     /**
+     * Set the LDAP user repository.
+     *
+     * @param LdapUserRepository $users
+     */
+    public function setLdapUserRepository(LdapUserRepository $users)
+    {
+        $this->users = $users;
+    }
+
+    /**
      * Get the LDAP user repository.
      *
      * @return LdapUserRepository
@@ -52,5 +62,15 @@ abstract class UserProvider implements LaravelUserProvider
     public function getLdapUserAuthenticator()
     {
         return $this->auth;
+    }
+
+    /**
+     * Set the LDAP user authenticator.
+     *
+     * @param LdapUserAuthenticator $auth
+     */
+    public function setLdapUserAuthenticator(LdapUserAuthenticator $auth)
+    {
+        $this->auth = $auth;
     }
 }
