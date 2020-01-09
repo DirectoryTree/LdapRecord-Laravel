@@ -17,9 +17,9 @@ class AuthenticatedWithWindows
     /**
      * The LDAP users authenticatable model.
      *
-     * @var Authenticatable
+     * @var Authenticatable|null
      */
-    public $model;
+    public $model = null;
 
     /**
      * Constructor.
@@ -27,7 +27,7 @@ class AuthenticatedWithWindows
      * @param Model           $user
      * @param Authenticatable $model
      */
-    public function __construct(Model $user, Authenticatable $model)
+    public function __construct(Model $user, Authenticatable $model = null)
     {
         $this->user = $user;
         $this->model = $model;
