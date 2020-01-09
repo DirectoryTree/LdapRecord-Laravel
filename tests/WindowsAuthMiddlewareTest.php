@@ -2,13 +2,12 @@
 
 namespace LdapRecord\Laravel\Tests;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use LdapRecord\Laravel\LdapUserRepository;
+use LdapRecord\Laravel\Middleware\WindowsAuthenticate;
 use LdapRecord\Models\Entry;
 use Mockery as m;
-use Illuminate\Http\Request;
-use LdapRecord\Laravel\Auth\DatabaseUserProvider;
-use LdapRecord\Laravel\Middleware\WindowsAuthenticate;
 
 class WindowsAuthMiddlewareTest extends TestCase
 {
