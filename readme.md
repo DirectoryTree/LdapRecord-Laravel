@@ -6,7 +6,7 @@
 
 <p align="center">
     <a href="https://laravel.com"><img src="https://img.shields.io/badge/Built_for-Laravel-green.svg?style=flat-square"></a>
-    <a href="https://travis-ci.org/directorytree/ldaprecord-laravel"><img src="https://img.shields.io/travis/directorytree/ldaprecord-laravel.svg?style=flat-square"></a>
+    <a href="https://travis-ci.com/directorytree/ldaprecord-laravel"><img src="https://img.shields.io/travis/directorytree/ldaprecord-laravel.svg?style=flat-square"></a>
     <a href="https://scrutinizer-ci.com/g/directorytree/ldaprecord-laravel"><img src="https://img.shields.io/scrutinizer/g/directorytree/ldaprecord-laravel/master.svg?style=flat-square"></a>
     <a href="https://packagist.org/packages/directorytree/ldaprecord-laravel"><img src="https://img.shields.io/packagist/dt/directorytree/ldaprecord-laravel.svg?style=flat-square"></a>
     <a href="https://packagist.org/packages/directorytree/ldaprecord-laravel"><img src="https://img.shields.io/packagist/v/directorytree/ldaprecord-laravel.svg?style=flat-square"></a>
