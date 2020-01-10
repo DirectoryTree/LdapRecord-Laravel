@@ -12,7 +12,6 @@ use LdapRecord\Laravel\Events\Imported;
 use LdapRecord\Laravel\LdapUserImporter;
 use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Models\Model as LdapModel;
-use RuntimeException;
 
 class ImportLdapUsers extends Command
 {

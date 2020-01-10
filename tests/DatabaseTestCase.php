@@ -2,7 +2,6 @@
 
 namespace LdapRecord\Laravel\Tests;
 
-use Mockery as m;
 use Illuminate\Auth\EloquentUserProvider;
 use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use LdapRecord\Laravel\LdapUserAuthenticator;
@@ -10,6 +9,7 @@ use LdapRecord\Laravel\LdapUserImporter;
 use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Models\ActiveDirectory\User;
 use LdapRecord\Models\Model;
+use Mockery as m;
 
 class DatabaseTestCase extends TestCase
 {
