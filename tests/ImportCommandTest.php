@@ -3,18 +3,17 @@
 namespace LdapRecord\Laravel\Tests;
 
 use Illuminate\Support\Facades\Auth;
+use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Models\ActiveDirectory\User;
 use LdapRecord\Query\Model\Builder;
 use Mockery as m;
-use LdapRecord\Laravel\LdapUserRepository;
-use LdapRecord\Laravel\Commands\ImportLdapUsers;
 
 class ImportCommandTest extends DatabaseTestCase
 {
     public function test_command_exits_when_invalid_provider_used()
     {
         $this->artisan('ldap:import', ['provider' => 'eloquent'])
-            ->expectsOutput("Provider [eloquent] is not configured for LDAP authentication.")
+            ->expectsOutput('Provider [eloquent] is not configured for LDAP authentication.')
             ->assertExitCode(0);
     }
 
@@ -23,7 +22,7 @@ class ImportCommandTest extends DatabaseTestCase
         $this->setupPlainUserProvider();
 
         $this->artisan('ldap:import', ['provider' => 'ldap-plain'])
-            ->expectsOutput("Provider [ldap-plain] is not configured for database synchronization.")
+            ->expectsOutput('Provider [ldap-plain] is not configured for database synchronization.')
             ->assertExitCode(0);
     }
 
@@ -44,7 +43,7 @@ class ImportCommandTest extends DatabaseTestCase
         Auth::shouldReceive('createUserProvider')->once()->withArgs(['ldap-database'])->andReturn($provider);
 
         $this->artisan('ldap:import', ['provider' => 'ldap-database'])
-            ->expectsOutput("There were no users found to import.")
+            ->expectsOutput('There were no users found to import.')
             ->assertExitCode(0);
     }
 
@@ -55,7 +54,7 @@ class ImportCommandTest extends DatabaseTestCase
                 'cn' => 'Steve Bauman',
                 'mail' => 'sbauman@test.com',
                 'objectguid' => 'bf9679e7-0de6-11d0-a285-00aa003049e2',
-            ])
+            ]),
         ];
 
         $repo = m::mock(LdapUserRepository::class, function ($repo) use ($users) {
@@ -67,7 +66,7 @@ class ImportCommandTest extends DatabaseTestCase
         });
 
         $importer = $this->createLdapUserImporter(TestUser::class, [
-            'sync_attributes' => ['name' => 'cn', 'email' => 'mail']
+            'sync_attributes' => ['name' => 'cn', 'email' => 'mail'],
         ]);
 
         $provider = $this->createDatabaseUserProvider($repo, $this->createLdapUserAuthenticator(), $importer);
