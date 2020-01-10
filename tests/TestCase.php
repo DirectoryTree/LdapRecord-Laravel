@@ -44,6 +44,7 @@ abstract class TestCase extends BaseTestCase
             'database' => ':memory:',
         ]);
 
+        // LDAP mock setup.
         $config->set('ldap.default', 'default');
         $config->set('ldap.connections.default', [
             'hosts' => ['localhost'],
@@ -53,6 +54,7 @@ abstract class TestCase extends BaseTestCase
             'port' => 389,
         ]);
 
+        // Users database table.
         Schema::create('users', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('name');
@@ -70,32 +72,36 @@ abstract class TestCase extends BaseTestCase
 
     protected function setupPlainUserProvider(array $config = [])
     {
-        config()->set('auth.guards.web.provider', 'ldap');
-        config()->set('auth.providers', array_merge([
-            'ldap' => [
-                'driver' => 'ldap',
-                'rules' => [],
-                'model' => \LdapRecord\Models\ActiveDirectory\User::class,
-            ],
+        config()->set('auth.defaults.guard', 'ldap-plain');
+        config()->set('auth.guards.ldap-plain', [
+            'driver' => 'session',
+            'provider' => 'ldap-plain',
+        ]);
+        config()->set('auth.providers.ldap-plain', array_merge([
+            'driver' => 'ldap',
+            'rules' => [],
+            'model' => \LdapRecord\Models\ActiveDirectory\User::class,
         ], $config));
     }
 
     protected function setupDatabaseUserProvider(array $config = [])
     {
-        config()->set('auth.guards.web.provider', 'ldap');
-        config()->set('auth.providers', array_merge([
-            'ldap' => [
-                'driver' => 'ldap',
-                'rules' => [],
-                'model' => \LdapRecord\Models\ActiveDirectory\User::class,
-                'database' => [
-                    'sync_passwords' => true,
-                    'sync_attributes' => [
-                        'name' => 'cn',
-                        'email' => 'userprincipalname',
-                    ],
-                    'model' => \LdapRecord\Laravel\Tests\TestUser::class,
+        config()->set('auth.defaults.guard', 'ldap-database');
+        config()->set('auth.guards.ldap-database', [
+            'driver' => 'session',
+            'provider' => 'ldap-database',
+        ]);
+        config()->set('auth.providers.ldap-database', array_merge([
+            'driver' => 'ldap',
+            'rules' => [],
+            'model' => \LdapRecord\Models\ActiveDirectory\User::class,
+            'database' => [
+                'sync_passwords' => true,
+                'sync_attributes' => [
+                    'name' => 'cn',
+                    'email' => 'userprincipalname',
                 ],
+                'model' => \LdapRecord\Laravel\Tests\TestUser::class,
             ],
         ], $config));
     }
