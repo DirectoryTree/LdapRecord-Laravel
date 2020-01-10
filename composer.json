@@ -30,8 +30,8 @@
     "extra": {
         "laravel": {
             "providers": [
-                "LdapRecord\\Laravel\\LdapRecordServiceProvider",
-                "LdapRecord\\Laravel\\LdapRecordAuthServiceProvider"
+                "LdapRecord\\Laravel\\LdapServiceProvider",
+                "LdapRecord\\Laravel\\LdapAuthServiceProvider"
             ]
         }
     }
