@@ -12,6 +12,6 @@ class DomainHydrator extends Hydrator
      */
     public function hydrate(LdapModel $user, EloquentModel $database)
     {
-        $database->setLdapDomain($user->getConnectionName());
+        $database->setLdapDomain($user->getConnectionName() ?? config('ldap.default'));
     }
 }
