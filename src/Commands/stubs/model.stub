@@ -1,0 +1,10 @@
+<?php
+
+namespace DummyNamespace;
+
+use LdapRecord\Models\Model;
+
+class DummyClass extends Model
+{
+    //
+}
