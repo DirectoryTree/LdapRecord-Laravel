@@ -21,6 +21,14 @@ class LdapUserImporterTest extends TestCase
         $this->assertInstanceOf(TestUser::class, $importer->createEloquentModel());
     }
 
+    public function test_config_can_be_set()
+    {
+        $importer = new LdapUserImporter(TestUser::class, []);
+        $config = ['foo' => 'bar'];
+        $importer->setConfig($config);
+        $this->assertEquals($config, $importer->getConfig());
+    }
+
     public function test_new_ldap_user_has_guid_and_domain_set()
     {
         $this->expectsEvents([Importing::class, Synchronizing::class, Synchronized::class]);

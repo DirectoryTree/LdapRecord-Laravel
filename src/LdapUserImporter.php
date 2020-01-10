@@ -130,6 +130,16 @@ class LdapUserImporter
     }
 
     /**
+     * Get the importer configuration.
+     *
+     * @return array
+     */
+    public function getConfig()
+    {
+        return $this->config;
+    }
+
+    /**
      * Get the name of the eloquent model.
      *
      * @return string
