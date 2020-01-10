@@ -75,7 +75,7 @@ class WindowsAuthMiddlewareTest extends TestCase
 
         $user = new User([
             'cn' => 'SteveBauman',
-            'userprincipalname' => 'sbauman@test.com',
+            'mail' => 'sbauman@test.com',
             'objectguid' => 'bf9679e7-0de6-11d0-a285-00aa003049e2',
         ]);
 
@@ -97,7 +97,7 @@ class WindowsAuthMiddlewareTest extends TestCase
             $this->assertTrue($model->wasRecentlyCreated);
             $this->assertEquals($user->getConvertedGuid(), $model->guid);
             $this->assertEquals($user->getFirstAttribute('cn'), $model->name);
-            $this->assertEquals($user->getFirstAttribute('userprincipalname'), $model->email);
+            $this->assertEquals($user->getFirstAttribute('mail'), $model->email);
             $this->assertSame(auth()->user(), $model);
         });
     }

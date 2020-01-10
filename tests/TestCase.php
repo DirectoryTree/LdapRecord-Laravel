@@ -5,6 +5,7 @@ namespace LdapRecord\Laravel\Tests;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
+use Laravel\Tinker\TinkerServiceProvider;
 use LdapRecord\Laravel\LdapAuthServiceProvider;
 use LdapRecord\Laravel\LdapServiceProvider;
 use Orchestra\Testbench\TestCase as BaseTestCase;
@@ -25,6 +26,7 @@ abstract class TestCase extends BaseTestCase
         return [
             LdapServiceProvider::class,
             LdapAuthServiceProvider::class,
+            TinkerServiceProvider::class,
         ];
     }
 
@@ -96,12 +98,12 @@ abstract class TestCase extends BaseTestCase
             'rules' => [],
             'model' => \LdapRecord\Models\ActiveDirectory\User::class,
             'database' => [
+                'model' => \LdapRecord\Laravel\Tests\TestUser::class,
                 'sync_passwords' => true,
                 'sync_attributes' => [
                     'name' => 'cn',
-                    'email' => 'userprincipalname',
+                    'email' => 'mail',
                 ],
-                'model' => \LdapRecord\Laravel\Tests\TestUser::class,
             ],
         ], $config));
     }
