@@ -26,7 +26,6 @@ abstract class TestCase extends BaseTestCase
         return [
             LdapServiceProvider::class,
             LdapAuthServiceProvider::class,
-            TinkerServiceProvider::class,
         ];
     }
 
