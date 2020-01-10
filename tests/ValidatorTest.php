@@ -2,9 +2,9 @@
 
 namespace LdapRecord\Laravel\Tests;
 
-use LdapRecord\Models\Entry;
-use LdapRecord\Laravel\Validation\Validator;
 use LdapRecord\Laravel\Validation\Rules\Rule;
+use LdapRecord\Laravel\Validation\Validator;
+use LdapRecord\Models\Entry;
 
 class ValidatorTest extends TestCase
 {
