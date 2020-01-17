@@ -18,9 +18,9 @@
 </p>
 
 <h4 align="center">
-    <a href="https://ldaprecord.com/laravel/quickstart">Quickstart</a>
+    <a href="https://ldaprecord.com/docs/laravel/quickstart">Quickstart</a>
     <span> · </span>
-    <a href="https://ldaprecord.com/laravel">Documentation</a>
+    <a href="https://ldaprecord.com/docs/laravel">Documentation</a>
 </h4>
 
 - **Authenticate LDAP users into your application.** Using the built-in authentication driver, easily allow
