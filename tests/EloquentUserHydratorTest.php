@@ -30,7 +30,7 @@ class EloquentUserHydratorTest extends TestCase
 
         $hydrator->hydrate($entry, $model);
 
-        $this->assertEquals($entry->getConnectionName(), $model->domain);
+        $this->assertEquals('default', $model->domain);
     }
 
     public function test_attribute_hydrator()
@@ -54,7 +54,7 @@ class EloquentUserHydratorTest extends TestCase
         EloquentUserHydrator::hydrate($entry, $model, ['sync_attributes' => ['foo' => 'bar']]);
 
         $this->assertEquals('baz', $model->foo);
+        $this->assertEquals('default', $model->domain);
         $this->assertEquals($entry->getConvertedGuid(), $model->guid);
-        $this->assertEquals($entry->getConnectionName(), $model->domain);
     }
 }

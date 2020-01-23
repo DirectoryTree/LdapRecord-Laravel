@@ -4,7 +4,6 @@ namespace LdapRecord\Laravel\Tests;
 
 use LdapRecord\Laravel\Auth\LdapAuthenticatable;
 use LdapRecord\Laravel\LdapUserRepository;
-use LdapRecord\Laravel\Scopes\ScopeInterface;
 use LdapRecord\Models\Entry;
 use LdapRecord\Query\Model\Builder;
 use Mockery as m;
@@ -29,12 +28,6 @@ class LdapUserRepositoryTest extends TestCase
     {
         $repository = new LdapUserRepository(Entry::class);
         $this->assertEquals(['*', 'objectguid', 'objectclass'], $repository->query()->getSelects());
-    }
-
-    public function test_query_scopes_are_applied()
-    {
-        $repository = new LdapUserRepository(Entry::class, [TestLdapUserRepositoryScope::class]);
-        $this->assertEquals(['applied', 'objectclass'], $repository->query()->getSelects());
     }
 
     public function test_find_by_credentials_returns_null_with_empty_array()
@@ -113,13 +106,5 @@ class LdapUserRepositoryTest extends TestCase
         });
 
         $this->assertSame('foo', $repository->findByGuid('guid'));
-    }
-}
-
-class TestLdapUserRepositoryScope implements ScopeInterface
-{
-    public function apply(Builder $builder)
-    {
-        $builder->select('applied');
     }
 }
