@@ -8,6 +8,7 @@ use LdapRecord\Container;
 use LdapRecord\Laravel\Commands\MakeLdapModel;
 use LdapRecord\Laravel\Commands\MakeLdapRule;
 use LdapRecord\Laravel\Commands\MakeLdapScope;
+use LdapRecord\Laravel\Commands\TestLdapConnection;
 
 class LdapServiceProvider extends ServiceProvider
 {
@@ -28,6 +29,7 @@ class LdapServiceProvider extends ServiceProvider
             MakeLdapRule::class,
             MakeLdapScope::class,
             MakeLdapModel::class,
+            TestLdapConnection::class,
         ]);
 
         if (config('ldap.logging', true)) {
