@@ -50,7 +50,7 @@ class TestLdapConnection extends Command
                 $message = "Unable to connect. {$e->getMessage()}";
             }
 
-            $rows[] = [$name, $connection->isConnected() ? '✔' : '✘', $message];
+            $rows[] = [$name, $connection->isConnected() ? '✔ Yes' : '✘ No', $message];
         }
 
         $this->table(['Connection', 'Successful', 'Message'], $rows);
