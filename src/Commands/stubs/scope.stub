@@ -2,17 +2,21 @@
 
 namespace DummyNamespace;
 
+use LdapRecord\Models\Model;
+use LdapRecord\Models\Scope;
 use LdapRecord\Query\Model\Builder;
-use LdapRecord\Laravel\Scopes\ScopeInterface;
 
-class DummyClass implements ScopeInterface
+class DummyClass implements Scope
 {
     /**
-     * Apply the scope to the query.
+     * Apply the scope to the given query.
      *
      * @param Builder $query
+     * @param Model   $model
+     *
+     * @return void
      */
-    public function apply(Builder $query)
+    public function apply(Builder $query, Model $model)
     {
         //
     }
