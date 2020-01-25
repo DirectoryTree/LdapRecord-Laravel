@@ -2,9 +2,9 @@
 
 namespace LdapRecord\Laravel\Commands;
 
-use LdapRecord\Container;
-use LdapRecord\Auth\BindException;
 use Illuminate\Console\Command;
+use LdapRecord\Auth\BindException;
+use LdapRecord\Container;
 
 class TestLdapConnection extends Command
 {
@@ -45,7 +45,7 @@ class TestLdapConnection extends Command
             try {
                 $connection->connect();
 
-                $message = "Successfully connected.";
+                $message = 'Successfully connected.';
             } catch (BindException $e) {
                 $message = "Unable to connect. {$e->getMessage()}";
             }
