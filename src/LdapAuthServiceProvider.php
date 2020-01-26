@@ -126,7 +126,7 @@ class LdapAuthServiceProvider extends ServiceProvider
      */
     protected function makeLdapUserRepository(array $config)
     {
-        return new LdapUserRepository($config['model'], Arr::get($config, 'scopes', $default = []));
+        return new LdapUserRepository($config['model']);
     }
 
     /**

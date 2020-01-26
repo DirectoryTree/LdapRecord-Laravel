@@ -16,22 +16,13 @@ class LdapUserRepository
     protected $model;
 
     /**
-     * The scopes to apply to the LdapRecord model.
-     *
-     * @var array
-     */
-    protected $scopes;
-
-    /**
      * Constructor.
      *
      * @param string $model
-     * @param array  $scopes
      */
-    public function __construct($model, $scopes = [])
+    public function __construct($model)
     {
         $this->model = $model;
-        $this->scopes = (array) $scopes;
     }
 
     /**
@@ -108,11 +99,7 @@ class LdapUserRepository
      */
     public function query()
     {
-        return tap($this->newModelQuery(), function ($query) {
-            foreach ($this->scopes() as $scope) {
-                $scope->apply($query);
-            }
-        });
+        return $this->newModelQuery();
     }
 
     /**
@@ -156,17 +143,5 @@ class LdapUserRepository
         return $query->select(
             array_unique(array_merge(['*', $model->getGuidKey()], $query->getSelects()))
         );
-    }
-
-    /**
-     * Get the scopes to apply to the model query.
-     *
-     * @return \Illuminate\Support\Collection
-     */
-    protected function scopes()
-    {
-        return collect($this->scopes)->map(function ($scope) {
-            return app($scope);
-        })->values();
     }
 }
