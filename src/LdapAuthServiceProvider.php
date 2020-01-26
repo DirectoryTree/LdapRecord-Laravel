@@ -5,7 +5,6 @@ namespace LdapRecord\Laravel;
 use Illuminate\Auth\EloquentUserProvider;
 use Illuminate\Auth\Events\Authenticated;
 use Illuminate\Auth\Events\Login;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
