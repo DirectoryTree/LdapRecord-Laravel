@@ -63,6 +63,7 @@ abstract class TestCase extends BaseTestCase
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
+            $table->softDeletes();
 
             // Additional fields for LdapRecord.
             $table->string('guid')->unique()->nullable();
