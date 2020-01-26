@@ -2,8 +2,8 @@
 
 namespace LdapRecord\Laravel\Auth\Rules;
 
-use LdapRecord\Laravel\Auth\Rule;
 use Illuminate\Support\Facades\Event;
+use LdapRecord\Laravel\Auth\Rule;
 use LdapRecord\Laravel\Events\AuthenticatedModelTrashed;
 
 class DenyTrashed extends Rule
