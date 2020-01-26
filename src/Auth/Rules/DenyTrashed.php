@@ -1,7 +1,8 @@
 <?php
 
-namespace LdapRecord\Laravel\Validation\Rules;
+namespace LdapRecord\Laravel\Auth\Rules;
 
+use LdapRecord\Laravel\Auth\Rule;
 use Illuminate\Support\Facades\Event;
 use LdapRecord\Laravel\Events\AuthenticatedModelTrashed;
 

@@ -1,6 +1,8 @@
 <?php
 
-namespace LdapRecord\Laravel\Validation\Rules;
+namespace LdapRecord\Laravel\Auth\Rules;
+
+use LdapRecord\Laravel\Auth\Rule;
 
 class OnlyImported extends Rule
 {

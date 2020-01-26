@@ -1,6 +1,6 @@
 <?php
 
-namespace LdapRecord\Laravel\Validation\Rules;
+namespace LdapRecord\Laravel\Auth;
 
 use Illuminate\Database\Eloquent\Model;
 use LdapRecord\Models\Model as LdapModel;

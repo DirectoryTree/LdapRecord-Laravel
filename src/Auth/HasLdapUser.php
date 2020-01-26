@@ -1,6 +1,6 @@
 <?php
 
-namespace LdapRecord\Laravel\Traits;
+namespace LdapRecord\Laravel\Auth;
 
 use LdapRecord\Models\Model;
 

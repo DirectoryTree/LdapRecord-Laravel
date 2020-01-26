@@ -2,8 +2,8 @@
 
 namespace LdapRecord\Laravel\Tests;
 
-use LdapRecord\Laravel\Validation\Rules\Rule;
-use LdapRecord\Laravel\Validation\Validator;
+use LdapRecord\Laravel\Auth\Rule;
+use LdapRecord\Laravel\Auth\Validator;
 use LdapRecord\Models\Entry;
 
 class ValidatorTest extends TestCase
@@ -45,12 +45,6 @@ class ValidatorTest extends TestCase
         $validator->addRule(new TestFailingRule(new Entry, new TestUser));
 
         $this->assertFalse($validator->passes());
-    }
-
-    public function test_only_valid_rules_can_be_added()
-    {
-        $this->expectException(\TypeError::class);
-        new Validator([new \stdClass()]);
     }
 }
 

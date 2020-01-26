@@ -9,7 +9,7 @@ use LdapRecord\Laravel\Events\Authenticating;
 use LdapRecord\Laravel\Events\AuthenticationFailed;
 use LdapRecord\Laravel\Events\AuthenticationRejected;
 use LdapRecord\Laravel\LdapUserAuthenticator;
-use LdapRecord\Laravel\Validation\Rules\Rule;
+use LdapRecord\Laravel\Auth\Rule;
 use LdapRecord\Models\Model;
 use Mockery as m;
 

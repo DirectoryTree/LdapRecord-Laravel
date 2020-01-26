@@ -6,7 +6,7 @@ use LdapRecord\Laravel\Events\Authenticated;
 use LdapRecord\Laravel\Events\Authenticating;
 use LdapRecord\Laravel\Events\AuthenticationFailed;
 use LdapRecord\Laravel\Events\AuthenticationRejected;
-use LdapRecord\Laravel\Validation\Validator;
+use LdapRecord\Laravel\Auth\Validator;
 use LdapRecord\Models\Model;
 
 class LdapUserAuthenticator
