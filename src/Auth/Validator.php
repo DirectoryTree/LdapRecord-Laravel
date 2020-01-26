@@ -2,8 +2,6 @@
 
 namespace LdapRecord\Laravel\Auth;
 
-use LdapRecord\Laravel\Auth\Rule;
-
 class Validator
 {
     /**

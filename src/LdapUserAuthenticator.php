@@ -2,11 +2,11 @@
 
 namespace LdapRecord\Laravel;
 
+use LdapRecord\Laravel\Auth\Validator;
 use LdapRecord\Laravel\Events\Authenticated;
 use LdapRecord\Laravel\Events\Authenticating;
 use LdapRecord\Laravel\Events\AuthenticationFailed;
 use LdapRecord\Laravel\Events\AuthenticationRejected;
-use LdapRecord\Laravel\Auth\Validator;
 use LdapRecord\Models\Model;
 
 class LdapUserAuthenticator

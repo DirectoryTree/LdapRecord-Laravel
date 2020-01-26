@@ -2,9 +2,9 @@
 
 namespace LdapRecord\Laravel\Tests;
 
-use LdapRecord\Models\Entry;
 use LdapRecord\Laravel\Auth\Rules\DenyTrashed;
 use LdapRecord\Laravel\Auth\Rules\OnlyImported;
+use LdapRecord\Models\Entry;
 
 class ValidatorRuleTest extends TestCase
 {
