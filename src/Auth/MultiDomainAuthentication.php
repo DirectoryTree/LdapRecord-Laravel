@@ -26,7 +26,7 @@ trait MultiDomainAuthentication
      */
     protected function getLdapGuardFromRequest()
     {
-        return request('domain') ?? config('ldap.default');
+        return request('domain', config('ldap.default'));
     }
 
     /**
