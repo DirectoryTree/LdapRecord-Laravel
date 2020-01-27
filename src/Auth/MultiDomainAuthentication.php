@@ -2,8 +2,8 @@
 
 namespace LdapRecord\Laravel\Auth;
 
-use LdapRecord\Models\Model;
 use Illuminate\Support\Facades\Auth;
+use LdapRecord\Models\Model;
 
 trait MultiDomainAuthentication
 {
@@ -45,7 +45,5 @@ trait MultiDomainAuthentication
         if ($user instanceof LdapAuthenticatable) {
             return $user->getLdapDomain();
         }
-
-        return;
     }
 }
