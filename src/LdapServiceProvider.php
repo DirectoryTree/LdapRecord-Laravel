@@ -39,7 +39,15 @@ class LdapServiceProvider extends ServiceProvider
         Container::setDefaultConnection(config('ldap.default', 'default'));
 
         foreach (config('ldap.connections', []) as $name => $config) {
-            Container::addConnection(new Connection($config), $name);
+            $connection = new Connection($config);
+
+            if (config('ldap.cache.enabled', false)) {
+                $connection->setCache(
+                    cache()->repository(config('ldap.cache.driver'))
+                );
+            }
+
+            Container::addConnection($connection, $name);
         }
     }
 }

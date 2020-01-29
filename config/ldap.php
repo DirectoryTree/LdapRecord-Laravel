@@ -54,4 +54,20 @@ return [
 
     'logging' => env('LDAP_LOGGING', true),
 
+    /*
+    |--------------------------------------------------------------------------
+    | LDAP Cache
+    |--------------------------------------------------------------------------
+    |
+    | LDAP caching enables the ability of caching search results using the
+    | query builder. This is great for running expensive operations that
+    | may take many seconds to complete, such as a pagination request.
+    |
+    */
+
+    'cache' => [
+        'enabled' => env('LDAP_CACHE', false),
+        'driver' => env('CACHE_DRIVER', 'file'),
+    ],
+
 ];
