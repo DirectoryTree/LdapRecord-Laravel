@@ -42,6 +42,8 @@ class TestLdapConnection extends Command
         foreach ($connections as $name => $connection) {
             $this->info("Testing LDAP connection [$name]...");
 
+            $start = microtime(true);
+
             try {
                 $connection->connect();
 
@@ -50,9 +52,27 @@ class TestLdapConnection extends Command
                 $message = "Unable to connect. {$e->getMessage()}";
             }
 
-            $rows[] = [$name, $connection->isConnected() ? '✔ Yes' : '✘ No', $message];
+            $rows[] = [
+                $name,
+                $connection->isConnected() ? '✔ Yes' : '✘ No',
+                $connection->getConfiguration()->get('username'),
+                $message,
+                $this->getElapsedTime($start) . 'ms'
+            ];
         }
 
-        $this->table(['Connection', 'Successful', 'Message'], $rows);
+        $this->table(['Connection', 'Successful', 'Username', 'Message', 'Response Time'], $rows);
+    }
+
+    /**
+     * Get the elapsed time since a given starting point.
+     *
+     * @param int $start
+     *
+     * @return float
+     */
+    protected function getElapsedTime($start)
+    {
+        return round((microtime(true) - $start) * 1000, 2);
     }
 }
