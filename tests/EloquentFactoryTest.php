@@ -2,7 +2,6 @@
 
 namespace LdapRecord\Laravel\Tests;
 
-use LdapRecord\Laravel\Testing\EloquentFactory;
 use LdapRecord\Laravel\Testing\FakeDirectory;
 use LdapRecord\Models\Entry;
 
