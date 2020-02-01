@@ -2,8 +2,8 @@
 
 namespace LdapRecord\Laravel\Testing;
 
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class EloquentFactory
 {
@@ -60,7 +60,7 @@ class EloquentFactory
             $table->string('type')->nullable();
         });
 
-        Schema::create('ldap_object_classes', function (Blueprint $table){
+        Schema::create('ldap_object_classes', function (Blueprint $table) {
             $table->unsignedBigInteger('ldap_object_id');
             $table->string('name');
         });

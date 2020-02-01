@@ -3,8 +3,8 @@
 namespace LdapRecord\Laravel\Testing;
 
 use LdapRecord\Connection;
-use LdapRecord\Models\Model;
 use LdapRecord\Models\Events\Event;
+use LdapRecord\Models\Model;
 
 class FakeLdapObject extends Model
 {
