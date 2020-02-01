@@ -20,4 +20,9 @@ class FakeDirectory
 
         return new static;
     }
+
+    public static function teardown()
+    {
+        EloquentFactory::teardown();
+    }
 }

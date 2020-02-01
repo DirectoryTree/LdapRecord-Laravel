@@ -13,18 +13,16 @@ class EloquentFactoryTest extends TestCase
         parent::setUp();
 
         FakeDirectory::setup();
-
-        config()->set('ldap.default', 'default');
-        config('ldap.connections.default', [
-            'base_dn' => 'dc=local,dc=com',
-        ]);
     }
 
-    protected function tearDown(): void
+    protected function getEnvironmentSetup($app)
     {
-        EloquentFactory::teardown();
+        parent::getEnvironmentSetup($app);
 
-        parent::tearDown();
+        $app['config']->set('ldap.default', 'default');
+        $app['config']->set('ldap.connections.default', [
+            'base_dn' => 'dc=local,dc=com',
+        ]);
     }
 
     public function test_create()
