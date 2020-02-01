@@ -45,6 +45,7 @@ abstract class TestCase extends BaseTestCase
         ]);
 
         // LDAP mock setup.
+        $config->set('ldap.logging', false);
         $config->set('ldap.default', 'default');
         $config->set('ldap.connections.default', [
             'hosts' => ['localhost'],
