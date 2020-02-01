@@ -127,7 +127,7 @@ class EloquentModelLdapBuilder extends Builder
 
                 $q->where($where);
             }
-        })->with($relation);
+        })->with(['classes', 'attributes']);
     }
 
     protected function parse($resource)
@@ -137,7 +137,16 @@ class EloquentModelLdapBuilder extends Builder
 
     protected function process(array $results)
     {
-        // TODO: Convert the returned models.
-        return $results;
+        return $this->model->newCollection($results)->transform(function ($attributes) {
+            $transformedAttributes = collect(Arr::pull($attributes, 'attributes'))->mapWithKeys(function ($values, $key) {
+                return [$values['name'] => $values['values']];
+            })->toArray();
+
+            $dn = Arr::pull($attributes, 'dn');
+
+            return $this->model->newInstance()
+                ->setDn($dn)
+                ->setRawAttributes($transformedAttributes);
+        });
     }
 }
