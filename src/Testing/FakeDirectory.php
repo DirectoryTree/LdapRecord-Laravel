@@ -2,8 +2,8 @@
 
 namespace LdapRecord\Laravel\Testing;
 
-use LdapRecord\Container;
 use LdapRecord\Connection;
+use LdapRecord\Container;
 
 class FakeDirectory
 {

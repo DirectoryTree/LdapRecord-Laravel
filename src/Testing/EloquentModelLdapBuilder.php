@@ -2,10 +2,10 @@
 
 namespace LdapRecord\Laravel\Testing;
 
-use LdapRecord\Models\Model;
-use Ramsey\Uuid\Uuid;
 use Illuminate\Support\Arr;
+use LdapRecord\Models\Model;
 use LdapRecord\Query\Model\Builder;
+use Ramsey\Uuid\Uuid;
 
 class EloquentModelLdapBuilder extends Builder
 {
@@ -52,12 +52,11 @@ class EloquentModelLdapBuilder extends Builder
         $model->domain = $this->model->getConnectionName();
         $model->save();
 
-        foreach ($objectClasses as $objectClass)
-        {
+        foreach ($objectClasses as $objectClass) {
             $model->classes()->create(['name' => $objectClass]);
         }
 
-        foreach($attributes as $name => $values) {
+        foreach ($attributes as $name => $values) {
             $model->attributes()->create([
                 'name' => $name,
                 'values' => $values,
@@ -124,7 +123,7 @@ class EloquentModelLdapBuilder extends Builder
 
                 if ($operator == '*') {
                     $where['value'] = $value;
-                };
+                }
 
                 $q->where($where);
             }
