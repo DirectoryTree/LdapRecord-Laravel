@@ -2,9 +2,9 @@
 
 namespace LdapRecord\Laravel\Tests;
 
-use LdapRecord\Models\Entry;
-use LdapRecord\Laravel\Testing\FakeDirectory;
 use LdapRecord\Laravel\Testing\EloquentFactory;
+use LdapRecord\Laravel\Testing\FakeDirectory;
+use LdapRecord\Models\Entry;
 
 class EloquentFactoryTest extends TestCase
 {
