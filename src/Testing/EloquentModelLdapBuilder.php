@@ -3,27 +3,47 @@
 namespace LdapRecord\Laravel\Testing;
 
 use Illuminate\Support\Arr;
-use LdapRecord\Models\Model;
+use LdapRecord\Models\BatchModification;
 use LdapRecord\Query\Model\Builder;
 use Ramsey\Uuid\Uuid;
 
 class EloquentModelLdapBuilder extends Builder
 {
-    public function delete($dn)
+    /**
+     * Create a new instance of the configured model.
+     *
+     * @return LdapObject
+     */
+    public function newEloquentModel()
     {
-        EloquentFactory::createModel()->where('dn', '=', $dn)->delete();
-
-        return true;
+        return EloquentFactory::createModel();
     }
 
-    public function deleteAttributes($dn, array $attributes)
+    /**
+     * Create a new Eloquent query from the configured model.
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function newEloquentQuery()
     {
-        //
+        return $this->newEloquentModel()->query();
+    }
+
+    /**
+     * Find the Eloquent model by distinguished name.
+     *
+     * @param string $dn
+     *
+     * @return LdapObject|null
+     */
+    public function findEloquentModelByDn($dn)
+    {
+        return $this->newEloquentQuery()->where('dn', '=', $dn)->first();
     }
 
     public function findOrFail($dn, $columns = ['*'])
     {
-        if ($database = EloquentFactory::createModel()->where('dn', '=', $dn)->first()) {
+        if ($database = $this->findEloquentModelByDn($dn)) {
             $attributes = $database->attributes->mapWithKeys(function ($attribute) {
                 return [$attribute->name => $attribute->values];
             });
@@ -45,7 +65,7 @@ class EloquentModelLdapBuilder extends Builder
         }
 
         /** @var LdapObject $model */
-        $model = EloquentFactory::createModel();
+        $model = $this->newEloquentModel();
         $model->dn = $dn;
         $model->name = $this->model->getCreatableRdn();
         $model->guid = Uuid::uuid4()->toString();
@@ -66,7 +86,73 @@ class EloquentModelLdapBuilder extends Builder
         return true;
     }
 
+    public function update($dn, array $modifications)
+    {
+        /** @var LdapObject $model */
+        $model = $this->findEloquentModelByDn($dn);
+
+        if (!$model) {
+            return false;
+        }
+
+        foreach($modifications as $modification) {
+            $name = $modification[BatchModification::KEY_ATTRIB];
+            $type = $modification[BatchModification::KEY_MODTYPE];
+            $values = $modification[BatchModification::KEY_VALUES];
+
+            $attribute = $model->attributes()->firstOrNew(['name' => $name]);
+
+            if ($type == LDAP_MODIFY_BATCH_REMOVE_ALL && $attribute->exists) {
+                $attribute->delete();
+
+                continue;
+            }
+
+            if ($type == LDAP_MODIFY_BATCH_REMOVE) {
+
+            }
+
+            if ($type == LDAP_MODIFY_BATCH_ADD) {
+                $attribute->values = array_merge($attribute->values ?? [], $values);
+            }
+
+            $attribute->save();
+
+            switch ($type) {
+                case LDAP_MODIFY_BATCH_REMOVE_ALL:
+                    if ($attribute->exists) {
+                        $attribute->delete();
+                    }
+                    break;
+                case LDAP_MODIFY_BATCH_REMOVE:
+                    foreach ($modification['values'] as $value) {
+
+                    }
+                    break;
+                case LDAP_MODIFY_BATCH_REPLACE:
+                    $attribute->values = $values;
+                case LDAP_MODIFY_BATCH_ADD:
+
+                    break;
+            }
+        }
+
+        return true;
+    }
+
     public function rename($dn, $rdn, $newParentDn, $deleteOldRdn = true)
+    {
+        //
+    }
+
+    public function delete($dn)
+    {
+        $database = $this->findEloquentModelByDn($dn);
+
+        return $database ? $database->delete() : false;
+    }
+
+    public function deleteAttributes($dn, array $attributes)
     {
         //
     }
@@ -83,7 +169,7 @@ class EloquentModelLdapBuilder extends Builder
             // throw exception, raw filters not supported for DB LDAP.
         }
 
-        $databaseQuery = EloquentFactory::createModel()->newQuery();
+        $databaseQuery = $this->newEloquentQuery();
 
         $this->applyFiltersToDatabaseQuery($databaseQuery);
 
@@ -106,10 +192,10 @@ class EloquentModelLdapBuilder extends Builder
 
     /**
      * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param $field
-     * @param $operator
-     * @param null $value
-     * @param string $boolean
+     * @param string                                $field
+     * @param string                                $operator
+     * @param array|null                            $value
+     * @param string                                $boolean
      */
     protected function applyWhereFilterToDatabaseQuery($query, $field, $operator, $value = null, $boolean = 'and')
     {

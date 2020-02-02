@@ -12,7 +12,10 @@ class FakeDirectory
         tap(Container::getInstance(), function (Container $container) {
             collect($container->all())->each(function (Connection $connection, $name) use ($container) {
                 // Replace the connection with a fake.
-                $container->add(new FakeLdapConnection(), $name);
+                $container->add(
+                    new FakeLdapConnection($connection->getConfiguration()->all()),
+                    $name
+                );
             });
         });
 
