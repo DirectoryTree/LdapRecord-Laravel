@@ -33,3 +33,11 @@ or you can import your entire directory via a simple [command](#): `php artisan 
 
 - **Active Record LDAP Models.** LDAP records are returned as [individual models](https://ldaprecord.com/docs/models). Easily create
 and update models then persist them to your LDAP server with a simple `save()`.
+
+---
+
+<h3 align="center">LdapRecord-Laravel is Sponsorware™</h3>
+
+<p align="center">If you really enjoy using LdapRecord-Laravel, a <a href="https://github.com/sponsors/stevebauman">sponsorship</a> would mean the world :pray:</p>
+
+<p align="center">Thank you for your consideration :heart:</p>
