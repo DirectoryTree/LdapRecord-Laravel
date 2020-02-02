@@ -12,6 +12,7 @@ use LdapRecord\Laravel\Events\Imported;
 use LdapRecord\Laravel\LdapUserImporter;
 use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Models\Model as LdapModel;
+use LdapRecord\Models\Types\ActiveDirectory;
 
 class ImportLdapUsers extends Command
 {
@@ -107,12 +108,14 @@ class ImportLdapUsers extends Command
                 // Save the returned model.
                 $this->save($user, $model);
 
-                if ($this->isDeleting()) {
-                    $this->delete($user, $model);
-                }
+                if ($user instanceof ActiveDirectory) {
+                    if ($this->isDeleting()) {
+                        $this->delete($user, $model);
+                    }
 
-                if ($this->isRestoring()) {
-                    $this->restore($user, $model);
+                    if ($this->isRestoring()) {
+                        $this->restore($user, $model);
+                    }
                 }
 
                 $imported++;
