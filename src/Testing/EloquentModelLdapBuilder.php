@@ -91,11 +91,11 @@ class EloquentModelLdapBuilder extends Builder
         /** @var LdapObject $model */
         $model = $this->findEloquentModelByDn($dn);
 
-        if (!$model) {
+        if (! $model) {
             return false;
         }
 
-        foreach($modifications as $modification) {
+        foreach ($modifications as $modification) {
             $name = $modification[BatchModification::KEY_ATTRIB];
             $type = $modification[BatchModification::KEY_MODTYPE];
             $values = $modification[BatchModification::KEY_VALUES];
@@ -109,7 +109,6 @@ class EloquentModelLdapBuilder extends Builder
             }
 
             if ($type == LDAP_MODIFY_BATCH_REMOVE) {
-
             }
 
             if ($type == LDAP_MODIFY_BATCH_ADD) {
@@ -126,7 +125,6 @@ class EloquentModelLdapBuilder extends Builder
                     break;
                 case LDAP_MODIFY_BATCH_REMOVE:
                     foreach ($modification['values'] as $value) {
-
                     }
                     break;
                 case LDAP_MODIFY_BATCH_REPLACE:
