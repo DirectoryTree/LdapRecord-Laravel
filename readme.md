@@ -31,7 +31,7 @@ or you can import your entire directory via a simple [command](https://ldaprecor
 
 -- **Multi-Domain Support.** Authenticate users from as many LDAP domains as you'd like. Support comes [out of the box](https://ldaprecord.com/docs/laravel/auth/multi-domain).
 
-- **Eloquent Query Builder.** Search for LDAP records with a [fluent and easy to use interface](https://ldaprecord.com/docs/searching) you're used to. You'll feel right at home.
+-- **Eloquent Query Builder.** Search for LDAP records with a [fluent and easy to use interface](https://ldaprecord.com/docs/searching) you're used to. You'll feel right at home.
 
 - **Active Record LDAP Models.** LDAP records are returned as [individual models](https://ldaprecord.com/docs/models). Easily create
 and update models then persist them to your LDAP server with a simple `save()`.
