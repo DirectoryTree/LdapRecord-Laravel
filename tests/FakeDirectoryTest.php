@@ -59,6 +59,26 @@ class EloquentFactoryTest extends TestCase
         $this->assertNull(TestModel::find($model->getDn()));
     }
 
+    public function test_delete_attributes()
+    {
+        $model = tap(new TestModel, function ($model) {
+            $model->cn = 'John Doe';
+            $model->foo = 'bar';
+            $model->baz = 'set';
+            $model->save();
+        });
+
+        $model = TestModel::find($model->getDn());
+        $this->assertEquals($model->foo, ['bar']);
+        $this->assertEquals($model->baz, ['set']);
+
+        $model->deleteAttributes($model->getDn(), ['foo', 'baz']);
+
+        $model = TestModel::find($model->getDn());
+        $this->assertNull($model->foo);
+        $this->assertNull($model->baz);
+    }
+
     public function test_update_adding_attribute()
     {
         $model = tap(new TestModel, function ($model) {
@@ -73,6 +93,34 @@ class EloquentFactoryTest extends TestCase
 
         $model = TestModel::find($model->getDn());
         $this->assertEquals(['bar'], $model->foo);
+    }
+
+    public function test_updating_by_adding_an_attribute_value()
+    {
+        $model = tap(new TestModel, function ($model) {
+            $model->foo = ['bar'];
+            $this->assertTrue($model->save());
+        });
+
+        $model->foo = array_merge($model->foo, ['baz']);
+        $this->assertTrue($model->save());
+
+        $model = TestModel::find($model->getDn());
+        $this->assertEquals(['bar', 'baz'], $model->foo);
+    }
+
+    public function test_updating_by_removing_attribute()
+    {
+        $model = tap(new TestModel, function ($model) {
+            $model->foo = ['bar'];
+            $this->assertTrue($model->save());
+        });
+
+        $model->foo = null;
+        $model->save();
+
+        $model = TestModel::find($model->getDn());
+        $this->assertNull($model->foo);
     }
 }
 

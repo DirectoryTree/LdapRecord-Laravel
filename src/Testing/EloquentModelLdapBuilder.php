@@ -2,13 +2,28 @@
 
 namespace LdapRecord\Laravel\Testing;
 
-use Illuminate\Support\Arr;
-use LdapRecord\Models\BatchModification;
-use LdapRecord\Query\Model\Builder;
 use Ramsey\Uuid\Uuid;
+use Illuminate\Support\Arr;
+use LdapRecord\Connection;
+use LdapRecord\Query\Model\Builder;
+use LdapRecord\Models\BatchModification;
 
 class EloquentModelLdapBuilder extends Builder
 {
+    /**
+     * The underlying database query.
+     *
+     * @var \Illuminate\Database\Eloquent\Builder
+     */
+    protected $query;
+
+    public function __construct(Connection $connection)
+    {
+        parent::__construct($connection);
+
+        $this->query = $this->newEloquentQuery();
+    }
+
     /**
      * Create a new instance of the configured model.
      *
@@ -38,21 +53,16 @@ class EloquentModelLdapBuilder extends Builder
      */
     public function findEloquentModelByDn($dn)
     {
-        return $this->newEloquentQuery()->where('dn', '=', $dn)->first();
+        return $this->query
+            ->where('dn', '=', $dn)
+            ->with(['classes', 'attributes'])
+            ->first();
     }
 
     public function findOrFail($dn, $columns = ['*'])
     {
         if ($database = $this->findEloquentModelByDn($dn)) {
-            $attributes = $database->attributes->mapWithKeys(function ($attribute) {
-                return [$attribute->name => $attribute->values];
-            });
-
-            $model = new $this->model;
-            $model->setDn($dn);
-            $model->setRawAttributes($attributes->toArray());
-
-            return $model;
+            return $this->transformDatabaseAttributesToLdapModel($database->toArray());
         }
     }
 
@@ -98,41 +108,22 @@ class EloquentModelLdapBuilder extends Builder
         foreach ($modifications as $modification) {
             $name = $modification[BatchModification::KEY_ATTRIB];
             $type = $modification[BatchModification::KEY_MODTYPE];
-            $values = $modification[BatchModification::KEY_VALUES];
+            $values = $modification[BatchModification::KEY_VALUES] ?? [];
 
             $attribute = $model->attributes()->firstOrNew(['name' => $name]);
 
             if ($type == LDAP_MODIFY_BATCH_REMOVE_ALL && $attribute->exists) {
                 $attribute->delete();
-
                 continue;
-            }
-
-            if ($type == LDAP_MODIFY_BATCH_REMOVE) {
-            }
-
-            if ($type == LDAP_MODIFY_BATCH_ADD) {
+            } elseif ($type == LDAP_MODIFY_BATCH_REMOVE) {
+                $attribute->values = array_diff($attribute->values ?? [], $values);
+            } elseif ($type == LDAP_MODIFY_BATCH_ADD) {
                 $attribute->values = array_merge($attribute->values ?? [], $values);
+            } elseif ($type == LDAP_MODIFY_BATCH_REPLACE) {
+                $attribute->values = $values;
             }
 
             $attribute->save();
-
-            switch ($type) {
-                case LDAP_MODIFY_BATCH_REMOVE_ALL:
-                    if ($attribute->exists) {
-                        $attribute->delete();
-                    }
-                    break;
-                case LDAP_MODIFY_BATCH_REMOVE:
-                    foreach ($modification['values'] as $value) {
-                    }
-                    break;
-                case LDAP_MODIFY_BATCH_REPLACE:
-                    $attribute->values = $values;
-                case LDAP_MODIFY_BATCH_ADD:
-
-                    break;
-            }
         }
 
         return true;
@@ -152,7 +143,13 @@ class EloquentModelLdapBuilder extends Builder
 
     public function deleteAttributes($dn, array $attributes)
     {
-        //
+        if ($database = $this->findEloquentModelByDn($dn)) {
+            $database->attributes()->whereIn('name', $attributes)->delete();
+
+            return true;
+        }
+
+        return false;
     }
 
     public function escape($value, $ignore = '', $flags = 0)
@@ -163,29 +160,24 @@ class EloquentModelLdapBuilder extends Builder
 
     public function run($query)
     {
-        if (count($this->filters['raw']) > 0) {
-            // throw exception, raw filters not supported for DB LDAP.
-        }
-
-        $databaseQuery = $this->newEloquentQuery();
-
-        $this->applyFiltersToDatabaseQuery($databaseQuery);
-
-        return $databaseQuery->get();
+        return $this->query->limit($this->limit)->get();
     }
 
-    /**
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     */
-    protected function applyFiltersToDatabaseQuery($query)
+    public function addFilter($type, array $bindings)
     {
-        foreach ($this->filters['and'] as $filter) {
-            $this->applyWhereFilterToDatabaseQuery($query, $filter['field'], $filter['operator'], $filter['value']);
+        if ($type == 'raw') {
+            throw new \Exception('Raw filters are not supported with the EloquentModelBuilder.');
         }
 
-        foreach ($this->filters['or'] as $filter) {
-            $this->applyWhereFilterToDatabaseQuery($query, $filter['field'], $filter['operator'], $filter['value'], 'or');
-        }
+        $this->applyWhereFilterToDatabaseQuery(
+            $this->query,
+            $bindings['field'],
+            $bindings['operator'],
+            $bindings['value'],
+            $type
+        );
+
+        return parent::addFilter($type, $bindings);
     }
 
     /**
@@ -222,15 +214,27 @@ class EloquentModelLdapBuilder extends Builder
     protected function process(array $results)
     {
         return $this->model->newCollection($results)->transform(function ($attributes) {
-            $transformedAttributes = collect(Arr::pull($attributes, 'attributes'))->mapWithKeys(function ($values, $key) {
-                return [$values['name'] => $values['values']];
-            })->toArray();
-
-            $dn = Arr::pull($attributes, 'dn');
-
-            return $this->model->newInstance()
-                ->setDn($dn)
-                ->setRawAttributes($transformedAttributes);
+            return $this->transformDatabaseAttributesToLdapModel($attributes);
         });
+    }
+
+    /**
+     * Transforms an array of database attributes into an LdapRecord model.
+     *
+     * @param array $attributes
+     *
+     * @return \LdapRecord\Models\Model
+     */
+    protected function transformDatabaseAttributesToLdapModel(array $attributes)
+    {
+        $transformedAttributes = collect(Arr::pull($attributes, 'attributes'))->mapWithKeys(function ($values, $key) {
+            return [$values['name'] => $values['values']];
+        })->toArray();
+
+        $dn = Arr::pull($attributes, 'dn');
+
+        return $this->model->newInstance()
+            ->setDn($dn)
+            ->setRawAttributes($transformedAttributes);
     }
 }
