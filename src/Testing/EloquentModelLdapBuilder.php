@@ -2,11 +2,11 @@
 
 namespace LdapRecord\Laravel\Testing;
 
-use Ramsey\Uuid\Uuid;
 use Illuminate\Support\Arr;
 use LdapRecord\Connection;
-use LdapRecord\Query\Model\Builder;
 use LdapRecord\Models\BatchModification;
+use LdapRecord\Query\Model\Builder;
+use Ramsey\Uuid\Uuid;
 
 class EloquentModelLdapBuilder extends Builder
 {
