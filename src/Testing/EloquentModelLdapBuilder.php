@@ -112,14 +112,14 @@ class EloquentModelLdapBuilder extends Builder
             $values = $modification[BatchModification::KEY_VALUES] ?? [];
 
             $attribute = $model->attributes()->firstOrCreate(['name' => $name]);
-            
+
             if ($type == LDAP_MODIFY_BATCH_REMOVE_ALL) {
                 $attribute->delete();
                 continue;
             } elseif ($type == LDAP_MODIFY_BATCH_REMOVE) {
                 $attribute->values()->whereIn('value', $values)->delete();
             } elseif ($type == LDAP_MODIFY_BATCH_ADD) {
-                foreach($values as $value) {
+                foreach ($values as $value) {
                     $attribute->values()->create(['value' => $value]);
                 }
             } elseif ($type == LDAP_MODIFY_BATCH_REPLACE) {

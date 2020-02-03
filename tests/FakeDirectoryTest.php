@@ -122,7 +122,7 @@ class EloquentFactoryTest extends TestCase
         $model = TestModel::find($model->getDn());
         $this->assertNull($model->foo);
     }
-    
+
     public function test_fresh()
     {
         $model = tap(new TestModel, function ($model) {
