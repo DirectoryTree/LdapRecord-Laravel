@@ -87,10 +87,11 @@ class EloquentModelLdapBuilder extends Builder
         }
 
         foreach ($attributes as $name => $values) {
-            $model->attributes()->create([
-                'name' => $name,
-                'values' => $values,
-            ]);
+            $attribute = $model->attributes()->create(['name' => $name]);
+
+            foreach ($values as $value) {
+                $attribute->values()->create(['value' => $value]);
+            }
         }
 
         return true;
@@ -110,17 +111,23 @@ class EloquentModelLdapBuilder extends Builder
             $type = $modification[BatchModification::KEY_MODTYPE];
             $values = $modification[BatchModification::KEY_VALUES] ?? [];
 
-            $attribute = $model->attributes()->firstOrNew(['name' => $name]);
-
-            if ($type == LDAP_MODIFY_BATCH_REMOVE_ALL && $attribute->exists) {
+            $attribute = $model->attributes()->firstOrCreate(['name' => $name]);
+            
+            if ($type == LDAP_MODIFY_BATCH_REMOVE_ALL) {
                 $attribute->delete();
                 continue;
             } elseif ($type == LDAP_MODIFY_BATCH_REMOVE) {
-                $attribute->values = array_diff($attribute->values ?? [], $values);
+                $attribute->values()->whereIn('value', $values)->delete();
             } elseif ($type == LDAP_MODIFY_BATCH_ADD) {
-                $attribute->values = array_merge($attribute->values ?? [], $values);
+                foreach($values as $value) {
+                    $attribute->values()->create(['value' => $value]);
+                }
             } elseif ($type == LDAP_MODIFY_BATCH_REPLACE) {
-                $attribute->values = $values;
+                $attribute->values()->delete();
+
+                foreach ($values as $value) {
+                    $attribute->values()->create(['value' => $value]);
+                }
             }
 
             $attribute->save();
@@ -160,7 +167,11 @@ class EloquentModelLdapBuilder extends Builder
 
     public function run($query)
     {
-        return $this->query->limit($this->limit)->get();
+        if ($this->limit > 0) {
+            $this->query->limit($this->limit);
+        }
+
+        return $this->query->get();
     }
 
     public function addFilter($type, array $bindings)
@@ -195,15 +206,15 @@ class EloquentModelLdapBuilder extends Builder
             if ($relation == 'classes') {
                 $q->where('name', '=', $value);
             } else {
-                $where = ['name' => $field];
+                $wheres = [['name', '=', $field]];
 
-                if ($operator == '*') {
-                    $where['value'] = $value;
+                if ($operator !== '*') {
+                    $wheres[] = ['value', '=', $value];
                 }
 
-                $q->where($where);
+                $q->where($wheres);
             }
-        })->with(['classes', 'attributes']);
+        });
     }
 
     protected function parse($resource)
@@ -227,8 +238,10 @@ class EloquentModelLdapBuilder extends Builder
      */
     protected function transformDatabaseAttributesToLdapModel(array $attributes)
     {
-        $transformedAttributes = collect(Arr::pull($attributes, 'attributes'))->mapWithKeys(function ($values, $key) {
-            return [$values['name'] => $values['values']];
+        $transformedAttributes = collect(Arr::pull($attributes, 'attributes'))->mapWithKeys(function ($attribute) {
+            $values = collect($attribute['values'])->map->value->toArray();
+
+            return [$attribute['name'] => $values];
         })->toArray();
 
         $dn = Arr::pull($attributes, 'dn');

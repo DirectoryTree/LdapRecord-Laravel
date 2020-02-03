@@ -8,7 +8,27 @@ class LdapObjectAttribute extends Model
 {
     protected $guarded = [];
 
-    protected $casts = ['values' => 'array'];
+    protected $with = ['values'];
 
     public $timestamps = false;
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleted(function ($model) {
+            // Delete the attribute values when deleted.
+            $model->values()->delete();
+        });
+    }
+
+    public function values()
+    {
+        return $this->hasMany(LdapObjectAttributeValue::class, 'ldap_object_attribute_id');
+    }
+
+    public function valuesToArray()
+    {
+        return $this->values->map->value->toArray();
+    }
 }

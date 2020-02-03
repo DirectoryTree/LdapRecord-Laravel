@@ -69,8 +69,8 @@ class EloquentFactoryTest extends TestCase
         });
 
         $model = TestModel::find($model->getDn());
-        $this->assertEquals($model->foo, ['bar']);
-        $this->assertEquals($model->baz, ['set']);
+        $this->assertEquals(['bar'], $model->foo);
+        $this->assertEquals(['set'], $model->baz);
 
         $model->deleteAttributes($model->getDn(), ['foo', 'baz']);
 
@@ -121,6 +121,31 @@ class EloquentFactoryTest extends TestCase
 
         $model = TestModel::find($model->getDn());
         $this->assertNull($model->foo);
+    }
+    
+    public function test_fresh()
+    {
+        $model = tap(new TestModel, function ($model) {
+            $model->foo = ['bar'];
+            $model->save();
+        });
+
+        $this->assertTrue($model->is($model->fresh()));
+        $this->assertEquals($model, $model->fresh());
+    }
+
+    public function test_get()
+    {
+        $john = TestModel::create(['cn' => ['John']]);
+        $jane = TestModel::create(['cn' => ['Jane']]);
+
+        $models = TestModel::get();
+
+        $this->assertCount(2, $models);
+        $this->assertTrue($john->is($models[0]));
+        $this->assertTrue($jane->is($models[1]));
+        $this->assertEquals($john->getAttributes(), $models[0]->getAttributes());
+        $this->assertEquals($jane->getAttributes(), $models[1]->getAttributes());
     }
 }
 

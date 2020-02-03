@@ -70,12 +70,18 @@ class EloquentFactory
             $table->bigIncrements('id');
             $table->unsignedBigInteger('ldap_object_id');
             $table->string('name');
-            $table->text('values')->nullable();
+        });
+
+        Schema::create('ldap_object_attribute_values', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->unsignedBigInteger('ldap_object_attribute_id');
+            $table->string('value');
         });
     }
 
     protected static function rollback()
     {
+        Schema::dropIfExists('ldap_object_attribute_values');
         Schema::dropIfExists('ldap_object_attributes');
         Schema::dropIfExists('ldap_object_classes');
         Schema::dropIfExists('ldap_objects');
