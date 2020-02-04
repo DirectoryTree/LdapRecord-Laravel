@@ -3,7 +3,6 @@
 namespace LdapRecord\Laravel\Tests;
 
 use Illuminate\Support\Facades\Hash;
-use LdapRecord\Laravel\Events\DiscoveredWithCredentials;
 use LdapRecord\Laravel\LdapUserAuthenticator;
 use LdapRecord\Laravel\LdapUserImporter;
 use LdapRecord\Laravel\LdapUserRepository;
