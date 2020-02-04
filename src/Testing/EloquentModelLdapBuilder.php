@@ -48,7 +48,7 @@ class EloquentModelLdapBuilder extends Builder
 
     public function newInstance($baseDn = null)
     {
-        return (new EloquentModelLdapBuilder($this->connection))->setModel($this->model);
+        return (new self($this->connection))->setModel($this->model);
     }
 
     public function getEloquentQuery()
@@ -129,6 +129,7 @@ class EloquentModelLdapBuilder extends Builder
 
         if ($type == LDAP_MODIFY_BATCH_REMOVE_ALL) {
             $attribute->delete();
+
             return;
         } elseif ($type == LDAP_MODIFY_BATCH_REMOVE) {
             $attribute->values()->whereIn('value', $values)->delete();
