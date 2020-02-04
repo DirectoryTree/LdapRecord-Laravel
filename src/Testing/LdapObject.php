@@ -8,15 +8,10 @@ class LdapObject extends Model
 {
     protected $guarded = [];
 
-    protected $with = ['classes', 'attributes'];
-
-    public function classes()
-    {
-        return $this->hasMany(LdapObjectClass::class, 'ldap_object_id');
-    }
+    protected $with = ['attributes'];
 
     public function attributes()
     {
-        return $this->hasMany(LdapObjectAttribute::class, 'ldap_object_id');
+        return $this->hasMany(LdapObjectAttribute::class);
     }
 }

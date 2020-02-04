@@ -5,7 +5,7 @@ namespace LdapRecord\Laravel\Tests;
 use LdapRecord\Laravel\Testing\FakeDirectory;
 use LdapRecord\Models\Entry;
 
-class EloquentFactoryTest extends TestCase
+class FakeDirectoryTest extends TestCase
 {
     protected function setUp(): void
     {
@@ -146,6 +146,16 @@ class EloquentFactoryTest extends TestCase
         $this->assertTrue($jane->is($models[1]));
         $this->assertEquals($john->getAttributes(), $models[0]->getAttributes());
         $this->assertEquals($jane->getAttributes(), $models[1]->getAttributes());
+    }
+
+    public function test_where_attribute()
+    {
+        $first = TestModel::create(['cn' => ['John']]);
+        TestModel::create(['cn' => ['Jane']]);
+
+        $models = TestModel::where('cn', '=', 'John')->get();
+        $this->assertCount(1, $models);
+        $this->assertTrue($first->is($models->first()));
     }
 }
 

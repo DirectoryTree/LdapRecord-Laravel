@@ -24,11 +24,6 @@ class LdapObjectAttribute extends Model
 
     public function values()
     {
-        return $this->hasMany(LdapObjectAttributeValue::class, 'ldap_object_attribute_id');
-    }
-
-    public function valuesToArray()
-    {
-        return $this->values->map->value->toArray();
+        return $this->hasMany(LdapObjectAttributeValue::class);
     }
 }
