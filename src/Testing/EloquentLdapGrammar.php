@@ -2,8 +2,8 @@
 
 namespace LdapRecord\Laravel\Testing;
 
-use LdapRecord\Query\Grammar;
 use Illuminate\Database\Eloquent\Builder;
+use LdapRecord\Query\Grammar;
 
 class EloquentLdapGrammar extends Grammar
 {
@@ -25,7 +25,7 @@ class EloquentLdapGrammar extends Grammar
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function compileWhere(array $where)
     {
