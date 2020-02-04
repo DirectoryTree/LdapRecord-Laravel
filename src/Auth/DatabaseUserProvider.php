@@ -4,9 +4,6 @@ namespace LdapRecord\Laravel\Auth;
 
 use Illuminate\Auth\EloquentUserProvider;
 use Illuminate\Contracts\Auth\Authenticatable;
-use LdapRecord\Laravel\Events\AuthenticatedWithCredentials;
-use LdapRecord\Laravel\Events\AuthenticationSuccessful;
-use LdapRecord\Laravel\Events\DiscoveredWithCredentials;
 use LdapRecord\Laravel\Events\Imported;
 use LdapRecord\Laravel\LdapUserAuthenticator;
 use LdapRecord\Laravel\LdapUserImporter;
@@ -30,7 +27,7 @@ class DatabaseUserProvider extends UserProvider
     protected $eloquent;
 
     /**
-     * The currently authenticated LDAP user.
+     * The authenticating LDAP user.
      *
      * @var Model|null
      */
@@ -67,6 +64,16 @@ class DatabaseUserProvider extends UserProvider
     }
 
     /**
+     * Set the authenticating LDAP user.
+     *
+     * @param Model $user
+     */
+    public function setAuthenticatingUser(Model $user)
+    {
+        $this->user = $user;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function retrieveById($identifier)
@@ -95,12 +102,8 @@ class DatabaseUserProvider extends UserProvider
      */
     public function retrieveByCredentials(array $credentials)
     {
-        $user = $this->users->findByCredentials($credentials);
-
-        if ($user instanceof Model) {
-            $this->user = $user;
-
-            event(new DiscoveredWithCredentials($user));
+        if ($user = $this->users->findByCredentials($credentials)) {
+            $this->setAuthenticatingUser($user);
 
             return $this->importer->run($user, $credentials['password']);
         }
@@ -118,8 +121,6 @@ class DatabaseUserProvider extends UserProvider
                 return false;
             }
 
-            event(new AuthenticatedWithCredentials($this->user, $model));
-
             $model->save();
 
             if ($model->wasRecentlyCreated) {
@@ -127,8 +128,6 @@ class DatabaseUserProvider extends UserProvider
                 // have been imported successfully.
                 event(new Imported($this->user, $model));
             }
-
-            event(new AuthenticationSuccessful($this->user, $model));
 
             return true;
         }

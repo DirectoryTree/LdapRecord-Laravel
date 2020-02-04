@@ -68,8 +68,6 @@ class DatabaseUserProviderTest extends DatabaseTestCase
 
     public function test_retrieve_by_credentials_returns_unsaved_database_model()
     {
-        $this->expectsEvents([DiscoveredWithCredentials::class]);
-
         $credentials = ['samaccountname' => 'jdoe', 'password' => 'secret'];
 
         $ldapUser = $this->getMockLdapModel([
@@ -100,8 +98,6 @@ class DatabaseUserProviderTest extends DatabaseTestCase
 
     public function test_validate_credentials_saves_database_model_after_passing()
     {
-        $this->expectsEvents([DiscoveredWithCredentials::class]);
-
         $credentials = ['samaccountname' => 'jdoe', 'password' => 'secret'];
 
         $ldapUser = $this->getMockLdapModel([

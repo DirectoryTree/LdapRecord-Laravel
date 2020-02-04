@@ -52,16 +52,18 @@ class LdapUserRepositoryTest extends TestCase
 
     public function test_find_by_credentials_returns_model()
     {
-        $repository = m::mock(LdapUserRepository::class, function ($repository) {
+        $user = new Entry();
+
+        $repository = m::mock(LdapUserRepository::class, function ($repository) use ($user) {
             $query = m::mock(Builder::class);
             $query->shouldReceive('where')->withArgs(['username', 'foo'])->andReturnSelf();
-            $query->shouldReceive('first')->once()->andReturn('baz');
+            $query->shouldReceive('first')->once()->andReturn($user);
 
             $repository->makePartial()->shouldAllowMockingProtectedMethods();
             $repository->shouldReceive('newModelQuery')->once()->andReturn($query);
         });
 
-        $this->assertSame('baz', $repository->findByCredentials(['username' => 'foo']));
+        $this->assertSame($user, $repository->findByCredentials(['username' => 'foo']));
     }
 
     public function test_find_by_attribute_and_value_returns_model()

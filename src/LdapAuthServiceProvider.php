@@ -28,7 +28,6 @@ class LdapAuthServiceProvider extends ServiceProvider
         Events\Authenticating::class            => Listeners\LogAuthentication::class,
         Events\AuthenticationFailed::class      => Listeners\LogAuthenticationFailure::class,
         Events\AuthenticationRejected::class    => Listeners\LogAuthenticationRejection::class,
-        Events\AuthenticationSuccessful::class  => Listeners\LogAuthenticationSuccess::class,
         Events\DiscoveredWithCredentials::class => Listeners\LogDiscovery::class,
         Events\AuthenticatedWithWindows::class  => Listeners\LogWindowsAuth::class,
         Events\AuthenticatedModelTrashed::class => Listeners\LogTrashedModel::class,

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use LdapRecord\Laravel\Auth\UserProvider;
+use LdapRecord\Laravel\DetectsSoftDeletes;
 use LdapRecord\Laravel\Events\Imported;
 use LdapRecord\Laravel\LdapUserImporter;
 use LdapRecord\Laravel\LdapUserRepository;
@@ -16,6 +17,8 @@ use LdapRecord\Models\Types\ActiveDirectory;
 
 class ImportLdapUsers extends Command
 {
+    use DetectsSoftDeletes;
+
     /**
      * The signature of the console command.
      *
@@ -291,18 +294,5 @@ class ImportLdapUsers extends Command
                 logger()->info("Soft-deleted user [{$user->getRdn()}]. Their user account is disabled.");
             }
         }
-    }
-
-    /**
-     * Returns true / false if the model is using soft deletes
-     * by checking if the model contains a `trashed` method.
-     *
-     * @param Model $model
-     *
-     * @return bool
-     */
-    protected function isUsingSoftDeletes(Model $model)
-    {
-        return method_exists($model, 'trashed');
     }
 }

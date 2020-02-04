@@ -4,6 +4,7 @@ namespace LdapRecord\Laravel;
 
 use LdapRecord\Laravel\Auth\Validator;
 use LdapRecord\Laravel\Events\Authenticated;
+use LdapRecord\Laravel\Events\AuthenticatedModelTrashed;
 use LdapRecord\Laravel\Events\Authenticating;
 use LdapRecord\Laravel\Events\AuthenticationFailed;
 use LdapRecord\Laravel\Events\AuthenticationRejected;
@@ -11,6 +12,8 @@ use LdapRecord\Models\Model;
 
 class LdapUserAuthenticator
 {
+    use DetectsSoftDeletes;
+
     /**
      * The LDAP authentication rules.
      *
@@ -59,16 +62,22 @@ class LdapUserAuthenticator
      */
     public function attempt(Model $user, $password)
     {
-        event(new Authenticating($user, $user->getDn()));
+        $this->attempting($user);
+
+        if ($this->databaseModelIsTrashed()) {
+            $this->trashed($user);
+
+            return false;
+        }
 
         if ($user->getConnection()->auth()->attempt($user->getDn(), $password)) {
-            event(new Authenticated($user, $this->eloquentModel));
+            $this->passed($user);
 
             // Here we will perform authorization on the LDAP user. If all
             // validation rules pass, we will allow the authentication
             // attempt. Otherwise, it is automatically rejected.
             if (! $this->validator($user, $this->eloquentModel)->passes()) {
-                event(new AuthenticationRejected($user, $this->eloquentModel));
+                $this->rejected($user);
 
                 return false;
             }
@@ -76,7 +85,7 @@ class LdapUserAuthenticator
             return true;
         }
 
-        event(new AuthenticationFailed($user, $this->eloquentModel));
+        $this->failed($user);
 
         return false;
     }
@@ -107,5 +116,67 @@ class LdapUserAuthenticator
         return collect($this->rules)->map(function ($rule) use ($user, $model) {
             return new $rule($user, $model);
         })->values();
+    }
+
+    /**
+     * Fire the "attempting" event.
+     *
+     * @param Model $user
+     */
+    protected function attempting(Model $user)
+    {
+        event(new Authenticating($user, $user->getDn()));
+    }
+
+    /**
+     * Fire the "passed" event.
+     *
+     * @param Model $user
+     */
+    protected function passed(Model $user)
+    {
+        event(new Authenticated($user, $this->eloquentModel));
+    }
+
+    /**
+     * Fire the "trashed" event.
+     *
+     * @param Model $user
+     */
+    protected function trashed(Model $user)
+    {
+        event(new AuthenticatedModelTrashed($user, $this->eloquentModel));
+    }
+
+    /**
+     * Fire the "failed" event.
+     *
+     * @param Model $user
+     */
+    protected function failed(Model $user)
+    {
+        event(new AuthenticationFailed($user, $this->eloquentModel));
+    }
+
+    /**
+     * Fire the "rejected" event.
+     *
+     * @param Model $user
+     */
+    protected function rejected(Model $user)
+    {
+        event(new AuthenticationRejected($user, $this->eloquentModel));
+    }
+
+    /**
+     * Determine if the database model is trashed.
+     *
+     * @return bool
+     */
+    protected function databaseModelIsTrashed()
+    {
+        return isset($this->eloquentModel) &&
+            $this->isUsingSoftDeletes($this->eloquentModel) &&
+            $this->eloquentModel->trashed();
     }
 }

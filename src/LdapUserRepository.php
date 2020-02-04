@@ -2,9 +2,10 @@
 
 namespace LdapRecord\Laravel;
 
-use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Str;
+use Illuminate\Contracts\Support\Arrayable;
 use LdapRecord\Laravel\Auth\LdapAuthenticatable;
+use LdapRecord\Laravel\Events\DiscoveredWithCredentials;
 
 class LdapUserRepository
 {
@@ -89,7 +90,11 @@ class LdapUserRepository
             }
         }
 
-        return $query->first();
+        if ($user = $query->first()) {
+            event(new DiscoveredWithCredentials($user));
+
+            return $user;
+        }
     }
 
     /**

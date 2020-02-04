@@ -3,8 +3,6 @@
 namespace LdapRecord\Laravel\Tests;
 
 use LdapRecord\Laravel\Auth\NoDatabaseUserProvider;
-use LdapRecord\Laravel\Events\AuthenticatedWithCredentials;
-use LdapRecord\Laravel\Events\DiscoveredWithCredentials;
 use LdapRecord\Laravel\LdapUserAuthenticator;
 use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Models\ActiveDirectory\User;
@@ -39,8 +37,6 @@ class PlainUserProviderTest extends TestCase
 
     public function test_retrieve_by_credentials_returns_model_instance()
     {
-        $this->expectsEvents([DiscoveredWithCredentials::class]);
-
         $model = new Entry;
         $repo = m::mock(LdapUserRepository::class);
         $repo->shouldReceive('findByCredentials')->once()->withArgs([['username' => 'foo']])->andReturn($model);
@@ -51,8 +47,6 @@ class PlainUserProviderTest extends TestCase
 
     public function test_validate_credentials_attempts_authentication()
     {
-        $this->expectsEvents([AuthenticatedWithCredentials::class]);
-
         $user = new User;
         $auth = m::mock(LdapUserAuthenticator::class);
         $auth->shouldReceive('attempt')->once()->withArgs([$user, 'secret'])->andReturnTrue();

@@ -3,8 +3,6 @@
 namespace LdapRecord\Laravel\Auth;
 
 use Illuminate\Contracts\Auth\Authenticatable;
-use LdapRecord\Laravel\Events\AuthenticatedWithCredentials;
-use LdapRecord\Laravel\Events\DiscoveredWithCredentials;
 
 class NoDatabaseUserProvider extends UserProvider
 {
@@ -38,11 +36,7 @@ class NoDatabaseUserProvider extends UserProvider
      */
     public function retrieveByCredentials(array $credentials)
     {
-        if ($user = $this->users->findByCredentials($credentials)) {
-            event(new DiscoveredWithCredentials($user));
-
-            return $user;
-        }
+        return $this->users->findByCredentials($credentials);
     }
 
     /**
@@ -50,12 +44,6 @@ class NoDatabaseUserProvider extends UserProvider
      */
     public function validateCredentials(Authenticatable $user, array $credentials)
     {
-        if ($this->auth->attempt($user, $credentials['password'])) {
-            event(new AuthenticatedWithCredentials($user));
-
-            return true;
-        }
-
-        return false;
+        return $this->auth->attempt($user, $credentials['password']);
     }
 }
