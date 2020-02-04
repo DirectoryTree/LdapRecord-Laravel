@@ -33,7 +33,7 @@ or you can import your entire directory via a simple [command](https://ldaprecor
 
 - **Eloquent Query Builder.** Search for LDAP records with a [fluent and easy to use interface](https://ldaprecord.com/docs/searching) you're used to. You'll feel right at home.
 
-- **Active Record LDAP Models.** LDAP records are returned as [individual models](https://ldaprecord.com/docs/models). Easily create
+- **ActiveRecord LDAP Models.** LDAP records are returned as [individual models](https://ldaprecord.com/docs/models). Easily create
 and update models then persist them to your LDAP server with a simple `save()`.
 
 ---
