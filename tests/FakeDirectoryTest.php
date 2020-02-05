@@ -11,7 +11,7 @@ class FakeDirectoryTest extends TestCase
     {
         parent::setUp();
 
-        FakeDirectory::setup();
+        FakeDirectory::setup('default');
     }
 
     protected function getEnvironmentSetup($app)

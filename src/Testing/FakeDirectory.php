@@ -2,28 +2,39 @@
 
 namespace LdapRecord\Laravel\Testing;
 
-use LdapRecord\Connection;
 use LdapRecord\Container;
 
 class FakeDirectory
 {
-    public static function setup()
+    /**
+     * Setup the fake connections.
+     *
+     * @param string|array $connections
+     *
+     * @throws \LdapRecord\ContainerException
+     *
+     * @return void
+     */
+    public static function setup($connections = [])
     {
-        tap(Container::getInstance(), function (Container $container) {
-            collect($container->all())->each(function (Connection $connection, $name) use ($container) {
-                // Replace the connection with a fake.
-                $container->add(
-                    new FakeLdapConnection($connection->getConfiguration()->all()),
-                    $name
-                );
-            });
-        });
+        foreach ((array) $connections as $connection) {
+            $config = Container::getConnection($connection)->getConfiguration();
+
+            // Replace the connection with a fake.
+            Container::addConnection(
+                new FakeLdapConnection($config->all()),
+                $connection
+            );
+        }
 
         EloquentFactory::setup();
-
-        return new static;
     }
 
+    /**
+     * Tear down the fake directory.
+     *
+     * @return void
+     */
     public static function teardown()
     {
         EloquentFactory::teardown();
