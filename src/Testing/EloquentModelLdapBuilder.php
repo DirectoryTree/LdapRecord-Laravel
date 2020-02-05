@@ -2,7 +2,6 @@
 
 namespace LdapRecord\Laravel\Testing;
 
-use Closure;
 use Illuminate\Support\Arr;
 use LdapRecord\Connection;
 use LdapRecord\Models\BatchModification;
@@ -23,7 +22,6 @@ class EloquentModelLdapBuilder extends Builder
         parent::__construct($connection);
 
         $this->query = $this->newEloquentQuery();
-        $this->grammar = new EloquentLdapGrammar($this->query);
     }
 
     /**
@@ -46,11 +44,19 @@ class EloquentModelLdapBuilder extends Builder
         return $this->newEloquentModel()->query();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function newInstance($baseDn = null)
     {
         return (new self($this->connection))->setModel($this->model);
     }
 
+    /**
+     * Get the underlying Eloquent query builder.
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
     public function getEloquentQuery()
     {
         return $this->query;
@@ -65,12 +71,12 @@ class EloquentModelLdapBuilder extends Builder
      */
     public function findEloquentModelByDn($dn)
     {
-        return $this->query
-            ->where('dn', '=', $dn)
-            ->with(['attributes'])
-            ->first();
+        return $this->query->where('dn', '=', $dn)->first();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function findOrFail($dn, $columns = ['*'])
     {
         if ($database = $this->findEloquentModelByDn($dn)) {
@@ -78,6 +84,9 @@ class EloquentModelLdapBuilder extends Builder
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function insert($dn, array $attributes)
     {
         if (Arr::get($attributes, 'objectclass') == null) {
@@ -103,6 +112,9 @@ class EloquentModelLdapBuilder extends Builder
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function update($dn, array $modifications)
     {
         /** @var LdapObject $model */
@@ -119,6 +131,14 @@ class EloquentModelLdapBuilder extends Builder
         return true;
     }
 
+    /**
+     * Applies the batch modification to the given model.
+     *
+     * @param \Illuminate\Database\Eloquent\Model $model
+     * @param array                               $modification
+     *
+     * @return void
+     */
     protected function applyBatchModificationToModel($model, array $modification)
     {
         $name = $modification[BatchModification::KEY_ATTRIB];
@@ -148,11 +168,17 @@ class EloquentModelLdapBuilder extends Builder
         $attribute->save();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function rename($dn, $rdn, $newParentDn, $deleteOldRdn = true)
     {
         //
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function delete($dn)
     {
         $database = $this->findEloquentModelByDn($dn);
@@ -160,6 +186,9 @@ class EloquentModelLdapBuilder extends Builder
         return $database ? $database->delete() : false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function deleteAttributes($dn, array $attributes)
     {
         if ($database = $this->findEloquentModelByDn($dn)) {
@@ -171,39 +200,148 @@ class EloquentModelLdapBuilder extends Builder
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function escape($value, $ignore = '', $flags = 0)
     {
         // Don't escape values.
         return $value;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function run($query)
     {
         if ($this->limit > 0) {
             $this->query->limit($this->limit);
         }
 
+        $this->applyFiltersToQuery();
+
         return $this->query->get();
     }
 
-    public function orFilter(Closure $closure)
+    /**
+     * Applies filters to the underlying Eloquent database query.
+     */
+    protected function applyFiltersToQuery()
     {
-        $query = $this->newNestedInstance($closure);
-
-        $return = $this->rawFilter(
-            $this->grammar->compileOr($query->getQuery())
-        );
-
-        $this->query->mergeConstraintsFrom($query->getEloquentQuery());
-
-        return $return;
+        $this->applyAndFiltersToQuery();
     }
 
+    /**
+     * Applies "and" filters to the underlying Eloquent database query.
+     */
+    protected function applyAndFiltersToQuery()
+    {
+        $filters = $this->filters['and'];
+
+        if (count($filters) > 0) {
+            foreach ($this->filters['and'] as $filter) {
+                $relationMethod = 'whereHas';
+
+                if($filter['operator'] == '!*') {
+                    $relationMethod = 'whereDoesntHave';
+                    $filter['operator'] = '*';
+                }
+
+                $this->query->{$relationMethod}('attributes', function ($query) use ($filter) {
+                    $this->addFilterToQuery($query, $filter['field'], $filter['operator'], $filter['value']);
+                });
+            }
+        }
+    }
+
+    /**
+     * Adds an LDAP "Where" filter to the underlying Eloquent builder.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param $field
+     * @param $operator
+     * @param $value
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    protected function addFilterToQuery($query, $field, $operator, $value)
+    {
+        switch ($operator) {
+            case '*':
+                return $query->where('name', '=', $field);
+            case '!*':
+                return $query->where('name', '!=', $field);
+            case '=':
+                return $query->where('name', $operator, $field)
+                        ->whereHas('values', function ($q) use ($operator, $value) {
+                            $q->where('value', $operator, $value);
+                        });
+            case '!':
+                // Fallthrough.
+            case '!=':
+                return $query->where('name', '=', $field)
+                        ->whereHas('values', function ($q) use ($operator, $value) {
+                            $q->where('value', '!=', $value);
+                        });
+            case'>=':
+                return $query->where('name', '=', $field)
+                    ->whereHas('values', function ($q) use ($operator, $value) {
+                        $q->where('value', '>=', $value);
+                    });
+            case'<=':
+                return $query->where('name', '=', $field)
+                    ->whereHas('values', function ($q) use ($operator, $value) {
+                        $q->where('value', '<=', $value);
+                    });
+            case'~=':
+                return $query->where('name', '=', $field)
+                    ->whereHas('values', function ($q) use ($operator, $value) {
+                        $q->where('value', 'like', "%$value%");
+                    });
+            case'starts_with':
+                return $query->where('name', '=', $field)
+                    ->whereHas('values', function ($q) use ($operator, $value) {
+                        $q->where('value', 'like', "$value%");
+                    });
+            case'not_starts_with':
+                return $query->where('name', '=', $field)
+                    ->whereHas('values', function ($q) use ($operator, $value) {
+                        $q->where('value', 'not like', "$value%");
+                    });
+            case'ends_with':
+                return $query->where('name', '=', $field)
+                    ->whereHas('values', function ($q) use ($operator, $value) {
+                        $q->where('value', 'like', "%$value");
+                    });
+            case'not_ends_with':
+                return $query->where('name', '=', $field)
+                    ->whereHas('values', function ($q) use ($operator, $value) {
+                        $q->where('value', 'not like', "%$value");
+                    });
+            case'contains':
+                return $query->where('name', '=', $field)
+                    ->whereHas('values', function ($q) use ($operator, $value) {
+                        $q->where('value', 'like', "%$value%");
+                    });
+            case'not_contains':
+                return $query->where('name', '=', $field)
+                    ->whereHas('values', function ($q) use ($operator, $value) {
+                        $q->where('value', 'not like', "%$value%");
+                    });
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     protected function parse($resource)
     {
         return $resource->toArray();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     protected function process(array $results)
     {
         return $this->model->newCollection($results)->transform(function ($attributes) {

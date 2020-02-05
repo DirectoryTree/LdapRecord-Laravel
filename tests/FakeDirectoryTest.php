@@ -150,12 +150,97 @@ class FakeDirectoryTest extends TestCase
 
     public function test_where_attribute()
     {
-        $first = TestModel::create(['cn' => ['John']]);
+        $models = collect([
+            TestModel::create(['cn' => ['John']]),
+            TestModel::create(['cn' => ['Jane']]),
+        ]);
+
+        $results = TestModel::where('cn', '=', 'John')->get();
+        $this->assertCount(1, $results);
+        $this->assertTrue($models->first()->is($models->first()));
+        $this->assertEmpty(TestModel::where('cn', '=', 'invalid')->get());
+    }
+
+    public function test_where_has()
+    {
+        $models = collect([
+            TestModel::create(['cn' => ['John']]),
+            TestModel::create(['cn' => ['Jane']])
+        ]);
+
+        $results = TestModel::whereHas('cn')->get();
+
+        $this->assertCount(2, $models);
+        $this->assertTrue($models->first()->is($results->first()));
+        $this->assertEmpty(TestModel::whereHas('invalid')->get());
+    }
+
+    public function test_where_has_multiple()
+    {
+        $models = collect([
+            TestModel::create(['cn' => ['John'], 'sn' => 'Doe']),
+            TestModel::create(['cn' => ['Jane']])
+        ]);
+
+        $results = TestModel::whereHas('cn')->whereHas('sn')->get();
+        $this->assertCount(1, $results);
+        $this->assertTrue($models->first()->is($results->first()));
+    }
+
+    public function test_where_not_has()
+    {
+        $models = collect([
+            TestModel::create(['cn' => ['John']]),
+            TestModel::create(['cn' => ['Jane']]),
+            TestModel::create(['sn' => ['Doe']]),
+        ]);
+
+        $this->assertCount(1, TestModel::whereNotHas('cn')->get());
+        $this->assertCount(2, TestModel::whereNotHas('sn')->get());
+    }
+
+    public function test_where_contains()
+    {
+        TestModel::create(['cn' => ['John']]);
         TestModel::create(['cn' => ['Jane']]);
 
-        $models = TestModel::where('cn', '=', 'John')->get();
+        $this->assertCount(2, TestModel::whereContains('cn', 'J')->get());
+        $this->assertCount(1, TestModel::whereContains('cn', 'Jo')->get());
+        $this->assertCount(1, TestModel::whereContains('cn', 'ohn')->get());
+    }
+
+    public function test_where_starts_with()
+    {
+        TestModel::create(['cn' => ['John']]);
+        TestModel::create(['cn' => ['Jane']]);
+        TestModel::create(['cn' => ['Steve']]);
+
+        $this->assertCount(2, TestModel::whereStartsWith('cn', 'J')->get());
+        $this->assertCount(1, TestModel::whereStartsWith('cn', 'St')->get());
+        $this->assertCount(0, TestModel::whereStartsWith('cn', 'teve')->get());
+
+        $models = TestModel::whereStartsWith('cn', 'J')
+                    ->whereStartsWith('cn', 'Ja')
+                    ->get();
+
         $this->assertCount(1, $models);
-        $this->assertTrue($first->is($models->first()));
+    }
+
+    public function test_where_ends_with()
+    {
+        TestModel::create(['cn' => ['John']]);
+        TestModel::create(['cn' => ['Jen']]);
+        TestModel::create(['cn' => ['Steve']]);
+
+        $this->assertCount(2, TestModel::whereEndsWith('cn', 'n')->get());
+        $this->assertCount(1, TestModel::whereEndsWith('cn', 'hn')->get());
+        $this->assertCount(0, TestModel::whereEndsWith('cn', 'oh')->get());
+
+        $models = TestModel::whereEndsWith('cn', 'n')
+                    ->whereEndsWith('cn', 'hn')
+                    ->get();
+
+        $this->assertCount(1, $models);
     }
 }
 
