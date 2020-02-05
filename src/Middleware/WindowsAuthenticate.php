@@ -3,27 +3,28 @@
 namespace LdapRecord\Laravel\Middleware;
 
 use Closure;
-use Illuminate\Contracts\Auth\Guard;
+use Illuminate\Contracts\Auth\Factory as Auth;
 use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use LdapRecord\Laravel\Auth\UserProvider;
 use LdapRecord\Laravel\Events\AuthenticatedWithWindows;
+use LdapRecord\Laravel\Events\Imported;
 use LdapRecord\Models\Model;
 
 class WindowsAuthenticate
 {
     /**
-     * The authenticator implementation.
+     * The auth factory instance.
      *
-     * @var Guard
+     * @var Auth
      */
     protected $auth;
 
     /**
      * Constructor.
      *
-     * @param Guard $auth
+     * @param Auth $auth
      */
-    public function __construct(Guard $auth)
+    public function __construct(Auth $auth)
     {
         $this->auth = $auth;
     }
@@ -33,13 +34,35 @@ class WindowsAuthenticate
      *
      * @param \Illuminate\Http\Request $request
      * @param Closure                  $next
+     * @param string[]              ...$guards
      *
      * @return mixed
      */
-    public function handle($request, Closure $next)
+    public function handle($request, Closure $next, ...$guards)
     {
-        if (! $this->auth->check()) {
-            $provider = $this->auth->getProvider();
+        $this->authenticate($request, $guards);
+
+        return $next($request);
+    }
+
+    /**
+     * Attempt to authenticate the LDAP user in the given guards.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param array                    $guards
+     *
+     * @return void
+     *
+     * @throws \Illuminate\Auth\AuthenticationException
+     */
+    protected function authenticate($request, array $guards)
+    {
+        if (empty($guards)) {
+            $guards = [null];
+        }
+
+        foreach ($guards as $guard) {
+            $provider = $this->auth->guard($guard)->getProvider();
 
             if ($provider instanceof UserProvider) {
                 // Retrieve the users account name from the request.
@@ -49,13 +72,13 @@ class WindowsAuthenticate
 
                     // Finally, retrieve the users authenticatable model and log them in.
                     if ($user = $this->retrieveAuthenticatedUser($provider, $username)) {
-                        $this->auth->login($user, $remember = true);
+                        $this->auth->shouldUse($guard);
+
+                        return $this->auth->login($user, $remember = true);
                     }
                 }
             }
         }
-
-        return $next($request);
     }
 
     /**
@@ -84,10 +107,8 @@ class WindowsAuthenticate
             $model = $provider->getLdapUserImporter()->run($user);
         }
 
-        if ($model) {
-            // We also want to save the model in case it doesn't
-            // exist yet, or there are changes to be synced.
-            $model->save();
+        if ($model && $model->save() && $model->wasRecentlyCreated) {
+            event(new Imported($user, $model));
         }
 
         $this->fireAuthenticatedEvent($user, $model);
