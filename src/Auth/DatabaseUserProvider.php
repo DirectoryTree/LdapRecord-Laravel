@@ -121,9 +121,7 @@ class DatabaseUserProvider extends UserProvider
                 return false;
             }
 
-            $model->save();
-
-            if ($model->wasRecentlyCreated) {
+            if ($model->save() && $model->wasRecentlyCreated) {
                 // If the model was recently created, they
                 // have been imported successfully.
                 event(new Imported($this->user, $model));
