@@ -19,7 +19,7 @@ class FakeLdapConnection extends Connection
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function isConnected()
     {
