@@ -189,11 +189,9 @@ class FakeDirectoryTest extends TestCase
 
     public function test_where_not_has()
     {
-        $models = collect([
-            TestModel::create(['cn' => ['John']]),
-            TestModel::create(['cn' => ['Jane']]),
-            TestModel::create(['sn' => ['Doe']]),
-        ]);
+        TestModel::create(['cn' => ['John']]);
+        TestModel::create(['cn' => ['Jane']]);
+        TestModel::create(['sn' => ['Doe']]);
 
         $this->assertCount(1, TestModel::whereNotHas('cn')->get());
         $this->assertCount(2, TestModel::whereNotHas('sn')->get());
