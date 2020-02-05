@@ -14,21 +14,21 @@ class EloquentFactory
      */
     protected static $model = LdapObject::class;
 
-    public static function setup()
-    {
-        static::migrate();
-    }
-
-    public static function teardown()
-    {
-        static::rollback();
-    }
-
+    /**
+     * Set the Eloquent model to use.
+     *
+     * @param string $model
+     */
     public static function using($model)
     {
         static::$model = $model;
     }
 
+    /**
+     * Returns the configured models class name.
+     *
+     * @return string
+     */
     public static function model()
     {
         return static::$model;
@@ -46,7 +46,12 @@ class EloquentFactory
         return new $class;
     }
 
-    protected static function migrate()
+    /**
+     * Run the database migrations.
+     *
+     * @return void
+     */
+    public static function migrate()
     {
         Schema::create('ldap_objects', function (Blueprint $table) {
             $table->bigIncrements('id');
@@ -73,7 +78,12 @@ class EloquentFactory
         });
     }
 
-    protected static function rollback()
+    /**
+     * Rollback the database migrations.
+     *
+     * @return void
+     */
+    public static function rollback()
     {
         Schema::dropIfExists('ldap_object_attribute_values');
         Schema::dropIfExists('ldap_object_attributes');

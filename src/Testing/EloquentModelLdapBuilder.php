@@ -93,13 +93,13 @@ class EloquentModelLdapBuilder extends Builder
             throw new \Exception('LDAP objects must have the object classes to be created.');
         }
 
-        /** @var LdapObject $model */
-        $model = $this->newEloquentModel();
-        $model->dn = $dn;
-        $model->name = $this->model->getCreatableRdn();
-        $model->guid = Uuid::uuid4()->toString();
-        $model->domain = $this->model->getConnectionName();
-        $model->save();
+        $model = tap($this->newEloquentModel(), function ($model) use ($dn) {
+            $model->dn = $dn;
+            $model->name = $this->model->getCreatableRdn();
+            $model->guid = Uuid::uuid4()->toString();
+            $model->domain = $this->model->getConnectionName();
+            $model->save();
+        });
 
         foreach ($attributes as $name => $values) {
             $attribute = $model->attributes()->create(['name' => $name]);

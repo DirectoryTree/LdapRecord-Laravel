@@ -27,7 +27,7 @@ class FakeDirectory
             );
         }
 
-        EloquentFactory::setup();
+        EloquentFactory::migrate();
     }
 
     /**
@@ -37,6 +37,6 @@ class FakeDirectory
      */
     public static function teardown()
     {
-        EloquentFactory::teardown();
+        EloquentFactory::rollback();
     }
 }
