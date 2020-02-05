@@ -45,7 +45,7 @@ class EloquentModelLdapBuilder extends Builder
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function newInstance($baseDn = null)
     {
@@ -75,7 +75,7 @@ class EloquentModelLdapBuilder extends Builder
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function findOrFail($dn, $columns = ['*'])
     {
@@ -85,7 +85,7 @@ class EloquentModelLdapBuilder extends Builder
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function insert($dn, array $attributes)
     {
@@ -113,7 +113,7 @@ class EloquentModelLdapBuilder extends Builder
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function update($dn, array $modifications)
     {
@@ -169,7 +169,7 @@ class EloquentModelLdapBuilder extends Builder
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function rename($dn, $rdn, $newParentDn, $deleteOldRdn = true)
     {
@@ -177,7 +177,7 @@ class EloquentModelLdapBuilder extends Builder
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function delete($dn)
     {
@@ -187,7 +187,7 @@ class EloquentModelLdapBuilder extends Builder
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function deleteAttributes($dn, array $attributes)
     {
@@ -201,7 +201,7 @@ class EloquentModelLdapBuilder extends Builder
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function escape($value, $ignore = '', $flags = 0)
     {
@@ -210,7 +210,7 @@ class EloquentModelLdapBuilder extends Builder
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function run($query)
     {
@@ -242,7 +242,7 @@ class EloquentModelLdapBuilder extends Builder
             foreach ($this->filters['and'] as $filter) {
                 $relationMethod = 'whereHas';
 
-                if($filter['operator'] == '!*') {
+                if ($filter['operator'] == '!*') {
                     $relationMethod = 'whereDoesntHave';
                     $filter['operator'] = '*';
                 }
@@ -332,7 +332,7 @@ class EloquentModelLdapBuilder extends Builder
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function parse($resource)
     {
@@ -340,7 +340,7 @@ class EloquentModelLdapBuilder extends Builder
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function process(array $results)
     {

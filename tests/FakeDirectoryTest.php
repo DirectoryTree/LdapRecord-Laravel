@@ -165,7 +165,7 @@ class FakeDirectoryTest extends TestCase
     {
         $models = collect([
             TestModel::create(['cn' => ['John']]),
-            TestModel::create(['cn' => ['Jane']])
+            TestModel::create(['cn' => ['Jane']]),
         ]);
 
         $results = TestModel::whereHas('cn')->get();
@@ -179,7 +179,7 @@ class FakeDirectoryTest extends TestCase
     {
         $models = collect([
             TestModel::create(['cn' => ['John'], 'sn' => 'Doe']),
-            TestModel::create(['cn' => ['Jane']])
+            TestModel::create(['cn' => ['Jane']]),
         ]);
 
         $results = TestModel::whereHas('cn')->whereHas('sn')->get();
