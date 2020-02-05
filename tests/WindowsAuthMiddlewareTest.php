@@ -24,7 +24,7 @@ class WindowsAuthMiddlewareTest extends TestCase
             Imported::class,
             Synchronizing::class,
             Synchronized::class,
-            AuthenticatedWithWindows::class
+            AuthenticatedWithWindows::class,
         ]);
 
         $middleware = new WindowsAuthenticate(app('auth'));
@@ -42,7 +42,7 @@ class WindowsAuthMiddlewareTest extends TestCase
             Imported::class,
             Synchronizing::class,
             Synchronized::class,
-            AuthenticatedWithWindows::class
+            AuthenticatedWithWindows::class,
         ]);
 
         auth()->login($this->createTestUser([
@@ -65,7 +65,7 @@ class WindowsAuthMiddlewareTest extends TestCase
             Imported::class,
             Synchronizing::class,
             Synchronized::class,
-            AuthenticatedWithWindows::class
+            AuthenticatedWithWindows::class,
         ]);
 
         $this->setupDatabaseUserProvider();
@@ -95,7 +95,7 @@ class WindowsAuthMiddlewareTest extends TestCase
             Imported::class,
             Synchronizing::class,
             Synchronized::class,
-            AuthenticatedWithWindows::class
+            AuthenticatedWithWindows::class,
         ]);
 
         $this->setupDatabaseUserProvider();
