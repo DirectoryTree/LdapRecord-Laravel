@@ -8,7 +8,7 @@ use LdapRecord\Query\Builder;
 class EloquentLdapBuilder extends Builder
 {
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getSelects()
     {
