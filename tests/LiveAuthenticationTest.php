@@ -3,8 +3,8 @@
 namespace LdapRecord\Laravel\Tests;
 
 use Illuminate\Support\Facades\Auth;
-use LdapRecord\Models\ActiveDirectory\User;
 use LdapRecord\Laravel\Testing\FakeSearchableDirectory;
+use LdapRecord\Models\ActiveDirectory\User;
 
 class LiveAuthenticationTest extends TestCase
 {
