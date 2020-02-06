@@ -6,7 +6,7 @@
     "type": "project",
     "require": {
         "php": ">=7.2",
-        "directorytree/ldaprecord": "^1.0",
+        "directorytree/ldaprecord": "dev-master",
         "illuminate/support": "^5.6|^6.0"
     },
     "require-dev": {
