@@ -3,6 +3,8 @@
 namespace LdapRecord\Laravel\Tests;
 
 use LdapRecord\Laravel\Testing\FakeDirectory;
+use LdapRecord\Models\ActiveDirectory\Group;
+use LdapRecord\Models\ActiveDirectory\User;
 use LdapRecord\Models\Entry;
 
 class FakeDirectoryTest extends TestCase
@@ -27,61 +29,70 @@ class FakeDirectoryTest extends TestCase
     public function test_find()
     {
         $dn = 'cn=John Doe,dc=local,dc=com';
-        $this->assertNull(TestModel::find($dn));
+        $this->assertNull(TestModelStub::find($dn));
     }
 
     public function test_create()
     {
         $dn = 'cn=John Doe,dc=local,dc=com';
 
-        tap(new TestModel, function ($model) {
+        tap(new TestModelStub, function ($model) {
             $model->cn = 'John Doe';
             $model->save();
         });
 
-        $model = TestModel::find($dn);
-        $this->assertInstanceOf(TestModel::class, $model);
+        $model = TestModelStub::find($dn);
+        $this->assertInstanceOf(TestModelStub::class, $model);
         $this->assertEquals($model->getAttributes(), $model->getAttributes());
         $this->assertEquals($dn, $model->getDn());
         $this->assertTrue($model->exists);
-        $this->assertNull(TestModel::find('cn=John Doe'));
+        $this->assertNull(TestModelStub::find('cn=John Doe'));
+    }
+
+    public function test_rename()
+    {
+        $model = TestModelStub::create(['cn' => 'John Doe']);
+
+        $this->assertEquals('cn=John Doe,dc=local,dc=com', $model->getDn());
+        $this->assertTrue($model->rename('cn=Jane Doe', 'dc=local,dc=com'));
+        $this->assertEquals('cn=Jane Doe,dc=local,dc=com', $model->getDn());
     }
 
     public function test_delete()
     {
-        $model = tap(new TestModel, function ($model) {
+        $model = tap(new TestModelStub, function ($model) {
             $model->cn = 'John Doe';
             $model->save();
         });
 
         $this->assertTrue($model->delete());
         $this->assertFalse($model->exists);
-        $this->assertNull(TestModel::find($model->getDn()));
+        $this->assertNull(TestModelStub::find($model->getDn()));
     }
 
     public function test_delete_attributes()
     {
-        $model = tap(new TestModel, function ($model) {
+        $model = tap(new TestModelStub, function ($model) {
             $model->cn = 'John Doe';
             $model->foo = 'bar';
             $model->baz = 'set';
             $model->save();
         });
 
-        $model = TestModel::find($model->getDn());
+        $model = TestModelStub::find($model->getDn());
         $this->assertEquals(['bar'], $model->foo);
         $this->assertEquals(['set'], $model->baz);
 
         $model->deleteAttributes($model->getDn(), ['foo', 'baz']);
 
-        $model = TestModel::find($model->getDn());
+        $model = TestModelStub::find($model->getDn());
         $this->assertNull($model->foo);
         $this->assertNull($model->baz);
     }
 
     public function test_update_adding_attribute()
     {
-        $model = tap(new TestModel, function ($model) {
+        $model = tap(new TestModelStub, function ($model) {
             $model->cn = 'John Doe';
             $model->save();
         });
@@ -91,13 +102,13 @@ class FakeDirectoryTest extends TestCase
         $this->assertTrue($model->save());
         $this->assertEquals(['bar'], $model->foo);
 
-        $model = TestModel::find($model->getDn());
+        $model = TestModelStub::find($model->getDn());
         $this->assertEquals(['bar'], $model->foo);
     }
 
     public function test_updating_by_adding_an_attribute_value()
     {
-        $model = tap(new TestModel, function ($model) {
+        $model = tap(new TestModelStub, function ($model) {
             $model->foo = ['bar'];
             $this->assertTrue($model->save());
         });
@@ -105,13 +116,13 @@ class FakeDirectoryTest extends TestCase
         $model->foo = array_merge($model->foo, ['baz']);
         $this->assertTrue($model->save());
 
-        $model = TestModel::find($model->getDn());
+        $model = TestModelStub::find($model->getDn());
         $this->assertEquals(['bar', 'baz'], $model->foo);
     }
 
     public function test_updating_by_removing_attribute()
     {
-        $model = tap(new TestModel, function ($model) {
+        $model = tap(new TestModelStub, function ($model) {
             $model->foo = ['bar'];
             $this->assertTrue($model->save());
         });
@@ -119,13 +130,13 @@ class FakeDirectoryTest extends TestCase
         $model->foo = null;
         $model->save();
 
-        $model = TestModel::find($model->getDn());
+        $model = TestModelStub::find($model->getDn());
         $this->assertNull($model->foo);
     }
 
     public function test_fresh()
     {
-        $model = tap(new TestModel, function ($model) {
+        $model = tap(new TestModelStub, function ($model) {
             $model->foo = ['bar'];
             $model->save();
         });
@@ -136,10 +147,10 @@ class FakeDirectoryTest extends TestCase
 
     public function test_get()
     {
-        $john = TestModel::create(['cn' => ['John']]);
-        $jane = TestModel::create(['cn' => ['Jane']]);
+        $john = TestModelStub::create(['cn' => ['John']]);
+        $jane = TestModelStub::create(['cn' => ['Jane']]);
 
-        $models = TestModel::get();
+        $models = TestModelStub::get();
 
         $this->assertCount(2, $models);
         $this->assertTrue($john->is($models[0]));
@@ -148,76 +159,88 @@ class FakeDirectoryTest extends TestCase
         $this->assertEquals($jane->getAttributes(), $models[1]->getAttributes());
     }
 
+    public function test_get_only_returns_matching_object_classes()
+    {
+        TestModelStub::create(['cn' => ['John']]);
+
+        $model = new class extends Entry {
+            public static $objectClasses = ['three', 'four'];
+        };
+
+        $this->assertCount(0, $model::get());
+    }
+
     public function test_where_attribute()
     {
         $models = collect([
-            TestModel::create(['cn' => ['John']]),
-            TestModel::create(['cn' => ['Jane']]),
+            TestModelStub::create(['cn' => ['John']]),
+            TestModelStub::create(['cn' => ['Jane']]),
         ]);
 
-        $results = TestModel::where('cn', '=', 'John')->get();
+        $results = TestModelStub::where('cn', '=', 'John')->get();
         $this->assertCount(1, $results);
         $this->assertTrue($models->first()->is($models->first()));
-        $this->assertEmpty(TestModel::where('cn', '=', 'invalid')->get());
+        $this->assertEmpty(TestModelStub::where('cn', '=', 'invalid')->get());
     }
 
     public function test_where_has()
     {
         $models = collect([
-            TestModel::create(['cn' => ['John']]),
-            TestModel::create(['cn' => ['Jane']]),
+            TestModelStub::create(['cn' => ['John']]),
+            TestModelStub::create(['cn' => ['Jane']]),
+            TestModelStub::create(['sn' => ['Jen']]),
         ]);
 
-        $results = TestModel::whereHas('cn')->get();
+        $results = TestModelStub::whereHas('cn')->get();
 
-        $this->assertCount(2, $models);
+        $this->assertCount(2, $results);
         $this->assertTrue($models->first()->is($results->first()));
-        $this->assertEmpty(TestModel::whereHas('invalid')->get());
+        $this->assertEmpty(TestModelStub::whereHas('invalid')->get());
     }
 
     public function test_where_has_multiple()
     {
         $models = collect([
-            TestModel::create(['cn' => ['John'], 'sn' => 'Doe']),
-            TestModel::create(['cn' => ['Jane']]),
+            TestModelStub::create(['cn' => ['John'], 'sn' => 'Doe']),
+            TestModelStub::create(['cn' => ['Jane']]),
         ]);
 
-        $results = TestModel::whereHas('cn')->whereHas('sn')->get();
+        $results = TestModelStub::whereHas('cn')->whereHas('sn')->get();
         $this->assertCount(1, $results);
         $this->assertTrue($models->first()->is($results->first()));
     }
 
     public function test_where_not_has()
     {
-        TestModel::create(['cn' => ['John']]);
-        TestModel::create(['cn' => ['Jane']]);
-        TestModel::create(['sn' => ['Doe']]);
+        TestModelStub::create(['cn' => ['John']]);
+        TestModelStub::create(['cn' => ['Jane']]);
+        TestModelStub::create(['sn' => ['Doe']]);
 
-        $this->assertCount(1, TestModel::whereNotHas('cn')->get());
-        $this->assertCount(2, TestModel::whereNotHas('sn')->get());
+        $this->assertCount(1, TestModelStub::whereNotHas('cn')->get());
+        $this->assertCount(2, TestModelStub::whereNotHas('sn')->get());
     }
 
     public function test_where_contains()
     {
-        TestModel::create(['cn' => ['John']]);
-        TestModel::create(['cn' => ['Jane']]);
+        TestModelStub::create(['cn' => ['John']]);
+        TestModelStub::create(['cn' => ['Jane']]);
 
-        $this->assertCount(2, TestModel::whereContains('cn', 'J')->get());
-        $this->assertCount(1, TestModel::whereContains('cn', 'Jo')->get());
-        $this->assertCount(1, TestModel::whereContains('cn', 'ohn')->get());
+        $this->assertCount(2, TestModelStub::whereContains('cn', 'J')->get());
+        $this->assertCount(1, TestModelStub::whereContains('cn', 'Jo')->get());
+        $this->assertCount(1, TestModelStub::whereContains('cn', 'ohn')->get());
     }
 
     public function test_where_starts_with()
     {
-        TestModel::create(['cn' => ['John']]);
-        TestModel::create(['cn' => ['Jane']]);
-        TestModel::create(['cn' => ['Steve']]);
+        TestModelStub::create(['cn' => ['John']]);
+        TestModelStub::create(['cn' => ['Jane']]);
+        TestModelStub::create(['cn' => ['Steve']]);
 
-        $this->assertCount(2, TestModel::whereStartsWith('cn', 'J')->get());
-        $this->assertCount(1, TestModel::whereStartsWith('cn', 'St')->get());
-        $this->assertCount(0, TestModel::whereStartsWith('cn', 'teve')->get());
+        $this->assertCount(2, TestModelStub::whereStartsWith('cn', 'J')->get());
+        $this->assertCount(1, TestModelStub::whereStartsWith('cn', 'St')->get());
+        $this->assertCount(0, TestModelStub::whereStartsWith('cn', 'teve')->get());
 
-        $models = TestModel::whereStartsWith('cn', 'J')
+        $models = TestModelStub::whereStartsWith('cn', 'J')
                     ->whereStartsWith('cn', 'Ja')
                     ->get();
 
@@ -226,23 +249,114 @@ class FakeDirectoryTest extends TestCase
 
     public function test_where_ends_with()
     {
-        TestModel::create(['cn' => ['John']]);
-        TestModel::create(['cn' => ['Jen']]);
-        TestModel::create(['cn' => ['Steve']]);
+        TestModelStub::create(['cn' => ['John']]);
+        TestModelStub::create(['cn' => ['Jen']]);
+        TestModelStub::create(['cn' => ['Steve']]);
 
-        $this->assertCount(2, TestModel::whereEndsWith('cn', 'n')->get());
-        $this->assertCount(1, TestModel::whereEndsWith('cn', 'hn')->get());
-        $this->assertCount(0, TestModel::whereEndsWith('cn', 'oh')->get());
+        $this->assertCount(2, TestModelStub::whereEndsWith('cn', 'n')->get());
+        $this->assertCount(1, TestModelStub::whereEndsWith('cn', 'hn')->get());
+        $this->assertCount(0, TestModelStub::whereEndsWith('cn', 'oh')->get());
 
-        $models = TestModel::whereEndsWith('cn', 'n')
+        $models = TestModelStub::whereEndsWith('cn', 'n')
                     ->whereEndsWith('cn', 'hn')
                     ->get();
 
         $this->assertCount(1, $models);
     }
+
+    public function test_where_in()
+    {
+        TestModelStub::create(['cn' => ['John']]);
+        TestModelStub::create(['cn' => ['Jane']]);
+        TestModelStub::create(['cn' => ['Steve']]);
+
+        $this->assertCount(2, TestModelStub::whereIn('cn', ['John', 'Jane'])->get());
+        $this->assertCount(3, TestModelStub::whereIn('cn', ['John', 'Jane', 'Steve'])->get());
+        $this->assertCount(0, TestModelStub::whereIn('cn', ['Invalid'])->get());
+
+        // Test query stacking.
+        $stacked = TestModelStub::whereIn('cn', ['John', 'Jane'])->whereStartsWith('cn', 'Jo')->get();
+        $this->assertCount(1, $stacked);
+    }
+
+    public function test_where_greater_than()
+    {
+        TestModelStub::create(['cn' => [0]]);
+        $greater = TestModelStub::create(['cn' => [5]]);
+
+        $results = TestModelStub::where('cn', '>=', 1)->get();
+        $this->assertCount(1, $results);
+        $this->assertTrue($greater->is($results->first()));
+    }
+    
+    public function test_where_less_than()
+    {
+        $less = TestModelStub::create(['cn' => [0]]);
+        TestModelStub::create(['cn' => [5]]);
+
+        $results = TestModelStub::where('cn', '<=', 1)->get();
+        $this->assertCount(1, $results);
+        $this->assertTrue($less->is($results->first()));
+    }
+
+    public function test_where_between()
+    {
+        TestModelStub::create(['cn' => 1]);
+        TestModelStub::create(['cn' => 2]);
+
+        $this->assertCount(2, TestModelStub::whereBetween('cn', [1, 5])->get());
+        $this->assertCount(0, TestModelStub::whereBetween('cn', [5, 10])->get());
+    }
+
+    public function test_creating_in()
+    {
+        $model = tap(new TestModelStub(['cn' => 'John']), function ($model) {
+            $model->inside('ou=Users,dc=local,dc=com')->save();
+        });
+
+        $this->assertEquals($model->getDn(), 'cn=John,ou=Users,dc=local,dc=com');
+    }
+
+    public function test_querying_in()
+    {
+        TestModelStub::create(['cn ' => 'John']);
+        $model = tap(new TestModelStub(['cn' => 'Jane']), function ($model) {
+            $model->inside('ou=Users,dc=local,dc=com')->save();
+        });
+
+        $results = TestModelStub::in('ou=Users,dc=local,dc=com')->get();
+        $this->assertCount(1, $results);
+        $this->assertTrue($model->is($results->first()));
+
+        // Add another model inside a sub-scope.
+        tap(new TestModelStub(['cn' => 'Jane']), function ($model) {
+            $model->inside('ou=Parent,ou=Users,dc=local,dc=com')->save();
+        });
+        $this->assertCount(2, TestModelStub::in('ou=Users,dc=local,dc=com')->get());
+    }
+
+    public function test_paginate()
+    {
+        TestModelStub::create(['cn' => 'John']);
+        TestModelStub::create(['cn' => 'Jane']);
+
+        $this->assertCount(2, TestModelStub::paginate());
+    }
+
+    public function test_has_many_relationship()
+    {
+        $group = Group::create(['cn' => 'Accounting']);
+        $user = User::create(['cn' => 'John', 'memberof' => [$group->getDn()]]);
+
+        $this->assertSame($group, $user->groups()->attach($group));
+        $this->assertEquals($user->getDn(), $group->getFirstAttribute('member'));
+
+        $this->assertTrue($user->is($group->members()->get()->first()));
+        $this->assertTrue($group->is($user->groups()->get()->first()));
+    }
 }
 
-class TestModel extends Entry
+class TestModelStub extends Entry
 {
     public static $objectClasses = ['one', 'two'];
 }

@@ -2,6 +2,8 @@
 
 namespace LdapRecord\Laravel\Testing;
 
+use Closure;
+use Exception;
 use Illuminate\Support\Arr;
 use LdapRecord\Connection;
 use LdapRecord\Models\BatchModification;
@@ -17,6 +19,18 @@ class EloquentModelLdapBuilder extends Builder
      */
     protected $query;
 
+    /**
+     * The nested query state.
+     *
+     * @var string|null
+     */
+    protected $nestedState;
+
+    /**
+     * Constructor.
+     *
+     * @param Connection $connection
+     */
     public function __construct(Connection $connection)
     {
         parent::__construct($connection);
@@ -49,7 +63,23 @@ class EloquentModelLdapBuilder extends Builder
      */
     public function newInstance($baseDn = null)
     {
-        return (new self($this->connection))->setModel($this->model);
+        return (new self($this->connection))
+            ->in($baseDn)
+            ->setModel($this->model);
+    }
+
+    /**
+     * Set the underlying Eloquent query builder.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     *
+     * @return $this
+     */
+    public function setEloquentQuery($query)
+    {
+        $this->query = $query;
+
+        return $this;
     }
 
     /**
@@ -60,6 +90,58 @@ class EloquentModelLdapBuilder extends Builder
     public function getEloquentQuery()
     {
         return $this->query;
+    }
+
+    /**
+     * Create a new nested query builder with the given state.
+     *
+     * @param Closure|null $closure
+     * @param string       $state
+     *
+     * @return EloquentModelLdapBuilder|Builder
+     */
+    public function newNestedInstance(Closure $closure = null, $state = 'and')
+    {
+        $query = $this->newInstance()->nested()->setNestedQueryState($state);
+
+        if ($closure) {
+            $closure($query);
+        }
+
+        // Here we will merge the constraints from the nested
+        // query instance to make sure any bindings are
+        // carried over that were applied to it.
+        $this->query->mergeConstraintsFrom(
+            $query->getEloquentQuery()
+        );
+
+        return $query;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function orFilter(Closure $closure)
+    {
+        $query = $this->newNestedInstance($closure, 'or');
+
+        return $this->rawFilter(
+            $this->grammar->compileOr($query->getQuery())
+        );
+    }
+
+    /**
+     * Set the nested query state.
+     *
+     * @param string $state
+     *
+     * @return $this
+     */
+    public function setNestedQueryState($state)
+    {
+        $this->nestedState = $state;
+
+        return $this;
     }
 
     /**
@@ -82,6 +164,52 @@ class EloquentModelLdapBuilder extends Builder
         if ($database = $this->findEloquentModelByDn($dn)) {
             return $this->transformDatabaseAttributesToLdapModel($database->toArray());
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function addFilter($type, array $bindings)
+    {
+        $relationMethod = 'whereHas';
+
+        // If the filter operator is "not has", we will flip it to
+        // a "has" filter and change the relation method so
+        // database results are retrieved properly.
+        if ($bindings['operator'] == '!*') {
+            $bindings['operator'] = '*';
+            $relationMethod = 'whereDoesntHave';
+        }
+
+        // We're doing some trickery here for compatibility with nested LDAP filters. The
+        // nested state is used to determine if the query being nested is an "and" or
+        // "or" which will give us proper results when changing the relation method.
+        if (
+            $this->nested &&
+            $this->nestedState = 'or' &&
+            $this->fieldIsUsedMultipleTimes($type, $bindings['field'])
+        ) {
+            $relationMethod = $relationMethod == 'whereDoesntHave' ? 'orWhereDoesntHave' : 'orWhereHas';
+        }
+
+        $this->query->{$relationMethod}('attributes', function ($query) use ($bindings) {
+            $this->addFilterToQuery($query, $bindings['field'], $bindings['operator'], $bindings['value']);
+        });
+
+        return parent::addFilter($type, $bindings);
+    }
+
+    /**
+     * Determine if a certain field is used multiple times in a query.
+     *
+     * @param string $type
+     * @param string $field
+     *
+     * @return bool
+     */
+    protected function fieldIsUsedMultipleTimes($type, $field)
+    {
+        return collect($this->filters[$type])->where('field', '=', $field)->isNotEmpty();
     }
 
     /**
@@ -173,7 +301,16 @@ class EloquentModelLdapBuilder extends Builder
      */
     public function rename($dn, $rdn, $newParentDn, $deleteOldRdn = true)
     {
-        //
+        $database = $this->findEloquentModelByDn($dn);
+
+        if ($database) {
+            $database->name = $rdn;
+            $database->dn = implode(',', [$rdn, $newParentDn]);
+
+            return $database->save();
+        }
+
+        return false;
     }
 
     /**
@@ -212,55 +349,37 @@ class EloquentModelLdapBuilder extends Builder
     /**
      * {@inheritdoc}
      */
+    public function paginate($pageSize = 1000, $isCritical = false)
+    {
+        return $this->get();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function run($query)
     {
         if ($this->limit > 0) {
             $this->query->limit($this->limit);
         }
 
-        $this->applyFiltersToQuery();
+        if ($this->dn) {
+            // Here we'll apply the distinguished name scope to
+            // ensure the proper results are returned when
+            // searching "inside" of LdapRecord models.
+            $this->query->where('dn', 'like', "%{$this->dn}");
+        }
 
         return $this->query->get();
-    }
-
-    /**
-     * Applies filters to the underlying Eloquent database query.
-     */
-    protected function applyFiltersToQuery()
-    {
-        $this->applyAndFiltersToQuery();
-    }
-
-    /**
-     * Applies "and" filters to the underlying Eloquent database query.
-     */
-    protected function applyAndFiltersToQuery()
-    {
-        $filters = $this->filters['and'];
-
-        if (count($filters) > 0) {
-            foreach ($this->filters['and'] as $filter) {
-                $relationMethod = 'whereHas';
-
-                if ($filter['operator'] == '!*') {
-                    $relationMethod = 'whereDoesntHave';
-                    $filter['operator'] = '*';
-                }
-
-                $this->query->{$relationMethod}('attributes', function ($query) use ($filter) {
-                    $this->addFilterToQuery($query, $filter['field'], $filter['operator'], $filter['value']);
-                });
-            }
-        }
     }
 
     /**
      * Adds an LDAP "Where" filter to the underlying Eloquent builder.
      *
      * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param $field
-     * @param $operator
-     * @param $value
+     * @param string      $field
+     * @param string      $operator
+     * @param string|null $value
      *
      * @return \Illuminate\Database\Eloquent\Builder
      */
