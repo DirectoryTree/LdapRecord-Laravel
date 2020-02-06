@@ -55,7 +55,7 @@ class EloquentModelLdapBuilder extends Builder
      */
     public function newEloquentQuery()
     {
-        return $this->newEloquentModel()->query();
+        return $this->newEloquentModel()->newQuery();
     }
 
     /**
@@ -63,7 +63,7 @@ class EloquentModelLdapBuilder extends Builder
      */
     public function newInstance($baseDn = null)
     {
-        return (new self($this->connection))
+        return (new EloquentModelLdapBuilder($this->connection))
             ->in($baseDn)
             ->setModel($this->model);
     }
@@ -128,6 +128,19 @@ class EloquentModelLdapBuilder extends Builder
         return $this->rawFilter(
             $this->grammar->compileOr($query->getQuery())
         );
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function clearFilters()
+    {
+        // When clear filters is called, we must clear the
+        // current Eloquent query instance with it to
+        // ensure no bindings are carried over.
+        $this->query = $this->newEloquentQuery();
+
+        return parent::clearFilters();
     }
 
     /**
