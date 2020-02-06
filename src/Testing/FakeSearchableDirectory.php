@@ -3,6 +3,7 @@
 namespace LdapRecord\Laravel\Testing;
 
 use LdapRecord\Testing\FakeDirectory as BaseDirectoryFake;
+use LdapRecord\Testing\FakeLdapConnection;
 
 class FakeSearchableDirectory extends BaseDirectoryFake
 {
@@ -33,7 +34,7 @@ class FakeSearchableDirectory extends BaseDirectoryFake
      */
     public static function makeConnectionFake(array $config = [])
     {
-        return new FakeSearchableConnection($config);
+        return new FakeSearchableConnection($config, new FakeLdapConnection());
     }
 
     /**
