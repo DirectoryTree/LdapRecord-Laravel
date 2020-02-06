@@ -3,7 +3,6 @@
 namespace LdapRecord\Laravel\Testing;
 
 use Closure;
-use Exception;
 use Illuminate\Support\Arr;
 use LdapRecord\Connection;
 use LdapRecord\Models\BatchModification;
@@ -119,7 +118,7 @@ class EloquentModelLdapBuilder extends Builder
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function orFilter(Closure $closure)
     {
@@ -167,7 +166,7 @@ class EloquentModelLdapBuilder extends Builder
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function addFilter($type, array $bindings)
     {
