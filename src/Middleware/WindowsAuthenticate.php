@@ -3,8 +3,8 @@
 namespace LdapRecord\Laravel\Middleware;
 
 use Closure;
-use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Contracts\Auth\Factory as Auth;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use LdapRecord\Laravel\Auth\UserProvider;
 use LdapRecord\Laravel\Events\AuthenticatedWithWindows;
@@ -107,7 +107,7 @@ class WindowsAuthenticate
             // our local database, it will be returned from the importer.
             $model = $provider->getLdapUserImporter()->run($user);
 
-            if($model->save() && $model->wasRecentlyCreated) {
+            if ($model->save() && $model->wasRecentlyCreated) {
                 event(new Imported($user, $model));
             }
         }

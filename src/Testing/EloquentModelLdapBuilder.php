@@ -63,7 +63,7 @@ class EloquentModelLdapBuilder extends Builder
      */
     public function newInstance($baseDn = null)
     {
-        return (new EloquentModelLdapBuilder($this->connection))
+        return (new self($this->connection))
             ->in($baseDn)
             ->setModel($this->model);
     }
@@ -131,7 +131,7 @@ class EloquentModelLdapBuilder extends Builder
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function clearFilters()
     {
