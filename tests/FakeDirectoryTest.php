@@ -6,6 +6,7 @@ use LdapRecord\Laravel\Testing\FakeSearchableDirectory;
 use LdapRecord\Models\ActiveDirectory\Group;
 use LdapRecord\Models\ActiveDirectory\User;
 use LdapRecord\Models\Entry;
+use Ramsey\Uuid\Uuid;
 
 class FakeDirectoryTest extends TestCase
 {
@@ -30,6 +31,19 @@ class FakeDirectoryTest extends TestCase
     {
         $dn = 'cn=John Doe,dc=local,dc=com';
         $this->assertNull(TestModelStub::find($dn));
+
+        $user = TestModelStub::create(['cn' => 'John Doe']);
+        TestModelStub::create(['cn' => 'Jane Doe']);
+        $this->assertTrue($user->is(TestModelStub::find($dn)));
+    }
+
+    public function test_find_by_guid()
+    {
+        $guid = Uuid::uuid4()->toString();
+        $this->assertNull(User::findByGuid($guid));
+
+        $user = User::create(['cn' => 'John Doe', 'objectguid' => $guid]);
+        $this->assertTrue($user->is(User::findByGuid($guid)));
     }
 
     public function test_create()

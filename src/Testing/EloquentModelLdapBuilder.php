@@ -170,11 +170,33 @@ class EloquentModelLdapBuilder extends Builder
     }
 
     /**
+     * Find the Eloquent model by guid.
+     *
+     * @param string $guid
+     *
+     * @return LdapObject|null
+     */
+    public function findEloquentModelByGuid($guid)
+    {
+        return $this->query->where('guid', '=', $guid)->first();
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function findOrFail($dn, $columns = ['*'])
     {
         if ($database = $this->findEloquentModelByDn($dn)) {
+            return $this->transformDatabaseAttributesToLdapModel($database->toArray());
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function findByGuidOrFail($guid, $columns = [])
+    {
+        if ($database = $this->findEloquentModelByGuid($guid)) {
             return $this->transformDatabaseAttributesToLdapModel($database->toArray());
         }
     }
@@ -234,10 +256,12 @@ class EloquentModelLdapBuilder extends Builder
             throw new Exception('LDAP objects must have the object classes to be created.');
         }
 
-        $model = tap($this->newEloquentModel(), function ($model) use ($dn) {
+        $model = tap($this->newEloquentModel(), function ($model) use ($dn, $attributes) {
+            $guid = Arr::pull($attributes, $this->model->getGuidKey());
+
             $model->dn = $dn;
+            $model->guid = $guid[0] ?? Uuid::uuid4()->toString();
             $model->name = $this->model->getCreatableRdn();
-            $model->guid = Uuid::uuid4()->toString();
             $model->domain = $this->model->getConnectionName();
             $model->save();
         });
@@ -377,10 +401,19 @@ class EloquentModelLdapBuilder extends Builder
         }
 
         if ($this->dn) {
-            // Here we'll apply the distinguished name scope to
-            // ensure the proper results are returned when
-            // searching "inside" of LdapRecord models.
-            $this->query->where('dn', 'like', "%{$this->dn}");
+            switch ($this->type) {
+                case 'listing':
+                    // Fallthrough.
+                case 'search':
+                    // Here we'll apply the distinguished name scope to
+                    // ensure the proper results are returned when
+                    // searching "inside" of LdapRecord models.
+                    $this->query->where('dn', 'like', "%{$this->dn}");
+                    break;
+                case 'read':
+                    $this->query->where('dn', '=', $this->dn);
+                    break;
+            }
         }
 
         return $this->query->get();
