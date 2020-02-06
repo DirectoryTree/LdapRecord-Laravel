@@ -3,7 +3,6 @@
 namespace LdapRecord\Laravel\Testing;
 
 use Closure;
-use Exception;
 use Illuminate\Support\Arr;
 use LdapRecord\Connection;
 use LdapRecord\Models\BatchModification;
