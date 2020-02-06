@@ -192,7 +192,7 @@ class EloquentModelLdapBuilder extends Builder
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function findByGuidOrFail($guid, $columns = [])
     {

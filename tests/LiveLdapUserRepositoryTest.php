@@ -2,9 +2,9 @@
 
 namespace LdapRecord\Laravel\Tests;
 
-use LdapRecord\Models\ActiveDirectory\User;
 use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Laravel\Testing\FakeSearchableDirectory;
+use LdapRecord\Models\ActiveDirectory\User;
 use Ramsey\Uuid\Uuid;
 
 class LiveLdapUserRepositoryTest extends TestCase
