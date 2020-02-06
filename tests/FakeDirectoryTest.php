@@ -2,7 +2,7 @@
 
 namespace LdapRecord\Laravel\Tests;
 
-use LdapRecord\Laravel\Testing\FakeDirectory;
+use LdapRecord\Laravel\Testing\FakeSearchableDirectory;
 use LdapRecord\Models\ActiveDirectory\Group;
 use LdapRecord\Models\ActiveDirectory\User;
 use LdapRecord\Models\Entry;
@@ -13,7 +13,7 @@ class FakeDirectoryTest extends TestCase
     {
         parent::setUp();
 
-        FakeDirectory::setup('default');
+        FakeSearchableDirectory::setup('default');
     }
 
     protected function getEnvironmentSetup($app)
@@ -168,6 +168,7 @@ class FakeDirectoryTest extends TestCase
         };
 
         $this->assertCount(0, $model::get());
+        $this->assertCount(1, TestModelStub::get());
     }
 
     public function test_where_attribute()
