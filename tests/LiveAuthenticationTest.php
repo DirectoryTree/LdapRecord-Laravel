@@ -10,8 +10,8 @@ use LdapRecord\Laravel\Events\Imported;
 use LdapRecord\Laravel\Events\Importing;
 use LdapRecord\Laravel\Events\Synchronized;
 use LdapRecord\Laravel\Events\Synchronizing;
-use LdapRecord\Models\ActiveDirectory\User;
 use LdapRecord\Laravel\Testing\FakeSearchableDirectory;
+use LdapRecord\Models\ActiveDirectory\User;
 
 class LiveAuthenticationTest extends TestCase
 {
