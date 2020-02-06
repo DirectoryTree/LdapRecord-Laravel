@@ -22,7 +22,7 @@ class FakeDirectory
 
             // Replace the connection with a fake.
             Container::addConnection(
-                new FakeLdapConnection($config->all()),
+                new FakeConnection($config->all(), new FakeLdapConnection),
                 $connection
             );
         }

@@ -2,27 +2,53 @@
 
 namespace LdapRecord\Laravel\Testing;
 
-use LdapRecord\Connection;
+use Closure;
+use LdapRecord\DetailedError;
+use LdapRecord\Ldap;
 
-class FakeLdapConnection extends Connection
+class FakeLdapConnection extends Ldap
 {
     /**
-     * Create a new Eloquent LDAP query builder.
+     * Set whether the fake bind attempt will pass.
      *
-     * @return EloquentLdapBuilder|\LdapRecord\Query\Builder
+     * @param bool $bound
      *
-     * @throws \LdapRecord\Configuration\ConfigurationException
+     * @return $this
      */
-    public function query()
+    public function setBound($bound = false)
     {
-        return (new EloquentLdapBuilder($this))->in($this->configuration->get('base_dn'));
+        $this->bound = $bound;
+
+        return $this;
     }
 
     /**
-     * {@inheritdoc}
+     * Fake a bind attempt.
+     *
+     * @return bool
      */
-    public function isConnected()
+    public function bind($username, $password)
     {
-        return true;
+        return $this->bound;
+    }
+
+    public function errNo()
+    {
+        return 0;
+    }
+
+    public function getLastError()
+    {
+        return '';
+    }
+
+    public function getDetailedError()
+    {
+        return new DetailedError($this->errNo(), $this->getLastError(), 'diag');
+    }
+
+    protected function executeFailableOperation(Closure $operation)
+    {
+        // Do nothing.
     }
 }
