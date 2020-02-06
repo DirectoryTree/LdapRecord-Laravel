@@ -3,6 +3,7 @@
 namespace LdapRecord\Laravel\Testing;
 
 use Closure;
+use Exception;
 use Illuminate\Support\Arr;
 use LdapRecord\Connection;
 use LdapRecord\Models\BatchModification;
@@ -217,7 +218,7 @@ class EloquentModelLdapBuilder extends Builder
     public function insert($dn, array $attributes)
     {
         if (Arr::get($attributes, 'objectclass') == null) {
-            throw new \Exception('LDAP objects must have the object classes to be created.');
+            throw new Exception('LDAP objects must have the object classes to be created.');
         }
 
         $model = tap($this->newEloquentModel(), function ($model) use ($dn) {

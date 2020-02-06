@@ -3,7 +3,6 @@
 namespace LdapRecord\Laravel\Testing;
 
 use LdapRecord\Connection;
-use LdapRecord\Ldap;
 use LdapRecord\Models\Model;
 
 class FakeConnection extends Connection
