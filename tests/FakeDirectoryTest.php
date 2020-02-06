@@ -288,7 +288,7 @@ class FakeDirectoryTest extends TestCase
         $this->assertCount(1, $results);
         $this->assertTrue($greater->is($results->first()));
     }
-    
+
     public function test_where_less_than()
     {
         $less = TestModelStub::create(['cn' => [0]]);

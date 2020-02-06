@@ -118,7 +118,7 @@ class EloquentModelLdapBuilder extends Builder
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function orFilter(Closure $closure)
     {
@@ -166,7 +166,7 @@ class EloquentModelLdapBuilder extends Builder
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function addFilter($type, array $bindings)
     {
