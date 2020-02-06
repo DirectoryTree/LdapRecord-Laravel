@@ -354,6 +354,16 @@ class FakeDirectoryTest extends TestCase
         $this->assertTrue($user->is($group->members()->get()->first()));
         $this->assertTrue($group->is($user->groups()->get()->first()));
     }
+
+    public function test_has_one_relationship()
+    {
+        $manager = User::create(['cn' => 'John']);
+        $user = User::create(['cn' => 'Jane']);
+
+        $this->assertSame($manager, $user->manager()->attach($manager));
+        $this->assertEquals($manager->getDn(), $user->getFirstAttribute('manager'));
+        $this->assertTrue($manager->is($user->manager()->get()->first()));
+    }
 }
 
 class TestModelStub extends Entry
