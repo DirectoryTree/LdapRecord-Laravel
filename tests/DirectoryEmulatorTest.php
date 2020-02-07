@@ -263,6 +263,16 @@ class FakeDirectoryTest extends TestCase
         $this->assertCount(1, TestModelStub::whereContains('cn', 'ohn')->get());
     }
 
+    public function test_where_not_contains()
+    {
+        TestModelStub::create(['cn' => ['John']]);
+        TestModelStub::create(['cn' => ['Jane']]);
+
+        $this->assertCount(0, TestModelStub::whereNotContains('cn', 'J')->get());
+        $this->assertCount(1, TestModelStub::whereNotContains('cn', 'Jo')->get());
+        $this->assertCount(1, TestModelStub::whereNotContains('cn', 'ohn')->get());
+    }
+
     public function test_where_starts_with()
     {
         TestModelStub::create(['cn' => ['John']]);
@@ -278,6 +288,17 @@ class FakeDirectoryTest extends TestCase
                     ->get();
 
         $this->assertCount(1, $models);
+    }
+
+    public function test_where_not_starts_with()
+    {
+        TestModelStub::create(['cn' => ['John']]);
+        TestModelStub::create(['cn' => ['Jane']]);
+        TestModelStub::create(['cn' => ['Steve']]);
+
+        $this->assertCount(1, TestModelStub::whereNotStartsWith('cn', 'J')->get());
+        $this->assertCount(2, TestModelStub::whereNotStartsWith('cn', 'St')->get());
+        $this->assertCount(3, TestModelStub::whereNotStartsWith('cn', 'teve')->get());
     }
 
     public function test_where_ends_with()
@@ -297,6 +318,17 @@ class FakeDirectoryTest extends TestCase
         $this->assertCount(1, $models);
     }
 
+    public function test_where_not_ends_with()
+    {
+        TestModelStub::create(['cn' => ['John']]);
+        TestModelStub::create(['cn' => ['Jen']]);
+        TestModelStub::create(['cn' => ['Steve']]);
+
+        $this->assertCount(1, TestModelStub::whereNotEndsWith('cn', 'n')->get());
+        $this->assertCount(2, TestModelStub::whereNotEndsWith('cn', 'hn')->get());
+        $this->assertCount(3, TestModelStub::whereNotEndsWith('cn', 'oh')->get());
+    }
+
     public function test_where_in()
     {
         TestModelStub::create(['cn' => ['John']]);
@@ -308,7 +340,11 @@ class FakeDirectoryTest extends TestCase
         $this->assertCount(0, TestModelStub::whereIn('cn', ['Invalid'])->get());
 
         // Test query stacking.
-        $stacked = TestModelStub::whereIn('cn', ['John', 'Jane'])->whereStartsWith('cn', 'Jo')->get();
+        $stacked = TestModelStub::query()
+            ->whereIn('cn', ['John', 'Jane'])
+            ->whereStartsWith('cn', 'Jo')
+            ->get();
+
         $this->assertCount(1, $stacked);
     }
 
@@ -429,6 +465,16 @@ class FakeDirectoryTest extends TestCase
     }
 
     public function test_has_one_relationship()
+    {
+        $manager = User::create(['cn' => 'John']);
+        $user = User::create(['cn' => 'Jane']);
+
+        $this->assertSame($manager, $user->manager()->attach($manager));
+        $this->assertEquals($manager->getDn(), $user->getFirstAttribute('manager'));
+        $this->assertTrue($manager->is($user->manager()->get()->first()));
+    }
+
+    public function test_has_many_in_relationship()
     {
         $manager = User::create(['cn' => 'John']);
         $user = User::create(['cn' => 'Jane']);
