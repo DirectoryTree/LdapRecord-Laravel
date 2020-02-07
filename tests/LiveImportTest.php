@@ -3,8 +3,8 @@
 namespace LdapRecord\Laravel\Tests;
 
 use Illuminate\Foundation\Testing\WithFaker;
-use LdapRecord\Models\ActiveDirectory\User;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
+use LdapRecord\Models\ActiveDirectory\User;
 
 class LiveImportTest extends DatabaseTestCase
 {
@@ -18,7 +18,7 @@ class LiveImportTest extends DatabaseTestCase
 
         $users = collect();
 
-        foreach(range(1, 10) as $iteration) {
+        foreach (range(1, 10) as $iteration) {
             $users->add(User::create([
                 'cn' => $this->faker->name,
                 'mail' => $this->faker->email,
