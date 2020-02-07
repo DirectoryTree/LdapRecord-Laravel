@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use LdapRecord\Laravel\Auth\HasLdapUser;
 use LdapRecord\Laravel\Auth\LdapAuthenticatable;
 
-class BindsLdapUserModel
+class BindLdapUserModel
 {
     /**
      * Binds the LDAP user record to their model.

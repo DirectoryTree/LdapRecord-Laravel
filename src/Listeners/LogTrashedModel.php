@@ -16,6 +16,6 @@ class LogTrashedModel
      */
     public function handle(AuthenticatedModelTrashed $event)
     {
-        Log::info("User '{$event->user->getName()}' was denied authentication because their model has been soft-deleted.");
+        Log::info("User [{$event->user->getName()}] was denied authentication because their model is soft-deleted.");
     }
 }

@@ -2,6 +2,7 @@
 
 namespace LdapRecord\Laravel\Auth;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use LdapRecord\Models\Model;
 
@@ -15,18 +16,20 @@ trait MultiDomainAuthentication
     protected function getLdapGuard()
     {
         return Auth::guard(
-            Auth::check() ? $this->getLdapGuardFromUser() : $this->getLdapGuardFromRequest()
+            Auth::check() ? $this->getLdapGuardFromUser() : $this->getLdapGuardFromRequest(request())
         );
     }
 
     /**
      * Get the LDAP domain from the request.
      *
+     * @param Request $request
+     *
      * @return string|null
      */
-    protected function getLdapGuardFromRequest()
+    protected function getLdapGuardFromRequest(Request $request)
     {
-        return request('domain', config('ldap.default'));
+        return $request->get('domain', config('ldap.default'));
     }
 
     /**

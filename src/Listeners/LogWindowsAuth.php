@@ -16,6 +16,6 @@ class LogWindowsAuth
      */
     public function handle(AuthenticatedWithWindows $event)
     {
-        Log::info("User '{$event->user->getName()}' has successfully authenticated via NTLM.");
+        Log::info("User [{$event->user->getName()}] has successfully authenticated via NTLM.");
     }
 }

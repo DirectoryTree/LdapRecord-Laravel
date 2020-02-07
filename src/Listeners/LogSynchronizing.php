@@ -16,6 +16,6 @@ class LogSynchronizing
      */
     public function handle(Synchronizing $event)
     {
-        Log::info("User '{$event->user->getName()}' is being synchronized.");
+        Log::info("User [{$event->user->getName()}] is being synchronized.");
     }
 }

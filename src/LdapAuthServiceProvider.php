@@ -11,7 +11,7 @@ use Illuminate\Support\ServiceProvider;
 use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use LdapRecord\Laravel\Auth\NoDatabaseUserProvider;
 use LdapRecord\Laravel\Commands\ImportLdapUsers;
-use LdapRecord\Laravel\Listeners\BindsLdapUserModel;
+use LdapRecord\Laravel\Listeners\BindLdapUserModel;
 
 class LdapAuthServiceProvider extends ServiceProvider
 {
@@ -21,7 +21,8 @@ class LdapAuthServiceProvider extends ServiceProvider
      * @var array
      */
     protected $events = [
-        Events\Importing::class                 => Listeners\LogImport::class,
+        Events\Importing::class                 => Listeners\LogImporting::class,
+        Events\Imported::class                  => Listeners\LogImporting::class,
         Events\Synchronized::class              => Listeners\LogSynchronized::class,
         Events\Synchronizing::class             => Listeners\LogSynchronizing::class,
         Events\Authenticated::class             => Listeners\LogAuthenticated::class,
@@ -60,7 +61,7 @@ class LdapAuthServiceProvider extends ServiceProvider
         // model to their Eloquent model upon authentication (if configured).
         // This allows us to utilize their LDAP model right
         // after authentication has passed.
-        Event::listen([Login::class, Authenticated::class], BindsLdapUserModel::class);
+        Event::listen([Login::class, Authenticated::class], BindLdapUserModel::class);
 
         if (config('ldap.logging', true)) {
             // If logging is enabled, we will set up our event listeners that

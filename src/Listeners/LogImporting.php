@@ -5,7 +5,7 @@ namespace LdapRecord\Laravel\Listeners;
 use Illuminate\Support\Facades\Log;
 use LdapRecord\Laravel\Events\Importing;
 
-class LogImport
+class LogImporting
 {
     /**
      * Handle the event.
@@ -16,6 +16,6 @@ class LogImport
      */
     public function handle(Importing $event)
     {
-        Log::info("User '{$event->user->getName()}' is being imported.");
+        Log::info("User [{$event->user->getName()}] is being imported.");
     }
 }

@@ -10,7 +10,7 @@ class LiveImportTest extends DatabaseTestCase
 {
     use WithFaker;
 
-    public function test_importing_users()
+    public function test()
     {
         $this->setupDatabaseUserProvider();
 
