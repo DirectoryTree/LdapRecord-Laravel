@@ -2,10 +2,10 @@
 
 namespace LdapRecord\Laravel\Testing;
 
-use LdapRecord\Testing\FakeDirectory as BaseDirectoryFake;
-use LdapRecord\Testing\FakeLdapConnection;
+use LdapRecord\Testing\LdapFake;
+use LdapRecord\Testing\DirectoryFake;
 
-class DirectoryEmulator extends BaseDirectoryFake
+class DirectoryEmulator extends DirectoryFake
 {
     /**
      * Setup the fake connections.
@@ -34,7 +34,7 @@ class DirectoryEmulator extends BaseDirectoryFake
      */
     public static function makeConnectionFake(array $config = [])
     {
-        return new EmulatedQueryConnection($config, new FakeLdapConnection());
+        return new EmulatedQueryConnection($config, new LdapFake());
     }
 
     /**

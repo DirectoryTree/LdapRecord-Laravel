@@ -2,9 +2,9 @@
 
 namespace LdapRecord\Laravel\Testing;
 
-use LdapRecord\Testing\FakeConnection as BaseFakeConnection;
+use LdapRecord\Testing\ConnectionFake;
 
-class EmulatedQueryConnection extends BaseFakeConnection
+class EmulatedQueryConnection extends ConnectionFake
 {
     /**
      * Create a new Eloquent LDAP query builder.
