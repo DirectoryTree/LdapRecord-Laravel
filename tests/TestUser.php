@@ -11,5 +11,7 @@ class TestUser extends User implements LdapAuthenticatable
 {
     use SoftDeletes, AuthenticatesWithLdap;
 
+    protected $guarded = [];
+
     protected $table = 'users';
 }

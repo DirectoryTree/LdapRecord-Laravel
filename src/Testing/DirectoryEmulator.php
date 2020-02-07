@@ -5,14 +5,14 @@ namespace LdapRecord\Laravel\Testing;
 use LdapRecord\Testing\FakeDirectory as BaseDirectoryFake;
 use LdapRecord\Testing\FakeLdapConnection;
 
-class FakeSearchableDirectory extends BaseDirectoryFake
+class DirectoryEmulator extends BaseDirectoryFake
 {
     /**
      * Setup the fake connections.
      *
      * @param string|null $name
      *
-     * @return FakeSearchableConnection
+     * @return EmulatedQueryConnection
      *
      * @throws \LdapRecord\ContainerException
      */
@@ -30,11 +30,11 @@ class FakeSearchableDirectory extends BaseDirectoryFake
      *
      * @param array $config
      *
-     * @return FakeSearchableConnection
+     * @return EmulatedQueryConnection
      */
     public static function makeConnectionFake(array $config = [])
     {
-        return new FakeSearchableConnection($config, new FakeLdapConnection());
+        return new EmulatedQueryConnection($config, new FakeLdapConnection());
     }
 
     /**

@@ -3,7 +3,7 @@
 namespace LdapRecord\Laravel\Tests;
 
 use LdapRecord\Laravel\LdapUserRepository;
-use LdapRecord\Laravel\Testing\FakeSearchableDirectory;
+use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Models\ActiveDirectory\User;
 use Ramsey\Uuid\Uuid;
 
@@ -11,7 +11,7 @@ class LiveLdapUserRepositoryTest extends TestCase
 {
     public function test_find_by()
     {
-        FakeSearchableDirectory::setup();
+        DirectoryEmulator::setup();
 
         $users = collect([
             User::create(['cn' => 'John']),
@@ -20,19 +20,46 @@ class LiveLdapUserRepositoryTest extends TestCase
         ]);
 
         $repo = new LdapUserRepository(User::class);
+        $this->assertNull($repo->findBy('cn', 'Other'));
         $this->assertTrue($users->get(1)->is($repo->findBy('cn', 'Jane')));
     }
 
     public function test_find_by_guid()
     {
-        FakeSearchableDirectory::setup();
+        DirectoryEmulator::setup();
 
-        $user = User::create([
-            'cn' => 'John',
-            'objectguid' => Uuid::uuid4(),
-        ]);
+        $user = User::create(['cn' => 'John', 'objectguid' => Uuid::uuid4()]);
 
         $repo = new LdapUserRepository(User::class);
+        $this->assertNull($repo->findByGuid(Uuid::uuid4()));
         $this->assertTrue($user->is($repo->findByGuid($user->getConvertedGuid())));
+    }
+
+    public function test_find_by_model()
+    {
+        DirectoryEmulator::setup();
+
+        $guid = Uuid::uuid4()->toString();
+
+        $user = User::create(['cn' => 'John', 'objectguid' => $guid]);
+
+        $model = new TestUser(['guid' => $guid]);
+
+        $repo = new LdapUserRepository(User::class);
+        $this->assertNull($repo->findByModel(new TestUser(['guid' => Uuid::uuid4()])));
+        $this->assertTrue($user->is($repo->findByModel($model)));
+    }
+
+    public function test_find_by_credentials()
+    {
+        DirectoryEmulator::setup();
+
+        $user = User::create(['cn' => 'John', 'mail' => 'jdoe@email.com']);
+
+        $repo = new LdapUserRepository(User::class);
+        $this->assertNull($repo->findByCredentials(['mail' => 'invalid@email.com']));
+        $this->assertTrue($user->is($repo->findByCredentials(
+            ['mail' => $user->mail[0]]
+        )));
     }
 }

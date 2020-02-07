@@ -10,7 +10,7 @@ use LdapRecord\Models\BatchModification;
 use LdapRecord\Query\Model\Builder;
 use Ramsey\Uuid\Uuid;
 
-class EloquentModelLdapBuilder extends Builder
+class EmulatedModelBuilder extends Builder
 {
     /**
      * The underlying database query.
@@ -98,7 +98,7 @@ class EloquentModelLdapBuilder extends Builder
      * @param Closure|null $closure
      * @param string       $state
      *
-     * @return EloquentModelLdapBuilder|Builder
+     * @return EmulatedModelBuilder|Builder
      */
     public function newNestedInstance(Closure $closure = null, $state = 'and')
     {
@@ -206,14 +206,41 @@ class EloquentModelLdapBuilder extends Builder
      */
     public function addFilter($type, array $bindings)
     {
-        $relationMethod = 'whereHas';
+        $relationMethod = $this->determineRelationMethod($type, $bindings);
 
-        // If the filter operator is "not has", we will flip it to
+        // If the relation method is "not has", we will flip it to
         // a "has" filter and change the relation method so
         // database results are retrieved properly.
-        if ($bindings['operator'] == '!*') {
+        if (in_array($relationMethod, ['whereDoesntHave', 'orWhereDoesntHave'])) {
             $bindings['operator'] = '*';
-            $relationMethod = 'whereDoesntHave';
+        }
+
+        $this->query->{$relationMethod}('attributes', function ($query) use ($type, $bindings) {
+            $this->addFilterToDatabaseQuery(
+                $query,
+                $bindings['field'],
+                $bindings['operator'],
+                $bindings['value']
+            );
+        });
+
+        return parent::addFilter($type, $bindings);
+    }
+
+    /**
+     * Determine the relationship method to use for the given bindings.
+     *
+     * @param string $type
+     * @param array  $bindings
+     *
+     * @return string
+     */
+    protected function determineRelationMethod($type, array $bindings)
+    {
+        $method = $bindings['operator'] == '!*' ? 'whereDoesntHave' : 'whereHas';
+
+        if ($type == 'or') {
+            $method = 'orWhereHas';
         }
 
         // We're doing some trickery here for compatibility with nested LDAP filters. The
@@ -224,14 +251,89 @@ class EloquentModelLdapBuilder extends Builder
             $this->nestedState = 'or' &&
             $this->fieldIsUsedMultipleTimes($type, $bindings['field'])
         ) {
-            $relationMethod = $relationMethod == 'whereDoesntHave' ? 'orWhereDoesntHave' : 'orWhereHas';
+            $method = $method == 'whereDoesntHave' ?
+                'orWhereDoesntHave' :
+                'orWhereHas';
         }
 
-        $this->query->{$relationMethod}('attributes', function ($query) use ($bindings) {
-            $this->addFilterToQuery($query, $bindings['field'], $bindings['operator'], $bindings['value']);
-        });
+        return $method;
+    }
 
-        return parent::addFilter($type, $bindings);
+    /**
+     * Adds an LDAP "Where" filter to the underlying Eloquent builder.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param string                                $field
+     * @param string                                $operator
+     * @param string|null                           $value
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    protected function addFilterToDatabaseQuery($query, $field, $operator, $value)
+    {
+        switch ($operator) {
+            case '*':
+                return $query->where('name', '=', $field);
+            case '!*':
+                return $query->where('name', '!=', $field);
+            case '=':
+                return $query->where('name', $operator, $field)
+                    ->whereHas('values', function ($q) use ($operator, $value) {
+                        $q->where('value', $operator, $value);
+                    });
+            case '!':
+                // Fallthrough.
+            case '!=':
+                return $query->where('name', '=', $field)
+                    ->whereHas('values', function ($q) use ($operator, $value) {
+                        $q->where('value', '!=', $value);
+                    });
+            case'>=':
+                return $query->where('name', '=', $field)
+                    ->whereHas('values', function ($q) use ($operator, $value) {
+                        $q->where('value', '>=', $value);
+                    });
+            case'<=':
+                return $query->where('name', '=', $field)
+                    ->whereHas('values', function ($q) use ($operator, $value) {
+                        $q->where('value', '<=', $value);
+                    });
+            case'~=':
+                return $query->where('name', '=', $field)
+                    ->whereHas('values', function ($q) use ($operator, $value) {
+                        $q->where('value', 'like', "%$value%");
+                    });
+            case'starts_with':
+                return $query->where('name', '=', $field)
+                    ->whereHas('values', function ($q) use ($operator, $value) {
+                        $q->where('value', 'like', "$value%");
+                    });
+            case'not_starts_with':
+                return $query->where('name', '=', $field)
+                    ->whereHas('values', function ($q) use ($operator, $value) {
+                        $q->where('value', 'not like', "$value%");
+                    });
+            case'ends_with':
+                return $query->where('name', '=', $field)
+                    ->whereHas('values', function ($q) use ($operator, $value) {
+                        $q->where('value', 'like', "%$value");
+                    });
+            case'not_ends_with':
+                return $query->where('name', '=', $field)
+                    ->whereHas('values', function ($q) use ($operator, $value) {
+                        $q->where('value', 'not like', "%$value");
+                    });
+            case'contains':
+                return $query->where('name', '=', $field)
+                    ->whereHas('values', function ($q) use ($operator, $value) {
+                        $q->where('value', 'like', "%$value%");
+                    });
+            case'not_contains':
+                return $query->where('name', '=', $field)
+                    ->whereHas('values', function ($q) use ($operator, $value) {
+                        $q->where('value', 'not like', "%$value%");
+                    });
+        }
     }
 
     /**
@@ -260,6 +362,7 @@ class EloquentModelLdapBuilder extends Builder
             $guid = Arr::pull($attributes, $this->model->getGuidKey());
 
             $model->dn = $dn;
+            $model->parent_dn = $this->model->getParentDn($dn);
             $model->guid = $guid[0] ?? Uuid::uuid4()->toString();
             $model->name = $this->model->getCreatableRdn();
             $model->domain = $this->model->getConnectionName();
@@ -275,6 +378,14 @@ class EloquentModelLdapBuilder extends Builder
         }
 
         return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function insertAttributes($dn, array $attributes)
+    {
+        return $this->updateAttributes($dn, $attributes);
     }
 
     /**
@@ -297,6 +408,22 @@ class EloquentModelLdapBuilder extends Builder
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public function updateAttributes($dn, array $attributes)
+    {
+        if ($model = $this->find($dn)) {
+            foreach ($attributes as $name => $values) {
+                $model->{$name} = $values;
+            }
+
+            return $model->save();
+        }
+
+        return false;
+    }
+
+    /**
      * Applies the batch modification to the given model.
      *
      * @param \Illuminate\Database\Eloquent\Model $model
@@ -314,7 +441,6 @@ class EloquentModelLdapBuilder extends Builder
 
         if ($type == LDAP_MODIFY_BATCH_REMOVE_ALL) {
             $attribute->delete();
-
             return;
         } elseif ($type == LDAP_MODIFY_BATCH_REMOVE) {
             $attribute->values()->whereIn('value', $values)->delete();
@@ -400,100 +526,22 @@ class EloquentModelLdapBuilder extends Builder
             $this->query->limit($this->limit);
         }
 
-        if ($this->dn) {
-            switch ($this->type) {
-                case 'listing':
-                    // Fallthrough.
-                case 'search':
-                    // Here we'll apply the distinguished name scope to
-                    // ensure the proper results are returned when
-                    // searching "inside" of LdapRecord models.
-                    $this->query->where('dn', 'like', "%{$this->dn}");
-                    break;
-                case 'read':
-                    $this->query->where('dn', '=', $this->dn);
-                    break;
-            }
+        switch ($this->type) {
+            case 'read':
+                // Emulate performing a single "read" operation.
+                $this->query->where('dn', '=', $this->dn);
+                break;
+            case 'listing':
+                // Emulate performing a directory "listing" operation.
+                $this->query->where('parent_dn', '=', $this->dn);
+                break;
+            case 'search':
+                // Emulate performing a global directory "search" operation.
+                $this->query->where('dn', 'like', "%{$this->dn}");
+                break;
         }
 
         return $this->query->get();
-    }
-
-    /**
-     * Adds an LDAP "Where" filter to the underlying Eloquent builder.
-     *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param string      $field
-     * @param string      $operator
-     * @param string|null $value
-     *
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    protected function addFilterToQuery($query, $field, $operator, $value)
-    {
-        switch ($operator) {
-            case '*':
-                return $query->where('name', '=', $field);
-            case '!*':
-                return $query->where('name', '!=', $field);
-            case '=':
-                return $query->where('name', $operator, $field)
-                        ->whereHas('values', function ($q) use ($operator, $value) {
-                            $q->where('value', $operator, $value);
-                        });
-            case '!':
-                // Fallthrough.
-            case '!=':
-                return $query->where('name', '=', $field)
-                        ->whereHas('values', function ($q) use ($operator, $value) {
-                            $q->where('value', '!=', $value);
-                        });
-            case'>=':
-                return $query->where('name', '=', $field)
-                    ->whereHas('values', function ($q) use ($operator, $value) {
-                        $q->where('value', '>=', $value);
-                    });
-            case'<=':
-                return $query->where('name', '=', $field)
-                    ->whereHas('values', function ($q) use ($operator, $value) {
-                        $q->where('value', '<=', $value);
-                    });
-            case'~=':
-                return $query->where('name', '=', $field)
-                    ->whereHas('values', function ($q) use ($operator, $value) {
-                        $q->where('value', 'like', "%$value%");
-                    });
-            case'starts_with':
-                return $query->where('name', '=', $field)
-                    ->whereHas('values', function ($q) use ($operator, $value) {
-                        $q->where('value', 'like', "$value%");
-                    });
-            case'not_starts_with':
-                return $query->where('name', '=', $field)
-                    ->whereHas('values', function ($q) use ($operator, $value) {
-                        $q->where('value', 'not like', "$value%");
-                    });
-            case'ends_with':
-                return $query->where('name', '=', $field)
-                    ->whereHas('values', function ($q) use ($operator, $value) {
-                        $q->where('value', 'like', "%$value");
-                    });
-            case'not_ends_with':
-                return $query->where('name', '=', $field)
-                    ->whereHas('values', function ($q) use ($operator, $value) {
-                        $q->where('value', 'not like', "%$value");
-                    });
-            case'contains':
-                return $query->where('name', '=', $field)
-                    ->whereHas('values', function ($q) use ($operator, $value) {
-                        $q->where('value', 'like', "%$value%");
-                    });
-            case'not_contains':
-                return $query->where('name', '=', $field)
-                    ->whereHas('values', function ($q) use ($operator, $value) {
-                        $q->where('value', 'not like', "%$value%");
-                    });
-        }
     }
 
     /**
@@ -523,6 +571,8 @@ class EloquentModelLdapBuilder extends Builder
      */
     protected function transformDatabaseAttributesToLdapModel(array $attributes)
     {
+        unset($attributes['parent_dn']);
+
         $dn = Arr::pull($attributes, 'dn');
 
         $transformedAttributes = collect(Arr::pull($attributes, 'attributes'))->mapWithKeys(function ($attribute) {

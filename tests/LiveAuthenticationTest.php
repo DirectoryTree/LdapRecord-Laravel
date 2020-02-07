@@ -10,7 +10,7 @@ use LdapRecord\Laravel\Events\Imported;
 use LdapRecord\Laravel\Events\Importing;
 use LdapRecord\Laravel\Events\Synchronized;
 use LdapRecord\Laravel\Events\Synchronizing;
-use LdapRecord\Laravel\Testing\FakeSearchableDirectory;
+use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Models\ActiveDirectory\User;
 
 class LiveAuthenticationTest extends TestCase
@@ -27,7 +27,7 @@ class LiveAuthenticationTest extends TestCase
             DiscoveredWithCredentials::class,
         ]);
 
-        $fake = FakeSearchableDirectory::setup();
+        $fake = DirectoryEmulator::setup();
 
         $this->setupDatabaseUserProvider();
 
@@ -57,7 +57,7 @@ class LiveAuthenticationTest extends TestCase
             Imported::class,
         ]);
 
-        FakeSearchableDirectory::setup();
+        DirectoryEmulator::setup();
 
         $this->setupDatabaseUserProvider();
 
@@ -79,7 +79,7 @@ class LiveAuthenticationTest extends TestCase
             Synchronized::class,
         ]);
 
-        $fake = FakeSearchableDirectory::setup();
+        $fake = DirectoryEmulator::setup();
 
         $this->setupPlainUserProvider();
 
@@ -110,7 +110,7 @@ class LiveAuthenticationTest extends TestCase
             Synchronized::class,
         ]);
 
-        FakeSearchableDirectory::setup();
+        DirectoryEmulator::setup();
 
         $this->setupPlainUserProvider();
 

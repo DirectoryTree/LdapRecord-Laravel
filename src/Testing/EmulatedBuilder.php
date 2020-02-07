@@ -5,7 +5,7 @@ namespace LdapRecord\Laravel\Testing;
 use LdapRecord\Models\Model;
 use LdapRecord\Query\Builder;
 
-class EloquentLdapBuilder extends Builder
+class EmulatedBuilder extends Builder
 {
     /**
      * {@inheritdoc}
@@ -20,11 +20,11 @@ class EloquentLdapBuilder extends Builder
      *
      * @param Model $model
      *
-     * @return EloquentModelLdapBuilder|\LdapRecord\Query\Model\Builder
+     * @return EmulatedModelBuilder|\LdapRecord\Query\Model\Builder
      */
     public function model(Model $model)
     {
-        return (new EloquentModelLdapBuilder($this->connection))
+        return (new EmulatedModelBuilder($this->connection))
             ->setModel($model)
             ->in($this->dn);
     }

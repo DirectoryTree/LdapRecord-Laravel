@@ -2,7 +2,7 @@
 
 namespace LdapRecord\Laravel\Tests;
 
-use LdapRecord\Laravel\Testing\FakeSearchableDirectory;
+use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Models\ActiveDirectory\Group;
 use LdapRecord\Models\ActiveDirectory\User;
 use LdapRecord\Models\Entry;
@@ -14,7 +14,7 @@ class FakeDirectoryTest extends TestCase
     {
         parent::setUp();
 
-        FakeSearchableDirectory::setup('default');
+        DirectoryEmulator::setup('default');
     }
 
     protected function getEnvironmentSetup($app)
@@ -61,6 +61,15 @@ class FakeDirectoryTest extends TestCase
         $this->assertEquals($dn, $model->getDn());
         $this->assertTrue($model->exists);
         $this->assertNull(TestModelStub::find('cn=John Doe'));
+    }
+
+    public function test_create_attributes()
+    {
+        $model = TestModelStub::create(['cn' => 'John']);
+        $this->assertNull($model->sn);
+
+        $model->insertAttributes($model->getDn(), ['sn' => 'Doe']);
+        $this->assertEquals('Doe', $model->fresh()->sn[0]);
     }
 
     public function test_rename()
@@ -146,6 +155,15 @@ class FakeDirectoryTest extends TestCase
 
         $model = TestModelStub::find($model->getDn());
         $this->assertNull($model->foo);
+    }
+
+    public function test_updating_attributes()
+    {
+        $model = TestModelStub::create(['cn' => 'John', 'sn' => 'Doe']);
+        $this->assertEquals('Doe', $model->sn[0]);
+
+        $model->updateAttributes($model->getDn(), ['sn' => []]);
+        $this->assertNull($model->fresh()->sn);
     }
 
     public function test_fresh()
@@ -294,6 +312,34 @@ class FakeDirectoryTest extends TestCase
         $this->assertCount(1, $stacked);
     }
 
+    public function test_or_where()
+    {
+        TestModelStub::create(['cn' => ['John']]);
+        TestModelStub::create(['cn' => ['Jane']]);
+        TestModelStub::create(['cn' => ['Jen']]);
+
+        $results = TestModelStub::query()
+            ->whereEquals('cn', 'John')
+            ->orWhereEquals('cn', 'Jane')
+            ->get();
+
+        $this->assertCount(2, $results);
+    }
+
+    public function test_or_where_has()
+    {
+        TestModelStub::create(['cn' => ['John']]);
+        TestModelStub::create(['sn' => ['Jane']]);
+        TestModelStub::create(['name' => ['Jen']]);
+
+        $results = TestModelStub::query()
+            ->whereHas('cn')
+            ->orWhereHas('sn')
+            ->get();
+
+        $this->assertCount(2, $results);
+    }
+
     public function test_where_greater_than()
     {
         TestModelStub::create(['cn' => [0]]);
@@ -334,7 +380,7 @@ class FakeDirectoryTest extends TestCase
 
     public function test_querying_in()
     {
-        TestModelStub::create(['cn ' => 'John']);
+        TestModelStub::create(['cn' => 'John']);
         $model = tap(new TestModelStub(['cn' => 'Jane']), function ($model) {
             $model->inside('ou=Users,dc=local,dc=com')->save();
         });
@@ -348,6 +394,18 @@ class FakeDirectoryTest extends TestCase
             $model->inside('ou=Parent,ou=Users,dc=local,dc=com')->save();
         });
         $this->assertCount(2, TestModelStub::in('ou=Users,dc=local,dc=com')->get());
+    }
+
+    public function test_listing()
+    {
+        TestModelStub::create(['cn' => 'John']);
+        (new TestModelStub(['cn' => 'Jane']))->inside('ou=Users,dc=local,dc=com')->save();
+        (new TestModelStub(['cn' => 'Jen']))->inside('ou=Managers,dc=local,dc=com')->save();
+        (new TestModelStub(['cn' => 'Jen']))->inside('ou=Accounts,ou=Users,dc=local,dc=com')->save();
+
+        $this->assertCount(2, TestModelStub::in('ou=Users,dc=local,dc=com')->get());
+        $this->assertCount(1, TestModelStub::listing()->in('ou=Users,dc=local,dc=com')->get());
+        $this->assertCount(4, TestModelStub::in('dc=local,dc=com')->get());
     }
 
     public function test_paginate()

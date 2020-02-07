@@ -60,6 +60,7 @@ class EloquentFactory
             $table->string('guid')->unique()->index();
             $table->string('name');
             $table->string('dn');
+            $table->string('parent_dn')->nullable();
         });
 
         Schema::create('ldap_object_attributes', function (Blueprint $table) {
