@@ -385,7 +385,13 @@ class EmulatedModelBuilder extends Builder
      */
     public function insertAttributes($dn, array $attributes)
     {
-        return $this->updateAttributes($dn, $attributes);
+        if ($model = $this->find($dn)) {
+            foreach ($attributes as $name => $values) {
+                $model->{$name} = array_merge($model->{$name} ?? [], Arr::wrap($values));
+            }
+
+            return $model->save();
+        }
     }
 
     /**
@@ -492,10 +498,12 @@ class EmulatedModelBuilder extends Builder
      */
     public function deleteAttributes($dn, array $attributes)
     {
-        if ($database = $this->findEloquentModelByDn($dn)) {
-            $database->attributes()->whereIn('name', $attributes)->delete();
+        if ($model = $this->find($dn)) {
+            foreach ($attributes as $attribute) {
+                $model->{$attribute} = null;
+            }
 
-            return true;
+            return $model->save();
         }
 
         return false;
@@ -525,6 +533,11 @@ class EmulatedModelBuilder extends Builder
     {
         if ($this->limit > 0) {
             $this->query->limit($this->limit);
+        }
+
+        // Apply domain scoping to the query.
+        if ($domain = $this->model->getConnectionName()) {
+            $this->query->where('domain', '=', $domain);
         }
 
         switch ($this->type) {

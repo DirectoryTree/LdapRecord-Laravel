@@ -2,13 +2,15 @@
 
 namespace LdapRecord\Laravel\Tests;
 
+use LdapRecord\Connection;
+use LdapRecord\Container;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Models\ActiveDirectory\Group;
 use LdapRecord\Models\ActiveDirectory\User;
 use LdapRecord\Models\Entry;
 use Ramsey\Uuid\Uuid;
 
-class FakeDirectoryTest extends TestCase
+class DirectoryEmulatorTest extends TestCase
 {
     protected function setUp(): void
     {
@@ -476,12 +478,37 @@ class FakeDirectoryTest extends TestCase
 
     public function test_has_many_in_relationship()
     {
-        $manager = User::create(['cn' => 'John']);
-        $user = User::create(['cn' => 'Jane']);
+        $member = TestHasManyInStub::create(['cn' => 'John']);
+        $user = TestHasManyInStub::create(['cn' => 'Jane', 'members' => $member]);
+        $this->assertTrue($member->is($user->members()->get()->first()));
+    }
 
-        $this->assertSame($manager, $user->manager()->attach($manager));
-        $this->assertEquals($manager->getDn(), $user->getFirstAttribute('manager'));
-        $this->assertTrue($manager->is($user->manager()->get()->first()));
+    public function test_domain_scoping()
+    {
+        Container::addConnection(new Connection(), 'alpha');
+        Container::addConnection(new Connection(), 'bravo');
+
+        DirectoryEmulator::setup('alpha');
+        DirectoryEmulator::setup('bravo');
+
+        $alpha = new class extends Entry {
+            protected $connection = 'alpha';
+            public static $objectClasses = ['one', 'two'];
+        };
+
+        $bravo = new class extends Entry {
+            protected $connection = 'bravo';
+            public static $objectClasses = ['one', 'two'];
+        };
+
+        $alphaUser = $alpha::create(['cn' => 'John']);
+        $bravoUser = $bravo::create(['cn' => 'Jane']);
+
+        $this->assertTrue($alphaUser->is($alpha->first()));
+        $this->assertTrue($bravoUser->is($bravo->first()));
+
+        $this->assertFalse($alphaUser->is($bravo->first()));
+        $this->assertFalse($bravoUser->is($alpha->first()));
     }
 }
 
@@ -489,3 +516,12 @@ class TestModelStub extends Entry
 {
     public static $objectClasses = ['one', 'two'];
 }
+
+class TestHasManyInStub extends TestModelStub
+{
+    public function members()
+    {
+        return $this->hasManyIn(TestModelStub::class, 'members');
+    }
+}
+
