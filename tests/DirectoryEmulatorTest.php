@@ -524,4 +524,3 @@ class TestHasManyInStub extends TestModelStub
         return $this->hasManyIn(TestModelStub::class, 'members');
     }
 }
-

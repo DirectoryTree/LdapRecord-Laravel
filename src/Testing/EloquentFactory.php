@@ -53,7 +53,7 @@ class EloquentFactory
      */
     public static function migrate()
     {
-        if (!Schema::hasTable('ldap_objects')) {
+        if (! Schema::hasTable('ldap_objects')) {
             Schema::create('ldap_objects', function (Blueprint $table) {
                 $table->bigIncrements('id');
                 $table->timestamps();
@@ -65,7 +65,7 @@ class EloquentFactory
             });
         }
 
-        if (!Schema::hasTable('ldap_object_attributes')) {
+        if (! Schema::hasTable('ldap_object_attributes')) {
             Schema::create('ldap_object_attributes', function (Blueprint $table) {
                 $table->bigIncrements('id');
                 $table->unsignedBigInteger('ldap_object_id');
@@ -73,7 +73,7 @@ class EloquentFactory
             });
         }
 
-        if (!Schema::hasTable('ldap_object_attribute_values')) {
+        if (! Schema::hasTable('ldap_object_attribute_values')) {
             Schema::create('ldap_object_attribute_values', function (Blueprint $table) {
                 $table->bigIncrements('id');
                 $table->unsignedBigInteger('ldap_object_attribute_id');
