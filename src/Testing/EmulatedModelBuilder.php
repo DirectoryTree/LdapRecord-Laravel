@@ -381,7 +381,7 @@ class EmulatedModelBuilder extends Builder
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function insertAttributes($dn, array $attributes)
     {
@@ -408,7 +408,7 @@ class EmulatedModelBuilder extends Builder
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function updateAttributes($dn, array $attributes)
     {
@@ -441,6 +441,7 @@ class EmulatedModelBuilder extends Builder
 
         if ($type == LDAP_MODIFY_BATCH_REMOVE_ALL) {
             $attribute->delete();
+
             return;
         } elseif ($type == LDAP_MODIFY_BATCH_REMOVE) {
             $attribute->values()->whereIn('value', $values)->delete();
