@@ -306,7 +306,7 @@ class ImportLdapUsers extends Command
      */
     protected function userIsEnabled(LdapModel $user)
     {
-        return $this->getUserAccountControl($user) === null ? false : !$this->userIsDisabled($user);
+        return $this->getUserAccountControl($user) === null ? false : ! $this->userIsDisabled($user);
     }
 
     /**

@@ -45,13 +45,13 @@ class LiveImportTest extends DatabaseTestCase
             'cn' => $this->faker->name,
             'mail' => $this->faker->email,
             'objectguid' => $this->faker->uuid,
-            'userAccountControl' => (new AccountControl)->accountIsDisabled()
+            'userAccountControl' => (new AccountControl)->accountIsDisabled(),
         ]);
 
         $this->artisan('ldap:import', [
             'provider' => 'ldap-database',
             '--no-interaction',
-            '--delete' => true
+            '--delete' => true,
         ])->assertExitCode(0);
 
         $created = TestUser::withTrashed()->first();
@@ -68,7 +68,7 @@ class LiveImportTest extends DatabaseTestCase
             'cn' => $this->faker->name,
             'mail' => $this->faker->email,
             'objectguid' => $this->faker->uuid,
-            'userAccountControl' => (new AccountControl)->accountIsNormal()
+            'userAccountControl' => (new AccountControl)->accountIsNormal(),
         ]);
 
         $created = TestUser::create([
