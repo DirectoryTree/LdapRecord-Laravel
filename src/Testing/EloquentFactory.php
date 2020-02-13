@@ -27,7 +27,7 @@ class EloquentFactory
      *
      * @var bool
      */
-    protected static $usingMemory = false;
+    public static $usingMemory = false;
 
     /**
      * Set the Eloquent model to use.
@@ -73,16 +73,21 @@ class EloquentFactory
         $cachePath = static::getCacheFilePath();
         $cacheDirectory = static::getCacheDirectory();
 
-        if ($useMemory) {
-            static::$usingMemory = true;
-            static::setSqliteConnection(':memory:');
-            static::migrate();
-        } elseif (file_exists($cachePath)) {
-            static::setSqliteConnection($cachePath);
-        } elseif (file_exists($cacheDirectory) && is_writable($cacheDirectory)) {
-            file_put_contents($cachePath, '');
-            static::setSqliteConnection($cachePath);
-            static::migrate();
+        switch(true) {
+            case $useMemory:
+                static::$usingMemory = true;
+                static::setSqliteConnection(':memory:');
+                static::migrate();
+                break;
+            case file_exists($cachePath):
+                static::$usingMemory = false;
+                static::setSqliteConnection($cachePath);
+                break;
+            case file_exists($cacheDirectory) && is_writable($cacheDirectory):
+                static::$usingMemory = false;
+                file_put_contents($cachePath, '');
+                static::setSqliteConnection($cachePath);
+                static::migrate();
         }
     }
 
@@ -125,15 +130,27 @@ class EloquentFactory
      */
     public static function teardown()
     {
-        tap(static::$connection->getSchemaBuilder(), function (Builder $builder) {
-            $builder->dropIfExists('ldap_object_attribute_values');
-            $builder->dropIfExists('ldap_object_attributes');
-            $builder->dropIfExists('ldap_objects');
-        });
+        if (static::$connection) {
+            tap(static::$connection->getSchemaBuilder(), function (Builder $builder) {
+                $builder->dropIfExists('ldap_object_attribute_values');
+                $builder->dropIfExists('ldap_object_attributes');
+                $builder->dropIfExists('ldap_objects');
+            });
+        }
 
-        if (!static::$usingMemory) {
+        if (!static::$usingMemory && file_exists(static::getCacheFilePath())) {
             unlink(static::getCacheFilePath());
         }
+    }
+
+    /**
+     * Get the full cache file path.
+     *
+     * @return string
+     */
+    public static function getCacheFilePath()
+    {
+        return static::getCacheDirectory().DIRECTORY_SEPARATOR.static::getCacheFileName();
     }
 
     /**
@@ -169,15 +186,5 @@ class EloquentFactory
     protected static function getCacheDirectory()
     {
         return realpath(storage_path('framework/cache'));
-    }
-
-    /**
-     * Get the full cache file path.
-     *
-     * @return string
-     */
-    protected static function getCacheFilePath()
-    {
-        return static::getCacheDirectory().DIRECTORY_SEPARATOR.static::getCacheFileName();
     }
 }

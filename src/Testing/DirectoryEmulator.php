@@ -15,13 +15,23 @@ class DirectoryEmulator extends DirectoryFake
     public static $usingInMemoryDatabase = true;
 
     /**
-     * Set the directory emulator to use a cached SQLite file for persistent data.
+     * Use a cached SQLite file database for persistent data.
      *
      * @return void
      */
     public static function useCachedDirectory()
     {
         static::$usingInMemoryDatabase = false;
+    }
+
+    /**
+     * Use an in-memory SQLite database.
+     *
+     * @return void
+     */
+    public static function useMemoryDirectory()
+    {
+        static::$usingInMemoryDatabase = true;
     }
 
     /**
