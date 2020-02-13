@@ -476,6 +476,7 @@ class EmulatedModelBuilder extends Builder
         if ($database) {
             $database->name = $rdn;
             $database->dn = implode(',', [$rdn, $newParentDn]);
+            $database->parent_dn = $newParentDn;
 
             return $database->save();
         }

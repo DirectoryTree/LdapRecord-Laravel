@@ -81,6 +81,9 @@ class DirectoryEmulatorTest extends TestCase
         $this->assertEquals('cn=John Doe,dc=local,dc=com', $model->getDn());
         $this->assertTrue($model->rename('cn=Jane Doe', 'dc=local,dc=com'));
         $this->assertEquals('cn=Jane Doe,dc=local,dc=com', $model->getDn());
+
+        $this->assertTrue($model->rename('cn=Jane Doe', 'ou=Users,dc=local,dc=com'));
+        $this->assertEquals('cn=Jane Doe,ou=Users,dc=local,dc=com', $model->getDn());
     }
 
     public function test_delete()
