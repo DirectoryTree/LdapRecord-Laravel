@@ -4,6 +4,7 @@ namespace LdapRecord\Laravel\Listeners;
 
 use Illuminate\Support\Facades\Auth;
 use LdapRecord\Laravel\Auth\HasLdapUser;
+use LdapRecord\Laravel\Auth\UserProvider;
 use LdapRecord\Laravel\Auth\LdapAuthenticatable;
 
 class BindLdapUserModel
@@ -17,8 +18,7 @@ class BindLdapUserModel
      */
     public function handle($event)
     {
-        /** @var \LdapRecord\Laravel\Auth\UserProvider $provider */
-        if ($provider = $this->getAuthProvider($event->guard)) {
+        if (($provider = $this->getAuthProvider($event->guard)) && $provider instanceof UserProvider) {
             if ($event->user instanceof LdapAuthenticatable && $this->canBind($event->user)) {
                 $event->user->setLdapUser(
                     $provider->getLdapUserRepository()->findByModel($event->user)
