@@ -160,7 +160,7 @@ class WindowsAuthenticate
         // searching through domain components only. We don't want other attributes
         // included in this check, otherwise it could result in false positives.
         $domainComponents = array_filter($components, function ($rdn) {
-            return strpos(strtolower($rdn), 'dc') !== false;
+            return strpos($rdn, 'dc') !== false;
         });
 
         // Here we will determine if the single sign on users domain is contained inside of
