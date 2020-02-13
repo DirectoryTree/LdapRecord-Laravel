@@ -63,7 +63,7 @@ class WindowsAuthenticate
             $guards = [null];
         }
 
-        list($domain, $username) = array_pad(
+        [$domain, $username] = array_pad(
             explode('\\', $this->account($request)), 2, null
         );
 
