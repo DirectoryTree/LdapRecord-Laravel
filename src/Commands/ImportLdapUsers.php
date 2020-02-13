@@ -12,6 +12,7 @@ use LdapRecord\Laravel\DetectsSoftDeletes;
 use LdapRecord\Laravel\Events\Imported;
 use LdapRecord\Laravel\LdapUserImporter;
 use LdapRecord\Laravel\LdapUserRepository;
+use LdapRecord\Models\Attributes\AccountControl;
 use LdapRecord\Models\Model as LdapModel;
 use LdapRecord\Models\Types\ActiveDirectory;
 
@@ -255,7 +256,7 @@ class ImportLdapUsers extends Command
         if (
             $this->isUsingSoftDeletes($model) &&
             $model->trashed() &&
-            $user->isEnabled()
+            $this->userIsEnabled($user)
         ) {
             // If the model has soft-deletes enabled, the model is
             // currently deleted, and the LDAP user account
@@ -283,7 +284,7 @@ class ImportLdapUsers extends Command
         if (
             $this->isUsingSoftDeletes($model) &&
             ! $model->trashed() &&
-            $user->isDisabled()
+            $this->userIsDisabled($user)
         ) {
             // If deleting is enabled, the model supports soft deletes, the model
             // isn't already deleted, and the LDAP user is disabled, we'll
@@ -294,5 +295,41 @@ class ImportLdapUsers extends Command
                 logger()->info("Soft-deleted user [{$user->getRdn()}]. Their user account is disabled.");
             }
         }
+    }
+
+    /**
+     * Determine whether the user is enabled.
+     *
+     * @param LdapModel $user
+     *
+     * @return bool
+     */
+    protected function userIsEnabled(LdapModel $user)
+    {
+        return $this->getUserAccountControl($user) === null ? false : ! $this->userIsDisabled($user);
+    }
+
+    /**
+     * Determines whether the user is disabled.
+     *
+     * @param LdapModel $user
+     *
+     * @return bool
+     */
+    protected function userIsDisabled(LdapModel $user)
+    {
+        return ($this->getUserAccountControl($user) & AccountControl::ACCOUNTDISABLE) === AccountControl::ACCOUNTDISABLE;
+    }
+
+    /**
+     * Get the user account control integer from the user.
+     *
+     * @param LdapModel $user
+     *
+     * @return int|null
+     */
+    protected function getUserAccountControl(LdapModel $user)
+    {
+        return $user->getFirstAttribute('userAccountControl');
     }
 }
