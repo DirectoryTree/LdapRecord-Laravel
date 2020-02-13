@@ -9,6 +9,7 @@ use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use LdapRecord\Laravel\Auth\UserProvider;
 use LdapRecord\Laravel\Events\AuthenticatedWithWindows;
 use LdapRecord\Laravel\Events\Imported;
+use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Models\Model;
 
 class WindowsAuthenticate
@@ -62,22 +63,25 @@ class WindowsAuthenticate
             $guards = [null];
         }
 
+        list($domain, $username) = array_pad(
+            explode('\\', $this->account($request)), 2, null
+        );
+
+        if (empty($domain) || empty($username)) {
+            return;
+        }
+
         foreach ($guards as $guard) {
             $provider = $this->auth->guard($guard)->getProvider();
 
-            if ($provider instanceof UserProvider) {
-                // Retrieve the users account name from the request.
-                if ($account = $this->account($request)) {
-                    // Retrieve the users username from their account name.
-                    $username = $this->username($account);
+            if (! $provider instanceof UserProvider) {
+                continue;
+            }
 
-                    // Finally, retrieve the users authenticatable model and log them in.
-                    if ($user = $this->retrieveAuthenticatedUser($provider, $username)) {
-                        $this->auth->shouldUse($guard);
+            if ($user = $this->retrieveAuthenticatedUser($provider, $domain, $username)) {
+                $this->auth->shouldUse($guard);
 
-                        return $this->auth->login($user, $remember = true);
-                    }
-                }
+                return $this->auth->login($user, $remember = true);
             }
         }
     }
@@ -86,15 +90,20 @@ class WindowsAuthenticate
      * Returns the authenticatable user instance if found.
      *
      * @param UserProvider $provider
+     * @param string       $domain
      * @param string       $username
      *
      * @return \Illuminate\Contracts\Auth\Authenticatable|null
      */
-    protected function retrieveAuthenticatedUser(UserProvider $provider, $username)
+    protected function retrieveAuthenticatedUser(UserProvider $provider, $domain, $username)
     {
-        $user = $provider->getLdapUserRepository()->findBy('samaccountname', $username);
+        $user = $this->getUserFromRepository($provider->getLdapUserRepository(), $username);
 
         if (! $user) {
+            return;
+        }
+
+        if (! $this->userIsApartOfDomain($user, $domain)) {
             return;
         }
 
@@ -108,13 +117,64 @@ class WindowsAuthenticate
             $model = $provider->getLdapUserImporter()->run($user);
 
             if ($model->save() && $model->wasRecentlyCreated) {
-                event(new Imported($user, $model));
+                $this->fireImportedEvent($user, $model);
             }
         }
 
         $this->fireAuthenticatedEvent($user, $model);
 
         return $model ? $model : $user;
+    }
+
+    /**
+     * Get the user from the LDAP user repository by their username.
+     *
+     * @param LdapUserRepository $repository
+     * @param string             $username
+     *
+     * @return Model|null
+     */
+    protected function getUserFromRepository(LdapUserRepository $repository, $username)
+    {
+        return $repository->findBy('samaccountname', $username);
+    }
+
+    /**
+     * Determine if the located user is apart of the domain.
+     *
+     * @param Model  $user
+     * @param string $domain
+     *
+     * @return bool
+     */
+    protected function userIsApartOfDomain(Model $user, $domain)
+    {
+        // Firstly, we will explode the users distinguished name into relative distinguished
+        // names. This will allow us to identify and pull the domain components from it
+        // which may contain the single-sign-on users authenticated domain name.
+        $components = array_map(function ($rdn) {
+            return strtolower($rdn);
+        }, ldap_explode_dn($user->getDn(), $onlyValues = false));
+
+        // Now we will filter the users relative distinguished names and ensure we are
+        // searching through domain components only. We don't want other attributes
+        // included in this check, otherwise it could result in false positives.
+        $domainComponents = array_filter($components, function ($rdn) {
+            return strpos(strtolower($rdn), 'dc') !== false;
+        });
+
+        // Here we will determine if the single sign on users domain is contained inside of
+        // one of the domain components. This verifies that the user we have located from
+        // the LDAP directory is in-fact the user who is signed in through single sign
+        // on. If we do not check this, a user from another domain may have the same
+        // sAMAccount name as another user on another domain, which we will avoid.
+        foreach ($domainComponents as $component) {
+            if (strpos($component, strtolower($domain)) !== false) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -153,27 +213,5 @@ class WindowsAuthenticate
     protected function account($request)
     {
         return utf8_encode($request->server('AUTH_USER'));
-    }
-
-    /**
-     * Retrieves the users username from their full account name.
-     *
-     * @param string $account
-     *
-     * @return string
-     */
-    protected function username($account)
-    {
-        // Username's may be prefixed with their domain,
-        // we just need their account name.
-        $username = explode('\\', $account);
-
-        if (count($username) === 2) {
-            [$domain, $username] = $username;
-        } else {
-            $username = $username[key($username)];
-        }
-
-        return $username;
     }
 }

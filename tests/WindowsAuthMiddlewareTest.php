@@ -79,7 +79,7 @@ class WindowsAuthMiddlewareTest extends TestCase
         $middleware = new WindowsAuthenticate($auth);
 
         $request = tap(new Request, function ($request) {
-            $request->server->set('AUTH_USER', 'SteveBauman');
+            $request->server->set('AUTH_USER', 'Local\SteveBauman');
         });
 
         $middleware->handle($request, function () {
@@ -102,9 +102,11 @@ class WindowsAuthMiddlewareTest extends TestCase
 
         $user = new User([
             'cn' => 'SteveBauman',
-            'mail' => 'sbauman@test.com',
+            'mail' => 'sbauman@local.com',
             'objectguid' => 'bf9679e7-0de6-11d0-a285-00aa003049e2',
         ]);
+
+        $user->setDn('cn=SteveBauman,ou=Users,dc=local,dc=com');
 
         $users = m::mock(LdapUserRepository::class);
         $users->shouldReceive('findBy')->once()->withArgs(['samaccountname', 'SteveBauman'])->andReturn($user);
@@ -116,7 +118,7 @@ class WindowsAuthMiddlewareTest extends TestCase
         $middleware = new WindowsAuthenticate($auth);
 
         $request = tap(new Request, function ($request) {
-            $request->server->set('AUTH_USER', 'SteveBauman');
+            $request->server->set('AUTH_USER', 'Local\SteveBauman');
         });
 
         $middleware->handle($request, function () use ($user, $guard) {
@@ -144,9 +146,11 @@ class WindowsAuthMiddlewareTest extends TestCase
 
         $user = new User([
             'cn' => 'SteveBauman',
-            'userprincipalname' => 'sbauman@test.com',
+            'userprincipalname' => 'sbauman@local.com',
             'objectguid' => 'bf9679e7-0de6-11d0-a285-00aa003049e2',
         ]);
+
+        $user->setDn('cn=SteveBauman,ou=Users,dc=local,dc=com');
 
         $users = m::mock(LdapUserRepository::class);
         $users->shouldReceive('findBy')->once()->withArgs(['samaccountname', 'SteveBauman'])->andReturn($user);
@@ -158,7 +162,7 @@ class WindowsAuthMiddlewareTest extends TestCase
         $middleware = new WindowsAuthenticate($auth);
 
         $request = tap(new Request, function ($request) {
-            $request->server->set('AUTH_USER', 'SteveBauman');
+            $request->server->set('AUTH_USER', 'Local\SteveBauman');
         });
 
         $middleware->handle($request, function () use ($user, $guard) {
