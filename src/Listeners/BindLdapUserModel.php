@@ -4,8 +4,8 @@ namespace LdapRecord\Laravel\Listeners;
 
 use Illuminate\Support\Facades\Auth;
 use LdapRecord\Laravel\Auth\HasLdapUser;
-use LdapRecord\Laravel\Auth\UserProvider;
 use LdapRecord\Laravel\Auth\LdapAuthenticatable;
+use LdapRecord\Laravel\Auth\UserProvider;
 
 class BindLdapUserModel
 {
