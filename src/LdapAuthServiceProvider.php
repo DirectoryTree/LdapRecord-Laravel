@@ -22,7 +22,7 @@ class LdapAuthServiceProvider extends ServiceProvider
      */
     protected $events = [
         Events\Importing::class                 => Listeners\LogImporting::class,
-        Events\Imported::class                  => Listeners\LogImporting::class,
+        Events\Imported::class                  => Listeners\LogImported::class,
         Events\Synchronized::class              => Listeners\LogSynchronized::class,
         Events\Synchronizing::class             => Listeners\LogSynchronizing::class,
         Events\Authenticated::class             => Listeners\LogAuthenticated::class,
