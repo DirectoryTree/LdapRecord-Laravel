@@ -73,7 +73,7 @@ class EloquentFactory
         $cachePath = static::getCacheFilePath();
         $cacheDirectory = static::getCacheDirectory();
 
-        switch(true) {
+        switch (true) {
             case $useMemory:
                 static::$usingMemory = true;
                 static::setSqliteConnection(':memory:');
@@ -138,7 +138,7 @@ class EloquentFactory
             });
         }
 
-        if (!static::$usingMemory && file_exists(static::getCacheFilePath())) {
+        if (! static::$usingMemory && file_exists(static::getCacheFilePath())) {
             unlink(static::getCacheFilePath());
         }
     }
