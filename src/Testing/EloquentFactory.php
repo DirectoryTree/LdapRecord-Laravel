@@ -131,7 +131,7 @@ class EloquentFactory
             $builder->dropIfExists('ldap_objects');
         });
 
-        if (!static::$usingMemory) {
+        if (! static::$usingMemory) {
             unlink(static::getCacheFilePath());
         }
     }
