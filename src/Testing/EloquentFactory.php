@@ -2,17 +2,32 @@
 
 namespace LdapRecord\Laravel\Testing;
 
+use Illuminate\Database\Connectors\ConnectionFactory;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Builder;
 
 class EloquentFactory
 {
+    /**
+     * The underlying database connection to utilize.
+     *
+     * @var \Illuminate\Database\Connection
+     */
+    public static $connection;
+
     /**
      * The eloquent model to utilize for testing.
      *
      * @var string
      */
     protected static $model = LdapObject::class;
+
+    /**
+     * Whether to use an in-memory SQLite database.
+     *
+     * @var bool
+     */
+    protected static $usingMemory = false;
 
     /**
      * Set the Eloquent model to use.
@@ -47,14 +62,39 @@ class EloquentFactory
     }
 
     /**
+     * Initialize the Eloquent SQLite factory.
+     *
+     * @param bool $useMemory
+     *
+     * @return void
+     */
+    public static function initialize($useMemory = false)
+    {
+        $cachePath = static::getCacheFilePath();
+        $cacheDirectory = static::getCacheDirectory();
+
+        if ($useMemory) {
+            static::$usingMemory = true;
+            static::setSqliteConnection(':memory:');
+            static::migrate();
+        } elseif (file_exists($cachePath)) {
+            static::setSqliteConnection($cachePath);
+        } elseif (file_exists($cacheDirectory) && is_writable($cacheDirectory)) {
+            file_put_contents($cachePath, '');
+            static::setSqliteConnection($cachePath);
+            static::migrate();
+        }
+    }
+
+    /**
      * Run the database migrations.
      *
      * @return void
      */
-    public static function migrate()
+    protected static function migrate()
     {
-        if (! Schema::hasTable('ldap_objects')) {
-            Schema::create('ldap_objects', function (Blueprint $table) {
+        tap(static::$connection->getSchemaBuilder(), function (Builder $builder) {
+            $builder->create('ldap_objects', function (Blueprint $table) {
                 $table->bigIncrements('id');
                 $table->timestamps();
                 $table->string('domain')->nullable();
@@ -63,23 +103,19 @@ class EloquentFactory
                 $table->string('dn');
                 $table->string('parent_dn')->nullable();
             });
-        }
 
-        if (! Schema::hasTable('ldap_object_attributes')) {
-            Schema::create('ldap_object_attributes', function (Blueprint $table) {
+            $builder->create('ldap_object_attributes', function (Blueprint $table) {
                 $table->bigIncrements('id');
                 $table->unsignedBigInteger('ldap_object_id');
                 $table->string('name');
             });
-        }
 
-        if (! Schema::hasTable('ldap_object_attribute_values')) {
-            Schema::create('ldap_object_attribute_values', function (Blueprint $table) {
+            $builder->create('ldap_object_attribute_values', function (Blueprint $table) {
                 $table->bigIncrements('id');
                 $table->unsignedBigInteger('ldap_object_attribute_id');
                 $table->string('value');
             });
-        }
+        });
     }
 
     /**
@@ -87,10 +123,61 @@ class EloquentFactory
      *
      * @return void
      */
-    public static function rollback()
+    public static function teardown()
     {
-        Schema::dropIfExists('ldap_object_attribute_values');
-        Schema::dropIfExists('ldap_object_attributes');
-        Schema::dropIfExists('ldap_objects');
+        tap(static::$connection->getSchemaBuilder(), function (Builder $builder) {
+            $builder->dropIfExists('ldap_object_attribute_values');
+            $builder->dropIfExists('ldap_object_attributes');
+            $builder->dropIfExists('ldap_objects');
+        });
+
+        if (!static::$usingMemory) {
+            unlink(static::getCacheFilePath());
+        }
+    }
+
+    /**
+     * Set the SQLite connection to utilize.
+     *
+     * @param string $database
+     *
+     * @return void
+     */
+    protected static function setSqliteConnection($database)
+    {
+        static::$connection = app(ConnectionFactory::class)->make([
+            'driver' => 'sqlite',
+            'database' => $database,
+        ]);
+    }
+
+    /**
+     * Get the cache file name of the SQLite database.
+     *
+     * @return string
+     */
+    protected static function getCacheFileName()
+    {
+        return 'ldap_directory.sqlite';
+    }
+
+    /**
+     * Get the cache directory for storing the SQLite cache file.
+     *
+     * @return string
+     */
+    protected static function getCacheDirectory()
+    {
+        return realpath(storage_path('framework/cache'));
+    }
+
+    /**
+     * Get the full cache file path.
+     *
+     * @return string
+     */
+    protected static function getCacheFilePath()
+    {
+        return static::getCacheDirectory().DIRECTORY_SEPARATOR.static::getCacheFileName();
     }
 }

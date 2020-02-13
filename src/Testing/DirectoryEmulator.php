@@ -8,6 +8,23 @@ use LdapRecord\Testing\LdapFake;
 class DirectoryEmulator extends DirectoryFake
 {
     /**
+     * Whether the emulator will use an in-memory SQLite database.
+     *
+     * @var bool
+     */
+    public static $usingInMemoryDatabase = true;
+
+    /**
+     * Set the directory emulator to use a cached SQLite file for persistent data.
+     *
+     * @return void
+     */
+    public static function useCachedDirectory()
+    {
+        static::$usingInMemoryDatabase = false;
+    }
+
+    /**
      * Setup the fake connections.
      *
      * @param string|null $name
@@ -20,7 +37,7 @@ class DirectoryEmulator extends DirectoryFake
     {
         $fake = parent::setup($name);
 
-        EloquentFactory::migrate();
+        EloquentFactory::initialize(static::$usingInMemoryDatabase);
 
         return $fake;
     }
@@ -44,6 +61,6 @@ class DirectoryEmulator extends DirectoryFake
      */
     public static function teardown()
     {
-        EloquentFactory::rollback();
+        EloquentFactory::teardown();
     }
 }

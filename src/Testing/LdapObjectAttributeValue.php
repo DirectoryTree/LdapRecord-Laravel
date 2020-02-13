@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class LdapObjectAttributeValue extends Model
 {
+    use EmulatedConnection;
+
     /**
      * The attributes that aren't mass assignable.
      *
