@@ -4,6 +4,8 @@
     <img src="https://ldaprecord.com/assets/img/logo.png" width="400">
 </p>
 
+<p align="center">Integrate LDAP into your Laravel application.</p>
+
 <p align="center">
     <a href="https://laravel.com"><img src="https://img.shields.io/badge/Built_for-Laravel-green.svg?style=flat-square"></a>
     <a href="https://travis-ci.com/directorytree/ldaprecord-laravel"><img src="https://img.shields.io/travis/directorytree/ldaprecord-laravel.svg?style=flat-square"></a>
