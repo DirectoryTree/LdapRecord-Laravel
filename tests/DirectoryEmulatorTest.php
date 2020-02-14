@@ -182,6 +182,26 @@ class DirectoryEmulatorTest extends TestCase
         $this->assertEquals($model, $model->fresh());
     }
 
+    public function test_select()
+    {
+        TestModelStub::create([
+            'cn' => 'John',
+            'sn' => 'Doe',
+        ]);
+
+        $user = TestModelStub::select('cn')->first();
+        $this->assertNull($user->sn);
+        $this->assertEquals(['John'], $user->cn);
+
+        $user = TestModelStub::first('cn');
+        $this->assertNull($user->sn);
+        $this->assertEquals(['John'], $user->cn);
+
+        $user = TestModelStub::get('cn')->first();
+        $this->assertNull($user->sn);
+        $this->assertEquals(['John'], $user->cn);
+    }
+
     public function test_get()
     {
         $john = TestModelStub::create(['cn' => ['John']]);

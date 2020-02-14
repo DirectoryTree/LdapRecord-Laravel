@@ -13,6 +13,13 @@ use Ramsey\Uuid\Uuid;
 class EmulatedModelBuilder extends Builder
 {
     /**
+     * The LDAP attributes to include in results due to a 'select' statement.
+     *
+     * @var array
+     */
+    protected $only = [];
+
+    /**
      * The underlying database query.
      *
      * @var \Illuminate\Database\Eloquent\Builder
@@ -536,6 +543,10 @@ class EmulatedModelBuilder extends Builder
             $this->query->limit($this->limit);
         }
 
+        if (!in_array('*', $this->columns)) {
+            $this->only = $this->columns;
+        }
+
         // Apply domain scoping to the query.
         if ($domain = $this->model->getConnectionName()) {
             $this->query->where('domain', '=', $domain);
@@ -591,10 +602,14 @@ class EmulatedModelBuilder extends Builder
         $dn = Arr::pull($attributes, 'dn');
 
         $transformedAttributes = collect(Arr::pull($attributes, 'attributes'))->mapWithKeys(function ($attribute) {
-            $values = collect($attribute['values'])->map->value->toArray();
-
-            return [$attribute['name'] => $values];
+            return [$attribute['name'] => collect($attribute['values'])->map->value->toArray()];
+        })->when(!empty($this->only), function ($attributes) {
+            return $attributes->filter(function ($value, $key) {
+                return in_array($key, $this->only);
+            });
         })->toArray();
+
+        $this->only = [];
 
         return $this->model->newInstance()
             ->setDn($dn)
