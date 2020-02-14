@@ -543,7 +543,7 @@ class EmulatedModelBuilder extends Builder
             $this->query->limit($this->limit);
         }
 
-        if (!in_array('*', $this->columns)) {
+        if (! in_array('*', $this->columns)) {
             $this->only = $this->columns;
         }
 
@@ -603,7 +603,7 @@ class EmulatedModelBuilder extends Builder
 
         $transformedAttributes = collect(Arr::pull($attributes, 'attributes'))->mapWithKeys(function ($attribute) {
             return [$attribute['name'] => collect($attribute['values'])->map->value->toArray()];
-        })->when(!empty($this->only), function ($attributes) {
+        })->when(! empty($this->only), function ($attributes) {
             return $attributes->filter(function ($value, $key) {
                 return in_array($key, $this->only);
             });
