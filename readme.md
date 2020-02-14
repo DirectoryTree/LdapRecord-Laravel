@@ -13,10 +13,6 @@
     <a href="https://packagist.org/packages/directorytree/ldaprecord-laravel"><img src="https://img.shields.io/packagist/l/directorytree/ldaprecord-laravel.svg?style=flat-square"></a>
 </p>
 
-<p align="center">
-    Easily authenticate and synchronize LDAP users into your Laravel application.
-</p>
-
 <h4 align="center">
     <a href="https://ldaprecord.com/docs/laravel/quickstart">Quickstart</a>
     <span> · </span>
