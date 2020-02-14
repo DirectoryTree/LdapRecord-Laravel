@@ -45,6 +45,11 @@ Search for LDAP records with a [fluent and easy to use interface](https://ldapre
 LDAP records are returned as [individual models](https://ldaprecord.com/docs/models). Easily create
 and update models then persist them to your LDAP server with a simple `save()`.
 
+💫 **Directory Emulator.**
+
+[Test authenticating and querying users](https://ldaprecord.com/docs/laravel/testing/#getting-started) without
+changing your application code. Create, update, and delete LDAP objects without touching a real LDAP server.
+
 ---
 
 <h3 align="center">LdapRecord-Laravel is Sponsorware™</h3>
