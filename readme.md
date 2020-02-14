@@ -23,17 +23,17 @@
     <a href="https://ldaprecord.com/docs/laravel">Documentation</a>
 </h4>
 
-- **Authenticate LDAP users into your application.** Using the built-in authentication driver, easily allow
+🔑 **Authenticate LDAP users into your application.** Using the built-in authentication driver, easily allow
 LDAP users to log into your application and control which users can login via [Scopes](https://ldaprecord.com/docs/models/#query-scopes) and [Rules](https://ldaprecord.com/docs/laravel/auth/configuration/#rules).
 
-- **Easily Import & Synchronize LDAP users.** Users can be imported into your database upon first login,
+🔄**Easily Import & Synchronize LDAP users.** Users can be imported into your database upon first login,
 or you can import your entire directory via a simple [command](https://ldaprecord.com/docs/laravel/auth/importing): `php artisan ldap:import`.
 
-- **Multi-Domain Support.** Authenticate users from as many LDAP domains as you'd like. Support comes [out of the box](https://ldaprecord.com/docs/laravel/auth/multi-domain).
+💼 **Multi-Domain Support.** Authenticate users from as many LDAP domains as you'd like. Support comes [out of the box](https://ldaprecord.com/docs/laravel/auth/multi-domain).
 
-- **Eloquent Query Builder.** Search for LDAP records with a [fluent and easy to use interface](https://ldaprecord.com/docs/searching) you're used to. You'll feel right at home.
+🎩 **Eloquent Query Builder.** Search for LDAP records with a [fluent and easy to use interface](https://ldaprecord.com/docs/searching) you're used to. You'll feel right at home.
 
-- **ActiveRecord LDAP Models.** LDAP records are returned as [individual models](https://ldaprecord.com/docs/models). Easily create
+✏️ **ActiveRecord LDAP Models.** LDAP records are returned as [individual models](https://ldaprecord.com/docs/models). Easily create
 and update models then persist them to your LDAP server with a simple `save()`.
 
 ---
