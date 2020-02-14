@@ -8,14 +8,6 @@ use LdapRecord\Query\Builder;
 class EmulatedBuilder extends Builder
 {
     /**
-     * {@inheritdoc}
-     */
-    public function getSelects()
-    {
-        return $this->columns ?? [];
-    }
-
-    /**
      * Create a new Eloquent model builder.
      *
      * @param Model $model
