@@ -42,6 +42,7 @@ class LiveAuthenticationTest extends TestCase
         $this->assertInstanceOf(TestUser::class, $model);
         $this->assertEquals('jdoe@email.com', $model->email);
         $this->assertEquals('John', $model->name);
+        $this->assertFalse(Auth::attempt(['mail' => 'invalid', 'password' => 'secret']));
     }
 
     public function test_database_sync_authentication_fails()

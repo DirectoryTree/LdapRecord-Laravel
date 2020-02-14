@@ -146,7 +146,7 @@ class LdapUserImporterTest extends TestCase
 
         $this->assertTrue($imported->is($model));
         $this->assertTrue(Hash::check('secret', $model->password));
-        $this->assertEquals($initialUpdateTimestamp, $model->updated_at);
+        $this->assertEquals($initialUpdateTimestamp, $model->fresh()->updated_at);
     }
 
     protected function getMockLdapModel(array $attributes = [])
