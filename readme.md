@@ -45,7 +45,8 @@ and update models then persist them to your LDAP server with a simple `save()`.
 
 💫 **LDAP Directory Emulator.**
 
-[Test authenticating and querying users](https://ldaprecord.com/docs/laravel/testing/#getting-started) without
+Test [authenticating](https://ldaprecord.com/docs/laravel/auth/testing/#getting-started) and
+[querying users](https://ldaprecord.com/docs/laravel/testing/#getting-started) without
 changing your application code. Create, update, and delete LDAP objects without touching a real LDAP server.
 
 ---
