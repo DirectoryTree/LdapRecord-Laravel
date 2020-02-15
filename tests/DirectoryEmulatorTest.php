@@ -485,8 +485,11 @@ class DirectoryEmulatorTest extends TestCase
         $this->assertSame($group, $user->groups()->attach($group));
         $this->assertEquals($user->getDn(), $group->getFirstAttribute('member'));
 
-        $this->assertTrue($user->is($group->members()->get()->first()));
-        $this->assertTrue($group->is($user->groups()->get()->first()));
+        $this->assertTrue($user->is($group->members()->first()));
+        $this->assertTrue($group->is($user->groups()->first()));
+
+        $this->assertTrue($user->groups()->exists($group));
+        $this->assertTrue($group->members()->exists($user));
     }
 
     public function test_has_one_relationship()
@@ -496,14 +499,15 @@ class DirectoryEmulatorTest extends TestCase
 
         $this->assertSame($manager, $user->manager()->attach($manager));
         $this->assertEquals($manager->getDn(), $user->getFirstAttribute('manager'));
-        $this->assertTrue($manager->is($user->manager()->get()->first()));
+        $this->assertTrue($manager->is($user->manager()->first()));
+        $this->assertTrue($user->manager()->exists($manager));
     }
 
     public function test_has_many_in_relationship()
     {
         $member = TestHasManyInStub::create(['cn' => 'John']);
         $user = TestHasManyInStub::create(['cn' => 'Jane', 'members' => $member]);
-        $this->assertTrue($member->is($user->members()->get()->first()));
+        $this->assertTrue($member->is($user->members()->first()));
     }
 
     public function test_domain_scoping()
