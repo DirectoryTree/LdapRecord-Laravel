@@ -33,7 +33,7 @@ class MakeLdapScope extends GeneratorCommand
      */
     protected function getStub()
     {
-        return __DIR__.'/Stubs/scope.stub';
+        return __DIR__.'/stubs/scope.stub';
     }
 
     /**

@@ -33,7 +33,7 @@ class MakeLdapRule extends GeneratorCommand
      */
     protected function getStub()
     {
-        return __DIR__.'/Stubs/rule.stub';
+        return __DIR__.'/stubs/rule.stub';
     }
 
     /**

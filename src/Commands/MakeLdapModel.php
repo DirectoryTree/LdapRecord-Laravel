@@ -33,7 +33,7 @@ class MakeLdapModel extends GeneratorCommand
      */
     protected function getStub()
     {
-        return __DIR__.'/Stubs/model.stub';
+        return __DIR__.'/stubs/model.stub';
     }
 
     /**
