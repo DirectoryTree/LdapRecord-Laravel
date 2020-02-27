@@ -4,8 +4,8 @@ namespace LdapRecord\Laravel\Testing;
 
 use Illuminate\Database\Connection;
 use Illuminate\Database\DatabaseManager;
-use Illuminate\Database\Schema\Builder;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Schema\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
@@ -125,7 +125,7 @@ class LdapDatabaseManager
      */
     public function teardown()
     {
-        foreach($this->connections as $name => $connection) {
+        foreach ($this->connections as $name => $connection) {
             tap($connection->getSchemaBuilder(), function (Builder $builder) {
                 $builder->dropIfExists('ldap_object_attribute_values');
                 $builder->dropIfExists('ldap_object_attributes');
@@ -171,7 +171,7 @@ class LdapDatabaseManager
     {
         $builder = $connection->getSchemaBuilder();
 
-        if (!$builder->hasTable('ldap_objects')) {
+        if (! $builder->hasTable('ldap_objects')) {
             $builder->create('ldap_objects', function (Blueprint $table) {
                 $table->bigIncrements('id');
                 $table->timestamps();
@@ -183,7 +183,7 @@ class LdapDatabaseManager
             });
         }
 
-        if (!$builder->hasTable('ldap_object_attributes')) {
+        if (! $builder->hasTable('ldap_object_attributes')) {
             $builder->create('ldap_object_attributes', function (Blueprint $table) {
                 $table->bigIncrements('id');
                 $table->unsignedBigInteger('ldap_object_id');
@@ -191,7 +191,7 @@ class LdapDatabaseManager
             });
         }
 
-        if (!$builder->hasTable('ldap_object_attribute_values')) {
+        if (! $builder->hasTable('ldap_object_attribute_values')) {
             $builder->create('ldap_object_attribute_values', function (Blueprint $table) {
                 $table->bigIncrements('id');
                 $table->unsignedBigInteger('ldap_object_attribute_id');
