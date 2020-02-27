@@ -2,8 +2,8 @@
 
 namespace LdapRecord\Laravel\Testing;
 
-use LdapRecord\Testing\LdapFake;
 use LdapRecord\Testing\DirectoryFake;
+use LdapRecord\Testing\LdapFake;
 
 class DirectoryEmulator extends DirectoryFake
 {
