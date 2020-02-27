@@ -71,6 +71,7 @@ class DirectoryEmulatorTest extends TestCase
         $this->assertNull($model->sn);
 
         $model->insertAttributes($model->getDn(), ['sn' => 'Doe']);
+
         $this->assertEquals('Doe', $model->fresh()->sn[0]);
     }
 

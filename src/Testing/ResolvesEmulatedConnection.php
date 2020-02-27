@@ -2,10 +2,10 @@
 
 namespace LdapRecord\Laravel\Testing;
 
-trait EmulatedConnection
+trait ResolvesEmulatedConnection
 {
     public static function resolveConnection($connection = null)
     {
-        return EloquentFactory::$connection;
+        return app(LdapDatabaseManager::class)->connection($connection);
     }
 }

@@ -7,6 +7,8 @@ use LdapRecord\Query\Builder;
 
 class EmulatedBuilder extends Builder
 {
+    use EmulatesQueries;
+
     /**
      * Create a new Eloquent model builder.
      *
