@@ -19,6 +19,13 @@ class DirectoryEmulatorTest extends TestCase
         DirectoryEmulator::setup('default');
     }
 
+    protected function tearDown(): void
+    {
+        DirectoryEmulator::teardown();
+
+        parent::tearDown();
+    }
+
     protected function getEnvironmentSetup($app)
     {
         parent::getEnvironmentSetup($app);
@@ -27,6 +34,15 @@ class DirectoryEmulatorTest extends TestCase
         $app['config']->set('ldap.connections.default', [
             'base_dn' => 'dc=local,dc=com',
         ]);
+    }
+
+    public function test_file_database_can_be_used()
+    {
+        $path = storage_path('test.sqlite');
+
+        DirectoryEmulator::setup('default', ['database' => $path]);
+
+        $this->assertFileExists($path);
     }
 
     public function test_find()

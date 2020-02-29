@@ -108,6 +108,13 @@ class LdapDatabaseManager
      */
     protected function makeConnection($name, $database)
     {
+        // If we're not working with an in-memory database,
+        // we'll assume a file path has been given and
+        // create it before we run the migrations.
+        if ($database !== ':memory:' && !file_exists($database)) {
+            file_put_contents($database, '');
+        }
+
         app('config')->set("database.connections.$name", [
             'driver' => 'sqlite',
             'database' => $database,

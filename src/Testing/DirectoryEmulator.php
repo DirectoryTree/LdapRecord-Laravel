@@ -11,14 +11,19 @@ class DirectoryEmulator extends DirectoryFake
      * Setup the fake connections.
      *
      * @param string|null $name
+     * @param array       $config
      *
      * @return EmulatedConnectionFake
      *
      * @throws \LdapRecord\ContainerException
      */
-    public static function setup($name = null)
+    public static function setup($name = null, array $config = [])
     {
-        return tap(parent::setup($name))->name($name);
+        return tap(parent::setup($name), function (EmulatedConnectionFake $fake) use ($name, $config) {
+            $fake->name($name);
+
+            app(LdapDatabaseManager::class)->connection($name, $config);
+        });
     }
 
     /**
