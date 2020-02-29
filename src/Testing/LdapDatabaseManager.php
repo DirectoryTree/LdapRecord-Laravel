@@ -111,7 +111,7 @@ class LdapDatabaseManager
         // If we're not working with an in-memory database,
         // we'll assume a file path has been given and
         // create it before we run the migrations.
-        if ($database !== ':memory:' && !file_exists($database)) {
+        if ($database !== ':memory:' && ! file_exists($database)) {
             file_put_contents($database, '');
         }
 
