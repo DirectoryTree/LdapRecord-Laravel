@@ -2,7 +2,7 @@
 
 namespace DummyNamespace;
 
-use LdapRecord\Laravel\Validation\Rules\Rule;
+use LdapRecord\Laravel\Auth\Rule;
 
 class DummyClass extends Rule
 {
