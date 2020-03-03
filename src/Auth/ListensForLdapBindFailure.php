@@ -37,7 +37,7 @@ trait ListensForLdapBindFailure
             case $this->causedByLostConnection($errorMessage):
                 $this->throwLoginValidationException($errorMessage);
                 break;
-            case $this->causedByInvalidCredentials($errorMessage);
+            case $this->causedByInvalidCredentials($errorMessage):
                 // We'll bypass any invalid LDAP credential errors and let
                 // the login controller handle it. This is so proper
                 // translation can be done on the validation error.

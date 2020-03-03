@@ -78,8 +78,6 @@ class LdapAuthServiceProvider extends ServiceProvider
     }
 
     /**
-     *
-     *
      * @return void
      */
     protected function registerLoginControllerListener()
