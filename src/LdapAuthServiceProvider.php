@@ -50,6 +50,8 @@ class LdapAuthServiceProvider extends ServiceProvider
             }
         }
 
+        $this->loadTranslationsFrom(__DIR__.'/../resources/lang/', 'ldap');
+
         $this->commands([ImportLdapUsers::class]);
 
         Auth::provider('ldap', function ($app, array $config) {

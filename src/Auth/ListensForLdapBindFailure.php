@@ -44,7 +44,7 @@ trait ListensForLdapBindFailure
                 break;
             default:
                 foreach ($this->ldapDiagnosticCodeErrorMap() as $code => $message) {
-                    if ($this->errorContainsMessage($diagnosticMessage, $code)) {
+                    if ($this->errorContainsMessage($diagnosticMessage, (string) $code)) {
                         $this->throwLoginValidationException($message);
                     }
                 }
@@ -74,7 +74,7 @@ trait ListensForLdapBindFailure
      */
     protected function causedByInvalidCredentials($errorMessage)
     {
-        return $this->errorContainsMessage($errorMessage, "Invalid credentials");
+        return $this->errorContainsMessage($errorMessage, 'Invalid credentials');
     }
 
     /**
@@ -85,15 +85,14 @@ trait ListensForLdapBindFailure
     protected function ldapDiagnosticCodeErrorMap()
     {
         return [
-            '525' => 'User not found',
-            '52e' => 'Invalid credentials',
-            '530' => 'Not permitted to logon at this time',
-            '531' => 'Not permitted to logon at this workstation',
-            '532' => 'Password expired',
-            '533' => 'Account disabled',
-            '701' => 'Account expired',
-            '773' => 'User must reset password',
-            '775' => 'User account locked',
+            '525' => trans('ldap::errors.user_not_found'),
+            '530' => trans('ldap::errors.user_not_permitted_at_this_time'),
+            '531' => trans('ldap::errors.user_not_permitted_to_login'),
+            '532' => trans('ldap::errors.password_expired'),
+            '533' => trans('ldap::errors.account_disabled'),
+            '701' => trans('ldap::errors.account_expired'),
+            '773' => trans('ldap::errors.user_must_reset_password'),
+            '775' => trans('ldap::errors.user_account_locked'),
         ];
     }
 }
