@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use LdapRecord\Laravel\Auth\DatabaseUserProvider;
+use LdapRecord\Laravel\Auth\ListensForLdapBindFailure;
 use LdapRecord\Laravel\Auth\NoDatabaseUserProvider;
 use LdapRecord\Laravel\Commands\ImportLdapUsers;
 use LdapRecord\Laravel\Listeners\BindLdapUserModel;
@@ -69,6 +70,28 @@ class LdapAuthServiceProvider extends ServiceProvider
             foreach ($this->events as $event => $listener) {
                 Event::listen($event, $listener);
             }
+        }
+
+        $this->registerLoginControllerListener();
+    }
+
+    /**
+     *
+     *
+     * @return void
+     */
+    protected function registerLoginControllerListener()
+    {
+        $loginController = 'App\Http\Controllers\Auth\LoginController';
+
+        if (class_exists($loginController)) {
+            app()->resolving($loginController, function ($controller) {
+                $traits = class_uses_recursive($controller);
+
+                if (in_array(ListensForLdapBindFailure::class, $traits)) {
+                    $controller->listenForLdapBindFailure();
+                }
+            });
         }
     }
 
