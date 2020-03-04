@@ -43,7 +43,7 @@ class LdapServiceProvider extends ServiceProvider
 
             if (config('ldap.cache.enabled', false)) {
                 $connection->setCache(
-                    cache()->repository(config('ldap.cache.driver'))
+                    cache()->driver(config('ldap.cache.driver'))
                 );
             }
 
