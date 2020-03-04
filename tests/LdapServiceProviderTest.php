@@ -14,6 +14,7 @@ class LdapServiceProviderTest extends TestCase
 
         $app['config']->set('ldap.logging', true);
         $app['config']->set('ldap.cache.enabled', true);
+        $app['config']->set('ldap.cache.driver', 'array');
     }
 
     public function test_logger_is_set_on_container_when_enabled()
