@@ -24,8 +24,6 @@ class LdapServiceProviderTest extends TestCase
 
     public function test_cache_is_set_on_connection_when_enabled()
     {
-        foreach (Container::getInstance()->all() as $connection) {
-            $this->assertInstanceOf(Cache::class, $connection->getCache());
-        }
+        $this->assertInstanceOf(Cache::class, Container::getInstance()->get('default')->getCache());
     }
 }
