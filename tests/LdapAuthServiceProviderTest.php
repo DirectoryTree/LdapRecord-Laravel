@@ -4,17 +4,17 @@ namespace LdapRecord\Laravel\Tests;
 
 use Illuminate\Auth\Events\Login;
 use Illuminate\Events\Dispatcher;
-use LdapRecord\Laravel\Events\Importing;
-use LdapRecord\Laravel\Events\Imported;
-use LdapRecord\Laravel\Events\Synchronized;
-use LdapRecord\Laravel\Events\Synchronizing;
 use LdapRecord\Laravel\Events\Authenticated;
+use LdapRecord\Laravel\Events\AuthenticatedModelTrashed;
+use LdapRecord\Laravel\Events\AuthenticatedWithWindows;
 use LdapRecord\Laravel\Events\Authenticating;
 use LdapRecord\Laravel\Events\AuthenticationFailed;
 use LdapRecord\Laravel\Events\AuthenticationRejected;
 use LdapRecord\Laravel\Events\DiscoveredWithCredentials;
-use LdapRecord\Laravel\Events\AuthenticatedWithWindows;
-use LdapRecord\Laravel\Events\AuthenticatedModelTrashed;
+use LdapRecord\Laravel\Events\Imported;
+use LdapRecord\Laravel\Events\Importing;
+use LdapRecord\Laravel\Events\Synchronized;
+use LdapRecord\Laravel\Events\Synchronizing;
 use LdapRecord\Laravel\LdapAuthServiceProvider;
 
 class LdapAuthServiceProviderTest extends TestCase
