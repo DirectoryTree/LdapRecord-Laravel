@@ -33,7 +33,7 @@ class LdapServiceProvider extends ServiceProvider
         ]);
 
         if (config('ldap.logging', true)) {
-            Container::setLogger(logger());
+            Container::getInstance()->setLogger(logger());
         }
 
         Container::setDefaultConnection(config('ldap.default', 'default'));
