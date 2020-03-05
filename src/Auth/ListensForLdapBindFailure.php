@@ -35,9 +35,9 @@ trait ListensForLdapBindFailure
     {
         switch (true) {
             case $this->causedByLostConnection($errorMessage):
-                $this->throwLoginValidationException($errorMessage);
+                $this->handleLdapBindError($errorMessage);
                 break;
-            case $this->causedByInvalidCredentials($errorMessage):
+            case $this->causedByInvalidCredentials($errorMessage, $diagnosticMessage):
                 // We'll bypass any invalid LDAP credential errors and let
                 // the login controller handle it. This is so proper
                 // translation can be done on the validation error.
@@ -45,10 +45,23 @@ trait ListensForLdapBindFailure
             default:
                 foreach ($this->ldapDiagnosticCodeErrorMap() as $code => $message) {
                     if ($this->errorContainsMessage($diagnosticMessage, (string) $code)) {
-                        $this->throwLoginValidationException($message);
+                        $this->handleLdapBindError($message, $code);
                     }
                 }
         }
+    }
+
+    /**
+     * Handle the LDAP bind error.
+     *
+     * @param string $message
+     * @param string $code
+     *
+     * @throws ValidationException
+     */
+    protected function handleLdapBindError($message, $code = null)
+    {
+        $this->throwLoginValidationException($message);
     }
 
     /**
@@ -69,12 +82,15 @@ trait ListensForLdapBindFailure
      * Determine if the LDAP error generated is caused by invalid credentials.
      *
      * @param string $errorMessage
+     * @param string $diagnosticMessage
      *
      * @return bool
      */
-    protected function causedByInvalidCredentials($errorMessage)
+    protected function causedByInvalidCredentials($errorMessage, $diagnosticMessage)
     {
-        return $this->errorContainsMessage($errorMessage, 'Invalid credentials');
+        return
+            $this->errorContainsMessage($errorMessage, 'Invalid credentials') &&
+            $this->errorContainsMessage($diagnosticMessage, '52e');
     }
 
     /**
