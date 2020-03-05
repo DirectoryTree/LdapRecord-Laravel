@@ -27,7 +27,7 @@ class LdapServiceProviderTest extends TestCase
 
     public function test_logger_is_set_on_container_when_enabled()
     {
-        $this->assertInstanceOf(LogManager::class, Container::getLogger());
+        $this->assertInstanceOf(LogManager::class, Container::getInstance()->getLogger());
     }
 
     public function test_cache_is_set_on_connection_when_enabled()
