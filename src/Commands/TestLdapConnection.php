@@ -49,7 +49,7 @@ class TestLdapConnection extends Command
 
                 $message = 'Successfully connected.';
             } catch (BindException $e) {
-                $detailedError = $e->getDetailedError();
+                $detailedError = optional($e->getDetailedError());
 
                 $errorCode = $detailedError->getErrorCode();
                 $diagnosticMessage = $detailedError->getDiagnosticMessage();
