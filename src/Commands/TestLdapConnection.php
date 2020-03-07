@@ -49,7 +49,14 @@ class TestLdapConnection extends Command
 
                 $message = 'Successfully connected.';
             } catch (BindException $e) {
-                $message = "Unable to connect. {$e->getMessage()}";
+                $detailedError = $e->getDetailedError();
+
+                $errorCode = $detailedError->getErrorCode();
+                $diagnosticMessage = $detailedError->getDiagnosticMessage();
+
+                $message = "Unable to connect: {$e->getMessage()}.".
+                    "Error Code: [$errorCode]".
+                    "Diagnostic Message: $diagnosticMessage";
             }
 
             $rows[] = [
