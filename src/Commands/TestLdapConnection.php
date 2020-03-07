@@ -54,9 +54,9 @@ class TestLdapConnection extends Command
                 $errorCode = $detailedError->getErrorCode();
                 $diagnosticMessage = $detailedError->getDiagnosticMessage();
 
-                $message = "{$e->getMessage()} ".
-                    "Error Code: [$errorCode]".
-                    "Diagnostic Message: $diagnosticMessage";
+                $message = "{$e->getMessage()}. ".
+                    "Error Code: [$errorCode] ".
+                    "Diagnostic Message: " . $diagnosticMessage ?? 'null';
             }
 
             $rows[] = [
