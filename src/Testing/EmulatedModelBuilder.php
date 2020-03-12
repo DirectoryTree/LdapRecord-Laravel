@@ -47,7 +47,7 @@ class EmulatedModelBuilder extends Builder
     public function insert($dn, array $attributes)
     {
         if (Arr::get($attributes, 'objectclass') == null) {
-            throw new Exception('LDAP objects must have the object classes to be created.');
+            throw new Exception('LDAP objects must have object classes to be created.');
         }
 
         $model = tap($this->newEloquentModel(), function ($model) use ($dn, $attributes) {
