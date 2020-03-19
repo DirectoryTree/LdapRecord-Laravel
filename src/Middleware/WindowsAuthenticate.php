@@ -5,6 +5,7 @@ namespace LdapRecord\Laravel\Middleware;
 use Closure;
 use Illuminate\Contracts\Auth\Factory as Auth;
 use Illuminate\Database\Eloquent\Model as Eloquent;
+use Illuminate\Support\Facades\Config;
 use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use LdapRecord\Laravel\Auth\UserProvider;
 use LdapRecord\Laravel\Events\AuthenticatedWithWindows;
@@ -136,7 +137,7 @@ class WindowsAuthenticate
      */
     protected function getUserFromRepository(LdapUserRepository $repository, $username)
     {
-        return $repository->findBy('samaccountname', $username);
+        return $repository->findBy($this->discover(), $username);
     }
 
     /**
@@ -212,6 +213,27 @@ class WindowsAuthenticate
      */
     protected function account($request)
     {
-        return utf8_encode($request->server('AUTH_USER'));
+        return utf8_encode($request->server($this->key()));
+    }
+
+    /**
+     * Returns the configured key to use for retrieving
+     * the username from the server global variable.
+     *
+     * @return string
+     */
+    protected function key()
+    {
+        return Config::get('ldap.identifiers.windows.server_key', 'AUTH_USER');
+    }
+
+    /**
+     * Returns the attribute to discover users by.
+     *
+     * @return string
+     */
+    protected function discover()
+    {
+        return Config::get('ldap.identifiers.windows.locate_users_by', 'samaccountname');
     }
 }

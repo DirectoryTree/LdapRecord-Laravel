@@ -70,4 +70,38 @@ return [
         'driver' => env('CACHE_DRIVER', 'file'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Windows Authentication Middleware (SSO)
+    |--------------------------------------------------------------------------
+    |
+    | Locate Users By:
+    |
+    |   This value is the users attribute you would like to locate LDAP
+    |   users by in your directory.
+    |
+    |   For example, if 'samaccountname' is the value, then your LDAP server is
+    |   queried for a user with the 'samaccountname' equal to the value of
+    |   $_SERVER['AUTH_USER'].
+    |
+    |   If a user is found, they are imported (if using the DatabaseUserProvider)
+    |   into your local database, then logged in.
+    |
+    | Server Key:
+    |
+    |    This value represents the 'key' of the $_SERVER
+    |    array to pull the users account name from.
+    |
+    |    For example, $_SERVER['AUTH_USER'].
+    |
+    */
+
+    'windows' => [
+
+        'locate_users_by' => 'samaccountname',
+
+        'server_key' => 'AUTH_USER',
+
+    ],
+
 ];
