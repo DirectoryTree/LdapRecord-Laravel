@@ -59,11 +59,11 @@ class WindowsAuthenticate
      */
     protected function authenticate($request, array $guards)
     {
-        [$domain, $username] = array_pad(
-            explode('\\', $this->account($request)), 2, null
+        [$username, $domain] = array_pad(
+            array_reverse(explode('\\', $this->account($request))), 2, null
         );
 
-        if (empty($domain) || empty($username)) {
+        if (empty($username)) {
             return;
         }
 
