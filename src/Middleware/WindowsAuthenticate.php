@@ -77,7 +77,7 @@ class WindowsAuthenticate
     }
 
     /**
-     * Bypass domain verification when locating users.
+     * Bypass domain verification when logging in users.
      *
      * @return void
      */
