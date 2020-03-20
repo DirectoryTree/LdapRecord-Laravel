@@ -70,7 +70,7 @@ class LdapUserImporterTest extends TestCase
         $ldapModel = $this->getMockLdapModel(['cn' => 'john', 'mail' => 'test@email.com']);
 
         $importer = new LdapUserImporter(TestUser::class, [
-            'sync_attributes' => [TestLdapUserAttributeHandler::class]
+            'sync_attributes' => [TestLdapUserAttributeHandler::class],
         ]);
 
         $model = $importer->run($ldapModel);
@@ -113,7 +113,7 @@ class LdapUserImporterTest extends TestCase
 
         $importer = new LdapUserImporter(TestUser::class, [
             'sync_passwords' => true,
-            'sync_attributes' => []
+            'sync_attributes' => [],
         ]);
 
         $password = 'secret';
@@ -130,7 +130,7 @@ class LdapUserImporterTest extends TestCase
 
         $importer = new LdapUserImporter(TestUser::class, [
             'sync_passwords' => false,
-            'sync_attributes' => []
+            'sync_attributes' => [],
         ]);
 
         $model = $this->createTestUser([
@@ -157,7 +157,7 @@ class LdapUserImporterTest extends TestCase
 
         $importer = new LdapUserImporter(TestUser::class, [
             'sync_passwords' => true,
-            'sync_attributes' => []
+            'sync_attributes' => [],
         ]);
 
         $hashedPassword = Hash::make('secret');
