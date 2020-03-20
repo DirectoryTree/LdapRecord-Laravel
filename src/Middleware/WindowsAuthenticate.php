@@ -15,6 +15,20 @@ use LdapRecord\Models\Model;
 class WindowsAuthenticate
 {
     /**
+     * The server key to use for retrieving user SSO information.
+     *
+     * @var string
+     */
+    public static $serverKey = 'AUTH_USER';
+
+    /**
+     * The username attribute to use for locating users.
+     *
+     * @var string
+     */
+    public static $username = 'samaccountname';
+
+    /**
      * The auth factory instance.
      *
      * @var Auth
@@ -29,6 +43,26 @@ class WindowsAuthenticate
     public function __construct(Auth $auth)
     {
         $this->auth = $auth;
+    }
+
+    /**
+     * Define the server key to use for fetching user SSO information.
+     *
+     * @param string $key
+     */
+    public static function serverKey($key)
+    {
+        static::$serverKey = $key;
+    }
+
+    /**
+     * Define the username attribute for locating users.
+     *
+     * @param string $attribute
+     */
+    public static function username($attribute)
+    {
+        static::$username = $attribute;
     }
 
     /**
@@ -136,7 +170,7 @@ class WindowsAuthenticate
      */
     protected function getUserFromRepository(LdapUserRepository $repository, $username)
     {
-        return $repository->findBy('samaccountname', $username);
+        return $repository->findBy(static::$username, $username);
     }
 
     /**
@@ -212,6 +246,6 @@ class WindowsAuthenticate
      */
     protected function account($request)
     {
-        return utf8_encode($request->server('AUTH_USER'));
+        return utf8_encode($request->server(static::$serverKey));
     }
 }

@@ -166,7 +166,71 @@ class WindowsAuthMiddlewareTest extends TestCase
         });
 
         $middleware->handle($request, function () use ($user, $guard) {
-            $this->assertSame(auth()->user(), $user);
+            $this->assertSame($guard->user(), $user);
+        });
+    }
+
+    public function test_server_key_can_be_set()
+    {
+        WindowsAuthenticate::serverKey('FOO');
+
+        $this->setupPlainUserProvider();
+
+        $user = new User([
+            'cn' => 'SteveBauman',
+            'userprincipalname' => 'sbauman@local.com',
+            'objectguid' => 'bf9679e7-0de6-11d0-a285-00aa003049e2',
+        ]);
+
+        $user->setDn('cn=SteveBauman,ou=Users,dc=local,dc=com');
+
+        $users = m::mock(LdapUserRepository::class);
+        $users->shouldReceive('findBy')->once()->withArgs(['samaccountname', 'SteveBauman'])->andReturn($user);
+
+        $auth = app('auth');
+        $guard = $auth->guard();
+        $guard->getProvider()->setLdapUserRepository($users);
+
+        $middleware = new WindowsAuthenticate($auth);
+
+        $request = tap(new Request, function ($request) {
+            $request->server->set('FOO', 'Local\SteveBauman');
+        });
+
+        $middleware->handle($request, function () use ($user, $guard) {
+            $this->assertSame($guard->user(), $user);
+        });
+    }
+
+    public function test_username_can_be_set()
+    {
+        WindowsAuthenticate::username('foo');
+
+        $this->setupPlainUserProvider();
+
+        $user = new User([
+            'cn' => 'SteveBauman',
+            'userprincipalname' => 'sbauman@local.com',
+            'objectguid' => 'bf9679e7-0de6-11d0-a285-00aa003049e2',
+        ]);
+
+        $user->setDn('cn=SteveBauman,ou=Users,dc=local,dc=com');
+
+        $users = m::mock(LdapUserRepository::class);
+        $users->shouldReceive('findBy')->once()->withArgs(['foo', 'SteveBauman'])->andReturn($user);
+
+        $auth = app('auth');
+        $guard = $auth->guard();
+        $guard->getProvider()->setLdapUserRepository($users);
+
+        $middleware = new WindowsAuthenticate($auth);
+
+        $request = tap(new Request, function ($request) {
+            $request->server->set('AUTH_USER', 'Local\SteveBauman');
+        });
+
+        $middleware->handle($request, function () use ($user, $guard) {
+            $this->assertSame($guard->user(), $user);
         });
     }
 }
