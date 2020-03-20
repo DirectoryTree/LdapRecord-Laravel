@@ -15,7 +15,7 @@ use LdapRecord\Models\Model;
 class WindowsAuthenticate
 {
     /**
-     * The server key to use for retrieving user SSO information.
+     * The server key to use for fetching user SSO information.
      *
      * @var string
      */
@@ -27,6 +27,13 @@ class WindowsAuthenticate
      * @var string
      */
     public static $username = 'samaccountname';
+
+    /**
+     * Whether domain verification is enabled.
+     *
+     * @var bool
+     */
+    public static $domainVerification = true;
 
     /**
      * The auth factory instance.
@@ -49,6 +56,8 @@ class WindowsAuthenticate
      * Define the server key to use for fetching user SSO information.
      *
      * @param string $key
+     *
+     * @return void
      */
     public static function serverKey($key)
     {
@@ -59,10 +68,22 @@ class WindowsAuthenticate
      * Define the username attribute for locating users.
      *
      * @param string $attribute
+     *
+     * @return void
      */
     public static function username($attribute)
     {
         static::$username = $attribute;
+    }
+
+    /**
+     * Bypass domain verification when locating users.
+     *
+     * @return void
+     */
+    public static function bypassDomainVerification()
+    {
+        static::$domainVerification = false;
     }
 
     /**
@@ -82,6 +103,11 @@ class WindowsAuthenticate
     }
 
     /**
+     * @var \Closure
+     */
+    public static $test;
+
+    /**
      * Attempt to authenticate the LDAP user in the given guards.
      *
      * @param \Illuminate\Http\Request $request
@@ -93,11 +119,11 @@ class WindowsAuthenticate
      */
     protected function authenticate($request, array $guards)
     {
-        [$domain, $username] = array_pad(
-            explode('\\', $this->account($request)), 2, null
+        [$username, $domain] = array_pad(
+            array_reverse(explode('\\', $this->account($request))), 2, null
         );
 
-        if (empty($domain) || empty($username)) {
+        if (empty($username)) {
             return;
         }
 
@@ -183,7 +209,18 @@ class WindowsAuthenticate
      */
     protected function userIsApartOfDomain(Model $user, $domain)
     {
-        // Firstly, we will explode the users distinguished name into relative distinguished
+        if (! static::$domainVerification) {
+            return true;
+        }
+
+        // If an empty domain is given, we won't allow the user to authenticate as we will
+        // not be able to determine whether the user retrieved from the LDAP server is
+        // in-fact the user who has authenticated on our server via single sign on.
+        if (empty($domain)) {
+            return false;
+        }
+
+        // To start, we will explode the users distinguished name into relative distinguished
         // names. This will allow us to identify and pull the domain components from it
         // which may contain the single-sign-on users authenticated domain name.
         $components = array_map(function ($rdn) {
