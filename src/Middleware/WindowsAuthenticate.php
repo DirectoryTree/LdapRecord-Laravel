@@ -103,11 +103,6 @@ class WindowsAuthenticate
     }
 
     /**
-     * @var \Closure
-     */
-    public static $test;
-
-    /**
      * Attempt to authenticate the LDAP user in the given guards.
      *
      * @param \Illuminate\Http\Request $request
