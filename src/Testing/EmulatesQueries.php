@@ -225,7 +225,7 @@ trait EmulatesQueries
         if (
             $this->nested &&
             $this->nestedState = 'or' &&
-                $this->fieldIsUsedMultipleTimes($type, $bindings['field'])
+            $this->fieldIsUsedMultipleTimes($type, $bindings['field'])
         ) {
             $method = $method == 'whereDoesntHave' ?
                 'orWhereDoesntHave' :
