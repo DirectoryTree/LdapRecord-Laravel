@@ -17,6 +17,16 @@ class WindowsAuthMiddlewareTest extends TestCase
 {
     use CreatesTestUsers;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Reset middleware.
+        WindowsAuthenticate::$domainVerification = true;
+        WindowsAuthenticate::$serverKey = 'AUTH_USER';
+        WindowsAuthenticate::$username = 'samaccountname';
+    }
+
     public function test_request_continues_if_user_is_not_set_in_the_server_params()
     {
         $this->doesntExpectEvents([
