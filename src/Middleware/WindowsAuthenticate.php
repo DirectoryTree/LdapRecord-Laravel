@@ -162,7 +162,7 @@ class WindowsAuthenticate
             return;
         }
 
-        // Here we will determine if the current provider in use is uses database
+        // Here we will determine if the current provider in use uses database
         // synchronization. We will execute the LDAP importer in such case,
         // synchronizing the user and saving their database model.
         $model = $provider instanceof DatabaseUserProvider ?
