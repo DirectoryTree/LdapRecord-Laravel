@@ -9,6 +9,7 @@ use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use LdapRecord\Laravel\Auth\UserProvider;
 use LdapRecord\Laravel\Events\AuthenticatedWithWindows;
 use LdapRecord\Laravel\Events\Imported;
+use LdapRecord\Laravel\LdapUserAuthenticator;
 use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Models\Model;
 
@@ -164,21 +165,31 @@ class WindowsAuthenticate
 
         $model = null;
 
-        // If we are using the DatabaseUserProvider, we must locate or import
-        // the users model that is currently authenticated with SSO.
-        if ($provider instanceof DatabaseUserProvider) {
-            // Here we will import the LDAP user. If the user already exists in
-            // our local database, it will be returned from the importer.
-            $model = $provider->getLdapUserImporter()->run($user);
+        // Here we will use the LDAP user authenticator to validate that the single-sign-on
+        // user is allowed to sign into our application. For our callback, we will always
+        // return true, since they have already authenticated against our web server.
+        $allowedToAuthenticate = $provider->getLdapUserAuthenticator()
+            ->setEloquentModel($model)
+            ->attemptOnceUsing(function () use ($provider, $user, &$model) {
+                // Here we will determine if the current provider in use is uses database
+                // synchronization. We will execute the LDAP importer in such case,
+                // synchronizing the user and saving their database model.
+                if ($provider instanceof DatabaseUserProvider) {
+                    $model = $provider->getLdapUserImporter()->run($user);
 
-            if ($model->save() && $model->wasRecentlyCreated) {
-                $this->fireImportedEvent($user, $model);
-            }
+                    if ($model->save() && $model->wasRecentlyCreated) {
+                        $this->fireImportedEvent($user, $model);
+                    }
+                }
+
+                return true;
+            }, $user);
+
+        if ($allowedToAuthenticate) {
+            $this->fireAuthenticatedEvent($user, $model);
+
+            return $model ? $model : $user;
         }
-
-        $this->fireAuthenticatedEvent($user, $model);
-
-        return $model ? $model : $user;
     }
 
     /**
