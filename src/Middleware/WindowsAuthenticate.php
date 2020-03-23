@@ -174,15 +174,15 @@ class WindowsAuthenticate
         // return true, since they have already authenticated against our web server.
         $allowedToAuthenticate = $provider->getLdapUserAuthenticator()
             ->setEloquentModel($model)
-            ->attemptOnceUsing(function () use ($provider, $user, $model) {
-                if ($model && $model->save() && $model->wasRecentlyCreated) {
-                    $this->fireImportedEvent($user, $model);
-                }
-
+            ->attemptOnceUsing(function () {
                 return true;
             }, $user);
-        
+
         if ($allowedToAuthenticate) {
+            if ($model && $model->save() && $model->wasRecentlyCreated) {
+                $this->fireImportedEvent($user, $model);
+            }
+
             $this->fireAuthenticatedEvent($user, $model);
 
             return $model ? $model : $user;
