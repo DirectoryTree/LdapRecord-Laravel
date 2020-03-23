@@ -346,7 +346,7 @@ class WindowsAuthRuleStub extends Rule
 {
     public function isValid()
     {
-        $_SERVER[WindowsAuthRuleStub::class] = true;
+        $_SERVER[self::class] = true;
 
         return false;
     }

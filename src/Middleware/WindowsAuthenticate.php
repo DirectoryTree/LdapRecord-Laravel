@@ -181,7 +181,7 @@ class WindowsAuthenticate
 
                 return true;
             }, $user);
-        
+
         if ($allowedToAuthenticate) {
             $this->fireAuthenticatedEvent($user, $model);
 
