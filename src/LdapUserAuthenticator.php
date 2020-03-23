@@ -2,6 +2,7 @@
 
 namespace LdapRecord\Laravel;
 
+use Closure;
 use LdapRecord\Laravel\Auth\Validator;
 use LdapRecord\Laravel\Events\Authenticated;
 use LdapRecord\Laravel\Events\AuthenticatedModelTrashed;
@@ -29,6 +30,13 @@ class LdapUserAuthenticator
     protected $eloquentModel;
 
     /**
+     * The authenticator to use for validating the users password.
+     *
+     * @var Closure
+     */
+    protected $authenticator;
+
+    /**
      * Constructor.
      *
      * @param array $rules
@@ -36,10 +44,14 @@ class LdapUserAuthenticator
     public function __construct(array $rules = [])
     {
         $this->rules = $rules;
+
+        $this->authenticator = function (Model $user, $password) {
+            return $user->getConnection()->auth()->attempt($user->getDn(), $password);
+        };
     }
 
     /**
-     * Set the eloquent model.
+     * Set the authenticating eloquent model.
      *
      * @param \Illuminate\Database\Eloquent\Model $model
      *
@@ -70,7 +82,7 @@ class LdapUserAuthenticator
             return false;
         }
 
-        if ($user->getConnection()->auth()->attempt($user->getDn(), $password)) {
+        if (call_user_func($this->authenticator, $user, $password)) {
             $this->passed($user);
 
             // Here we will perform authorization on the LDAP user. If all
@@ -88,6 +100,40 @@ class LdapUserAuthenticator
         $this->failed($user);
 
         return false;
+    }
+
+    /**
+     * Attempt authentication using the given callback once.
+     *
+     * @param Closure     $callback
+     * @param Model       $user
+     * @param string|null $password
+     *
+     * @return bool
+     */
+    public function attemptOnceUsing(Closure $callback, Model $user, $password = null)
+    {
+        $authenticator = $this->authenticator;
+
+        $result = $this->authenticateUsing($callback)->attempt($user, $password);
+
+        $this->authenticator = $authenticator;
+
+        return $result;
+    }
+
+    /**
+     * Set the callback to use for authenticating users.
+     *
+     * @param Closure $authenticator
+     *
+     * @return $this
+     */
+    public function authenticateUsing(Closure $authenticator)
+    {
+        $this->authenticator = $authenticator;
+
+        return $this;
     }
 
     /**
