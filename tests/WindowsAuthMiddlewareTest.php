@@ -3,6 +3,7 @@
 namespace LdapRecord\Laravel\Tests;
 
 use Illuminate\Http\Request;
+use LdapRecord\Laravel\Auth\Rule;
 use LdapRecord\Laravel\Events\AuthenticatedWithWindows;
 use LdapRecord\Laravel\Events\Imported;
 use LdapRecord\Laravel\Events\Importing;
@@ -304,5 +305,49 @@ class WindowsAuthMiddlewareTest extends TestCase
         $middleware->handle($request, function () use ($user, $guard) {
             $this->assertSame($guard->user(), $user);
         });
+    }
+
+    public function test_authentication_rules_are_used()
+    {
+        $this->setupPlainUserProvider([
+            'rules' => [WindowsAuthRuleStub::class],
+        ]);
+
+        $user = new User([
+            'cn' => 'SteveBauman',
+            'userprincipalname' => 'sbauman@local.com',
+            'objectguid' => 'bf9679e7-0de6-11d0-a285-00aa003049e2',
+        ]);
+
+        $user->setDn('cn=SteveBauman,ou=Users,dc=local,dc=com');
+
+        $users = m::mock(LdapUserRepository::class);
+        $users->shouldReceive('findBy')->once()->withArgs(['samaccountname', 'SteveBauman'])->andReturn($user);
+
+        $auth = app('auth');
+        $guard = $auth->guard();
+        $guard->getProvider()->setLdapUserRepository($users);
+
+        $middleware = new WindowsAuthenticate($auth);
+
+        $request = tap(new Request, function ($request) {
+            $request->server->set('AUTH_USER', 'Local\SteveBauman');
+        });
+
+        $middleware->handle($request, function () use ($guard) {
+            $this->assertNull($guard->user());
+
+            $this->assertTrue($_SERVER[WindowsAuthRuleStub::class]);
+        });
+    }
+}
+
+class WindowsAuthRuleStub extends Rule
+{
+    public function isValid()
+    {
+        $_SERVER[WindowsAuthRuleStub::class] = true;
+
+        return false;
     }
 }
