@@ -127,6 +127,10 @@ class WindowsAuthenticate
         }
 
         foreach ($guards as $guard) {
+            if ($this->auth->guard($guard)->check()) {
+                break;
+            }
+
             $provider = $this->auth->guard($guard)->getProvider();
 
             if (! $provider instanceof UserProvider) {
