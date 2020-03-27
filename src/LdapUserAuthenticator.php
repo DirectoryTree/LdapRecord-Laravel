@@ -83,16 +83,16 @@ class LdapUserAuthenticator
         }
 
         if (call_user_func($this->authenticator, $user, $password)) {
-            $this->passed($user);
-
             // Here we will perform authorization on the LDAP user. If all
             // validation rules pass, we will allow the authentication
             // attempt. Otherwise, it is automatically rejected.
-            if (! $this->validator($user, $this->eloquentModel)->passes()) {
+            if (! $this->validate($user)) {
                 $this->rejected($user);
 
                 return false;
             }
+
+            $this->passed($user);
 
             return true;
         }
@@ -134,6 +134,18 @@ class LdapUserAuthenticator
         $this->authenticator = $authenticator;
 
         return $this;
+    }
+
+    /**
+     * Validate the given user against the authentication rules.
+     *
+     * @param Model $user
+     *
+     * @return bool
+     */
+    protected function validate(Model $user)
+    {
+        return $this->validator($user, $this->eloquentModel)->passes();
     }
 
     /**

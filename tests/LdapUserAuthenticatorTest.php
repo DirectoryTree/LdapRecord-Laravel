@@ -85,9 +85,9 @@ class LdapUserAuthenticatorTest extends TestCase
 
         $this->expectsEvents([
             Authenticating::class,
-            Authenticated::class,
             AuthenticationRejected::class,
         ])->doesntExpectEvents([
+            Authenticated::class,
             AuthenticationFailed::class,
         ]);
 
