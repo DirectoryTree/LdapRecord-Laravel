@@ -38,7 +38,7 @@ Authenticate users from as many LDAP domains as you'd like. Support comes [out o
 
 Search for LDAP objects with a [fluent and easy to use interface](https://ldaprecord.com/docs/searching) you're used to. You'll feel right at home.
 
-✏️ **ActiveRecord LDAP Models**
+✏️ **Active Record LDAP Models**
 
 LDAP objects are returned as [individual models](https://ldaprecord.com/docs/models). Easily create
 and update models then persist them to your LDAP server with a simple `save()`.
