@@ -2,13 +2,13 @@
 
 namespace LdapRecord\Laravel\Tests;
 
-use LdapRecord\Models\Entry;
 use Illuminate\Support\Facades\Hash;
 use LdapRecord\Laravel\EloquentHydrator;
 use LdapRecord\Laravel\Hydrators\AttributeHydrator;
 use LdapRecord\Laravel\Hydrators\DomainHydrator;
 use LdapRecord\Laravel\Hydrators\GuidHydrator;
 use LdapRecord\Laravel\Hydrators\PasswordHydrator;
+use LdapRecord\Models\Entry;
 
 class EloquentHydratorTest extends TestCase
 {
