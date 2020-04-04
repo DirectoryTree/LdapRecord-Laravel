@@ -117,7 +117,7 @@ class LdapUserImporterTest extends TestCase
         ]);
 
         $password = 'secret';
-        $model = $importer->run($ldapModel, $password);
+        $model = $importer->run($ldapModel, ['password' => $password]);
         $this->assertInstanceOf(TestUser::class, $model);
         $this->assertTrue(Hash::check($password, $model->password));
     }
@@ -173,7 +173,7 @@ class LdapUserImporterTest extends TestCase
 
         $this->assertEquals($hashedPassword, $model->password);
 
-        $imported = $importer->run($ldapModel, 'secret');
+        $imported = $importer->run($ldapModel, ['password' => 'secret']);
         $imported->save();
 
         $this->assertTrue($imported->is($model));

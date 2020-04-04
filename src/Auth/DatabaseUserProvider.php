@@ -105,7 +105,7 @@ class DatabaseUserProvider extends UserProvider
         if ($user = $this->users->findByCredentials($credentials)) {
             $this->setAuthenticatingUser($user);
 
-            return $this->importer->run($user, $credentials['password']);
+            return $this->importer->run($user, $credentials);
         }
     }
 

@@ -2,8 +2,8 @@
 
 namespace LdapRecord\Laravel\Hydrators;
 
-use Illuminate\Database\Eloquent\Model as EloquentModel;
 use LdapRecord\Models\Model as LdapModel;
+use Illuminate\Database\Eloquent\Model as EloquentModel;
 
 abstract class Hydrator
 {
@@ -15,25 +15,35 @@ abstract class Hydrator
     protected $config = [];
 
     /**
+     * Extra data for the hydration process.
+     *
+     * @var array
+     */
+    protected $data = [];
+
+    /**
      * Constructor.
      *
      * @param array $config
+     * @param array $data
      */
-    public function __construct(array $config = [])
+    public function __construct(array $config = [], array $data = [])
     {
         $this->config = $config;
+        $this->data = $data;
     }
 
     /**
      * Create a new hydrator instance.
      *
      * @param array $config
+     * @param array $data
      *
      * @return static
      */
-    public static function with(array $config = [])
+    public static function with(array $config = [], array $data = [])
     {
-        return new static($config);
+        return new static($config, $data);
     }
 
     /**
