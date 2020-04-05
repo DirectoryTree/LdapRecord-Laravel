@@ -2,16 +2,16 @@
 
 namespace LdapRecord\Laravel\Hydrators;
 
-use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Hash;
-use LdapRecord\Models\Model as LdapModel;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use LdapRecord\Models\Model as LdapModel;
 
 class PasswordHydrator extends Hydrator
 {
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function hydrate(LdapModel $user, EloquentModel $database)
     {
