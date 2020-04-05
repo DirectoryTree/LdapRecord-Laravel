@@ -39,24 +39,24 @@ class LdapImporter
     /**
      * Import / synchronize the LDAP object.
      *
-     * @param LdapModel $user
+     * @param LdapModel $object
      * @param array     $data
      *
      * @return EloquentModel
      */
-    public function run(LdapModel $user, array $data = [])
+    public function run(LdapModel $object, array $data = [])
     {
-        $eloquent = $this->createOrFindEloquentModel($user);
+        $eloquent = $this->createOrFindEloquentModel($object);
 
         if (! $eloquent->exists) {
-            event(new Importing($user, $eloquent));
+            event(new Importing($object, $eloquent));
         }
 
-        event(new Synchronizing($user, $eloquent));
+        event(new Synchronizing($object, $eloquent));
 
-        $this->hydrate($user, $eloquent, $data);
+        $this->hydrate($object, $eloquent, $data);
 
-        event(new Synchronized($user, $eloquent));
+        event(new Synchronized($object, $eloquent));
 
         return $eloquent;
     }
@@ -91,7 +91,7 @@ class LdapImporter
     }
 
     /**
-     * Retrieves an eloquent user by their GUID.
+     * Retrieves an eloquent model by their GUID.
      *
      * @param LdapModel $ldap
      *
@@ -104,9 +104,9 @@ class LdapImporter
         $query = $model->newQuery();
 
         if ($query->getMacro('withTrashed')) {
-            // If the withTrashed macro exists on our User model, then we must be
-            // using soft deletes. We need to make sure we include these
-            // results so we don't create duplicate user records.
+            // If the withTrashed macro exists on our eloquent model, then we must
+            // be using soft deletes. We need to make sure we include these
+            // results so we don't create duplicate database records.
             $query->withTrashed();
         }
 
