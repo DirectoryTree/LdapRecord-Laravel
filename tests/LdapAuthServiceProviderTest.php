@@ -30,7 +30,11 @@ class LdapAuthServiceProviderTest extends TestCase
     {
         $this->artisan('vendor:publish', ['--provider' => LdapAuthServiceProvider::class, '--no-interaction' => true]);
 
-        $this->assertFileExists(database_path('migrations/'.date('Y_m_d_His', time()).'_add_ldap_columns_to_users_table.php'));
+        $migrationFile = database_path('migrations/'.date('Y_m_d_His', time()).'_add_ldap_columns_to_users_table.php');
+
+        $this->assertFileExists($migrationFile);
+
+        unlink($migrationFile);
     }
 
     public function test_model_binding_listener_is_setup()
