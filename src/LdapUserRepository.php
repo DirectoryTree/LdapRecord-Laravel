@@ -90,7 +90,7 @@ class LdapUserRepository
             }
         }
 
-        if ($user = $query->first()) {
+        if (! is_null($user = $query->first())) {
             event(new DiscoveredWithCredentials($user));
 
             return $user;
