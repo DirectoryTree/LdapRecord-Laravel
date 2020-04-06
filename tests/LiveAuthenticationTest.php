@@ -39,7 +39,7 @@ class LiveAuthenticationTest extends TestCase
 
         $model = Auth::user();
 
-        $this->assertInstanceOf(TestUser::class, $model);
+        $this->assertInstanceOf(TestUserModelStub::class, $model);
         $this->assertEquals('jdoe@email.com', $model->email);
         $this->assertEquals('John', $model->name);
         $this->assertFalse(Auth::attempt(['mail' => 'invalid', 'password' => 'secret']));

@@ -11,7 +11,7 @@ class ValidatorRuleTest extends TestCase
 
     public function test_only_imported()
     {
-        $this->assertFalse((new OnlyImported(new Entry, new TestUser))->isValid());
+        $this->assertFalse((new OnlyImported(new Entry, new TestUserModelStub))->isValid());
 
         $user = $this->createTestUser([
             'name' => 'John Doe',

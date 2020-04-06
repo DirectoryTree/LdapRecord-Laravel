@@ -65,7 +65,7 @@ class ImportCommandTest extends DatabaseTestCase
             $repo->shouldReceive('query')->once()->andReturn($query);
         });
 
-        $importer = $this->createLdapUserImporter(TestUser::class, [
+        $importer = $this->createLdapUserImporter(TestUserModelStub::class, [
             'sync_attributes' => ['name' => 'cn', 'email' => 'mail'],
         ]);
 

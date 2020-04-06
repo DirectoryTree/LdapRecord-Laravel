@@ -21,7 +21,7 @@ class LiveBindLdapUserTest extends TestCase
             'objectguid' => Uuid::uuid4()->toString(),
         ]);
 
-        $model = TestUser::create([
+        $model = TestUserModelStub::create([
             'name' => $user->cn[0],
             'email' => $user->mail[0],
             'guid' => $user->objectguid[0],
@@ -40,7 +40,7 @@ class LiveBindLdapUserTest extends TestCase
 
         DirectoryEmulator::setup();
 
-        $model = TestUser::create([
+        $model = TestUserModelStub::create([
             'name' => 'John',
             'email' => 'jdoe@email.com',
             'guid' => Uuid::uuid4()->toString(),

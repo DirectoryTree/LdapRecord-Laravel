@@ -30,7 +30,7 @@ class LiveImportTest extends DatabaseTestCase
         $this->artisan('ldap:import', ['provider' => 'ldap-database', '--no-interaction'])
             ->assertExitCode(0);
 
-        $created = TestUser::get();
+        $created = TestUserModelStub::get();
         $this->assertCount(10, $created);
         $this->assertEquals($users->first()->mail[0], $created->first()->email);
     }
@@ -54,7 +54,7 @@ class LiveImportTest extends DatabaseTestCase
             '--delete' => true,
         ])->assertExitCode(0);
 
-        $created = TestUser::withTrashed()->first();
+        $created = TestUserModelStub::withTrashed()->first();
         $this->assertTrue($created->trashed());
     }
 
@@ -71,7 +71,7 @@ class LiveImportTest extends DatabaseTestCase
             'userAccountControl' => (new AccountControl)->accountIsNormal(),
         ]);
 
-        $created = TestUser::create([
+        $created = TestUserModelStub::create([
             'name' => $user->cn[0],
             'email' => $user->mail[0],
             'guid' => $user->objectguid[0],

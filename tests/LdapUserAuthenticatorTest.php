@@ -109,7 +109,7 @@ class LdapUserAuthenticatorTest extends TestCase
         );
 
         $auth = new LdapUserAuthenticator([TestLdapAuthRuleWithEloquentModel::class]);
-        $auth->setEloquentModel(new TestUser());
+        $auth->setEloquentModel(new TestUserModelStub());
 
         $this->expectsEvents([
             Authenticating::class,

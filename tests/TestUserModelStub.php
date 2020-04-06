@@ -8,7 +8,7 @@ use LdapRecord\Laravel\Auth\AuthenticatesWithLdap;
 use LdapRecord\Laravel\Auth\HasLdapUser;
 use LdapRecord\Laravel\Auth\LdapAuthenticatable;
 
-class TestUser extends User implements LdapAuthenticatable
+class TestUserModelStub extends User implements LdapAuthenticatable
 {
     use SoftDeletes, AuthenticatesWithLdap, HasLdapUser;
 

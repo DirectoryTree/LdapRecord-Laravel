@@ -14,7 +14,7 @@ class DatabaseUserProviderTest extends DatabaseTestCase
 
     public function test_importer_can_be_retrieved()
     {
-        $importer = new LdapUserImporter(TestUser::class, []);
+        $importer = new LdapUserImporter(TestUserModelStub::class, []);
         $provider = $this->createDatabaseUserProvider(
             $this->createLdapUserRepository(),
             $this->createLdapUserAuthenticator(),
@@ -88,7 +88,7 @@ class DatabaseUserProviderTest extends DatabaseTestCase
 
     public function test_validate_credentials_returns_false_when_no_database_model_is_set()
     {
-        $databaseModel = new TestUser;
+        $databaseModel = new TestUserModelStub;
 
         $provider = $this->createDatabaseUserProvider();
         $this->assertFalse($provider->validateCredentials($databaseModel, ['password' => 'secret']));
@@ -108,7 +108,7 @@ class DatabaseUserProviderTest extends DatabaseTestCase
         $repo->shouldReceive('findByCredentials')->once()->withArgs([$credentials])->andReturn($ldapUser);
 
         $auth = m::mock(LdapUserAuthenticator::class);
-        $auth->shouldReceive('setEloquentModel')->once()->withArgs([TestUser::class]);
+        $auth->shouldReceive('setEloquentModel')->once()->withArgs([TestUserModelStub::class]);
         $auth->shouldReceive('attempt')->once()->withArgs([$ldapUser, 'secret'])->andReturnTrue();
 
         $provider = $this->createDatabaseUserProvider($repo, $auth);

@@ -15,7 +15,7 @@ class ValidatorTest extends TestCase
 
     public function test_rules_can_be_added()
     {
-        $rule = new TestPassingRule(new Entry, new TestUser);
+        $rule = new TestPassingRule(new Entry, new TestUserModelStub);
         $validator = new Validator([$rule]);
 
         $this->assertCount(1, $validator->getRules());
@@ -24,25 +24,25 @@ class ValidatorTest extends TestCase
 
     public function test_passing_validation_rule()
     {
-        $rule = new TestPassingRule(new Entry, new TestUser);
+        $rule = new TestPassingRule(new Entry, new TestUserModelStub);
         $this->assertTrue((new Validator([$rule]))->passes());
     }
 
     public function test_failing_validation_rule()
     {
-        $rule = new TestFailingRule(new Entry, new TestUser);
+        $rule = new TestFailingRule(new Entry, new TestUserModelStub);
         $this->assertFalse((new Validator([$rule]))->passes());
     }
 
     public function test_all_rules_are_validated()
     {
-        $rule = new TestPassingRule(new Entry, new TestUser);
+        $rule = new TestPassingRule(new Entry, new TestUserModelStub);
 
         $validator = new Validator([$rule]);
 
         $this->assertTrue($validator->passes());
 
-        $validator->addRule(new TestFailingRule(new Entry, new TestUser));
+        $validator->addRule(new TestFailingRule(new Entry, new TestUserModelStub));
 
         $this->assertFalse($validator->passes());
     }

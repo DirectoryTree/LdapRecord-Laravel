@@ -16,14 +16,14 @@ class LdapUserImporterTest extends TestCase
 
     public function test_eloquent_model_can_be_set()
     {
-        $importer = new LdapUserImporter(TestUser::class, []);
-        $this->assertSame(TestUser::class, $importer->getEloquentModel());
-        $this->assertInstanceOf(TestUser::class, $importer->createEloquentModel());
+        $importer = new LdapUserImporter(TestUserModelStub::class, []);
+        $this->assertSame(TestUserModelStub::class, $importer->getEloquentModel());
+        $this->assertInstanceOf(TestUserModelStub::class, $importer->createEloquentModel());
     }
 
     public function test_config_can_be_set()
     {
-        $importer = new LdapUserImporter(TestUser::class, []);
+        $importer = new LdapUserImporter(TestUserModelStub::class, []);
         $config = ['foo' => 'bar'];
         $importer->setConfig($config);
         $this->assertEquals($config, $importer->getConfig());
@@ -35,10 +35,10 @@ class LdapUserImporterTest extends TestCase
 
         $ldapModel = $this->getMockLdapModel();
 
-        $importer = new LdapUserImporter(TestUser::class, ['sync_attributes' => []]);
+        $importer = new LdapUserImporter(TestUserModelStub::class, ['sync_attributes' => []]);
 
         $model = $importer->run($ldapModel);
-        $this->assertInstanceOf(TestUser::class, $model);
+        $this->assertInstanceOf(TestUserModelStub::class, $model);
         $this->assertEquals('guid', $model->getLdapGuid());
         $this->assertEquals('default', $model->getLdapDomain());
         $this->assertNotEmpty($model->password);
@@ -52,10 +52,10 @@ class LdapUserImporterTest extends TestCase
 
         $attributesToSynchronize = ['name' => 'cn'];
 
-        $importer = new LdapUserImporter(TestUser::class, $attributesToSynchronize);
+        $importer = new LdapUserImporter(TestUserModelStub::class, $attributesToSynchronize);
 
         $model = $importer->run($ldapModel);
-        $this->assertInstanceOf(TestUser::class, $model);
+        $this->assertInstanceOf(TestUserModelStub::class, $model);
         $this->assertEquals('guid', $model->getLdapGuid());
         $this->assertEquals('default', $model->getLdapDomain());
         $this->assertEquals('john', $model->name);
@@ -69,12 +69,12 @@ class LdapUserImporterTest extends TestCase
 
         $ldapModel = $this->getMockLdapModel(['cn' => 'john', 'mail' => 'test@email.com']);
 
-        $importer = new LdapUserImporter(TestUser::class, [
+        $importer = new LdapUserImporter(TestUserModelStub::class, [
             'sync_attributes' => [TestLdapUserAttributeHandler::class],
         ]);
 
         $model = $importer->run($ldapModel);
-        $this->assertInstanceOf(TestUser::class, $model);
+        $this->assertInstanceOf(TestUserModelStub::class, $model);
         $this->assertEquals('guid', $model->getLdapGuid());
         $this->assertEquals('default', $model->getLdapDomain());
         $this->assertEquals('jake', $model->name);
@@ -90,12 +90,12 @@ class LdapUserImporterTest extends TestCase
 
         $ldapModel = $this->getMockLdapModel(['cn' => 'john', 'mail' => 'test@email.com']);
 
-        $importer = new LdapUserImporter(TestUser::class, [
+        $importer = new LdapUserImporter(TestUserModelStub::class, [
             'sync_attributes' => TestLdapUserAttributeHandler::class,
         ]);
 
         $model = $importer->run($ldapModel);
-        $this->assertInstanceOf(TestUser::class, $model);
+        $this->assertInstanceOf(TestUserModelStub::class, $model);
         $this->assertEquals('guid', $model->getLdapGuid());
         $this->assertEquals('default', $model->getLdapDomain());
         $this->assertEquals('jake', $model->name);
@@ -111,14 +111,14 @@ class LdapUserImporterTest extends TestCase
 
         $ldapModel = $this->getMockLdapModel();
 
-        $importer = new LdapUserImporter(TestUser::class, [
+        $importer = new LdapUserImporter(TestUserModelStub::class, [
             'sync_passwords' => true,
             'sync_attributes' => [],
         ]);
 
         $password = 'secret';
         $model = $importer->run($ldapModel, ['password' => $password]);
-        $this->assertInstanceOf(TestUser::class, $model);
+        $this->assertInstanceOf(TestUserModelStub::class, $model);
         $this->assertTrue(Hash::check($password, $model->password));
     }
 
@@ -128,7 +128,7 @@ class LdapUserImporterTest extends TestCase
 
         $ldapModel = $this->getMockLdapModel(['']);
 
-        $importer = new LdapUserImporter(TestUser::class, [
+        $importer = new LdapUserImporter(TestUserModelStub::class, [
             'sync_passwords' => false,
             'sync_attributes' => [],
         ]);
@@ -155,7 +155,7 @@ class LdapUserImporterTest extends TestCase
 
         $ldapModel = $this->getMockLdapModel();
 
-        $importer = new LdapUserImporter(TestUser::class, [
+        $importer = new LdapUserImporter(TestUserModelStub::class, [
             'sync_passwords' => true,
             'sync_attributes' => [],
         ]);

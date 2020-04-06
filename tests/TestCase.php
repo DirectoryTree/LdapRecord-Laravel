@@ -98,7 +98,7 @@ abstract class TestCase extends BaseTestCase
             'rules' => [],
             'model' => \LdapRecord\Models\ActiveDirectory\User::class,
             'database' => [
-                'model' => \LdapRecord\Laravel\Tests\TestUser::class,
+                'model' => \LdapRecord\Laravel\Tests\TestUserModelStub::class,
                 'sync_passwords' => true,
                 'sync_attributes' => [
                     'name' => 'cn',

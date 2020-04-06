@@ -6,9 +6,9 @@ trait CreatesTestUsers
 {
     protected function createTestUser(array $attributes = [], $model = null)
     {
-        $model = $model ?? TestUser::class;
+        $model = $model ?? TestUserModelStub::class;
 
-        return tap(new $model, function (TestUser $user) use ($attributes) {
+        return tap(new $model, function (TestUserModelStub $user) use ($attributes) {
             foreach ($attributes as $name => $value) {
                 $user->{$name} = $value;
             }

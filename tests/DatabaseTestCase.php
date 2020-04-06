@@ -53,11 +53,11 @@ class DatabaseTestCase extends TestCase
 
     protected function createLdapUserImporter($eloquentModel = null, array $config = [])
     {
-        return new LdapUserImporter($eloquentModel ?? TestUser::class, $config);
+        return new LdapUserImporter($eloquentModel ?? TestUserModelStub::class, $config);
     }
 
     protected function createEloquentUserProvider($model = null)
     {
-        return new EloquentUserProvider(app('hash'), $model ?? TestUser::class);
+        return new EloquentUserProvider(app('hash'), $model ?? TestUserModelStub::class);
     }
 }

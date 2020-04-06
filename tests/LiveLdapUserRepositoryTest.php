@@ -43,10 +43,10 @@ class LiveLdapUserRepositoryTest extends TestCase
 
         $user = User::create(['cn' => 'John', 'objectguid' => $guid]);
 
-        $model = new TestUser(['guid' => $guid]);
+        $model = new TestUserModelStub(['guid' => $guid]);
 
         $repo = new LdapUserRepository(User::class);
-        $this->assertNull($repo->findByModel(new TestUser(['guid' => Uuid::uuid4()])));
+        $this->assertNull($repo->findByModel(new TestUserModelStub(['guid' => Uuid::uuid4()])));
         $this->assertTrue($user->is($repo->findByModel($model)));
     }
 
