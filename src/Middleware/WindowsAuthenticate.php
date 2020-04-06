@@ -126,11 +126,11 @@ class WindowsAuthenticate
             $guards = [null];
         }
 
-        foreach ($guards as $guard) {
-            if ($this->auth->guard($guard)->check()) {
-                break;
-            }
+        if ($this->authenticated($guards)) {
+            return;
+        }
 
+        foreach ($guards as $guard) {
             $provider = $this->auth->guard($guard)->getProvider();
 
             if (! $provider instanceof UserProvider) {
@@ -143,6 +143,24 @@ class WindowsAuthenticate
                 return $this->auth->login($user, $remember = true);
             }
         }
+    }
+
+    /**
+     * Determine if the user is authenticated in any of the given guards.
+     *
+     * @param array $guards
+     *
+     * @return bool
+     */
+    protected function authenticated(array $guards)
+    {
+        foreach ($guards as $guard) {
+            if ($this->auth->guard($guard)->check()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
