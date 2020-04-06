@@ -15,7 +15,7 @@ trait ImportableFromLdap
     }
 
     /**
-     * Get the users LDAP domain.
+     * Get the models LDAP domain.
      *
      * @return string
      */
@@ -25,7 +25,7 @@ trait ImportableFromLdap
     }
 
     /**
-     * Set the users LDAP domain.
+     * Set the models LDAP domain.
      *
      * @param string $domain
      *
@@ -37,7 +37,7 @@ trait ImportableFromLdap
     }
 
     /**
-     * Get the users LDAP GUID database column name.
+     * Get the models LDAP GUID database column name.
      *
      * @return string
      */
@@ -47,7 +47,7 @@ trait ImportableFromLdap
     }
 
     /**
-     * Get the users LDAP GUID.
+     * Get the models LDAP GUID.
      *
      * @return string
      */
@@ -57,7 +57,7 @@ trait ImportableFromLdap
     }
 
     /**
-     * Set the users LDAP GUID.
+     * Set the models LDAP GUID.
      *
      * @param string $guid
      *
