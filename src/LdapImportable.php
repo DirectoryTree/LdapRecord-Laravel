@@ -12,14 +12,14 @@ interface LdapImportable
     public function getLdapDomainColumn();
 
     /**
-     * Get the users LDAP domain.
+     * Get the models LDAP domain.
      *
      * @return string
      */
     public function getLdapDomain();
 
     /**
-     * Set the users LDAP domain.
+     * Set the models LDAP domain.
      *
      * @param string $domain
      *
@@ -35,14 +35,14 @@ interface LdapImportable
     public function getLdapGuidColumn();
 
     /**
-     * Get the users LDAP GUID.
+     * Get the models LDAP GUID.
      *
      * @return string
      */
     public function getLdapGuid();
 
     /**
-     * Set the users LDAP GUID.
+     * Set the models LDAP GUID.
      *
      * @param string $guid
      *
