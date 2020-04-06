@@ -55,6 +55,17 @@ class EloquentHydratorTest extends TestCase
         $this->assertFalse(Hash::needsRehash($model->password));
     }
 
+    public function test_password_hydrator_does_nothing_when_password_column_is_disabled()
+    {
+        $entry = new Entry(['bar' => 'baz']);
+        $model = new TestUserModelStub;
+        $hydrator = new PasswordHydrator(['password_column' => false]);
+
+        $hydrator->hydrate($entry, $model);
+
+        $this->assertNull($model->password);
+    }
+
     public function test_password_hydrator_uses_given_password_when_password_sync_is_enabled()
     {
         $entry = new Entry(['bar' => 'baz']);
