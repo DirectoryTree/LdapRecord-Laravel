@@ -101,6 +101,20 @@ class LdapImporter
     {
         $model = $this->createEloquentModel();
 
+        return $this->newEloquentQuery($model)
+                ->where($model->getLdapGuidColumn(), '=', $ldap->getConvertedGuid())
+                ->first() ?? $model->newInstance();
+    }
+
+    /**
+     * Creates a new query on the given model.
+     *
+     * @param EloquentModel $model
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    protected function newEloquentQuery(EloquentModel $model)
+    {
         $query = $model->newQuery();
 
         if ($query->getMacro('withTrashed')) {
@@ -110,9 +124,7 @@ class LdapImporter
             $query->withTrashed();
         }
 
-        return $query
-                ->where($model->getLdapGuidColumn(), '=', $ldap->getConvertedGuid())
-                ->first() ?? $model->newInstance();
+        return $query;
     }
 
     /**
@@ -148,7 +160,7 @@ class LdapImporter
     /**
      * Get a new domain database model.
      *
-     * @return \Illuminate\Database\Eloquent\Model
+     * @return EloquentModel
      */
     public function createEloquentModel()
     {
