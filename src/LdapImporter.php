@@ -101,9 +101,9 @@ class LdapImporter
     {
         $model = $this->createEloquentModel();
 
-        return $this->newEloquentQuery($model)
-                ->where($model->getLdapGuidColumn(), '=', $ldap->getConvertedGuid())
-                ->first() ?? $model->newInstance();
+        return $this->newEloquentQuery($model)->firstOrNew([
+            $model->getLdapGuidColumn() => $ldap->getConvertedGuid()
+        ]);
     }
 
     /**
