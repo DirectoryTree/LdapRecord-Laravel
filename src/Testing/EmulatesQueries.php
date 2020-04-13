@@ -394,8 +394,7 @@ trait EmulatesQueries
      */
     public function escape($value, $ignore = '', $flags = 0)
     {
-        // Don't escape values.
-        return $value;
+        return new UnescapedValue($value);
     }
 
     /**
