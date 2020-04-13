@@ -7,7 +7,7 @@ use LdapRecord\Models\Attributes\EscapedValue;
 class UnescapedValue extends EscapedValue
 {
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function __toString()
     {
@@ -15,7 +15,7 @@ class UnescapedValue extends EscapedValue
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function get()
     {
