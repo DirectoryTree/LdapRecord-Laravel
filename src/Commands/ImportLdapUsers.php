@@ -29,6 +29,7 @@ class ImportLdapUsers extends Command
             {user? : The specific user to import.}
             {--f|filter= : The raw LDAP filter for limiting users imported.}
             {--d|delete : Soft-delete the users model if their LDAP account is disabled.}
+            {--dm|delete-missing : Soft-delete all users that are missing from the import. }
             {--r|restore : Restores soft-deleted models if their LDAP account is enabled.}
             {--no-log : Disables logging successful and unsuccessful imports.}';
 
@@ -38,6 +39,13 @@ class ImportLdapUsers extends Command
      * @var string
      */
     protected $description = 'Imports LDAP users into the application database.';
+
+    /**
+     * A list of user GUIDs that were successfully imported.
+     *
+     * @var array
+     */
+    protected $imported = [];
 
     /**
      * Execute the console command.
@@ -64,9 +72,9 @@ class ImportLdapUsers extends Command
         if ($count === 0) {
             return $this->info('There were no users found to import.');
         } elseif ($count === 1) {
-            $this->info("Found user '{$users[0]->getRdn()}'.");
+            $this->info("Found user [{$users[0]->getRdn()}].");
         } else {
-            $this->info("Found {$count} user(s).");
+            $this->info("Found [$count] user(s).");
         }
 
         if (
@@ -80,62 +88,18 @@ class ImportLdapUsers extends Command
             ! $this->input->isInteractive() ||
             $this->confirm('Would you like these users to be imported / synchronized?', $default = true)
         ) {
-            $imported = $this->import($provider->getLdapUserImporter(), $users);
+            $this->import($provider->getLdapUserImporter(), $users);
 
-            $this->info("Successfully imported / synchronized {$imported} user(s).");
+            $imported = count($this->imported);
+
+            $this->info("Successfully imported / synchronized [$imported] user(s).");
+
+            if ($this->isDeletingMissing()) {
+                $this->deleteMissing($provider->getLdapUserImporter(), $provider->getLdapUserRepository());
+            }
         } else {
             $this->info('Okay, no users were imported / synchronized.');
         }
-    }
-
-    /**
-     * Imports the specified users and returns the total
-     * number of users successfully imported.
-     *
-     * @param LdapUserImporter $importer
-     * @param array            $users
-     *
-     * @return int
-     */
-    public function import(LdapUserImporter $importer, array $users = [])
-    {
-        $imported = 0;
-
-        $this->output->progressStart(count($users));
-
-        /** @var LdapModel $user */
-        foreach ($users as $user) {
-            try {
-                // Import the user and retrieve it's model.
-                $model = $importer->run($user);
-
-                // Save the returned model.
-                $this->save($user, $model);
-
-                if ($user instanceof ActiveDirectory) {
-                    if ($this->isDeleting()) {
-                        $this->delete($user, $model);
-                    }
-
-                    if ($this->isRestoring()) {
-                        $this->restore($user, $model);
-                    }
-                }
-
-                $imported++;
-            } catch (Exception $e) {
-                // Log the unsuccessful import.
-                if ($this->isLogging()) {
-                    logger()->error("Importing user [{$user->getRdn()}] failed. {$e->getMessage()}");
-                }
-            }
-
-            $this->output->progressAdvance();
-        }
-
-        $this->output->progressFinish();
-
-        return $imported;
     }
 
     /**
@@ -162,33 +126,126 @@ class ImportLdapUsers extends Command
     }
 
     /**
-     * Returns true / false if the current import is being logged.
+     * Imports the specified users and returns the total
+     * number of users successfully imported.
+     *
+     * @param LdapUserImporter $importer
+     * @param array            $users
+     *
+     * @return void
+     */
+    public function import(LdapUserImporter $importer, array $users = [])
+    {
+        $this->imported = [];
+
+        $this->output->progressStart(count($users));
+
+        /** @var LdapModel $user */
+        foreach ($users as $user) {
+            try {
+                // Import the user and retrieve it's model.
+                $model = $importer->run($user);
+
+                // Save the returned model.
+                $this->save($user, $model);
+
+                if ($user instanceof ActiveDirectory) {
+                    if ($this->isDeleting()) {
+                        $this->delete($user, $model);
+                    }
+
+                    if ($this->isRestoring()) {
+                        $this->restore($user, $model);
+                    }
+                }
+
+                $this->imported[] = $user->getConvertedGuid();
+            } catch (Exception $e) {
+                // Log the unsuccessful import.
+                if ($this->isLogging()) {
+                    logger()->error("Importing user [{$user->getRdn()}] failed. {$e->getMessage()}");
+                }
+            }
+
+            $this->output->progressAdvance();
+        }
+
+        $this->output->progressFinish();
+    }
+
+    /**
+     * Soft-delete all users who are missing from the import.
+     *
+     * @param LdapUserImporter   $importer
+     * @param LdapUserRepository $users
+     *
+     * @return void
+     */
+    public function deleteMissing(LdapUserImporter $importer, LdapUserRepository $users)
+    {
+        if (empty($this->imported)) {
+            return;
+        }
+
+        if (! $this->isUsingSoftDeletes($eloquent = $importer->createEloquentModel())) {
+            return;
+        }
+
+        $this->info("Soft-deleting all missing users...");
+
+        $domain = $users->createModel()->getConnectionName() ?? config('ldap.default');
+
+        // Here we will execute the a query for all users whom:
+        // 1. Are not already deleted
+        // 2. Have a 'guid' present
+        // 3. Are from our importing LDAP domain
+        // 4. Do not have a 'guid' present in the 'imported' GUID array
+        $deleted = $eloquent->newQuery()
+            ->whereNull($eloquent->getDeletedAtColumn())
+            ->whereNotNull($eloquent->getLdapGuidColumn())
+            ->where($eloquent->getLdapDomainColumn(), $domain)
+            ->whereNotIn($eloquent->getLdapGuidColumn(), $this->imported)
+            ->update([$eloquent->getDeletedAtColumn() => now()]);
+
+        $this->info("Successfully soft-deleted [$deleted] users.");
+    }
+
+    /**
+     * Determine if logging is enabled.
      *
      * @return bool
      */
-    public function isLogging(): bool
+    public function isLogging()
     {
         return ! $this->option('no-log');
     }
 
     /**
-     * Returns true / false if users are being deleted
-     * if their account is disabled in LDAP.
+     * Determine if soft-deleting disabled user accounts is enabled.
      *
      * @return bool
      */
-    public function isDeleting(): bool
+    public function isDeleting()
     {
         return $this->option('delete') == 'true';
     }
 
     /**
-     * Returns true / false if users are being restored
-     * if their account is enabled in LDAP.
+     * Determine if soft-deleting all missing users is enabled.
      *
      * @return bool
      */
-    public function isRestoring(): bool
+    public function isDeletingMissing()
+    {
+        return $this->option('delete-missing') == 'true';
+    }
+
+    /**
+     * Determine if restoring re-enabled users is enabled.
+     *
+     * @return bool
+     */
+    public function isRestoring()
     {
         return $this->option('restore') == 'true';
     }
