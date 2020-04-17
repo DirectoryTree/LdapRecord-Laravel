@@ -191,7 +191,7 @@ class ImportLdapUsers extends Command
             return;
         }
 
-        $this->info("Soft-deleting all missing users...");
+        $this->info('Soft-deleting all missing users...');
 
         $domain = $users->createModel()->getConnectionName() ?? config('ldap.default');
 
