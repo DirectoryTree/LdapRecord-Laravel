@@ -195,7 +195,7 @@ class ImportLdapUsers extends Command
 
         $domain = $users->createModel()->getConnectionName() ?? config('ldap.default');
 
-        // Here we will execute the a query for all users whom:
+        // Here we will soft-delete all users whom:
         // 1. Are not already deleted
         // 2. Have a 'guid' present
         // 3. Are from our importing LDAP domain
