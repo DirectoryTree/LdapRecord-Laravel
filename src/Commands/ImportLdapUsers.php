@@ -15,6 +15,7 @@ use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Models\Attributes\AccountControl;
 use LdapRecord\Models\Model as LdapModel;
 use LdapRecord\Models\Types\ActiveDirectory;
+use LdapRecord\Laravel\Events\DeletedMissing;
 
 class ImportLdapUsers extends Command
 {
@@ -193,7 +194,9 @@ class ImportLdapUsers extends Command
 
         $this->info('Soft-deleting all missing users...');
 
-        $domain = $users->createModel()->getConnectionName() ?? config('ldap.default');
+        $ldap = $users->createModel();
+
+        $domain = $ldap->getConnectionName() ?? config('ldap.default');
 
         // Here we will soft-delete all users whom:
         // 1. Are not already deleted
@@ -203,11 +206,27 @@ class ImportLdapUsers extends Command
         $deleted = $eloquent->newQuery()
             ->whereNull($eloquent->getDeletedAtColumn())
             ->whereNotNull($eloquent->getLdapGuidColumn())
-            ->where($eloquent->getLdapDomainColumn(), $domain)
+            ->where($eloquent->getLdapDomainColumn(), '=', $domain)
             ->whereNotIn($eloquent->getLdapGuidColumn(), $this->imported)
-            ->update([$eloquent->getDeletedAtColumn() => now()]);
+            ->update([$eloquent->getDeletedAtColumn() => $deletedAt = now()]);
 
-        $this->info("Successfully soft-deleted [$deleted] users.");
+        if ($deleted > 0) {
+            $this->info("Successfully soft-deleted [$deleted] users.");
+
+            // Here we will retrieve the ID's of all users who
+            // were deleted from the above query so we can
+            // log them appropriately using an event.
+            $ids = $eloquent->newQuery()
+                ->select($eloquent->getKeyName())
+                ->whereNotNull($eloquent->getLdapGuidColumn())
+                ->where($eloquent->getLdapDomainColumn(), '=', $domain)
+                ->where($eloquent->getDeletedAtColumn(), '=', $deletedAt)
+                ->pluck($eloquent->getKeyName());
+
+            event(new DeletedMissing($ids, $eloquent, $ldap));
+        } else {
+            $this->info("No missing users found. None have been soft-deleted.");
+        }
     }
 
     /**

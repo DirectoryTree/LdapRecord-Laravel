@@ -26,6 +26,7 @@ class LdapAuthServiceProvider extends ServiceProvider
         Events\Imported::class                  => Listeners\LogImported::class,
         Events\Synchronized::class              => Listeners\LogSynchronized::class,
         Events\Synchronizing::class             => Listeners\LogSynchronizing::class,
+        Events\DeletedMissing::class            => Listeners\LogDeletedMissing::class,
         Events\Authenticated::class             => Listeners\LogAuthenticated::class,
         Events\Authenticating::class            => Listeners\LogAuthentication::class,
         Events\AuthenticationFailed::class      => Listeners\LogAuthenticationFailure::class,
