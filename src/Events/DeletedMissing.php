@@ -2,8 +2,8 @@
 
 namespace LdapRecord\Laravel\Events;
 
-use LdapRecord\Models\Model as LdapModel;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
+use LdapRecord\Models\Model as LdapModel;
 
 class DeletedMissing
 {

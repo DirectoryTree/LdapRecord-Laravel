@@ -9,13 +9,13 @@ use Illuminate\Support\Facades\Auth;
 use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use LdapRecord\Laravel\Auth\UserProvider;
 use LdapRecord\Laravel\DetectsSoftDeletes;
+use LdapRecord\Laravel\Events\DeletedMissing;
 use LdapRecord\Laravel\Events\Imported;
 use LdapRecord\Laravel\LdapUserImporter;
 use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Models\Attributes\AccountControl;
 use LdapRecord\Models\Model as LdapModel;
 use LdapRecord\Models\Types\ActiveDirectory;
-use LdapRecord\Laravel\Events\DeletedMissing;
 
 class ImportLdapUsers extends Command
 {
@@ -225,7 +225,7 @@ class ImportLdapUsers extends Command
 
             event(new DeletedMissing($ids, $eloquent, $ldap));
         } else {
-            $this->info("No missing users found. None have been soft-deleted.");
+            $this->info('No missing users found. None have been soft-deleted.');
         }
     }
 
