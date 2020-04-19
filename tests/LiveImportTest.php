@@ -3,23 +3,31 @@
 namespace LdapRecord\Laravel\Tests;
 
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Event;
+use LdapRecord\Laravel\Events\DeletedMissing;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Models\ActiveDirectory\User;
 use LdapRecord\Models\Attributes\AccountControl;
+use LdapRecord\Models\Events\Deleted;
 
 class LiveImportTest extends DatabaseTestCase
 {
     use WithFaker;
 
-    public function test()
+    protected function setUp(): void
     {
+        parent::setUp();
+
         $this->setupDatabaseUserProvider();
 
         DirectoryEmulator::setup();
+    }
 
+    public function test_ldap_users_are_imported()
+    {
         $users = collect();
 
-        foreach (range(1, 10) as $iteration) {
+        for ($i = 0; $i < 10; $i++) {
             $users->add(User::create([
                 'cn' => $this->faker->name,
                 'mail' => $this->faker->email,
@@ -30,17 +38,22 @@ class LiveImportTest extends DatabaseTestCase
         $this->artisan('ldap:import', ['provider' => 'ldap-database', '--no-interaction'])
             ->assertExitCode(0);
 
-        $created = TestUserModelStub::get();
-        $this->assertCount(10, $created);
-        $this->assertEquals($users->first()->mail[0], $created->first()->email);
+        $imported = TestUserModelStub::get();
+        $this->assertCount(10, $imported);
+
+        for ($i = 0; $i < 10; $i++) {
+            $importedUser = $imported->get($i);
+            $ldapUser = $users->get($i);
+
+            $this->assertEquals($ldapUser->cn[0], $importedUser->name);
+            $this->assertEquals($ldapUser->mail[0], $importedUser->email);
+            $this->assertEquals('default', $importedUser->domain);
+            $this->assertEquals($ldapUser->getConvertedGuid(), $importedUser->guid);
+        }
     }
 
     public function test_disabled_users_are_soft_deleted_when_flag_is_set()
     {
-        $this->setupDatabaseUserProvider();
-
-        DirectoryEmulator::setup();
-
         User::create([
             'cn' => $this->faker->name,
             'mail' => $this->faker->email,
@@ -60,10 +73,6 @@ class LiveImportTest extends DatabaseTestCase
 
     public function test_enabled_users_who_are_soft_deleted_are_restored_when_flag_is_set()
     {
-        $this->setupDatabaseUserProvider();
-
-        DirectoryEmulator::setup();
-
         $user = User::create([
             'cn' => $this->faker->name,
             'mail' => $this->faker->email,
@@ -71,7 +80,7 @@ class LiveImportTest extends DatabaseTestCase
             'userAccountControl' => (new AccountControl)->accountIsNormal(),
         ]);
 
-        $created = TestUserModelStub::create([
+        $database = TestUserModelStub::create([
             'name' => $user->cn[0],
             'email' => $user->mail[0],
             'guid' => $user->objectguid[0],
@@ -79,7 +88,7 @@ class LiveImportTest extends DatabaseTestCase
             'deleted_at' => now(),
         ]);
 
-        $this->assertTrue($created->trashed());
+        $this->assertTrue($database->trashed());
 
         $this->artisan('ldap:import', [
             'provider' => 'ldap-database',
@@ -88,6 +97,79 @@ class LiveImportTest extends DatabaseTestCase
             '--restore' => true,
         ])->assertExitCode(0);
 
-        $this->assertFalse($created->fresh()->trashed());
+        $this->assertFalse($database->fresh()->trashed());
+    }
+
+    public function test_missing_users_are_soft_deleted_when_flag_is_enabled()
+    {
+        Event::fake(DeletedMissing::class);
+
+        $this->setupDatabaseUserProvider();
+
+        DirectoryEmulator::setup();
+
+        $user = User::create([
+            'cn' => $this->faker->name,
+            'mail' => $this->faker->email,
+            'objectguid' => $this->faker->uuid,
+        ]);
+
+        $importedLdapUser = TestUserModelStub::create([
+            'name' => $user->cn[0],
+            'email' => $user->mail[0],
+            'guid' => $user->objectguid[0],
+            'password' => 'secret',
+        ]);
+
+        $missingLdapUser = TestUserModelStub::create([
+            'name' => 'Bob Doe',
+            'email' => 'bobdoe@local.com',
+            'guid' => $this->faker->uuid,
+            'domain' => 'default',
+            'password' => 'secret',
+        ]);
+
+        $deletedLocalUser = TestUserModelStub::create([
+            'name' => 'John Doe',
+            'email' => 'johndoe@local.com',
+            'password' => 'secret',
+            'deleted_at' => now(),
+        ]);
+
+        $existingLocalUser = TestUserModelStub::create([
+            'name' => 'Jane Doe',
+            'email' => 'janedoe@local.com',
+            'password' => 'secret',
+        ]);
+
+        $this->artisan('ldap:import', [
+            'provider' => 'ldap-database',
+            '--no-interaction',
+        ])->assertExitCode(0);
+
+        $this->assertFalse($missingLdapUser->fresh()->trashed());
+
+        $this->assertFalse($importedLdapUser->fresh()->trashed());
+        $this->assertTrue($deletedLocalUser->fresh()->trashed());
+        $this->assertFalse($existingLocalUser->fresh()->trashed());
+
+        $this->artisan('ldap:import', [
+            'provider' => 'ldap-database',
+            '--no-interaction',
+            '--delete-missing' => true,
+        ])->assertExitCode(0);
+
+        Event::assertDispatched(DeletedMissing::class, function (DeletedMissing $event) use ($missingLdapUser) {
+            return $event->ids->count() == 1
+                && $event->ids->first() == $missingLdapUser->id
+                && $event->ldap instanceof User
+                && $event->eloquent instanceof TestUserModelStub;
+        });
+
+        $this->assertTrue($missingLdapUser->fresh()->trashed());
+
+        $this->assertFalse($importedLdapUser->fresh()->trashed());
+        $this->assertTrue($deletedLocalUser->fresh()->trashed());
+        $this->assertFalse($existingLocalUser->fresh()->trashed());
     }
 }

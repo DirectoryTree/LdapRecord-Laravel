@@ -4,18 +4,18 @@ namespace LdapRecord\Laravel\Commands;
 
 use Exception;
 use Illuminate\Console\Command;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use LdapRecord\Laravel\Auth\DatabaseUserProvider;
-use LdapRecord\Laravel\Auth\UserProvider;
-use LdapRecord\Laravel\DetectsSoftDeletes;
-use LdapRecord\Laravel\Events\DeletedMissing;
+use Illuminate\Database\Eloquent\Model;
 use LdapRecord\Laravel\Events\Imported;
 use LdapRecord\Laravel\LdapUserImporter;
-use LdapRecord\Laravel\LdapUserRepository;
-use LdapRecord\Models\Attributes\AccountControl;
+use LdapRecord\Laravel\Auth\UserProvider;
 use LdapRecord\Models\Model as LdapModel;
+use LdapRecord\Laravel\DetectsSoftDeletes;
+use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Models\Types\ActiveDirectory;
+use LdapRecord\Laravel\Events\DeletedMissing;
+use LdapRecord\Models\Attributes\AccountControl;
+use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 
 class ImportLdapUsers extends Command
 {
@@ -30,8 +30,8 @@ class ImportLdapUsers extends Command
             {user? : The specific user to import.}
             {--f|filter= : The raw LDAP filter for limiting users imported.}
             {--d|delete : Soft-delete the users model if their LDAP account is disabled.}
-            {--dm|delete-missing : Soft-delete all users that are missing from the import. }
             {--r|restore : Restores soft-deleted models if their LDAP account is enabled.}
+            {--delete-missing : Soft-delete all users that are missing from the import. }
             {--no-log : Disables logging successful and unsuccessful imports.}';
 
     /**
@@ -198,13 +198,11 @@ class ImportLdapUsers extends Command
 
         $domain = $ldap->getConnectionName() ?? config('ldap.default');
 
-        // Here we will soft-delete all users whom:
-        // 1. Are not already deleted
-        // 2. Have a 'guid' present
-        // 3. Are from our importing LDAP domain
-        // 4. Do not have a 'guid' present in the 'imported' GUID array
+        // Here we'll soft-delete all users whom have a 'guid' present
+        // but are missing from our imported guid array and are from
+        // our LDAP domain that has just been imported. This ensures
+        // the deleted users are the ones from the same domain.
         $deleted = $eloquent->newQuery()
-            ->whereNull($eloquent->getDeletedAtColumn())
             ->whereNotNull($eloquent->getLdapGuidColumn())
             ->where($eloquent->getLdapDomainColumn(), '=', $domain)
             ->whereNotIn($eloquent->getLdapGuidColumn(), $this->imported)
@@ -213,17 +211,18 @@ class ImportLdapUsers extends Command
         if ($deleted > 0) {
             $this->info("Successfully soft-deleted [$deleted] users.");
 
-            // Here we will retrieve the ID's of all users who
+            // Next, we will retrieve the ID's of all users who
             // were deleted from the above query so we can
             // log them appropriately using an event.
             $ids = $eloquent->newQuery()
+                ->onlyTrashed()
                 ->select($eloquent->getKeyName())
                 ->whereNotNull($eloquent->getLdapGuidColumn())
                 ->where($eloquent->getLdapDomainColumn(), '=', $domain)
                 ->where($eloquent->getDeletedAtColumn(), '=', $deletedAt)
                 ->pluck($eloquent->getKeyName());
 
-            event(new DeletedMissing($ids, $eloquent, $ldap));
+            event(new DeletedMissing($ids, $ldap, $eloquent));
         } else {
             $this->info('No missing users found. None have been soft-deleted.');
         }
