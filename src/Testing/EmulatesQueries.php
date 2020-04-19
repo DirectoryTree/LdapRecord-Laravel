@@ -4,8 +4,8 @@ namespace LdapRecord\Laravel\Testing;
 
 use Closure;
 use LdapRecord\Connection;
-use LdapRecord\Models\BatchModification;
 use LdapRecord\Query\Model\Builder;
+use LdapRecord\Models\BatchModification;
 
 trait EmulatesQueries
 {
@@ -338,27 +338,29 @@ trait EmulatesQueries
         $name = $modification[BatchModification::KEY_ATTRIB];
         $type = $modification[BatchModification::KEY_MODTYPE];
         $values = $modification[BatchModification::KEY_VALUES] ?? [];
+
         $attribute = $model->attributes()->firstOrCreate(['name' => $name]);
 
-        if ($type == LDAP_MODIFY_BATCH_REMOVE_ALL) {
-            $attribute->delete();
+        switch($type) {
+            case LDAP_MODIFY_BATCH_ADD:
+                foreach ($values as $value) {
+                    $attribute->values()->create(['value' => $value]);
+                }
+                break;
+            case LDAP_MODIFY_BATCH_REPLACE:
+                $attribute->values()->delete();
 
-            return;
-        } elseif ($type == LDAP_MODIFY_BATCH_REMOVE) {
-            $attribute->values()->whereIn('value', $values)->delete();
-        } elseif ($type == LDAP_MODIFY_BATCH_ADD) {
-            foreach ($values as $value) {
-                $attribute->values()->create(['value' => $value]);
-            }
-        } elseif ($type == LDAP_MODIFY_BATCH_REPLACE) {
-            $attribute->values()->delete();
-
-            foreach ($values as $value) {
-                $attribute->values()->create(['value' => $value]);
-            }
+                foreach ($values as $value) {
+                    $attribute->values()->create(['value' => $value]);
+                }
+                break;
+            case LDAP_MODIFY_BATCH_REMOVE:
+                $attribute->values()->whereIn('value', $values)->delete();
+                break;
+            case LDAP_MODIFY_BATCH_REMOVE_ALL:
+                $attribute->delete();
+                break;
         }
-
-        $attribute->save();
     }
 
     /**
