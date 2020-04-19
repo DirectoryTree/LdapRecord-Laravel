@@ -4,18 +4,18 @@ namespace LdapRecord\Laravel\Commands;
 
 use Exception;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+use LdapRecord\Laravel\Auth\DatabaseUserProvider;
+use LdapRecord\Laravel\Auth\UserProvider;
+use LdapRecord\Laravel\DetectsSoftDeletes;
+use LdapRecord\Laravel\Events\DeletedMissing;
 use LdapRecord\Laravel\Events\Imported;
 use LdapRecord\Laravel\LdapUserImporter;
-use LdapRecord\Laravel\Auth\UserProvider;
-use LdapRecord\Models\Model as LdapModel;
-use LdapRecord\Laravel\DetectsSoftDeletes;
 use LdapRecord\Laravel\LdapUserRepository;
-use LdapRecord\Models\Types\ActiveDirectory;
-use LdapRecord\Laravel\Events\DeletedMissing;
 use LdapRecord\Models\Attributes\AccountControl;
-use LdapRecord\Laravel\Auth\DatabaseUserProvider;
+use LdapRecord\Models\Model as LdapModel;
+use LdapRecord\Models\Types\ActiveDirectory;
 
 class ImportLdapUsers extends Command
 {

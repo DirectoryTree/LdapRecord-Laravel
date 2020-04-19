@@ -4,8 +4,8 @@ namespace LdapRecord\Laravel\Testing;
 
 use Closure;
 use LdapRecord\Connection;
-use LdapRecord\Query\Model\Builder;
 use LdapRecord\Models\BatchModification;
+use LdapRecord\Query\Model\Builder;
 
 trait EmulatesQueries
 {
@@ -341,7 +341,7 @@ trait EmulatesQueries
 
         $attribute = $model->attributes()->firstOrCreate(['name' => $name]);
 
-        switch($type) {
+        switch ($type) {
             case LDAP_MODIFY_BATCH_ADD:
                 foreach ($values as $value) {
                     $attribute->values()->create(['value' => $value]);
