@@ -255,7 +255,7 @@ class ImportLdapUsers extends Command
      */
     public function isDeletingMissing()
     {
-        return $this->option('delete-missing') == 'true';
+        return $this->option('delete-missing') == 'true' && is_null($this->argument('user'));
     }
 
     /**
