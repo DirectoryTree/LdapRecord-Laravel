@@ -8,7 +8,6 @@ use LdapRecord\Laravel\Events\DeletedMissing;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Models\ActiveDirectory\User;
 use LdapRecord\Models\Attributes\AccountControl;
-use LdapRecord\Models\Events\Deleted;
 
 class LiveImportTest extends DatabaseTestCase
 {
