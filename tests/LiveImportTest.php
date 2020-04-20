@@ -141,9 +141,18 @@ class LiveImportTest extends DatabaseTestCase
             'password' => 'secret',
         ]);
 
+        $otherDomainLdapUser = TestUserModelStub::create([
+            'name' => 'Betty Doe',
+            'email' => 'bettydoe@local.com',
+            'guid' => $this->faker->uuid,
+            'domain' => 'other',
+            'password' => 'secret',
+        ]);
+
         $this->artisan('ldap:import', [
             'provider' => 'ldap-database',
             '--no-interaction',
+            '--delete-missing',
         ])->assertExitCode(0);
 
         $this->assertFalse($missingLdapUser->fresh()->trashed());
@@ -151,6 +160,7 @@ class LiveImportTest extends DatabaseTestCase
         $this->assertFalse($importedLdapUser->fresh()->trashed());
         $this->assertTrue($deletedLocalUser->fresh()->trashed());
         $this->assertFalse($existingLocalUser->fresh()->trashed());
+        $this->assertFalse($otherDomainLdapUser->fresh()->trashed());
 
         $this->artisan('ldap:import', [
             'provider' => 'ldap-database',
@@ -170,5 +180,6 @@ class LiveImportTest extends DatabaseTestCase
         $this->assertFalse($importedLdapUser->fresh()->trashed());
         $this->assertTrue($deletedLocalUser->fresh()->trashed());
         $this->assertFalse($existingLocalUser->fresh()->trashed());
+        $this->assertFalse($otherDomainLdapUser->fresh()->trashed());
     }
 }
