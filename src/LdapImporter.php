@@ -2,12 +2,12 @@
 
 namespace LdapRecord\Laravel;
 
-use LdapRecord\LdapRecordException;
-use LdapRecord\Models\Model as LdapModel;
+use Illuminate\Database\Eloquent\Model as EloquentModel;
 use LdapRecord\Laravel\Events\Importing;
 use LdapRecord\Laravel\Events\Synchronized;
 use LdapRecord\Laravel\Events\Synchronizing;
-use Illuminate\Database\Eloquent\Model as EloquentModel;
+use LdapRecord\LdapRecordException;
+use LdapRecord\Models\Model as LdapModel;
 
 class LdapImporter
 {
