@@ -2,11 +2,12 @@
 
 namespace LdapRecord\Laravel;
 
-use Illuminate\Database\Eloquent\Model as EloquentModel;
+use LdapRecord\LdapRecordException;
+use LdapRecord\Models\Model as LdapModel;
 use LdapRecord\Laravel\Events\Importing;
 use LdapRecord\Laravel\Events\Synchronized;
 use LdapRecord\Laravel\Events\Synchronizing;
-use LdapRecord\Models\Model as LdapModel;
+use Illuminate\Database\Eloquent\Model as EloquentModel;
 
 class LdapImporter
 {
@@ -96,13 +97,26 @@ class LdapImporter
      * @param LdapModel $ldap
      *
      * @return EloquentModel|null
+     *
+     * @throws LdapRecordException
      */
     protected function createOrFindEloquentModel(LdapModel $ldap)
     {
+        // We cannot import an LDAP object without a valid GUID
+        // identifier. Doing so would cause overwrites of the
+        // first database model that does not contain one.
+        if (is_null($guid = $ldap->getConvertedGuid())) {
+            $ldapModel = get_class($ldap);
+
+            throw new LdapRecordException(
+                "Attribute [{$ldap->getGuidKey()}] does not exist on LDAP model [$ldapModel] object [{$ldap->getDn()}]"
+            );
+        }
+
         $model = $this->createEloquentModel();
 
         return $this->newEloquentQuery($model)->firstOrNew([
-            $model->getLdapGuidColumn() => $ldap->getConvertedGuid(),
+            $model->getLdapGuidColumn() => $guid,
         ]);
     }
 

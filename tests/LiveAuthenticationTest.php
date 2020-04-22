@@ -2,6 +2,7 @@
 
 namespace LdapRecord\Laravel\Tests;
 
+use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Auth;
 use LdapRecord\Laravel\Events\Authenticated;
 use LdapRecord\Laravel\Events\Authenticating;
@@ -11,10 +12,13 @@ use LdapRecord\Laravel\Events\Importing;
 use LdapRecord\Laravel\Events\Synchronized;
 use LdapRecord\Laravel\Events\Synchronizing;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
+use LdapRecord\LdapRecordException;
 use LdapRecord\Models\ActiveDirectory\User;
 
 class LiveAuthenticationTest extends TestCase
 {
+    use WithFaker;
+
     public function test_database_sync_authentication_passes()
     {
         $this->expectsEvents([
@@ -31,7 +35,11 @@ class LiveAuthenticationTest extends TestCase
 
         $this->setupDatabaseUserProvider();
 
-        $user = User::create(['cn' => 'John', 'mail' => 'jdoe@email.com']);
+        $user = User::create([
+            'cn' => 'John',
+            'mail' => 'jdoe@email.com',
+            'objectguid' => $this->faker->uuid
+        ]);
 
         $fake->actingAs($user);
 
@@ -40,8 +48,9 @@ class LiveAuthenticationTest extends TestCase
         $model = Auth::user();
 
         $this->assertInstanceOf(TestUserModelStub::class, $model);
-        $this->assertEquals('jdoe@email.com', $model->email);
-        $this->assertEquals('John', $model->name);
+        $this->assertEquals($user->cn[0], $model->name);
+        $this->assertEquals($user->mail[0], $model->email);
+        $this->assertEquals($user->getConvertedGuid(), $model->guid);
         $this->assertFalse(Auth::attempt(['mail' => 'invalid', 'password' => 'secret']));
     }
 
@@ -62,7 +71,24 @@ class LiveAuthenticationTest extends TestCase
 
         $this->setupDatabaseUserProvider();
 
+        $user = User::create([
+            'cn' => 'John',
+            'mail' => 'jdoe@email.com',
+            'objectguid' => $this->faker->uuid,
+        ]);
+
+        $this->assertFalse(Auth::attempt(['mail' => $user->mail[0], 'password' => 'secret']));
+    }
+
+    public function test_database_sync_fails_without_object_guid()
+    {
+        DirectoryEmulator::setup();
+
+        $this->setupDatabaseUserProvider();
+
         $user = User::create(['cn' => 'John', 'mail' => 'jdoe@email.com']);
+
+        $this->expectException(LdapRecordException::class);
 
         $this->assertFalse(Auth::attempt(['mail' => $user->mail[0], 'password' => 'secret']));
     }

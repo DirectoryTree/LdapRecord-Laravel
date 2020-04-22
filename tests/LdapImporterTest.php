@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Schema;
+use LdapRecord\LdapRecordException;
 use LdapRecord\Laravel\ImportableFromLdap;
 use LdapRecord\Laravel\LdapImportable;
 use LdapRecord\Laravel\LdapImporter;
@@ -36,6 +37,19 @@ class LdapImporterTest extends TestCase
         Schema::dropIfExists('groups');
 
         parent::tearDown();
+    }
+
+    public function test_importer_fails_on_object_that_does_not_contain_guid()
+    {
+        $object = LdapGroup::create(['cn' => 'Group']);
+
+        $importer = new LdapImporter(Group::class, [
+            'sync_attributes' => ['name' => 'cn'],
+        ]);
+
+        $this->expectException(LdapRecordException::class);
+
+        $importer->run($object);
     }
 
     public function test_importer_sets_configured_attributes()
