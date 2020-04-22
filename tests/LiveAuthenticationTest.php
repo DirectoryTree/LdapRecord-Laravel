@@ -38,7 +38,7 @@ class LiveAuthenticationTest extends TestCase
         $user = User::create([
             'cn' => 'John',
             'mail' => 'jdoe@email.com',
-            'objectguid' => $this->faker->uuid
+            'objectguid' => $this->faker->uuid,
         ]);
 
         $fake->actingAs($user);

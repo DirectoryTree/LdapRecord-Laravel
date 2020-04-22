@@ -7,11 +7,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Schema;
-use LdapRecord\LdapRecordException;
 use LdapRecord\Laravel\ImportableFromLdap;
 use LdapRecord\Laravel\LdapImportable;
 use LdapRecord\Laravel\LdapImporter;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
+use LdapRecord\LdapRecordException;
 use LdapRecord\Models\ActiveDirectory\Group as LdapGroup;
 
 class LdapImporterTest extends TestCase
