@@ -19,6 +19,8 @@
     <a href="https://ldaprecord.com/docs/laravel/quickstart">Quickstart</a>
     <span> · </span>
     <a href="https://ldaprecord.com/docs/laravel">Documentation</a>
+    <span> · </span>
+    <a href="https://github.com/DirectoryTree/LdapRecord-Discussions/issues/new">Post a Question</a>
 </h4>
 
 🔑 **Authenticate LDAP users into your application**
