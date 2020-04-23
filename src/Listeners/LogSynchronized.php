@@ -16,6 +16,6 @@ class LogSynchronized
      */
     public function handle(Synchronized $event)
     {
-        Log::info("User [{$event->user->getName()}] has been successfully synchronized.");
+        Log::info("Object with name [{$event->user->getName()}] has been successfully synchronized.");
     }
 }
