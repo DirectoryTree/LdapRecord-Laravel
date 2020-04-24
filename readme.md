@@ -29,10 +29,9 @@
 
 Allow LDAP users to log into your application and control which users can login via [Scopes](https://ldaprecord.com/docs/models/#query-scopes) and [Rules](https://ldaprecord.com/docs/laravel/auth/configuration/#rules).
 
-🔄 **Easily Import & Synchronize LDAP users**
+🔄 **Import & Synchronize LDAP users**
 
-Users can be imported into your database upon first login,
-or you can import your entire directory via a simple [command](https://ldaprecord.com/docs/laravel/auth/importing): `php artisan ldap:import`.
+Import users from your directory via a [command](https://ldaprecord.com/docs/laravel/auth/importing): `php artisan ldap:import`.
 
 💼 **Multi-Domain Support**
 
@@ -44,14 +43,17 @@ Search for LDAP objects with a [fluent and easy to use interface](https://ldapre
 
 ✏️ **Active Record LDAP Models**
 
-LDAP objects are returned as [individual models](https://ldaprecord.com/docs/models). Easily create
-and update models then persist them to your LDAP server with a simple `save()`.
+LDAP objects are [individual models](https://ldaprecord.com/docs/models). Persist them to your LDAP server with a single `save()`.
 
 💫 **LDAP Directory Emulator**
 
 Test [authenticating](https://ldaprecord.com/docs/laravel/auth/testing/#getting-started) and
 [querying users](https://ldaprecord.com/docs/laravel/testing/#getting-started) without
-changing your application code. Create, update, and delete LDAP objects without touching a real LDAP server.
+changing your application code.
+
+Create, update, and delete LDAP objects without touching a real LDAP server.
+
+Yeah, we like it too.
 
 ---
 
