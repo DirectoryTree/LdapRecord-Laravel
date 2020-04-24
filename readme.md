@@ -23,6 +23,8 @@
     <a href="https://github.com/DirectoryTree/LdapRecord-Discussions/issues/new">Post a Question</a>
 </h4>
 
+---
+
 🔑 **Authenticate LDAP users into your application**
 
 Using the built-in authentication driver, easily allow LDAP users to log into your application and control which users can login via [Scopes](https://ldaprecord.com/docs/models/#query-scopes) and [Rules](https://ldaprecord.com/docs/laravel/auth/configuration/#rules).
