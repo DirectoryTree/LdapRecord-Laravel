@@ -27,7 +27,7 @@
 
 🔑 **Authenticate LDAP users into your application**
 
-Using the built-in authentication driver, easily allow LDAP users to log into your application and control which users can login via [Scopes](https://ldaprecord.com/docs/models/#query-scopes) and [Rules](https://ldaprecord.com/docs/laravel/auth/configuration/#rules).
+Allow LDAP users to log into your application and control which users can login via [Scopes](https://ldaprecord.com/docs/models/#query-scopes) and [Rules](https://ldaprecord.com/docs/laravel/auth/configuration/#rules).
 
 🔄 **Easily Import & Synchronize LDAP users**
 
