@@ -61,4 +61,6 @@ Yeah, we like it too.
 
 <p align="center">If you really enjoy using LdapRecord-Laravel, a <a href="https://github.com/sponsors/stevebauman">sponsorship</a> would mean the world :pray:</p>
 
+<p align="center">If you are unable to sponsor, a star really helps :star:</p>
+
 <p align="center">Thank you for your consideration :heart:</p>
