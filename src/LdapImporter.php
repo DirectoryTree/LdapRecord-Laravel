@@ -96,7 +96,7 @@ class LdapImporter
      *
      * @param LdapModel $ldap
      *
-     * @return EloquentModel|null
+     * @return EloquentModel
      *
      * @throws LdapRecordException
      */
