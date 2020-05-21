@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Create a report to help improve LdapRecord
+about: Create a report to help improve LdapRecord-Laravel
 title: ''
 labels: ''
 assignees: ''
