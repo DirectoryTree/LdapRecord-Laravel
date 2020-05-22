@@ -5,14 +5,14 @@ namespace LdapRecord\Laravel\Testing;
 use Closure;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
-use LdapRecord\Query\Collection;
-use Ramsey\Uuid\Uuid;
-use LdapRecord\Connection;
 use Illuminate\Support\Arr;
-use LdapRecord\Query\Model\Builder;
+use LdapRecord\Connection;
+use LdapRecord\Models\Attributes\DistinguishedName;
 use LdapRecord\Models\Attributes\Guid;
 use LdapRecord\Models\BatchModification;
-use LdapRecord\Models\Attributes\DistinguishedName;
+use LdapRecord\Query\Collection;
+use LdapRecord\Query\Model\Builder;
+use Ramsey\Uuid\Uuid;
 
 trait EmulatesQueries
 {
@@ -375,7 +375,7 @@ trait EmulatesQueries
      */
     public function findOrFail($dn, $columns = ['*'])
     {
-        if (!$database = $this->findEloquentModelByDn($dn)) {
+        if (! $database = $this->findEloquentModelByDn($dn)) {
             return;
         }
 
@@ -389,7 +389,7 @@ trait EmulatesQueries
      */
     public function findByGuidOrFail($guid, $columns = ['*'])
     {
-        if (!$database = $this->findEloquentModelByGuid($guid)) {
+        if (! $database = $this->findEloquentModelByGuid($guid)) {
             return;
         }
 
@@ -427,7 +427,7 @@ trait EmulatesQueries
      */
     public function insert($dn, array $attributes)
     {
-        if (!Arr::get($attributes, 'objectclass')) {
+        if (! Arr::get($attributes, 'objectclass')) {
             throw new Exception('LDAP objects must have object classes to be created.');
         }
 
@@ -457,22 +457,22 @@ trait EmulatesQueries
 
         return true;
     }
-    
+
     /**
      * Pull and return the GUID value from the given attributes.
      *
      * @param string|null $key
      * @param array       $attributes
-     * 
+     *
      * @return string
      */
     protected function pullGuidFromAttributes($key, &$attributes)
     {
-        if (!$key) {
+        if (! $key) {
             return;
         }
 
-        if (!Arr::has($attributes, $key)) {
+        if (! Arr::has($attributes, $key)) {
             return;
         }
 
@@ -483,7 +483,7 @@ trait EmulatesQueries
 
     /**
      * Attempt to determine the GUID attribute key.
-     * 
+     *
      * @return string|null
      */
     protected function determineGuidKey()
@@ -500,7 +500,7 @@ trait EmulatesQueries
      */
     protected function determineGuidKeyFromAttributes($attributes)
     {
-        foreach($attributes as $attribute => $values) {
+        foreach ($attributes as $attribute => $values) {
             if (Guid::isValid($this->attributeValueIsGuid($values))) {
                 return $attribute;
             }
@@ -544,7 +544,7 @@ trait EmulatesQueries
      */
     public function delete($dn)
     {
-        if(!$database = $this->findEloquentModelByDn($dn)) {
+        if (! $database = $this->findEloquentModelByDn($dn)) {
             return false;
         }
 

@@ -4,9 +4,9 @@ namespace LdapRecord\Laravel\Tests\Emulator;
 
 use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
-use LdapRecord\Models\ActiveDirectory\User;
 use LdapRecord\Laravel\Tests\TestCase;
 use LdapRecord\Laravel\Tests\TestUserModelStub;
+use LdapRecord\Models\ActiveDirectory\User;
 use Ramsey\Uuid\Uuid;
 
 class EmulatedUserRepositoryTest extends TestCase
