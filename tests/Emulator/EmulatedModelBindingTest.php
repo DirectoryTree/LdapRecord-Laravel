@@ -5,8 +5,8 @@ namespace LdapRecord\Laravel\Tests\Emulator;
 use Illuminate\Support\Facades\Auth;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Laravel\Tests\DatabaseProviderTestCase;
-use LdapRecord\Models\ActiveDirectory\User;
 use LdapRecord\Laravel\Tests\TestUserModelStub;
+use LdapRecord\Models\ActiveDirectory\User;
 use Ramsey\Uuid\Uuid;
 
 class EmulatedModelBindingTest extends DatabaseProviderTestCase

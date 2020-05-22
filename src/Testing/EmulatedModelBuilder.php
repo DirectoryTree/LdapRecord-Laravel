@@ -24,7 +24,7 @@ class EmulatedModelBuilder extends Builder
      */
     public function insertAttributes($dn, array $attributes)
     {
-        if (!$model = $this->find($dn)) {
+        if (! $model = $this->find($dn)) {
             return false;
         }
 
@@ -40,7 +40,7 @@ class EmulatedModelBuilder extends Builder
      */
     public function update($dn, array $modifications)
     {
-        if (!$model = $this->findEloquentModelByDn($dn)) {
+        if (! $model = $this->findEloquentModelByDn($dn)) {
             return false;
         }
 
@@ -56,7 +56,7 @@ class EmulatedModelBuilder extends Builder
      */
     public function updateAttributes($dn, array $attributes)
     {
-        if (!$model = $this->find($dn)) {
+        if (! $model = $this->find($dn)) {
             return false;
         }
 
@@ -72,7 +72,7 @@ class EmulatedModelBuilder extends Builder
      */
     public function deleteAttributes($dn, array $attributes)
     {
-        if (!$model = $this->find($dn)) {
+        if (! $model = $this->find($dn)) {
             return false;
         }
 

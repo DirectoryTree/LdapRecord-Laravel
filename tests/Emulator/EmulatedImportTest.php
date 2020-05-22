@@ -6,10 +6,10 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Event;
 use LdapRecord\Laravel\Events\DeletedMissing;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
-use LdapRecord\Models\ActiveDirectory\User;
-use LdapRecord\Models\Attributes\AccountControl;
 use LdapRecord\Laravel\Tests\DatabaseProviderTestCase;
 use LdapRecord\Laravel\Tests\TestUserModelStub;
+use LdapRecord\Models\ActiveDirectory\User;
+use LdapRecord\Models\Attributes\AccountControl;
 
 class EmulatedImportTest extends DatabaseProviderTestCase
 {
