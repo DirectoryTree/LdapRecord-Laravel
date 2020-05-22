@@ -8,7 +8,7 @@ use LdapRecord\Models\ActiveDirectory\User;
 use LdapRecord\Query\Model\Builder;
 use Mockery as m;
 
-class ImportCommandTest extends DatabaseTestCase
+class ImportCommandTest extends DatabaseProviderTestCase
 {
     public function test_command_exits_when_invalid_provider_used()
     {

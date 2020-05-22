@@ -3,9 +3,16 @@
 namespace LdapRecord\Laravel\Testing;
 
 use Closure;
+use Exception;
+use Illuminate\Database\Eloquent\Model;
+use LdapRecord\Query\Collection;
+use Ramsey\Uuid\Uuid;
 use LdapRecord\Connection;
-use LdapRecord\Models\BatchModification;
+use Illuminate\Support\Arr;
 use LdapRecord\Query\Model\Builder;
+use LdapRecord\Models\Attributes\Guid;
+use LdapRecord\Models\BatchModification;
+use LdapRecord\Models\Attributes\DistinguishedName;
 
 trait EmulatesQueries
 {
@@ -162,7 +169,7 @@ trait EmulatesQueries
      */
     public function findEloquentModelByDn($dn)
     {
-        return $this->query->where('dn', '=', $dn)->first();
+        return $this->newEloquentQuery()->where('dn', '=', $dn)->first();
     }
 
     /**
@@ -174,7 +181,7 @@ trait EmulatesQueries
      */
     public function findEloquentModelByGuid($guid)
     {
-        return $this->query->where('guid', '=', $guid)->first();
+        return $this->newEloquentQuery()->where('guid', '=', $guid)->first();
     }
 
     /**
@@ -184,9 +191,9 @@ trait EmulatesQueries
     {
         $relationMethod = $this->determineRelationMethod($type, $bindings);
 
-        // If the relation method is "not has", we will flip it to
-        // a "has" filter and change the relation method so
-        // database results are retrieved properly.
+        // If the relation method is "not has", we will flip it
+        // to a "has" filter and change the relation method
+        // so database results are retrieved properly.
         if (in_array($relationMethod, ['whereDoesntHave', 'orWhereDoesntHave'])) {
             $bindings['operator'] = '*';
         }
@@ -366,6 +373,157 @@ trait EmulatesQueries
     /**
      * {@inheritdoc}
      */
+    public function findOrFail($dn, $columns = ['*'])
+    {
+        if (!$database = $this->findEloquentModelByDn($dn)) {
+            return;
+        }
+
+        return $this->getFirstRecordFromResult(
+            $this->process([$this->getArrayableResult($database)])
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findByGuidOrFail($guid, $columns = ['*'])
+    {
+        if (!$database = $this->findEloquentModelByGuid($guid)) {
+            return;
+        }
+
+        return $this->getFirstRecordFromResult(
+            $this->process([$this->getArrayableResult($database)])
+        );
+    }
+
+    /**
+     * Get the database record as an array.
+     *
+     * @param Model|array $database
+     *
+     * @return array
+     */
+    protected function getArrayableResult($database)
+    {
+        return $database instanceof Model ? $database->toArray() : $database;
+    }
+
+    /**
+     * Get the first record from a result.
+     *
+     * @param Collection|array $result
+     *
+     * @return mixed
+     */
+    protected function getFirstRecordFromResult($result)
+    {
+        return $result instanceof Collection ? $result->first() : reset($result);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function insert($dn, array $attributes)
+    {
+        if (!Arr::get($attributes, 'objectclass')) {
+            throw new Exception('LDAP objects must have object classes to be created.');
+        }
+
+        $model = tap($this->newEloquentModel(), function ($model) use ($dn, $attributes) {
+            $dn = new DistinguishedName($dn);
+
+            $model->dn = $dn->get();
+            $model->name = $dn->relative();
+            $model->parent_dn = $dn->parent();
+            $model->domain = $this->connection->name();
+
+            $guidKey = $this->determineGuidKey() ?? $this->determineGuidKeyFromAttributes($attributes);
+
+            $model->guid_key = $guidKey;
+            $model->guid = $this->pullGuidFromAttributes($guidKey, $attributes) ?? Uuid::uuid4()->toString();
+
+            $model->save();
+        });
+
+        foreach ($attributes as $name => $values) {
+            $attribute = $model->attributes()->create(['name' => $name]);
+
+            foreach ($values as $value) {
+                $attribute->values()->create(['value' => $value]);
+            }
+        }
+
+        return true;
+    }
+    
+    /**
+     * Pull and return the GUID value from the given attributes.
+     *
+     * @param string|null $key
+     * @param array       $attributes
+     * 
+     * @return string
+     */
+    protected function pullGuidFromAttributes($key, &$attributes)
+    {
+        if (!$key) {
+            return;
+        }
+
+        if (!Arr::has($attributes, $key)) {
+            return;
+        }
+
+        return Arr::first(
+            Arr::pull($attributes, $key)
+        );
+    }
+
+    /**
+     * Attempt to determine the GUID attribute key.
+     * 
+     * @return string|null
+     */
+    protected function determineGuidKey()
+    {
+        return property_exists($this, 'model') ? $this->model->getGuidKey() : null;
+    }
+
+    /**
+     * Determine the guid key from the given object attributes.
+     *
+     * @param array $attributes
+     *
+     * @return string|null
+     */
+    protected function determineGuidKeyFromAttributes($attributes)
+    {
+        foreach($attributes as $attribute => $values) {
+            if (Guid::isValid($this->attributeValueIsGuid($values))) {
+                return $attribute;
+            }
+        }
+    }
+
+    /**
+     * Determine if the given attribute value is a GUID.
+     *
+     * @param array|string $value
+     *
+     * @return bool
+     */
+    protected function attributeValueIsGuid($value)
+    {
+        return Guid::isValid(
+            is_array($value) ? reset($value) : $value
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function rename($dn, $rdn, $newParentDn, $deleteOldRdn = true)
     {
         $database = $this->findEloquentModelByDn($dn);
@@ -386,9 +544,11 @@ trait EmulatesQueries
      */
     public function delete($dn)
     {
-        $database = $this->findEloquentModelByDn($dn);
+        if(!$database = $this->findEloquentModelByDn($dn)) {
+            return false;
+        }
 
-        return $database ? $database->delete() : false;
+        return $database->delete();
     }
 
     /**
@@ -439,10 +599,34 @@ trait EmulatesQueries
     }
 
     /**
-     * {@inheritdoc}
+     * Convert the eloquent collection into an array.
+     *
+     * @param \Illuminate\Database\Eloquent\Collection $resource
+     *
+     * @return array
      */
     protected function parse($resource)
     {
         return $resource->toArray();
+    }
+
+    /**
+     * Transform the database attributes into a single array.
+     *
+     * @param mixed $attributes
+     *
+     * @return array
+     */
+    protected function transform($attributes)
+    {
+        return collect(Arr::pull($attributes, 'attributes'))->mapWithKeys(function ($attribute) {
+            return [$attribute['name'] => collect($attribute['values'])->map->value->toArray()];
+        })->when(! empty($this->only), function ($attributes) {
+            return $attributes->filter(function ($value, $key) {
+                return in_array($key, $this->only);
+            });
+        })->tap(function () {
+            $this->only = [];
+        })->toArray();
     }
 }

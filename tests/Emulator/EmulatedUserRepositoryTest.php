@@ -1,13 +1,15 @@
 <?php
 
-namespace LdapRecord\Laravel\Tests;
+namespace LdapRecord\Laravel\Tests\Emulator;
 
 use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Models\ActiveDirectory\User;
+use LdapRecord\Laravel\Tests\TestCase;
+use LdapRecord\Laravel\Tests\TestUserModelStub;
 use Ramsey\Uuid\Uuid;
 
-class LiveLdapUserRepositoryTest extends TestCase
+class EmulatedUserRepositoryTest extends TestCase
 {
     public function test_find_by()
     {

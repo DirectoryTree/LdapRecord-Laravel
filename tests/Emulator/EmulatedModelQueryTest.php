@@ -1,16 +1,17 @@
 <?php
 
-namespace LdapRecord\Laravel\Tests;
+namespace LdapRecord\Laravel\Tests\Emulator;
 
 use LdapRecord\Connection;
 use LdapRecord\Container;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Models\ActiveDirectory\Group;
 use LdapRecord\Models\ActiveDirectory\User;
+use LdapRecord\Laravel\Tests\TestCase;
 use LdapRecord\Models\Entry;
 use Ramsey\Uuid\Uuid;
 
-class DirectoryEmulatorTest extends TestCase
+class EmulatorTest extends TestCase
 {
     protected function setUp(): void
     {
@@ -529,8 +530,13 @@ class DirectoryEmulatorTest extends TestCase
 
     public function test_domain_scoping()
     {
-        Container::addConnection(new Connection(), 'alpha');
-        Container::addConnection(new Connection(), 'bravo');
+        Container::addConnection(new Connection([
+            'base_dn' => 'dc=alpha,dc=com',
+        ]), 'alpha');
+
+        Container::addConnection(new Connection([
+            'base_dn' => 'dc=bravo,dc=com'
+        ]), 'bravo');
 
         DirectoryEmulator::setup('alpha');
         DirectoryEmulator::setup('bravo');

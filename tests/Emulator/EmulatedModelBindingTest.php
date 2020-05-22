@@ -1,13 +1,15 @@
 <?php
 
-namespace LdapRecord\Laravel\Tests;
+namespace LdapRecord\Laravel\Tests\Emulator;
 
 use Illuminate\Support\Facades\Auth;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
+use LdapRecord\Laravel\Tests\DatabaseProviderTestCase;
 use LdapRecord\Models\ActiveDirectory\User;
+use LdapRecord\Laravel\Tests\TestUserModelStub;
 use Ramsey\Uuid\Uuid;
 
-class LiveBindLdapUserTest extends TestCase
+class EmulatedModelBindingTest extends DatabaseProviderTestCase
 {
     public function test_ldap_users_are_bound_to_models_using_trait()
     {

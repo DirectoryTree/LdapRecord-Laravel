@@ -184,6 +184,7 @@ class LdapDatabaseManager
                 $table->timestamps();
                 $table->string('domain')->nullable();
                 $table->string('guid')->unique()->index();
+                $table->string('guid_key')->nullable();
                 $table->string('name');
                 $table->string('dn');
                 $table->string('parent_dn')->nullable();

@@ -1,6 +1,6 @@
 <?php
 
-namespace LdapRecord\Laravel\Tests;
+namespace LdapRecord\Laravel\Tests\Emulator;
 
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Event;
@@ -8,8 +8,10 @@ use LdapRecord\Laravel\Events\DeletedMissing;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Models\ActiveDirectory\User;
 use LdapRecord\Models\Attributes\AccountControl;
+use LdapRecord\Laravel\Tests\DatabaseProviderTestCase;
+use LdapRecord\Laravel\Tests\TestUserModelStub;
 
-class LiveImportTest extends DatabaseTestCase
+class EmulatedImportTest extends DatabaseProviderTestCase
 {
     use WithFaker;
 

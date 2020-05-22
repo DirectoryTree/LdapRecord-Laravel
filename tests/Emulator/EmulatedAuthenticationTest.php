@@ -1,6 +1,6 @@
 <?php
 
-namespace LdapRecord\Laravel\Tests;
+namespace LdapRecord\Laravel\Tests\Emulator;
 
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Auth;
@@ -12,10 +12,12 @@ use LdapRecord\Laravel\Events\Importing;
 use LdapRecord\Laravel\Events\Synchronized;
 use LdapRecord\Laravel\Events\Synchronizing;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
+use LdapRecord\Laravel\Tests\DatabaseProviderTestCase;
 use LdapRecord\LdapRecordException;
 use LdapRecord\Models\ActiveDirectory\User;
+use LdapRecord\Laravel\Tests\TestUserModelStub;
 
-class LiveAuthenticationTest extends TestCase
+class EmulatedAuthenticationTest extends DatabaseProviderTestCase
 {
     use WithFaker;
 

@@ -54,22 +54,6 @@ abstract class TestCase extends BaseTestCase
             'base_dn' => 'dc=local,dc=com',
             'port' => 389,
         ]);
-
-        // Users database table.
-        Schema::create('users', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->rememberToken();
-            $table->timestamps();
-            $table->softDeletes();
-
-            // Additional fields for LdapRecord.
-            $table->string('guid')->unique()->nullable();
-            $table->string('domain')->nullable();
-        });
     }
 
     protected function setupPlainUserProvider(array $config = [])

@@ -3,6 +3,8 @@
 namespace LdapRecord\Laravel\Tests;
 
 use Illuminate\Auth\EloquentUserProvider;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use LdapRecord\Laravel\LdapUserAuthenticator;
 use LdapRecord\Laravel\LdapUserImporter;
@@ -11,8 +13,29 @@ use LdapRecord\Models\ActiveDirectory\User;
 use LdapRecord\Models\Model;
 use Mockery as m;
 
-class DatabaseTestCase extends TestCase
+class DatabaseProviderTestCase extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Setup the users database table.
+        Schema::create('users', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->string('password');
+            $table->rememberToken();
+            $table->timestamps();
+            $table->softDeletes();
+
+            // Additional fields for LdapRecord.
+            $table->string('guid')->unique()->nullable();
+            $table->string('domain')->nullable();
+        });
+    }
+
     protected function getMockLdapModel(array $attributes = [])
     {
         $ldapModel = m::mock(Model::class);

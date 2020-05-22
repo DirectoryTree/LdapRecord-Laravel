@@ -14,7 +14,7 @@ use LdapRecord\Laravel\Middleware\WindowsAuthenticate;
 use LdapRecord\Models\ActiveDirectory\User;
 use Mockery as m;
 
-class WindowsAuthMiddlewareTest extends TestCase
+class WindowsAuthMiddlewareTest extends DatabaseProviderTestCase
 {
     use CreatesTestUsers;
 

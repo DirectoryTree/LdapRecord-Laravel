@@ -10,7 +10,7 @@ use LdapRecord\Laravel\LdapUserImporter;
 use LdapRecord\Models\Model;
 use Mockery as m;
 
-class LdapUserImporterTest extends TestCase
+class LdapUserImporterTest extends DatabaseProviderTestCase
 {
     use CreatesTestUsers;
 

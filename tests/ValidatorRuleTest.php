@@ -5,7 +5,7 @@ namespace LdapRecord\Laravel\Tests;
 use LdapRecord\Laravel\Auth\Rules\OnlyImported;
 use LdapRecord\Models\Entry;
 
-class ValidatorRuleTest extends TestCase
+class ValidatorRuleTest extends DatabaseProviderTestCase
 {
     use CreatesTestUsers;
 
