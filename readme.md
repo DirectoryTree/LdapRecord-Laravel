@@ -57,8 +57,8 @@ Yeah, we like it too.
 
 ---
 
-<h3 align="center">LdapRecord-Laravel is Sponsorware™</h3>
+<h3 align="center">LdapRecord-Laravel is Supportware™</h3>
 
-<p align="center">If you really enjoy using LdapRecord-Laravel, a <a href="https://github.com/sponsors/stevebauman">sponsorship</a> would mean the world :pray:</p>
+<p align="center">If you require support using LdapRecord-Laravel, a <a href="https://github.com/sponsors/stevebauman">sponsorship</a> is required :pray:</p>
 
-<p align="center">Thank you for your consideration :heart:</p>
+<p align="center">Thank you for your understanding :heart:</p>
