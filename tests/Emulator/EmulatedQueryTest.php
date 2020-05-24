@@ -2,10 +2,10 @@
 
 namespace LdapRecord\Laravel\Tests\Emulator;
 
-use Ramsey\Uuid\Uuid;
 use LdapRecord\Container;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Laravel\Tests\TestCase;
+use Ramsey\Uuid\Uuid;
 
 class EmulatedQueryTest extends TestCase
 {
@@ -94,6 +94,5 @@ class EmulatedQueryTest extends TestCase
 
         $this->assertArrayHasKey('guid', $record);
         $this->assertEquals($guid, $record['guid'][0]);
-
     }
 }
