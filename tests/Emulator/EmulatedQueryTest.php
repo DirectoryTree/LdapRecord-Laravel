@@ -2,6 +2,7 @@
 
 namespace LdapRecord\Laravel\Tests\Emulator;
 
+use Ramsey\Uuid\Uuid;
 use LdapRecord\Container;
 use LdapRecord\Laravel\Tests\TestCase;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
@@ -79,5 +80,20 @@ class EmulatedQueryTest extends TestCase
 
         $this->assertEquals($jane, $results[1]['dn'][0]);
         $this->assertEquals($attributes['objectclass'], $results[1]['objectclass']);
+    }
+
+    public function test_guid_key_is_determined_from_attributes()
+    {
+        $query = Container::getConnection('default')->query();
+
+        $attributes = ['objectclass' => ['bar', 'baz'], 'guid' => [$guid = Uuid::uuid4()->toString()]];
+
+        $query->insert($john = 'cn=John Doe,dc=local,dc=com', $attributes);
+
+        $record = $query->first();
+
+        $this->assertArrayHasKey('guid', $record);
+        $this->assertEquals($guid, $record['guid'][0]);
+
     }
 }
