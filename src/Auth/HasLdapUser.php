@@ -5,6 +5,7 @@ namespace LdapRecord\Laravel\Auth;
 use LdapRecord\Models\Model;
 use Illuminate\Support\Facades\Auth;
 
+/** @property Model|null $ldap */
 trait HasLdapUser
 {
     /**
