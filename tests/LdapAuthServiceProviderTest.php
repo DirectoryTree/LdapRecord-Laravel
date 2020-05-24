@@ -37,15 +37,6 @@ class LdapAuthServiceProviderTest extends TestCase
         unlink($migrationFile);
     }
 
-    public function test_model_binding_listener_is_setup()
-    {
-        /** @var Dispatcher $event */
-        $dispatcher = app(Dispatcher::class);
-
-        $this->assertTrue($dispatcher->hasListeners(Login::class));
-        $this->assertTrue($dispatcher->hasListeners(Authenticated::class));
-    }
-
     public function test_event_listeners_are_setup_when_logging_is_enabled()
     {
         /** @var Dispatcher $event */

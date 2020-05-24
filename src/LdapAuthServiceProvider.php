@@ -61,12 +61,6 @@ class LdapAuthServiceProvider extends ServiceProvider
                 $this->makePlainUserProvider($config);
         });
 
-        // Here we will register the event listener that will bind the users LDAP
-        // model to their Eloquent model upon authentication (if configured).
-        // This allows us to utilize their LDAP model right
-        // after authentication has passed.
-        Event::listen([Login::class, Authenticated::class], BindLdapUserModel::class);
-
         if (config('ldap.logging', true)) {
             // If logging is enabled, we will set up our event listeners that
             // log each event fired throughout the authentication process.
