@@ -34,6 +34,7 @@ class EmulatedModelBindingTest extends DatabaseProviderTestCase
 
         $this->assertInstanceOf(User::class, $model->ldap);
         $this->assertTrue($user->is($model->ldap));
+        $this->assertTrue(isset($model->ldap));
     }
 
     public function test_ldap_users_are_not_bound_when_model_cannot_be_located()
