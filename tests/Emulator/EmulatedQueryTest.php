@@ -4,8 +4,8 @@ namespace LdapRecord\Laravel\Tests\Emulator;
 
 use Ramsey\Uuid\Uuid;
 use LdapRecord\Container;
-use LdapRecord\Laravel\Tests\TestCase;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
+use LdapRecord\Laravel\Tests\TestCase;
 
 class EmulatedQueryTest extends TestCase
 {
@@ -39,7 +39,7 @@ class EmulatedQueryTest extends TestCase
 
         $dn = 'cn=John Doe,dc=local,dc=com';
         $attributes = ['objectclass' => ['foo', 'bar']];
-        
+
         $this->assertTrue($query->insert($dn, $attributes));
 
         $result = $query->first();

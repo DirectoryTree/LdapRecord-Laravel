@@ -13,9 +13,9 @@ use LdapRecord\Laravel\Events\Synchronized;
 use LdapRecord\Laravel\Events\Synchronizing;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Laravel\Tests\DatabaseProviderTestCase;
+use LdapRecord\Laravel\Tests\TestUserModelStub;
 use LdapRecord\LdapRecordException;
 use LdapRecord\Models\ActiveDirectory\User;
-use LdapRecord\Laravel\Tests\TestUserModelStub;
 
 class EmulatedAuthenticationTest extends DatabaseProviderTestCase
 {
