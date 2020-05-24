@@ -2,7 +2,6 @@
 
 namespace LdapRecord\Laravel\Tests;
 
-use Illuminate\Auth\Events\Login;
 use Illuminate\Events\Dispatcher;
 use LdapRecord\Laravel\Events\Authenticated;
 use LdapRecord\Laravel\Events\AuthenticatedModelTrashed;

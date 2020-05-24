@@ -2,8 +2,8 @@
 
 namespace LdapRecord\Laravel\Auth;
 
-use LdapRecord\Models\Model;
 use Illuminate\Support\Facades\Auth;
+use LdapRecord\Models\Model;
 
 /** @property Model|null $ldap */
 trait HasLdapUser
@@ -22,23 +22,23 @@ trait HasLdapUser
      */
     public function getLdapAttribute()
     {
-        if (!$this instanceof LdapAuthenticatable) {
+        if (! $this instanceof LdapAuthenticatable) {
             return;
         }
 
-        if (!$guard = $this->getCurrentAuthGuard()) {
+        if (! $guard = $this->getCurrentAuthGuard()) {
             return;
         }
 
-        if (!$provider = $this->getCurrentAuthProvider($guard)) {
+        if (! $provider = $this->getCurrentAuthProvider($guard)) {
             return;
         }
 
-        if (!$provider instanceof UserProvider) {
+        if (! $provider instanceof UserProvider) {
             return;
         }
 
-        if (!isset($this->ldapUserModel)) {
+        if (! isset($this->ldapUserModel)) {
             $this->ldapUserModel = $provider->getLdapUserRepository()->findByModel($this);
         }
 
