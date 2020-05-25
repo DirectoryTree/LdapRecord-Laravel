@@ -450,7 +450,7 @@ trait EmulatesQueries
         foreach ($attributes as $name => $values) {
             $attribute = $model->attributes()->create(['name' => $name]);
 
-            foreach ($values as $value) {
+            foreach ((array) $values as $value) {
                 $attribute->values()->create(['value' => $value]);
             }
         }
