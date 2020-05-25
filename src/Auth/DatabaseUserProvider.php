@@ -102,11 +102,13 @@ class DatabaseUserProvider extends UserProvider
      */
     public function retrieveByCredentials(array $credentials)
     {
-        if ($user = $this->users->findByCredentials($credentials)) {
-            $this->setAuthenticatingUser($user);
-
-            return $this->importer->run($user, $credentials);
+        if (! $user = $this->users->findByCredentials($credentials)) {
+            return;
         }
+
+        $this->setAuthenticatingUser($user);
+
+        return $this->importer->run($user, $credentials);
     }
 
     /**
@@ -114,22 +116,22 @@ class DatabaseUserProvider extends UserProvider
      */
     public function validateCredentials(Authenticatable $model, array $credentials)
     {
-        if ($this->user instanceof Model) {
-            $this->auth->setEloquentModel($model);
-
-            if (! $this->auth->attempt($this->user, $credentials['password'])) {
-                return false;
-            }
-
-            if ($model->save() && $model->wasRecentlyCreated) {
-                // If the model was recently created, they
-                // have been imported successfully.
-                event(new Imported($this->user, $model));
-            }
-
-            return true;
+        if (! $this->user instanceof Model) {
+            return false;
         }
 
-        return false;
+        $this->auth->setEloquentModel($model);
+
+        if (! $this->auth->attempt($this->user, $credentials['password'])) {
+            return false;
+        }
+
+        if ($model->save() && $model->wasRecentlyCreated) {
+            // If the model was recently created, they
+            // have been imported successfully.
+            event(new Imported($this->user, $model));
+        }
+
+        return true;
     }
 }
