@@ -11,7 +11,7 @@ use LdapRecord\Models\ActiveDirectory\User;
 use LdapRecord\Models\Entry;
 use Ramsey\Uuid\Uuid;
 
-class EmulatorTest extends TestCase
+class EmulatedModelQueryTest extends TestCase
 {
     protected function setUp(): void
     {
