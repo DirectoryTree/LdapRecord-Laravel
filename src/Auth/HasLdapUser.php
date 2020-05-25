@@ -2,12 +2,13 @@
 
 namespace LdapRecord\Laravel\Auth;
 
-use Illuminate\Support\Facades\Auth;
 use LdapRecord\Models\Model;
 
 /** @property Model|null $ldap */
 trait HasLdapUser
 {
+    use CreatesUserProvider;
+
     /**
      * The currently authenticated users LDAP model.
      *
@@ -43,33 +44,5 @@ trait HasLdapUser
         }
 
         return $this->ldapUserModel;
-    }
-
-    /**
-     * Get the currently authenticated users guard name.
-     *
-     * @return string|null
-     */
-    protected function getCurrentAuthGuard()
-    {
-        foreach (config('auth.guards') as $guard => $config) {
-            if (Auth::guard($guard)->check()) {
-                return $guard;
-            }
-        }
-    }
-
-    /**
-     * Get the authentication user provider.
-     *
-     * @param string $guard
-     *
-     * @return \Illuminate\Contracts\Auth\UserProvider|null
-     */
-    protected function getCurrentAuthProvider($guard)
-    {
-        return Auth::createUserProvider(
-            config("auth.guards.$guard.provider")
-        );
     }
 }
