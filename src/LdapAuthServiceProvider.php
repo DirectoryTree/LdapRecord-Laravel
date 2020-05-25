@@ -53,11 +53,22 @@ class LdapAuthServiceProvider extends ServiceProvider
         $this->commands([ImportLdapUsers::class]);
 
         Auth::provider('ldap', function ($app, array $config) {
-            return array_key_exists('database', $config) ?
-                $this->makeDatabaseUserProvider($config) :
-                $this->makePlainUserProvider($config);
+            return array_key_exists('database', $config)
+                ? $this->makeDatabaseUserProvider($config)
+                : $this->makePlainUserProvider($config);
         });
 
+        $this->registerEventListeners();
+        $this->registerLoginControllerListener();
+    }
+
+    /**
+     * Registers the LDAP event listeners.
+     *
+     * @return void
+     */
+    protected function registerEventListeners()
+    {
         if (config('ldap.logging', true)) {
             // If logging is enabled, we will set up our event listeners that
             // log each event fired throughout the authentication process.
@@ -65,18 +76,16 @@ class LdapAuthServiceProvider extends ServiceProvider
                 Event::listen($event, $listener);
             }
         }
-
-        $this->registerLoginControllerListener();
     }
 
     /**
+     * Registers the login controller listener to handle LDAP errors.
+     *
      * @return void
      */
     protected function registerLoginControllerListener()
     {
-        $loginController = 'App\Http\Controllers\Auth\LoginController';
-
-        if (class_exists($loginController)) {
+        if (class_exists($loginController = 'App\Http\Controllers\Auth\LoginController')) {
             app()->resolving($loginController, function ($controller) {
                 $traits = class_uses_recursive($controller);
 
