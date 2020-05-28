@@ -17,7 +17,7 @@ class EmulatedBuilder extends Builder
      *
      * @param Model $model
      *
-     * @return Emulated\ModelBuilder|\LdapRecord\Query\Model\Builder
+     * @return mixed
      */
     public function model(Model $model)
     {
