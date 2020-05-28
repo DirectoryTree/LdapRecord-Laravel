@@ -4,9 +4,9 @@ namespace LdapRecord\Laravel\Testing;
 
 use Illuminate\Support\Arr;
 use LdapRecord\Models\Model;
-use LdapRecord\Query\Builder;
-use LdapRecord\Models\Types\OpenLDAP;
 use LdapRecord\Models\Types\ActiveDirectory;
+use LdapRecord\Models\Types\OpenLDAP;
+use LdapRecord\Query\Builder;
 
 class EmulatedBuilder extends Builder
 {
