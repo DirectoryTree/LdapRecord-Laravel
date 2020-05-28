@@ -101,7 +101,7 @@ trait EmulatesQueries
      * @param Closure|null $closure
      * @param string       $state
      *
-     * @return EmulatedModelBuilder|Builder
+     * @return ModelBuilder|Builder
      */
     public function newNestedInstance(Closure $closure = null, $state = 'and')
     {

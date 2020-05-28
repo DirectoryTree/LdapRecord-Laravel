@@ -5,6 +5,8 @@ namespace LdapRecord\Laravel\Testing;
 use Illuminate\Support\Arr;
 use LdapRecord\Models\Model;
 use LdapRecord\Query\Builder;
+use LdapRecord\Models\Types\OpenLDAP;
+use LdapRecord\Models\Types\ActiveDirectory;
 
 class EmulatedBuilder extends Builder
 {
@@ -15,11 +17,23 @@ class EmulatedBuilder extends Builder
      *
      * @param Model $model
      *
-     * @return EmulatedModelBuilder|\LdapRecord\Query\Model\Builder
+     * @return Emulated\ModelBuilder|\LdapRecord\Query\Model\Builder
      */
     public function model(Model $model)
     {
-        return (new EmulatedModelBuilder($this->connection))
+        switch (true) {
+            case $model instanceof ActiveDirectory:
+                $instance = Emulated\ActiveDirectoryBuilder::class;
+                break;
+            case $model instanceof OpenLDAP:
+                $instance = Emulated\OpenLdapBuilder::class;
+                break;
+            default:
+                $instance = Emulated\ModelBuilder::class;
+                break;
+        }
+
+        return (new $instance($this->connection))
             ->setModel($model)
             ->in($this->dn);
     }

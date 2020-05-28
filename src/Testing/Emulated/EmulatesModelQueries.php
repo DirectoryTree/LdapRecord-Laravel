@@ -1,11 +1,11 @@
 <?php
 
-namespace LdapRecord\Laravel\Testing;
+namespace LdapRecord\Laravel\Testing\Emulated;
 
 use Illuminate\Support\Arr;
-use LdapRecord\Query\Model\Builder;
+use LdapRecord\Laravel\Testing\EmulatesQueries;
 
-class EmulatedModelBuilder extends Builder
+trait EmulatesModelQueries
 {
     use EmulatesQueries;
 
@@ -14,9 +14,7 @@ class EmulatedModelBuilder extends Builder
      */
     public function newInstance($baseDn = null)
     {
-        return (new self($this->connection))
-            ->in($baseDn)
-            ->setModel($this->model);
+        return (new self($this->connection))->in($baseDn)->setModel($this->model);
     }
 
     /**
