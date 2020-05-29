@@ -201,7 +201,6 @@ class EmulatedImportTest extends DatabaseProviderTestCase
             'cn' => $this->faker->name,
             'mail' => $this->faker->email,
             'objectguid' => $this->faker->uuid,
-            'userAccountControl' => (new AccountControl)->accountIsNormal(),
         ]);
 
         $database = TestUserModelStub::create([
@@ -236,7 +235,6 @@ class EmulatedImportTest extends DatabaseProviderTestCase
             'cn' => $this->faker->name,
             'mail' => $this->faker->email,
             'objectguid' => $this->faker->uuid,
-            'userAccountControl' => (new AccountControl)->accountIsNormal(),
         ]);
 
         $database = TestUserModelStub::create([
