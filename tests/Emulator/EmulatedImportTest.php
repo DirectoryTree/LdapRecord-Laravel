@@ -219,4 +219,40 @@ class EmulatedImportTest extends DatabaseProviderTestCase
 
         $this->assertEquals($user->getConvertedGuid(), $database->guid);
     }
+
+    public function test_existing_users_can_be_synchronized_using_raw_attributes()
+    {
+        $this->setupDatabaseUserProvider([
+            'database' => [
+                'sync_existing' => [
+                    'domain' => 'my-domain',
+                ],
+            ],
+        ]);
+
+        DirectoryEmulator::setup();
+
+        $user = User::create([
+            'cn' => $this->faker->name,
+            'mail' => $this->faker->email,
+            'objectguid' => $this->faker->uuid,
+            'userAccountControl' => (new AccountControl)->accountIsNormal(),
+        ]);
+
+        $database = TestUserModelStub::create([
+            'name' => $user->cn[0],
+            'email' => $user->mail[0],
+            'password' => 'secret',
+            'domain' => 'my-domain',
+        ]);
+
+        $this->artisan('ldap:import', [
+            'provider' => 'ldap-database',
+            '--no-interaction',
+        ])->assertExitCode(0);
+
+        $database->refresh();
+
+        $this->assertEquals($user->getConvertedGuid(), $database->guid);
+    }
 }

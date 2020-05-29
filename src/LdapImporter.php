@@ -124,7 +124,7 @@ class LdapImporter
         if (is_array($existing = Arr::get($this->config, 'sync_existing', false))) {
             $query->orWhere(function ($query) use ($existing, $ldap) {
                 foreach ($existing as $column => $attribute) {
-                    $query->where($column, '=', $ldap->getFirstAttribute($attribute));
+                    $query->where($column, '=', $ldap->getFirstAttribute($attribute) ?? $attribute);
                 }
             });
         }
