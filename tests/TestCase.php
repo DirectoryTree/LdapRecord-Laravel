@@ -61,7 +61,7 @@ abstract class TestCase extends BaseTestCase
             'driver' => 'session',
             'provider' => 'ldap-plain',
         ]);
-        config()->set('auth.providers.ldap-plain', array_merge([
+        config()->set('auth.providers.ldap-plain', array_merge_recursive([
             'driver' => 'ldap',
             'rules' => [],
             'model' => \LdapRecord\Models\ActiveDirectory\User::class,
@@ -75,7 +75,7 @@ abstract class TestCase extends BaseTestCase
             'driver' => 'session',
             'provider' => 'ldap-database',
         ]);
-        config()->set('auth.providers.ldap-database', array_merge([
+        config()->set('auth.providers.ldap-database', array_merge_recursive([
             'driver' => 'ldap',
             'rules' => [],
             'model' => \LdapRecord\Models\ActiveDirectory\User::class,
