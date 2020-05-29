@@ -2,6 +2,7 @@
 
 namespace LdapRecord\Laravel;
 
+use Illuminate\Support\Arr;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 use LdapRecord\Laravel\Events\Importing;
 use LdapRecord\Laravel\Events\Synchronized;
@@ -106,18 +107,29 @@ class LdapImporter
         // identifier. Doing so would cause overwrites of the
         // first database model that does not contain one.
         if (is_null($guid = $ldap->getConvertedGuid())) {
-            $ldapModel = get_class($ldap);
-
             throw new LdapRecordException(
-                "Attribute [{$ldap->getGuidKey()}] does not exist on LDAP model [$ldapModel] object [{$ldap->getDn()}]"
+                sprintf(
+                    "Attribute [%s] does not exist on LDAP model [%s] object [%s]",
+                    $ldap->getGuidKey(),
+                    get_class($ldap),
+                    $ldap->getDn()
+                )
             );
         }
 
-        $model = $this->createEloquentModel();
+        $query = $this->newEloquentQuery(
+            $model = $this->createEloquentModel()
+        )->where($model->getLdapGuidColumn(), '=', $guid);
 
-        return $this->newEloquentQuery($model)->firstOrNew([
-            $model->getLdapGuidColumn() => $guid,
-        ]);
+        if (is_array($existing = Arr::get($this->config, 'sync_existing', false))) {
+            $query->orWhere(function ($query) use ($existing, $ldap) {
+                foreach ($existing as $column => $attribute) {
+                    $query->where($column, '=', $ldap->getFirstAttribute($attribute));
+                }
+            });
+        }
+
+        return $query->first() ?? tap($model)->setAttribute($model->getLdapGuidColumn(), $guid);
     }
 
     /**
