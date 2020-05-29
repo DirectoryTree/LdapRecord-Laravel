@@ -2,8 +2,8 @@
 
 namespace LdapRecord\Laravel;
 
-use Illuminate\Support\Arr;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
+use Illuminate\Support\Arr;
 use LdapRecord\Laravel\Events\Importing;
 use LdapRecord\Laravel\Events\Synchronized;
 use LdapRecord\Laravel\Events\Synchronizing;
@@ -109,7 +109,7 @@ class LdapImporter
         if (is_null($guid = $ldap->getConvertedGuid())) {
             throw new LdapRecordException(
                 sprintf(
-                    "Attribute [%s] does not exist on LDAP model [%s] object [%s]",
+                    'Attribute [%s] does not exist on LDAP model [%s] object [%s]',
                     $ldap->getGuidKey(),
                     get_class($ldap),
                     $ldap->getDn()
