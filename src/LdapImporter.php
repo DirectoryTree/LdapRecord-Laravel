@@ -107,29 +107,39 @@ class LdapImporter
         // identifier. Doing so would cause overwrites of the
         // first database model that does not contain one.
         if (is_null($guid = $ldap->getConvertedGuid())) {
-            throw new LdapRecordException(
-                sprintf(
-                    'Attribute [%s] does not exist on LDAP model [%s] object [%s]',
-                    $ldap->getGuidKey(),
-                    get_class($ldap),
-                    $ldap->getDn()
-                )
-            );
+            throw LdapImportException::missingGuid($ldap);
         }
 
         $query = $this->newEloquentQuery(
             $model = $this->createEloquentModel()
         )->where($model->getLdapGuidColumn(), '=', $guid);
 
-        if (is_array($existing = Arr::get($this->config, 'sync_existing', false))) {
-            $query->orWhere(function ($query) use ($existing, $ldap) {
-                foreach ($existing as $column => $attribute) {
-                    $query->where($column, '=', $ldap->getFirstAttribute($attribute) ?? $attribute);
-                }
-            });
-        }
+        $this->applySyncScopesToQuery($ldap, $query);
 
         return $query->first() ?? tap($model)->setAttribute($model->getLdapGuidColumn(), $guid);
+    }
+
+    /**
+     * Applies the configured 'sync existing' scopes to the database query.
+     *
+     * @param LdapModel                             $ldap
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    protected function applySyncScopesToQuery(LdapModel $ldap, $query)
+    {
+        $scopes = Arr::get($this->config, 'sync_existing', false);
+
+        if (!is_array($scopes)) {
+            return $query;
+        }
+
+        return $query->orWhere(function ($query) use ($scopes, $ldap) {
+            foreach ($scopes as $databaseColumn => $ldapAttribute) {
+                $query->where($databaseColumn, '=', $ldap->getFirstAttribute($ldapAttribute) ?? $ldapAttribute);
+            }
+        });
     }
 
     /**
