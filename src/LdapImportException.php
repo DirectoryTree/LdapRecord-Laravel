@@ -2,8 +2,8 @@
 
 namespace LdapRecord\Laravel;
 
-use LdapRecord\Models\Model;
 use LdapRecord\LdapRecordException;
+use LdapRecord\Models\Model;
 
 class LdapImportException extends LdapRecordException
 {

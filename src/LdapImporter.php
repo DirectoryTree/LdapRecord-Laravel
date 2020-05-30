@@ -131,7 +131,7 @@ class LdapImporter
     {
         $scopes = Arr::get($this->config, 'sync_existing', false);
 
-        if (!is_array($scopes)) {
+        if (! is_array($scopes)) {
             return $query;
         }
 
