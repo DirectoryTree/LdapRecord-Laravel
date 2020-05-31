@@ -69,7 +69,7 @@ class LdapAuthServiceProvider extends ServiceProvider
      */
     protected function registerMigrations()
     {
-        if (!$this->app->runningInConsole()) {
+        if (! $this->app->runningInConsole()) {
             return $this;
         }
 
