@@ -3,6 +3,8 @@
 namespace LdapRecord\Laravel;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use LdapRecord\Connection;
 use LdapRecord\Container;
 use LdapRecord\Laravel\Commands\MakeLdapModel;
@@ -66,8 +68,12 @@ class LdapServiceProvider extends ServiceProvider
      */
     protected function registerLogging()
     {
-        if (config('ldap.logging', true)) {
-            Container::getInstance()->setLogger(logger());
+        if (! config('ldap.logging', true)) {
+            return $this;
+        }
+
+        if (! is_null($logger = Log::getFacadeRoot())) {
+            Container::getInstance()->setLogger($logger);
         }
 
         return $this;
@@ -102,8 +108,10 @@ class LdapServiceProvider extends ServiceProvider
      */
     protected function registerLdapCache(Connection $connection)
     {
-        $connection->setCache(
-            cache()->driver(config('ldap.cache.driver'))
-        );
+        if (! is_null($cache = Cache::getFacadeRoot())) {
+            $connection->setCache(
+                $cache->driver(config('ldap.cache.driver'))
+            );
+        }
     }
 }
