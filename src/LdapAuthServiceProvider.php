@@ -40,32 +40,68 @@ class LdapAuthServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        if ($this->app->runningInConsole()) {
-            if (! class_exists('AddLdapColumnsToUsersTable')) {
-                $this->publishes([
-                    __DIR__.'/../database/migrations/add_ldap_columns_to_users_table.php.stub' => database_path('migrations/'.date('Y_m_d_His', time()).'_add_ldap_columns_to_users_table.php'),
-                ], 'migrations');
-            }
-        }
-
         $this->loadTranslationsFrom(__DIR__.'/../resources/lang/', 'ldap');
 
+        $this
+            ->registerCommands()
+            ->registerMigrations()
+            ->registerAuthProvider()
+            ->registerEventListeners()
+            ->registerLoginControllerListener();
+    }
+
+    /**
+     * Register the LDAP auth commands.
+     *
+     * @return $this
+     */
+    protected function registerCommands()
+    {
         $this->commands([ImportLdapUsers::class]);
 
+        return $this;
+    }
+
+    /**
+     * Register the LDAP auth migrations.
+     *
+     * @return $this
+     */
+    protected function registerMigrations()
+    {
+        if (!$this->app->runningInConsole()) {
+            return $this;
+        }
+
+        if (! class_exists('AddLdapColumnsToUsersTable')) {
+            $this->publishes([
+                __DIR__.'/../database/migrations/add_ldap_columns_to_users_table.php.stub' => database_path('migrations/'.date('Y_m_d_His', time()).'_add_ldap_columns_to_users_table.php'),
+            ], 'migrations');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Register the LDAP auth provider.
+     *
+     * @return $this
+     */
+    protected function registerAuthProvider()
+    {
         Auth::provider('ldap', function ($app, array $config) {
             return array_key_exists('database', $config)
                 ? $this->makeDatabaseUserProvider($config)
                 : $this->makePlainUserProvider($config);
         });
 
-        $this->registerEventListeners();
-        $this->registerLoginControllerListener();
+        return $this;
     }
 
     /**
      * Registers the LDAP event listeners.
      *
-     * @return void
+     * @return $this
      */
     protected function registerEventListeners()
     {
@@ -76,12 +112,14 @@ class LdapAuthServiceProvider extends ServiceProvider
                 Event::listen($event, $listener);
             }
         }
+
+        return $this;
     }
 
     /**
      * Registers the login controller listener to handle LDAP errors.
      *
-     * @return void
+     * @return $this
      */
     protected function registerLoginControllerListener()
     {
@@ -94,6 +132,8 @@ class LdapAuthServiceProvider extends ServiceProvider
                 }
             });
         }
+
+        return $this;
     }
 
     /**
