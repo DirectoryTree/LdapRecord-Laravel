@@ -2,9 +2,9 @@
 
 namespace LdapRecord\Laravel;
 
-use LdapRecord\Container;
-use LdapRecord\Connection;
 use Illuminate\Support\ServiceProvider;
+use LdapRecord\Connection;
+use LdapRecord\Container;
 use LdapRecord\Laravel\Commands\MakeLdapModel;
 use LdapRecord\Laravel\Commands\MakeLdapRule;
 use LdapRecord\Laravel\Commands\MakeLdapScope;
