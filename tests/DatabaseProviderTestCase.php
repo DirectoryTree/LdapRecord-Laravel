@@ -19,6 +19,11 @@ class DatabaseProviderTestCase extends TestCase
     {
         parent::setUp();
 
+        $this->runUserMigration();
+    }
+
+    protected function runUserMigration()
+    {
         // Setup the users database table.
         Schema::create('users', function (Blueprint $table) {
             $table->bigIncrements('id');

@@ -34,23 +34,33 @@ class DatabaseUserProvider extends UserProvider
     protected $user;
 
     /**
+     * Whether falling back to Eloquent auth is enabled.
+     *
+     * @var bool
+     */
+    protected $fallback = false;
+
+    /**
      * Create a new LDAP user provider.
      *
      * @param LdapUserAuthenticator $auth
      * @param LdapUserRepository    $users
      * @param LdapUserImporter      $importer
      * @param EloquentUserProvider  $eloquent
+     * @param bool                  $fallback
      */
     public function __construct(
         LdapUserRepository $users,
         LdapUserAuthenticator $auth,
         LdapUserImporter $importer,
-        EloquentUserProvider $eloquent
+        EloquentUserProvider $eloquent,
+        $fallback = false
     ) {
         parent::__construct($users, $auth);
 
         $this->importer = $importer;
         $this->eloquent = $eloquent;
+        $this->fallback = $fallback;
     }
 
     /**
@@ -102,8 +112,13 @@ class DatabaseUserProvider extends UserProvider
      */
     public function retrieveByCredentials(array $credentials)
     {
+        // If an LDAP user is not located by their credentials and fallback
+        // is enabled, we will attempt to locate the local database user
+        // instead and perform validation on their password normally.
         if (! $user = $this->users->findByCredentials($credentials)) {
-            return;
+            return $this->fallback
+                ? $this->eloquent->retrieveByCredentials($credentials)
+                : null;
         }
 
         $this->setAuthenticatingUser($user);
@@ -116,8 +131,13 @@ class DatabaseUserProvider extends UserProvider
      */
     public function validateCredentials(Authenticatable $model, array $credentials)
     {
+        // If an LDAP user has not been located, fallback is enabled, and
+        // the given Eloquent model exists, we will attempt to validate
+        // the users password normally via the Eloquent user provider.
         if (! $this->user instanceof Model) {
-            return false;
+            return $this->fallback && $model->exists
+                ? $this->eloquent->validateCredentials($model, $credentials)
+                : false;
         }
 
         $this->auth->setEloquentModel($model);

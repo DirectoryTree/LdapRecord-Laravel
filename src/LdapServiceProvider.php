@@ -21,17 +21,16 @@ class LdapServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this
-            ->registerConfiguration()
-            ->registerCommands()
-            ->registerLogging()
-            ->registerLdapConnections();
+        $this->registerConfiguration();
+        $this->registerCommands();
+        $this->registerLogging();
+        $this->registerLdapConnections();
     }
 
     /**
      * Register the publishable LDAP configuration file.
      *
-     * @return $this
+     * @return void
      */
     protected function registerConfiguration()
     {
@@ -40,14 +39,12 @@ class LdapServiceProvider extends ServiceProvider
                 __DIR__.'/../config/ldap.php' => config_path('ldap.php'),
             ]);
         }
-
-        return $this;
     }
 
     /**
      * Register the LDAP artisan commands.
      *
-     * @return $this
+     * @return void
      */
     protected function registerCommands()
     {
@@ -57,32 +54,28 @@ class LdapServiceProvider extends ServiceProvider
             MakeLdapModel::class,
             TestLdapConnection::class,
         ]);
-
-        return $this;
     }
 
     /**
      * Register the LDAP operation logger.
      *
-     * @return $this
+     * @return void
      */
     protected function registerLogging()
     {
         if (! config('ldap.logging', true)) {
-            return $this;
+            return;
         }
 
         if (! is_null($logger = Log::getFacadeRoot())) {
             Container::getInstance()->setLogger($logger);
         }
-
-        return $this;
     }
 
     /**
      * Register the configured LDAP connections.
      *
-     * @return $this
+     * @return void
      */
     protected function registerLdapConnections()
     {
@@ -97,8 +90,6 @@ class LdapServiceProvider extends ServiceProvider
 
             Container::addConnection($connection, $name);
         }
-
-        return $this;
     }
 
     /**

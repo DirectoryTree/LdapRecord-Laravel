@@ -42,35 +42,32 @@ class LdapAuthServiceProvider extends ServiceProvider
     {
         $this->loadTranslationsFrom(__DIR__.'/../resources/lang/', 'ldap');
 
-        $this
-            ->registerCommands()
-            ->registerMigrations()
-            ->registerAuthProvider()
-            ->registerEventListeners()
-            ->registerLoginControllerListener();
+        $this->registerCommands();
+        $this->registerMigrations();
+        $this->registerAuthProvider();
+        $this->registerEventListeners();
+        $this->registerLoginControllerListener();
     }
 
     /**
      * Register the LDAP auth commands.
      *
-     * @return $this
+     * @return void
      */
     protected function registerCommands()
     {
         $this->commands([ImportLdapUsers::class]);
-
-        return $this;
     }
 
     /**
      * Register the LDAP auth migrations.
      *
-     * @return $this
+     * @return void
      */
     protected function registerMigrations()
     {
         if (! $this->app->runningInConsole()) {
-            return $this;
+            return;
         }
 
         if (! class_exists('AddLdapColumnsToUsersTable')) {
@@ -78,14 +75,12 @@ class LdapAuthServiceProvider extends ServiceProvider
                 __DIR__.'/../database/migrations/add_ldap_columns_to_users_table.php.stub' => database_path('migrations/'.date('Y_m_d_His', time()).'_add_ldap_columns_to_users_table.php'),
             ], 'migrations');
         }
-
-        return $this;
     }
 
     /**
      * Register the LDAP auth provider.
      *
-     * @return $this
+     * @return void
      */
     protected function registerAuthProvider()
     {
@@ -94,14 +89,12 @@ class LdapAuthServiceProvider extends ServiceProvider
                 ? $this->makeDatabaseUserProvider($config)
                 : $this->makePlainUserProvider($config);
         });
-
-        return $this;
     }
 
     /**
      * Registers the LDAP event listeners.
      *
-     * @return $this
+     * @return void
      */
     protected function registerEventListeners()
     {
@@ -112,14 +105,12 @@ class LdapAuthServiceProvider extends ServiceProvider
                 Event::listen($event, $listener);
             }
         }
-
-        return $this;
     }
 
     /**
      * Registers the login controller listener to handle LDAP errors.
      *
-     * @return $this
+     * @return void
      */
     protected function registerLoginControllerListener()
     {
@@ -132,8 +123,6 @@ class LdapAuthServiceProvider extends ServiceProvider
                 }
             });
         }
-
-        return $this;
     }
 
     /**
@@ -149,7 +138,8 @@ class LdapAuthServiceProvider extends ServiceProvider
             $this->makeLdapUserRepository($config),
             $this->makeLdapUserAuthenticator($config),
             $this->makeLdapUserImporter($config['database']),
-            new EloquentUserProvider($this->app->make('hash'), $config['database']['model'])
+            new EloquentUserProvider($this->app->make('hash'), $config['database']['model']),
+            isset($config['database']['fallback']) && $config['database']['fallback'] == true
         );
     }
 
