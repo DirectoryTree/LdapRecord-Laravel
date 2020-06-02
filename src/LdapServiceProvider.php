@@ -2,9 +2,9 @@
 
 namespace LdapRecord\Laravel;
 
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\ServiceProvider;
 use LdapRecord\Connection;
 use LdapRecord\Container;
 use LdapRecord\Laravel\Commands\MakeLdapModel;
