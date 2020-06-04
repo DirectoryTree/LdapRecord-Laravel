@@ -1,8 +1,8 @@
 ---
 name: Support request
 about: Request help using LdapRecord-Laravel (requires sponsorship)
-title: ''
-labels: ''
+title: "[Support]"
+labels: question
 assignees: ''
 
 ---
