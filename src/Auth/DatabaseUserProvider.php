@@ -47,20 +47,17 @@ class DatabaseUserProvider extends UserProvider
      * @param LdapUserRepository    $users
      * @param LdapUserImporter      $importer
      * @param EloquentUserProvider  $eloquent
-     * @param bool                  $fallback
      */
     public function __construct(
         LdapUserRepository $users,
         LdapUserAuthenticator $auth,
         LdapUserImporter $importer,
-        EloquentUserProvider $eloquent,
-        $fallback = false
+        EloquentUserProvider $eloquent
     ) {
         parent::__construct($users, $auth);
 
         $this->importer = $importer;
         $this->eloquent = $eloquent;
-        $this->fallback = $fallback;
     }
 
     /**
@@ -81,6 +78,16 @@ class DatabaseUserProvider extends UserProvider
     public function setAuthenticatingUser(Model $user)
     {
         $this->user = $user;
+    }
+
+    /**
+     * Fallback to Eloquent authentication after failing to locate an LDAP user.
+     *
+     * @return void
+     */
+    public function shouldFallback()
+    {
+        $this->fallback = true;
     }
 
     /**
@@ -147,8 +154,6 @@ class DatabaseUserProvider extends UserProvider
         }
 
         if ($model->save() && $model->wasRecentlyCreated) {
-            // If the model was recently created, they
-            // have been imported successfully.
             event(new Imported($this->user, $model));
         }
 
