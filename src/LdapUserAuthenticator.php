@@ -82,24 +82,27 @@ class LdapUserAuthenticator
             return false;
         }
 
-        if (call_user_func($this->authenticator, $user, $password)) {
-            // Here we will perform authorization on the LDAP user. If all
-            // validation rules pass, we will allow the authentication
-            // attempt. Otherwise, it is automatically rejected.
-            if (! $this->validate($user)) {
-                $this->rejected($user);
+        // Here we will attempt to bind the authenticating LDAP
+        // user to our connection to ensure their password is
+        // correct, using the defined authenticator closure.
+        if (! call_user_func($this->authenticator, $user, $password)) {
+            $this->failed($user);
 
-                return false;
-            }
-
-            $this->passed($user);
-
-            return true;
+            return false;
         }
 
-        $this->failed($user);
+        // Now we will perform authorization on the LDAP user. If all
+        // validation rules pass, we will allow the authentication
+        // attempt. Otherwise, it is automatically rejected.
+        if (! $this->validate($user)) {
+            $this->rejected($user);
 
-        return false;
+            return false;
+        }
+
+        $this->passed($user);
+
+        return true;
     }
 
     /**
@@ -233,8 +236,8 @@ class LdapUserAuthenticator
      */
     protected function databaseModelIsTrashed()
     {
-        return isset($this->eloquentModel) &&
-            $this->isUsingSoftDeletes($this->eloquentModel) &&
-            $this->eloquentModel->trashed();
+        return isset($this->eloquentModel)
+            && $this->isUsingSoftDeletes($this->eloquentModel)
+            && $this->eloquentModel->trashed();
     }
 }

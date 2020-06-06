@@ -88,9 +88,8 @@ trait ListensForLdapBindFailure
      */
     protected function causedByInvalidCredentials($errorMessage, $diagnosticMessage)
     {
-        return
-            $this->errorContainsMessage($errorMessage, 'Invalid credentials') &&
-            $this->errorContainsMessage($diagnosticMessage, '52e');
+        return $this->errorContainsMessage($errorMessage, 'Invalid credentials')
+            && $this->errorContainsMessage($diagnosticMessage, '52e');
     }
 
     /**

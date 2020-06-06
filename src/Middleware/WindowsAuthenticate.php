@@ -200,15 +200,17 @@ class WindowsAuthenticate
                 return true;
             }, $user);
 
-        if ($allowedToAuthenticate) {
-            if ($model && $model->save() && $model->wasRecentlyCreated) {
-                $this->fireImportedEvent($user, $model);
-            }
-
-            $this->fireAuthenticatedEvent($user, $model);
-
-            return $model ? $model : $user;
+        if (! $allowedToAuthenticate) {
+            return;
         }
+
+        if ($model && $model->save() && $model->wasRecentlyCreated) {
+            $this->fireImportedEvent($user, $model);
+        }
+
+        $this->fireAuthenticatedEvent($user, $model);
+
+        return $model ? $model : $user;
     }
 
     /**

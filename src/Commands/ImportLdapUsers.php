@@ -77,15 +77,15 @@ class ImportLdapUsers extends Command
         }
 
         if (
-            $this->input->isInteractive() &&
-            $this->confirm('Would you like to display the user(s) to be imported / synchronized?', $default = false)
+            $this->input->isInteractive()
+            && $this->confirm('Would you like to display the user(s) to be imported / synchronized?', $default = false)
         ) {
             $this->display($users);
         }
 
         if (
-            ! $this->input->isInteractive() ||
-            $this->confirm('Would you like these users to be imported / synchronized?', $default = true)
+            ! $this->input->isInteractive()
+            || $this->confirm('Would you like these users to be imported / synchronized?', $default = true)
         ) {
             $this->import($provider->getLdapUserImporter(), $users);
 
@@ -327,9 +327,9 @@ class ImportLdapUsers extends Command
     protected function restore(LdapModel $user, Model $model)
     {
         if (
-            $this->isUsingSoftDeletes($model) &&
-            $model->trashed() &&
-            $this->userIsEnabled($user)
+            $this->isUsingSoftDeletes($model)
+            && $model->trashed()
+            && $this->userIsEnabled($user)
         ) {
             // If the model has soft-deletes enabled, the model is
             // currently deleted, and the LDAP user account
@@ -355,9 +355,9 @@ class ImportLdapUsers extends Command
     protected function delete(LdapModel $user, Model $model)
     {
         if (
-            $this->isUsingSoftDeletes($model) &&
-            ! $model->trashed() &&
-            $this->userIsDisabled($user)
+            $this->isUsingSoftDeletes($model)
+            && ! $model->trashed()
+            && $this->userIsDisabled($user)
         ) {
             // If deleting is enabled, the model supports soft deletes, the model
             // isn't already deleted, and the LDAP user is disabled, we'll

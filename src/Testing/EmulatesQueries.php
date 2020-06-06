@@ -230,9 +230,9 @@ trait EmulatesQueries
         // nested state is used to determine if the query being nested is an "and" or
         // "or" which will give us proper results when changing the relation method.
         if (
-            $this->nested &&
-            $this->nestedState = 'or' &&
-            $this->fieldIsUsedMultipleTimes($type, $bindings['field'])
+            $this->nested
+            && $this->nestedState = 'or'
+            && $this->fieldIsUsedMultipleTimes($type, $bindings['field'])
         ) {
             $method = $method == 'whereDoesntHave' ?
                 'orWhereDoesntHave' :
