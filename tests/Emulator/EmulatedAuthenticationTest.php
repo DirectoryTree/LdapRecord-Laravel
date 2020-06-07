@@ -4,6 +4,7 @@ namespace LdapRecord\Laravel\Tests\Emulator;
 
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use LdapRecord\Laravel\Events\Authenticated;
 use LdapRecord\Laravel\Events\Authenticating;
 use LdapRecord\Laravel\Events\DiscoveredWithCredentials;
@@ -93,6 +94,41 @@ class EmulatedAuthenticationTest extends DatabaseProviderTestCase
         $this->expectException(LdapRecordException::class);
 
         $this->assertFalse(Auth::attempt(['mail' => $user->mail[0], 'password' => 'secret']));
+    }
+
+    public function test_database_authentication_falls_back_when_enabled()
+    {
+        $this->doesntExpectEvents([
+            Authenticating::class,
+            Authenticated::class,
+            DiscoveredWithCredentials::class,
+            Importing::class,
+            Imported::class,
+            Synchronizing::class,
+            Synchronized::class,
+        ]);
+
+        DirectoryEmulator::setup();
+
+        $this->setupDatabaseUserProvider([
+            'database' => ['fallback' => true],
+        ]);
+
+        $guard = Auth::guard();
+
+        $databaseUserProvider = $guard->getProvider();
+
+        $databaseUserProvider->resolveUsersUsing(function () {
+            throw new \Exception;
+        });
+
+        $user = TestUserModelStub::create([
+            'name' => 'John Doe',
+            'email' => 'jdoe@email.com',
+            'password' => Hash::make('secret'),
+        ]);
+
+        $this->assertTrue($guard->attempt(['email' => $user->email, 'password' => 'secret']));
     }
 
     public function test_plain_ldap_authentication_passes()

@@ -2,6 +2,7 @@
 
 namespace LdapRecord\Laravel\Auth;
 
+use Closure;
 use Illuminate\Auth\EloquentUserProvider;
 use Illuminate\Contracts\Auth\Authenticatable;
 use LdapRecord\Laravel\Events\Imported;
@@ -34,6 +35,13 @@ class DatabaseUserProvider extends UserProvider
     protected $user;
 
     /**
+     * The user resolver to use for finding the authenticating user.
+     *
+     * @var \Closure
+     */
+    protected $userResolver;
+
+    /**
      * Whether falling back to Eloquent auth is enabled.
      *
      * @var bool
@@ -58,6 +66,10 @@ class DatabaseUserProvider extends UserProvider
 
         $this->importer = $importer;
         $this->eloquent = $eloquent;
+
+        $this->userResolver = function ($credentials) {
+            return $this->users->findByCredentials($credentials);
+        };
     }
 
     /**
@@ -91,6 +103,20 @@ class DatabaseUserProvider extends UserProvider
     }
 
     /**
+     * Set the callback to be used to resolve LDAP users.
+     *
+     * @param Closure $userResolver
+     *
+     * @return $this
+     */
+    public function resolveUsersUsing(Closure $userResolver)
+    {
+        $this->userResolver = $userResolver;
+
+        return $this;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function retrieveById($identifier)
@@ -119,10 +145,14 @@ class DatabaseUserProvider extends UserProvider
      */
     public function retrieveByCredentials(array $credentials)
     {
+        $user = rescue(function () use ($credentials) {
+            return call_user_func($this->userResolver, $credentials);
+        });
+
         // If an LDAP user is not located by their credentials and fallback
         // is enabled, we will attempt to locate the local database user
         // instead and perform validation on their password normally.
-        if (! $user = $this->users->findByCredentials($credentials)) {
+        if (! $user) {
             return $this->fallback
                 ? $this->eloquent->retrieveByCredentials($credentials)
                 : null;
