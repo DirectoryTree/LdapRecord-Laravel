@@ -134,18 +134,12 @@ class LdapAuthServiceProvider extends ServiceProvider
      */
     protected function makeDatabaseUserProvider(array $config)
     {
-        $provider = new DatabaseUserProvider(
+        return new DatabaseUserProvider(
             $this->makeLdapUserRepository($config),
             $this->makeLdapUserAuthenticator($config),
             $this->makeLdapUserImporter($config['database']),
             new EloquentUserProvider($this->app->make('hash'), $config['database']['model'])
         );
-
-        if (isset($config['database']['fallback']) && $config['database']['fallback'] == true) {
-            $provider->shouldFallback();
-        }
-
-        return $provider;
     }
 
     /**

@@ -42,7 +42,7 @@ class DatabaseUserProvider extends UserProvider
     protected $userResolver;
 
     /**
-     * Whether falling back to Eloquent auth is enabled.
+     * Whether falling back to Eloquent auth is being used.
      *
      * @var bool
      */
@@ -153,14 +153,30 @@ class DatabaseUserProvider extends UserProvider
         // is enabled, we will attempt to locate the local database user
         // instead and perform validation on their password normally.
         if (! $user) {
-            return $this->fallback
-                ? $this->eloquent->retrieveByCredentials($credentials)
+            return isset($credentials['fallback'])
+                ? $this->retrieveByCredentialsUsingEloquent($credentials)
                 : null;
         }
 
         $this->setAuthenticatingUser($user);
 
         return $this->importer->run($user, $credentials);
+    }
+
+    /**
+     * Retrieve the user from their credentials using Eloquent.
+     *
+     * @param array $credentials
+     *
+     * @throws Exception
+     *
+     * @return Authenticatable|null
+     */
+    protected function retrieveByCredentialsUsingEloquent($credentials)
+    {
+        $this->shouldFallback();
+
+        return $this->eloquent->retrieveByCredentials($credentials['fallback']);
     }
 
     /**

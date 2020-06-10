@@ -110,9 +110,7 @@ class EmulatedAuthenticationTest extends DatabaseProviderTestCase
 
         DirectoryEmulator::setup();
 
-        $this->setupDatabaseUserProvider([
-            'database' => ['fallback' => true],
-        ]);
+        $this->setupDatabaseUserProvider();
 
         $guard = Auth::guard();
 
@@ -128,7 +126,14 @@ class EmulatedAuthenticationTest extends DatabaseProviderTestCase
             'password' => Hash::make('secret'),
         ]);
 
-        $this->assertTrue($guard->attempt(['email' => $user->email, 'password' => 'secret']));
+        $this->assertTrue($guard->attempt([
+            'mail' => $user->email,
+            'password' => 'secret',
+            'fallback' => [
+                'email' => $user->email,
+                'password' => 'secret',
+            ],
+        ]));
     }
 
     public function test_database_authentication_fallback_works_when_enabled_and_null_is_returned()
@@ -145,15 +150,14 @@ class EmulatedAuthenticationTest extends DatabaseProviderTestCase
 
         DirectoryEmulator::setup();
 
-        $this->setupDatabaseUserProvider([
-            'database' => ['fallback' => true],
-        ]);
+        $this->setupDatabaseUserProvider();
 
         $guard = Auth::guard();
 
         $databaseUserProvider = $guard->getProvider();
 
         $databaseUserProvider->resolveUsersUsing(function () {
+            return;
         });
 
         $user = TestUserModelStub::create([
@@ -162,7 +166,37 @@ class EmulatedAuthenticationTest extends DatabaseProviderTestCase
             'password' => Hash::make('secret'),
         ]);
 
-        $this->assertTrue($guard->attempt(['email' => $user->email, 'password' => 'secret']));
+        $this->assertTrue($guard->attempt([
+            'mail' => $user->email,
+            'password' => 'secret',
+            'fallback' => [
+                'email' => $user->email,
+                'password' => 'secret',
+            ],
+        ]));
+    }
+
+    public function test_database_authentication_fallback_is_not_performed_when_fallback_credentials_are_not_defined()
+    {
+        DirectoryEmulator::setup();
+
+        $this->setupDatabaseUserProvider();
+
+        $guard = Auth::guard();
+
+        $databaseUserProvider = $guard->getProvider();
+
+        $databaseUserProvider->resolveUsersUsing(function () {
+            return;
+        });
+
+        $user = TestUserModelStub::create([
+            'name' => 'John Doe',
+            'email' => 'jdoe@email.com',
+            'password' => Hash::make('secret'),
+        ]);
+
+        $this->assertFalse($guard->attempt(['mail' => $user->email, 'password' => 'secret']));
     }
 
     public function test_plain_ldap_authentication_passes()
