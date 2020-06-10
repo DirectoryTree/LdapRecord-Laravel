@@ -96,7 +96,7 @@ class EmulatedAuthenticationTest extends DatabaseProviderTestCase
         $this->assertFalse(Auth::attempt(['mail' => $user->mail[0], 'password' => 'secret']));
     }
 
-    public function test_database_authentication_falls_back_when_enabled()
+    public function test_database_authentication_fallback_works_when_enabled_and_exception_is_thrown()
     {
         $this->doesntExpectEvents([
             Authenticating::class,
@@ -120,6 +120,41 @@ class EmulatedAuthenticationTest extends DatabaseProviderTestCase
 
         $databaseUserProvider->resolveUsersUsing(function () {
             throw new \Exception;
+        });
+
+        $user = TestUserModelStub::create([
+            'name' => 'John Doe',
+            'email' => 'jdoe@email.com',
+            'password' => Hash::make('secret'),
+        ]);
+
+        $this->assertTrue($guard->attempt(['email' => $user->email, 'password' => 'secret']));
+    }
+
+    public function test_database_authentication_fallback_works_when_enabled_and_null_is_returned()
+    {
+        $this->doesntExpectEvents([
+            Authenticating::class,
+            Authenticated::class,
+            DiscoveredWithCredentials::class,
+            Importing::class,
+            Imported::class,
+            Synchronizing::class,
+            Synchronized::class,
+        ]);
+
+        DirectoryEmulator::setup();
+
+        $this->setupDatabaseUserProvider([
+            'database' => ['fallback' => true],
+        ]);
+
+        $guard = Auth::guard();
+
+        $databaseUserProvider = $guard->getProvider();
+
+        $databaseUserProvider->resolveUsersUsing(function () {
+            return;
         });
 
         $user = TestUserModelStub::create([
