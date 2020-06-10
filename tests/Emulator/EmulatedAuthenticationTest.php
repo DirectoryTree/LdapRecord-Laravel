@@ -154,7 +154,6 @@ class EmulatedAuthenticationTest extends DatabaseProviderTestCase
         $databaseUserProvider = $guard->getProvider();
 
         $databaseUserProvider->resolveUsersUsing(function () {
-            return;
         });
 
         $user = TestUserModelStub::create([
