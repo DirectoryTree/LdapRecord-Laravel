@@ -79,7 +79,7 @@ class LdapUserRepository
         $query = $this->query();
 
         foreach ($credentials as $key => $value) {
-            if (Str::contains($key, 'password')) {
+            if (Str::contains($key, ['password', 'fallback'])) {
                 continue;
             }
 
