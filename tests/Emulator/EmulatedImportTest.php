@@ -36,8 +36,11 @@ class EmulatedImportTest extends DatabaseProviderTestCase
             ]));
         }
 
-        $this->artisan('ldap:import', ['provider' => 'ldap-database', '--no-interaction'])
-            ->assertExitCode(0);
+        $this->artisan('ldap:import', [
+            'provider' => 'ldap-database',
+            '--attributes' => 'cn,mail,objectguid',
+            '--no-interaction',
+        ])->assertExitCode(0);
 
         $imported = TestUserModelStub::get();
         $this->assertCount(10, $imported);
@@ -51,6 +54,23 @@ class EmulatedImportTest extends DatabaseProviderTestCase
             $this->assertEquals('default', $importedUser->domain);
             $this->assertEquals($ldapUser->getConvertedGuid(), $importedUser->guid);
         }
+    }
+
+    public function test_import_fails_when_required_attributes_are_missing()
+    {
+        User::create([
+            'cn' => $this->faker->name,
+            'mail' => $this->faker->email,
+            'objectguid' => $this->faker->uuid,
+        ]);
+
+        $this->artisan('ldap:import', [
+            'provider' => 'ldap-database',
+            '--attributes' => 'foo,bar,baz',
+            '--no-interaction',
+        ])->assertExitCode(0);
+
+        $this->assertEquals(0, TestUserModelStub::count());
     }
 
     public function test_disabled_users_are_soft_deleted_when_flag_is_set()

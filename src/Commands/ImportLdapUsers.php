@@ -16,6 +16,7 @@ use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Models\Attributes\AccountControl;
 use LdapRecord\Models\Model as LdapModel;
 use LdapRecord\Models\Types\ActiveDirectory;
+use LdapRecord\Query\Builder;
 
 class ImportLdapUsers extends Command
 {
@@ -29,6 +30,7 @@ class ImportLdapUsers extends Command
     protected $signature = 'ldap:import {provider : The authentication provider to import.}
             {user? : The specific user to import.}
             {--f|filter= : The raw LDAP filter for limiting users imported.}
+            {--a|attributes= : Comma separated list of LDAP attributes to select. }
             {--d|delete : Soft-delete the users model if their LDAP account is disabled.}
             {--r|restore : Restores soft-deleted models if their LDAP account is enabled.}
             {--delete-missing : Soft-delete all users that are missing from the import. }
@@ -275,21 +277,37 @@ class ImportLdapUsers extends Command
      */
     public function getUsers(LdapUserRepository $users)
     {
-        $query = $users->query();
-
-        if ($filter = $this->option('filter')) {
-            // If the filter option was given, we'll
-            // insert it into our search query.
-            $query->rawFilter($filter);
-        }
+        $this->applyQueryConstraints($query = $users->query());
 
         if ($user = $this->argument('user')) {
             return [$query->findByAnr($user)];
         }
 
-        // Retrieve all users. We'll paginate our search in case we
-        // hit the 1000 record hard limit of active directory.
         return $query->paginate()->toArray();
+    }
+
+    /**
+     * Apply the LDAP query constraints, if needed.
+     *
+     * @param Builder $query
+     *
+     * @return void
+     */
+    protected function applyQueryConstraints(Builder $query)
+    {
+        // Here we will apply the attributes to select for
+        // the LDAP query, effectively reducing memory
+        // usage for larger query result sets.
+        if ($attributes = $this->option('attributes')) {
+            $query->select(explode(',', $attributes));
+        }
+
+        // Here we will apply the LDAP filter constraint
+        // if the option was specified in the command,
+        // effectively limiting the users returned.
+        if ($filter = $this->option('filter')) {
+            $query->rawFilter($filter);
+        }
     }
 
     /**
