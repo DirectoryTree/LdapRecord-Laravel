@@ -70,7 +70,7 @@ class ImportLdapUsers extends Command
 
         $users = $this->getUsers($provider->getLdapUserRepository());
 
-        if ($count = count($users) === 0) {
+        if (($count = count($users)) === 0) {
             return $this->info('There were no users found to import.');
         } elseif ($count === 1) {
             $this->info("Found user [{$users[0]->getRdn()}].");
