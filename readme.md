@@ -64,3 +64,11 @@ Yeah, we like it too.
 <p align="center">If you require support using LdapRecord-Laravel, a <a href="https://github.com/sponsors/stevebauman">sponsorship</a> is required :pray:</p>
 
 <p align="center">Thank you for your understanding :heart:</p>
+
+--- 
+
+<h3 align="center">Security Vulnerabilities</h3>
+
+<p align="center">If you discover a security vulnerability within LdapRecord-Laravel, please send an e-mail to Steve Bauman via <a href="mailto:steven_bauman@outlook.com">steven_bauman@outlook.com</a>.</p>
+
+<p align="center">All security vulnerabilities will be promptly addressed.</p>
