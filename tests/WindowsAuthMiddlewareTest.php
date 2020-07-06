@@ -341,7 +341,7 @@ class WindowsAuthMiddlewareTest extends DatabaseProviderTestCase
         });
     }
 
-    public function test_users_are_logged_out_if_enabled()
+    public function test_users_are_logged_out_if_enabled_and_user_is_not_authenticated_via_sso()
     {
         WindowsAuthenticate::logoutUnauthenticatedUsers();
 
