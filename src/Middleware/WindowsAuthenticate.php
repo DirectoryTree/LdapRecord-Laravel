@@ -165,7 +165,7 @@ class WindowsAuthenticate
     }
 
     /**
-     * Logout of all of the
+     * Logout of all the given authenticated guards.
      *
      * @param $guards
      */
