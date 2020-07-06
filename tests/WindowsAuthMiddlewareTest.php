@@ -22,10 +22,12 @@ class WindowsAuthMiddlewareTest extends DatabaseProviderTestCase
     {
         parent::setUp();
 
-        // Reset middleware.
-        WindowsAuthenticate::$domainVerification = true;
+        // Reset all middleware options.
         WindowsAuthenticate::$serverKey = 'AUTH_USER';
         WindowsAuthenticate::$username = 'samaccountname';
+        WindowsAuthenticate::$domainVerification = true;
+        WindowsAuthenticate::$logoutUnauthenticatedUsers = false;
+        WindowsAuthenticate::$rememberAuthenticatedUsers = false;
     }
 
     public function test_request_continues_if_user_is_not_set_in_the_server_params()
@@ -101,6 +103,8 @@ class WindowsAuthMiddlewareTest extends DatabaseProviderTestCase
 
     public function test_authenticates_with_database_user_provider()
     {
+        WindowsAuthenticate::rememberAuthenticatedUsers();
+
         $this->expectsEvents([
             Importing::class,
             Imported::class,
@@ -140,6 +144,7 @@ class WindowsAuthMiddlewareTest extends DatabaseProviderTestCase
             $this->assertEquals($user->getFirstAttribute('cn'), $model->name);
             $this->assertEquals($user->getFirstAttribute('mail'), $model->email);
             $this->assertSame(auth()->user(), $model);
+            $this->assertNotEmpty(auth()->user()->getRememberToken());
         });
     }
 

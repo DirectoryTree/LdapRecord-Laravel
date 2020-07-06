@@ -43,6 +43,13 @@ class WindowsAuthenticate
     public static $logoutUnauthenticatedUsers = false;
 
     /**
+     * Whether authenticated SSO users are remembered upon login.
+     *
+     * @var bool
+     */
+    public static $rememberAuthenticatedUsers = false;
+
+    /**
      * The auth factory instance.
      *
      * @var Auth
@@ -104,6 +111,16 @@ class WindowsAuthenticate
     }
 
     /**
+     * Remember authenticated SSO users permanently.
+     * 
+     * @return void
+     */
+    public static function rememberAuthenticatedUsers()
+    {
+        static::$rememberAuthenticatedUsers = true;
+    }
+
+    /**
      * Handle an incoming request.
      *
      * @param \Illuminate\Http\Request $request
@@ -159,7 +176,7 @@ class WindowsAuthenticate
             if ($user = $this->retrieveAuthenticatedUser($provider, $domain, $username)) {
                 $this->auth->shouldUse($guard);
 
-                return $this->auth->login($user, $remember = true);
+                return $this->auth->login($user, static::$rememberAuthenticatedUsers);
             }
         }
     }
