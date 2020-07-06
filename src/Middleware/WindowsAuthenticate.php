@@ -36,6 +36,13 @@ class WindowsAuthenticate
     public static $domainVerification = true;
 
     /**
+     * Whether unauthenticated SSO users are logged out.
+     *
+     * @var bool
+     */
+    public static $logoutUnauthenticatedUsers = false;
+
+    /**
      * The auth factory instance.
      *
      * @var Auth
@@ -87,6 +94,16 @@ class WindowsAuthenticate
     }
 
     /**
+     * Force logout unauthenticated SSO users.
+     *
+     * @return void
+     */
+    public static function logoutUnauthenticatedUsers()
+    {
+        static::$logoutUnauthenticatedUsers = true;
+    }
+
+    /**
      * Handle an incoming request.
      *
      * @param \Illuminate\Http\Request $request
@@ -118,12 +135,14 @@ class WindowsAuthenticate
             array_reverse(explode('\\', $this->account($request))), 2, null
         );
 
-        if (empty($username)) {
-            return;
-        }
-
         if (empty($guards)) {
             $guards = [null];
+        }
+
+        if (empty($username)) {
+            return static::$logoutUnauthenticatedUsers
+                ? $this->logout($guards)
+                : null;
         }
 
         if ($this->authenticated($guards)) {
@@ -141,6 +160,20 @@ class WindowsAuthenticate
                 $this->auth->shouldUse($guard);
 
                 return $this->auth->login($user, $remember = true);
+            }
+        }
+    }
+
+    /**
+     * Logout of all of the
+     *
+     * @param $guards
+     */
+    protected function logout($guards)
+    {
+        foreach ($guards as $guard) {
+            if ($this->auth->guard($guard)->check()) {
+                $this->auth->guard($guard)->logout();
             }
         }
     }

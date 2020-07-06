@@ -340,6 +340,25 @@ class WindowsAuthMiddlewareTest extends DatabaseProviderTestCase
             $this->assertTrue($_SERVER[WindowsAuthRuleStub::class]);
         });
     }
+
+    public function test_users_are_logged_out_if_enabled()
+    {
+        WindowsAuthenticate::logoutUnauthenticatedUsers();
+
+        auth()->login($this->createTestUser([
+            'name' => 'Steve Bauman',
+            'email' => 'sbauman@test.com',
+            'password' => 'secret',
+        ]));
+
+        $this->assertTrue(auth()->check());
+        
+        $middleware = new WindowsAuthenticate(app('auth'));
+        $request = new Request;
+        $middleware->handle($request, function () {
+            $this->assertFalse(auth()->check());
+        });
+    }
 }
 
 class WindowsAuthRuleStub extends Rule
