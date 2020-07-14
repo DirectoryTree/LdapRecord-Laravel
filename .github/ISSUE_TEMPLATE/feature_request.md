@@ -2,7 +2,7 @@
 name: Feature request
 about: Suggest an idea for LdapRecord-Laravel
 title: "[Feature]"
-labels: ''
+labels: enhancement
 assignees: ''
 
 ---
