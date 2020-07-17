@@ -23,6 +23,7 @@ class WindowsAuthMiddlewareTest extends DatabaseProviderTestCase
         parent::setUp();
 
         // Reset all middleware options.
+        WindowsAuthenticate::$guards = null;
         WindowsAuthenticate::$serverKey = 'AUTH_USER';
         WindowsAuthenticate::$username = 'samaccountname';
         WindowsAuthenticate::$domainVerification = true;
@@ -363,6 +364,20 @@ class WindowsAuthMiddlewareTest extends DatabaseProviderTestCase
         $middleware->handle($request, function () {
             $this->assertFalse(auth()->check());
         });
+    }
+
+    public function test_guards_can_be_set_manually()
+    {
+        WindowsAuthenticate::guards('invalid');
+
+        $middleware = new WindowsAuthenticate(app('auth'));
+        $request = tap(new Request, function ($request) {
+            $request->server->set('AUTH_USER', 'Local\SteveBauman');
+        });
+
+        $this->expectException(\InvalidArgumentException::class);
+
+        $middleware->handle($request, function () {});
     }
 }
 

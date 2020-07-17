@@ -3,6 +3,7 @@
 namespace LdapRecord\Laravel\Middleware;
 
 use Closure;
+use Illuminate\Support\Arr;
 use Illuminate\Contracts\Auth\Factory as Auth;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use LdapRecord\Laravel\Auth\DatabaseUserProvider;
@@ -14,6 +15,13 @@ use LdapRecord\Models\Model;
 
 class WindowsAuthenticate
 {
+    /**
+     * The guards to use for SSO authentication.
+     *
+     * @var null|array
+     */
+    public static $guards;
+
     /**
      * The server key to use for fetching user SSO information.
      *
@@ -64,6 +72,16 @@ class WindowsAuthenticate
     public function __construct(Auth $auth)
     {
         $this->auth = $auth;
+    }
+
+    /**
+     * Set the guards to use for authentication.
+     *
+     * @param string|array $guards
+     */
+    public static function guards($guards)
+    {
+        static::$guards = Arr::wrap($guards);
     }
 
     /**
@@ -131,7 +149,7 @@ class WindowsAuthenticate
      */
     public function handle($request, Closure $next, ...$guards)
     {
-        $this->authenticate($request, $guards);
+        $this->authenticate($request, static::$guards ?? $guards);
 
         return $next($request);
     }
