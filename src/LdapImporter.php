@@ -32,7 +32,7 @@ class LdapImporter
      * @param string $eloquentModel
      * @param array  $config
      */
-    public function __construct(string $eloquentModel, array $config)
+    public function __construct($eloquentModel, array $config)
     {
         $this->eloquentModel = $eloquentModel;
         $this->config = $config;
