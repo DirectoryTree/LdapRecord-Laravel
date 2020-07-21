@@ -2,8 +2,10 @@
 
 namespace LdapRecord\Laravel\Commands;
 
+use Exception;
 use Illuminate\Console\Command;
 use LdapRecord\Auth\BindException;
+use LdapRecord\Connection;
 use LdapRecord\Container;
 
 class TestLdapConnection extends Command
@@ -44,20 +46,7 @@ class TestLdapConnection extends Command
 
             $start = microtime(true);
 
-            try {
-                $connection->connect();
-
-                $message = 'Successfully connected.';
-            } catch (BindException $e) {
-                $detailedError = optional($e->getDetailedError());
-
-                $errorCode = $detailedError->getErrorCode();
-                $diagnosticMessage = $detailedError->getDiagnosticMessage();
-
-                $message = "{$e->getMessage()}. ".
-                    "Error Code: [$errorCode] ".
-                    'Diagnostic Message: '.$diagnosticMessage ?? 'null';
-            }
+            $message = $this->attempt($connection);
 
             $rows[] = [
                 $name,
@@ -69,6 +58,40 @@ class TestLdapConnection extends Command
         }
 
         $this->table(['Connection', 'Successful', 'Username', 'Message', 'Response Time'], $rows);
+    }
+
+    /**
+     * Attempt establishing the connection.
+     *
+     * @param Connection $connection
+     *
+     * @return string
+     */
+    protected function attempt(Connection $connection)
+    {
+        try {
+            $connection->connect();
+
+            $message = 'Successfully connected.';
+        } catch (BindException $e) {
+            $detailedError = optional($e->getDetailedError());
+
+            $errorCode = $detailedError->getErrorCode();
+            $diagnosticMessage = $detailedError->getDiagnosticMessage();
+
+            $message = sprintf(
+                '%s. Error Code: [%s] Diagnostic Message: %s',
+                $e->getMessage(),
+                $errorCode,
+                $diagnosticMessage ?? 'null'
+            );
+        } catch (Exception $e) {
+            $message = sprintf(
+                '%s. Error Code: [%s]', $e->getMessage(), $e->getCode()
+            );
+        }
+
+        return $message;
     }
 
     /**
