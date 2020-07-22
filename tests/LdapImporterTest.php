@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Schema;
+use LdapRecord\Laravel\Import;
 use LdapRecord\Laravel\ImportableFromLdap;
 use LdapRecord\Laravel\LdapImportable;
 use LdapRecord\Laravel\LdapImporter;
@@ -27,6 +28,7 @@ class LdapImporterTest extends TestCase
             $table->softDeletes();
             $table->string('guid')->unique()->nullable();
             $table->string('domain')->nullable();
+            $table->string('name')->nullable();
         });
 
         DirectoryEmulator::setup('default');
@@ -115,6 +117,21 @@ class LdapImporterTest extends TestCase
         $this->assertEquals($group->id, $imported->id);
         $this->assertTrue($imported->trashed());
     }
+
+    public function test_class_based_import_works()
+    {
+        $guid = $this->faker->uuid;
+
+        $object = LdapGroup::create([
+            'objectguid' => $guid,
+            'cn' => 'Group',
+        ]);
+
+        $imported = TestGroupImport::run(Group::class);
+
+        $this->assertCount(1, $imported);
+        $this->assertEquals($object->getFirstAttribute('cn'), $imported->first()->name);
+    }
 }
 
 class Group extends Model implements LdapImportable
@@ -124,4 +141,16 @@ class Group extends Model implements LdapImportable
     public $timestamps = false;
 
     protected $guarded = [];
+}
+
+class TestGroupImport extends Import
+{
+    protected $model = LdapGroup::class;
+
+    protected function config()
+    {
+        return [
+            'sync_attributes' => ['name' => 'cn'],
+        ];
+    }
 }

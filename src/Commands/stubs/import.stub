@@ -1,0 +1,29 @@
+<?php
+
+namespace DummyNamespace;
+
+use LdapRecord\Laravel\Import as BaseImport;
+
+class DummyClass extends BaseImport
+{
+    /**
+     * The LdapRecord model to use for the import.
+     *
+     * @var string
+     */
+    protected $model = NamespacedDummyUserModel;
+
+    /**
+     * The configuration for the import.
+     *
+     * @return array
+     */
+    protected function config()
+    {
+        return [
+            'sync_attributes' => [
+                // ...
+            ],
+        ];
+    }
+}
