@@ -64,6 +64,33 @@ class LdapImporter
     }
 
     /**
+     * Retrieves an eloquent model by their GUID.
+     *
+     * @param LdapModel $ldap
+     *
+     * @return EloquentModel
+     *
+     * @throws LdapRecordException
+     */
+    public function createOrFindEloquentModel(LdapModel $ldap)
+    {
+        // We cannot import an LDAP object without a valid GUID
+        // identifier. Doing so would cause overwrites of the
+        // first database model that does not contain one.
+        if (is_null($guid = $ldap->getConvertedGuid())) {
+            throw LdapImportException::missingGuid($ldap);
+        }
+
+        $query = $this->newEloquentQuery(
+            $model = $this->createEloquentModel()
+        )->where($model->getLdapGuidColumn(), '=', $guid);
+
+        $this->applySyncScopesToQuery($ldap, $query);
+
+        return $query->first() ?? tap($model)->setAttribute($model->getLdapGuidColumn(), $guid);
+    }
+
+    /**
      * Hydrate the eloquent model with the LDAP object.
      *
      * @param LdapModel     $ldap
@@ -90,33 +117,6 @@ class LdapImporter
     protected function hydrator()
     {
         return EloquentHydrator::class;
-    }
-
-    /**
-     * Retrieves an eloquent model by their GUID.
-     *
-     * @param LdapModel $ldap
-     *
-     * @return EloquentModel
-     *
-     * @throws LdapRecordException
-     */
-    protected function createOrFindEloquentModel(LdapModel $ldap)
-    {
-        // We cannot import an LDAP object without a valid GUID
-        // identifier. Doing so would cause overwrites of the
-        // first database model that does not contain one.
-        if (is_null($guid = $ldap->getConvertedGuid())) {
-            throw LdapImportException::missingGuid($ldap);
-        }
-
-        $query = $this->newEloquentQuery(
-            $model = $this->createEloquentModel()
-        )->where($model->getLdapGuidColumn(), '=', $guid);
-
-        $this->applySyncScopesToQuery($ldap, $query);
-
-        return $query->first() ?? tap($model)->setAttribute($model->getLdapGuidColumn(), $guid);
     }
 
     /**

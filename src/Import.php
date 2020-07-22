@@ -3,7 +3,6 @@
 namespace LdapRecord\Laravel;
 
 use LdapRecord\Query\Model\Builder;
-use Illuminate\Database\Eloquent\Model;
 
 abstract class Import
 {
@@ -22,6 +21,13 @@ abstract class Import
     protected $importer;
 
     /**
+     * The import runner.
+     *
+     * @var callable
+     */
+    protected $importRunner;
+
+    /**
      * Constructor.
      *
      * @param string $eloquent
@@ -29,14 +35,11 @@ abstract class Import
     public function __construct($eloquent)
     {
         $this->importer = $this->createImporter($eloquent);
-    }
 
-    /**
-     * The configuration definition for the import.
-     *
-     * @return array
-     */
-    abstract protected function config();
+        $this->importRunner = function ($object, $importer) {
+            return tap($importer->run($object))->save();
+        };
+    }
 
     /**
      * Execute the import on the given Eloquent model.
@@ -62,26 +65,36 @@ abstract class Import
         $imported = $eloquent->newCollection();
 
         foreach ($this->getImportableObjects() as $object) {
-            $database = $this->importer->run($object);
-
-            $this->save($database);
-
-            $imported->push($database);
+            $imported->push(
+                call_user_func($this->importRunner, $object, $this->importer)
+            );
         }
 
         return $imported;
     }
 
     /**
-     * Save the database model.
+     * The import runner to use for processing an import.
      *
-     * @param Model $model
+     * @param callable $operation
      *
-     * @return void
+     * @return $this
      */
-    protected function save(Model $model)
+    public function importUsing(callable $operation)
     {
-        $model->save();
+        $this->importRunner = $operation;
+
+        return $this;
+    }
+
+    /**
+     * Get the LDAP importer instance.
+     *
+     * @return LdapImporter
+     */
+    public function getImporter()
+    {
+        return $this->importer;
     }
 
     /**
@@ -99,7 +112,7 @@ abstract class Import
     }
 
     /**
-     * Apply any query constraints for the import.
+     * Apply any LDAP query constraints for importing.
      *
      * @param Builder $query
      *
@@ -119,18 +132,16 @@ abstract class Import
      */
     protected function createImporter($eloquent)
     {
-        $importer = $this->getImporter();
-
-        return new $importer($eloquent, $this->config());
+        return new LdapImporter($eloquent, $this->config());
     }
 
     /**
-     * Get the class name of the LDAP importer.
+     * The configuration definition for the import.
      *
-     * @return string
+     * @return array
      */
-    protected function getImporter()
+    protected function config()
     {
-        return LdapImporter::class;
+        return [];
     }
 }

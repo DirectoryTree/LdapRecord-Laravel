@@ -120,14 +120,37 @@ class LdapImporterTest extends TestCase
 
     public function test_class_based_import_works()
     {
-        $guid = $this->faker->uuid;
-
         $object = LdapGroup::create([
-            'objectguid' => $guid,
+            'objectguid' => $this->faker->uuid,
             'cn' => 'Group',
         ]);
 
         $imported = TestGroupImport::run(Group::class);
+
+        $this->assertCount(1, $imported);
+        $this->assertEquals($object->getFirstAttribute('cn'), $imported->first()->name);
+    }
+
+    public function test_class_based_import_can_have_callable_importer()
+    {
+        $object = LdapGroup::create([
+            'objectguid' => $this->faker->uuid,
+            'cn' => 'Group',
+        ]);
+
+        $import = new TestGroupImport(Group::class);
+
+        $import->importUsing(function ($object, $importer) {
+            $database = $importer->createOrFindEloquentModel($object);
+
+            $database->name = $object->getFirstAttribute('cn');
+
+            $database->save();
+
+            return $database;
+        });
+
+        $imported = $import->execute();
 
         $this->assertCount(1, $imported);
         $this->assertEquals($object->getFirstAttribute('cn'), $imported->first()->name);
