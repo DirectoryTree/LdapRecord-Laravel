@@ -49,11 +49,37 @@ class MakeLdapImport extends GeneratorCommand
     }
 
     /**
-     * {@inheritDoc}
+     * Replace the namespace for the given stub.
+     *
+     * @param  string  $stub
+     * @param  string  $name
+     * @return $this
      */
-    protected function userProviderModel()
+    protected function replaceNamespace(&$stub, $name)
     {
-        return $this->getModelInput();
+        $stub = str_replace(
+            ['NamespacedDummyModel', 'DummyModel'],
+            [$this->getModelInput(), $this->getClassName($this->getModelInput())],
+            $stub
+        );
+
+        parent::replaceClass($stub, $name);
+
+        return $this;
+    }
+
+    /**
+     * Get the class name from a namespaced fully qualified name.
+     *
+     * @param string $class
+     *
+     * @return string
+     */
+    protected function getClassName($class)
+    {
+        $parts = explode('\\', $class);
+
+        return end($parts);
     }
 
     /**

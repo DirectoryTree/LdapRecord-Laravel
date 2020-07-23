@@ -2,6 +2,7 @@
 
 namespace DummyNamespace;
 
+use NamespacedDummyModel;
 use LdapRecord\Laravel\Import as BaseImport;
 
 class DummyClass extends BaseImport
@@ -11,7 +12,7 @@ class DummyClass extends BaseImport
      *
      * @var string
      */
-    protected $model = NamespacedDummyUserModel::class;
+    protected $model = DummyModel::class;
 
     /**
      * The configuration for the import.
