@@ -21,11 +21,11 @@ abstract class Import
     protected $importer;
 
     /**
-     * The import runner.
+     * The import synchronizer.
      *
      * @var callable
      */
-    protected $importRunner;
+    protected $synchronizer;
 
     /**
      * Constructor.
@@ -36,8 +36,8 @@ abstract class Import
     {
         $this->importer = $this->createImporter($eloquent);
 
-        $this->importRunner = function ($object, $importer) {
-            return tap($importer->run($object))->save();
+        $this->synchronizer = function ($object, $database) {
+            return tap($this->importer->synchronize($object, $database))->save();
         };
     }
 
@@ -65,24 +65,26 @@ abstract class Import
         $imported = $eloquent->newCollection();
 
         foreach ($this->getImportableObjects() as $object) {
-            $imported->push(
-                call_user_func($this->importRunner, $object, $this->importer)
-            );
+            $database = $this->importer->createOrFindEloquentModel($object);
+
+            call_user_func($this->synchronizer, $object, $database);
+
+            $imported->push($database);
         }
 
         return $imported;
     }
 
     /**
-     * The import runner to use for processing an import.
+     * Use a callback for synchronizing LDAP attributes with the database model.
      *
-     * @param callable $operation
+     * @param callable $synchronizer
      *
      * @return $this
      */
-    public function importUsing(callable $operation)
+    public function syncUsing(callable $synchronizer)
     {
-        $this->importRunner = $operation;
+        $this->synchronizer = $synchronizer;
 
         return $this;
     }

@@ -39,7 +39,7 @@ class LdapImporter
     }
 
     /**
-     * Import / synchronize the LDAP object.
+     * Import / synchronize the LDAP object with its database model.
      *
      * @param LdapModel $object
      * @param array     $data
@@ -48,19 +48,33 @@ class LdapImporter
      */
     public function run(LdapModel $object, array $data = [])
     {
-        $eloquent = $this->createOrFindEloquentModel($object);
+        return $this->synchronize(
+            $object, $this->createOrFindEloquentModel($object), $data
+        );
+    }
 
-        if (! $eloquent->exists) {
-            event(new Importing($object, $eloquent));
+    /**
+     * Synchronize the Eloquent database model with the LDAP model.
+     *
+     * @param LdapModel     $object
+     * @param EloquentModel $database
+     * @param array         $data
+     *
+     * @return EloquentModel
+     */
+    public function synchronize(LdapModel $object, EloquentModel $database, array $data = [])
+    {
+        if (! $database->exists) {
+            event(new Importing($object, $database));
         }
 
-        event(new Synchronizing($object, $eloquent));
+        event(new Synchronizing($object, $database));
 
-        $this->hydrate($object, $eloquent, $data);
+        $this->hydrate($object, $database, $data);
 
-        event(new Synchronized($object, $eloquent));
+        event(new Synchronized($object, $database));
 
-        return $eloquent;
+        return $database;
     }
 
     /**

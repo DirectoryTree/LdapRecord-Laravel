@@ -140,14 +140,9 @@ class LdapImporterTest extends TestCase
 
         $import = new TestGroupImport(Group::class);
 
-        $import->importUsing(function ($object, $importer) {
-            $database = $importer->createOrFindEloquentModel($object);
-
+        $import->syncUsing(function ($object, $database) {
             $database->name = $object->getFirstAttribute('cn');
-
             $database->save();
-
-            return $database;
         });
 
         $imported = $import->execute();
