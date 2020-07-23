@@ -11,7 +11,7 @@ class DummyClass extends BaseImport
      *
      * @var string
      */
-    protected $model = NamespacedDummyUserModel;
+    protected $model = NamespacedDummyUserModel::class;
 
     /**
      * The configuration for the import.
