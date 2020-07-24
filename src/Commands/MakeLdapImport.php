@@ -4,6 +4,7 @@ namespace LdapRecord\Laravel\Commands;
 
 use Illuminate\Console\GeneratorCommand;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 
 class MakeLdapImport extends GeneratorCommand
 {
@@ -59,7 +60,7 @@ class MakeLdapImport extends GeneratorCommand
     {
         $stub = str_replace(
             ['NamespacedDummyModel', 'DummyModel'],
-            [$this->getModelInput(), $this->getClassName($this->getModelInput())],
+            [$this->getModelOption(), $this->getClassName($this->getModelOption())],
             $stub
         );
 
@@ -87,9 +88,11 @@ class MakeLdapImport extends GeneratorCommand
      *
      * @return string
      */
-    protected function getModelInput()
+    protected function getModelOption()
     {
-        return trim($this->argument('model'));
+        $model = $this->option('model') ?? 'App\User';
+
+        return trim($model, '::class');
     }
 
     /**
@@ -100,8 +103,19 @@ class MakeLdapImport extends GeneratorCommand
     protected function getArguments()
     {
         return [
-            ['name', InputArgument::REQUIRED, 'The name of the LdapRecord import.'],
-            ['model', InputArgument::REQUIRED, 'The name of the LdapRecord model to import.']
+            ['name', InputArgument::REQUIRED, 'The name of the import.'],
+        ];
+    }
+
+    /**
+     * Get the console command options.
+     *
+     * @return array
+     */
+    protected function getOptions()
+    {
+        return [
+            ['model', '-m', InputOption::VALUE_OPTIONAL, 'The name of the Eloquent model to use for importing.',]
         ];
     }
 }
