@@ -64,7 +64,7 @@ class MakeLdapImport extends GeneratorCommand
             $stub
         );
 
-        parent::replaceClass($stub, $name);
+        parent::replaceNamespace($stub, $name);
 
         return $this;
     }
@@ -90,7 +90,7 @@ class MakeLdapImport extends GeneratorCommand
      */
     protected function getModelOption()
     {
-        $model = $this->option('model') ?? 'App\User';
+        $model = $this->option('model') ?? 'LdapRecord\Models\Entry';
 
         return trim($model, '::class');
     }
@@ -115,7 +115,7 @@ class MakeLdapImport extends GeneratorCommand
     protected function getOptions()
     {
         return [
-            ['model', '-m', InputOption::VALUE_OPTIONAL, 'The name of the Eloquent model to use for importing.',]
+            ['model', '-m', InputOption::VALUE_OPTIONAL, 'The class name of the LdapRecord model to use for importing.',]
         ];
     }
 }
