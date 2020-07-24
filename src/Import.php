@@ -42,13 +42,13 @@ abstract class Import
     }
 
     /**
-     * Execute the import on the given Eloquent model.
+     * Execute the import into the given Eloquent model.
      *
      * @param string $eloquent
      *
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public static function run($eloquent)
+    public static function into($eloquent)
     {
         return (new static($eloquent))->execute();
     }
@@ -68,6 +68,13 @@ abstract class Import
             $database = $this->importer->createOrFindEloquentModel($object);
 
             call_user_func($this->synchronizer, $object, $database);
+
+            // We'll check if the model has any changes,
+            // since we don't want to fire any model
+            // save events until that is the case.
+            if ($database->isDirty()) {
+                $database->save();
+            }
 
             $imported->push($database);
         }

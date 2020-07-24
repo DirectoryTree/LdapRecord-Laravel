@@ -125,7 +125,7 @@ class LdapImporterTest extends TestCase
             'cn' => 'Group',
         ]);
 
-        $imported = TestGroupImport::run(Group::class);
+        $imported = TestGroupImport::into(Group::class);
 
         $this->assertCount(1, $imported);
         $this->assertEquals($object->getFirstAttribute('cn'), $imported->first()->name);
