@@ -95,9 +95,7 @@ class ImportLdapUsers extends Command
             ! $this->input->isInteractive()
             || $this->confirm('Would you like these users to be imported / synchronized?', $default = true)
         ) {
-            $imported = $import->execute();
-
-            $this->info("Successfully imported / synchronized [{$imported->count()}] user(s).");
+            $this->info("Successfully imported / synchronized [{$import->execute()->count()}] user(s).");
         } else {
             $this->info('Okay, no users were imported / synchronized.');
         }

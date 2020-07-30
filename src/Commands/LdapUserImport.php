@@ -66,7 +66,7 @@ class LdapUserImport extends Import
             }
         });
 
-        $this->registerEventCallback('deleted-missing', function ($database, $ldap, $ids) {
+        $this->registerEventCallback('deleted.missing', function ($database, $ldap, $ids) {
             event(new DeletedMissing($ids, $ldap, $database));
         });
     }
