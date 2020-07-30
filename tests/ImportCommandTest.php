@@ -33,7 +33,7 @@ class ImportCommandTest extends DatabaseProviderTestCase
         $repo = m::mock(LdapUserRepository::class, function ($repo) {
             $query = m::mock(Builder::class);
             $query->shouldReceive('paginate')->once()->andReturnSelf();
-            $query->shouldReceive('toArray')->once()->andReturn([]);
+            $query->shouldReceive('count')->once()->andReturn(0);
 
             $repo->shouldReceive('query')->once()->andReturn($query);
         });
@@ -49,18 +49,17 @@ class ImportCommandTest extends DatabaseProviderTestCase
 
     public function test_users_are_imported_into_the_database()
     {
-        $users = [
+        $users = collect([
             new User([
                 'cn' => 'Steve Bauman',
                 'mail' => 'sbauman@test.com',
                 'objectguid' => 'bf9679e7-0de6-11d0-a285-00aa003049e2',
-            ]),
-        ];
+            ])
+        ]);
 
         $repo = m::mock(LdapUserRepository::class, function ($repo) use ($users) {
             $query = m::mock(Builder::class);
-            $query->shouldReceive('paginate')->once()->andReturnSelf();
-            $query->shouldReceive('toArray')->once()->andReturn($users);
+            $query->shouldReceive('paginate')->once()->andReturn($users);
 
             $repo->shouldReceive('query')->once()->andReturn($query);
         });

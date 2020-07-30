@@ -125,7 +125,10 @@ class LdapImporterTest extends TestCase
             'cn' => 'Group',
         ]);
 
-        $imported = TestGroupImport::into(Group::class);
+        $imported = (new Import(LdapGroup::class))
+            ->into(Group::class)
+            ->syncAttributes(['name' => 'cn'])
+            ->execute();
 
         $this->assertCount(1, $imported);
         $this->assertEquals($object->getFirstAttribute('cn'), $imported->first()->name);
@@ -138,14 +141,13 @@ class LdapImporterTest extends TestCase
             'cn' => 'Group',
         ]);
 
-        $import = new TestGroupImport(Group::class);
+        $imported = (new Import(LdapGroup::class))
+            ->into(Group::class)
+            ->using(function ($database, $object) {
+                $database->name = $object->getFirstAttribute('cn');
 
-        $import->syncUsing(function ($object, $database) {
-            $database->name = $object->getFirstAttribute('cn');
-            $database->save();
-        });
-
-        $imported = $import->execute();
+                $database->save();
+            })->execute();
 
         $this->assertCount(1, $imported);
         $this->assertEquals($object->getFirstAttribute('cn'), $imported->first()->name);
@@ -159,16 +161,4 @@ class Group extends Model implements LdapImportable
     public $timestamps = false;
 
     protected $guarded = [];
-}
-
-class TestGroupImport extends Import
-{
-    protected $model = LdapGroup::class;
-
-    protected function config()
-    {
-        return [
-            'sync_attributes' => ['name' => 'cn'],
-        ];
-    }
 }

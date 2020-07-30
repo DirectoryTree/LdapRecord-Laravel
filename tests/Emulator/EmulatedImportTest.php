@@ -5,6 +5,7 @@ namespace LdapRecord\Laravel\Tests\Emulator;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Event;
 use LdapRecord\Laravel\Events\DeletedMissing;
+use LdapRecord\Laravel\LdapImportException;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Laravel\Tests\DatabaseProviderTestCase;
 use LdapRecord\Laravel\Tests\TestUserModelStub;
@@ -64,13 +65,13 @@ class EmulatedImportTest extends DatabaseProviderTestCase
             'objectguid' => $this->faker->uuid,
         ]);
 
+        $this->expectException(LdapImportException::class);
+
         $this->artisan('ldap:import', [
             'provider' => 'ldap-database',
             '--attributes' => 'foo,bar,baz',
             '--no-interaction',
         ])->assertExitCode(0);
-
-        $this->assertEquals(0, TestUserModelStub::count());
     }
 
     public function test_disabled_users_are_soft_deleted_when_flag_is_set()
