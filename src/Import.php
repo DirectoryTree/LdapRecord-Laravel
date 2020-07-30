@@ -91,7 +91,7 @@ class Import
         'importing', 'imported',
         'restoring', 'restored',
         'deleting', 'deleted',
-        'deleting-missing', 'deleted-missing',
+        'deleting.missing', 'deleted.missing',
         'failed', 'completed',
     ];
 
@@ -452,7 +452,7 @@ class Import
             return;
         }
 
-        $this->callEventCallbacks('deleting-missing', $database, $ldap, $imported);
+        $this->callEventCallbacks('deleting.missing', $database, $ldap, $imported);
 
         $domain = $ldap->getConnectionName() ?? config('ldap.default');
 
@@ -483,6 +483,6 @@ class Import
             ->where($database->getDeletedAtColumn(), '=', $deletedAt)
             ->pluck($database->getKeyName());
 
-        $this->callEventCallbacks('deleted-missing', $database, $ldap, $ids);
+        $this->callEventCallbacks('deleted.missing', $database, $ldap, $ids);
     }
 }

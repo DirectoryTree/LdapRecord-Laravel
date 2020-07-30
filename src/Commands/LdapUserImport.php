@@ -72,6 +72,20 @@ class LdapUserImport extends Import
     }
 
     /**
+     * Set the LDAP user repository to use for importing.
+     *
+     * @param LdapUserRepository $repository
+     *
+     * @return $this
+     */
+    public function setLdapUserRepository(LdapUserRepository $repository)
+    {
+        $this->repository = $repository;
+
+        return $this;
+    }
+
+    /**
      * Enable restoring enabled users.
      *
      * @return $this
@@ -91,20 +105,6 @@ class LdapUserImport extends Import
     public function trashDisabledUsers()
     {
         $this->trashDisabledUsers = true;
-
-        return $this;
-    }
-
-    /**
-     * Set the LDAP user repository to use for importing.
-     *
-     * @param LdapUserRepository $repository
-     *
-     * @return $this
-     */
-    public function setLdapUserRepository(LdapUserRepository $repository)
-    {
-        $this->repository = $repository;
 
         return $this;
     }
