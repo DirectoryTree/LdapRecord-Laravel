@@ -168,7 +168,7 @@ class DatabaseUserProvider extends UserProvider
      *
      * @param array $credentials
      *
-     * @throws Exception
+     * @throws \Exception
      *
      * @return Authenticatable|null
      */
