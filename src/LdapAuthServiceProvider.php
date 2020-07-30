@@ -57,10 +57,7 @@ class LdapAuthServiceProvider extends ServiceProvider
      */
     protected function registerCommands()
     {
-        $this->commands([
-            MakeLdapImport::class,
-            ImportLdapUsers::class,
-        ]);
+        $this->commands([ImportLdapUsers::class]);
     }
 
     /**
