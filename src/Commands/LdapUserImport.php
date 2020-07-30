@@ -118,7 +118,9 @@ class LdapUserImport extends Import
      */
     public function loadObjectsFromRepository($username = null)
     {
-        $query = $this->repository->query();
+        $query = $this->applyLdapQueryConstraints(
+            $this->repository->query()
+        );
 
         if ($username) {
             $users = $query->getModel()->newCollection();
@@ -128,7 +130,7 @@ class LdapUserImport extends Import
                 : $users;
         }
 
-        return $this->objects = $this->applyLdapQueryConstraints($query)->paginate();
+        return $this->objects = $query->paginate();
     }
 
     /**
