@@ -66,11 +66,11 @@ class ImportLdapUsers extends Command
                 ->setLdapImporter($provider->getLdapUserImporter())
                 ->setLdapUserRepository($provider->getLdapUserRepository());
 
-        $import->registerEventCallback('deleting-missing', function () {
+        $import->registerEventCallback('deleting.missing', function () {
             $this->info('Soft-deleting all missing users...');
         });
 
-        $import->registerEventCallback('deleted-missing', function ($database, $ldap, $ids) {
+        $import->registerEventCallback('deleted.missing', function ($database, $ldap, $ids) {
             $this->info("Successfully soft-deleted [{$ids->count()}] users.");
         });
 
