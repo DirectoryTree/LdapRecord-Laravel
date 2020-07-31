@@ -2,15 +2,11 @@
 
 namespace LdapRecord\Laravel\Commands;
 
-use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Auth;
 use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use LdapRecord\Laravel\Auth\UserProvider;
 use LdapRecord\Laravel\DetectsSoftDeletes;
-use LdapRecord\Laravel\LdapImporter;
-use LdapRecord\Models\Model as LdapModel;
-use LdapRecord\Models\Types\ActiveDirectory;
 
 class ImportLdapUsers extends Command
 {
@@ -65,8 +61,6 @@ class ImportLdapUsers extends Command
 
     /**
      * Execute the console command.
-     *
-     * @param LdapUserImport $import
      *
      * @return void
      *
