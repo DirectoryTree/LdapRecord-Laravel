@@ -136,6 +136,16 @@ class ImportLdapUsers extends Command
             $this->output->progressAdvance();
         });
 
+        $this->import->registerEventCallback('deleting.missing', function () {
+            $this->info('Soft-deleting all missing users...');
+        });
+
+        $this->import->registerEventCallback('deleted.missing', function ($db, $ldap, $ids) {
+            $ids->isEmpty()
+                ? $this->info('No missing users found. None have been soft-deleted.')
+                : $this->info("Successfully soft-deleted [{$ids->count()}] users.");
+        });
+
         $this->import->registerEventCallback('completed', function () {
             $this->output->progressFinish();
         });

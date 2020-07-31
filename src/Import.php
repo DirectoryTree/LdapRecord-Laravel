@@ -277,13 +277,13 @@ class Import
             return;
         }
 
-        $this->registerEventCallback('imported', function ($database, $object) {
-            if ($database->wasRecentlyCreated) {
+        $this->registerEventCallback('imported', function ($db, $object) {
+            if ($db->wasRecentlyCreated) {
                 Log::info("Imported user [{$object->getRdn()}]");
             }
         });
 
-        $this->registerEventCallback('failed', function ($database, $object, $e) {
+        $this->registerEventCallback('failed', function ($db, $object, $e) {
             Log::error("Importing user [{$object->getRdn()}] failed. {$e->getMessage()}");
         });
     }
@@ -359,22 +359,22 @@ class Import
     protected function buildImportCallback($importer)
     {
         return function ($object) use ($importer) {
-            $database = $importer->createOrFindEloquentModel($object);
+            $db = $importer->createOrFindEloquentModel($object);
 
-            $this->callEventCallbacks('importing', [$database, $object]);
+            $this->callEventCallbacks('importing', [$db, $object]);
 
             try {
                 if ($this->using) {
-                    call_user_func($this->using, $database, $object);
+                    call_user_func($this->using, $db, $object);
                 } else {
-                    tap($importer->synchronize($object, $database))->save();
+                    tap($importer->synchronize($object, $db))->save();
                 }
 
-                $this->callEventCallbacks('imported', [$database, $object]);
+                $this->callEventCallbacks('imported', [$db, $object]);
 
-                return $database;
+                return $db;
             } catch (Exception $e) {
-                $this->callEventCallbacks('failed', [$database, $object, $e]);
+                $this->callEventCallbacks('failed', [$db, $object, $e]);
             }
         };
     }
@@ -439,14 +439,14 @@ class Import
     /**
      * Soft-delete missing Eloquent models that are missing from the imported.
      *
-     * @param Eloquent                     $database
+     * @param Eloquent                     $db
      * @param LdapRecord                   $ldap
      *
      * @return void
      */
-    protected function softDeleteMissing(Eloquent $database, LdapRecord $ldap)
+    protected function softDeleteMissing(Eloquent $db, LdapRecord $ldap)
     {
-        if (! $this->isUsingSoftDeletes($database)) {
+        if (! $this->isUsingSoftDeletes($db)) {
             return;
         }
 
@@ -454,38 +454,44 @@ class Import
             return;
         }
 
-        $this->callEventCallbacks('deleting.missing', [$database, $ldap, $this->imported]);
+        $this->callEventCallbacks('deleting.missing', [$db, $ldap, $this->imported]);
 
         $domain = $ldap->getConnectionName() ?? config('ldap.default');
 
-        $guids = $this->imported->pluck($database->getLdapGuidColumn())->toArray();
+        $guids = $this->imported->pluck($db->getLdapGuidColumn())->toArray();
 
         // Here we'll soft-delete all users whom have a 'guid' present
         // but are missing from our imported guid array and are from
         // our LDAP domain that has just been imported. This ensures
         // the deleted users are the ones from the same domain.
-        $deleted = $database->newQuery()
-            ->whereNotNull($database->getLdapGuidColumn())
-            ->where($database->getLdapDomainColumn(), '=', $domain)
-            ->whereNotIn($database->getLdapGuidColumn(), $guids)
-            ->update([$database->getDeletedAtColumn() => $deletedAt = now()]);
+        $deleted = $db->newQuery()
+            ->whereNotNull($db->getLdapGuidColumn())
+            ->where($db->getLdapDomainColumn(), '=', $domain)
+            ->whereNotIn($db->getLdapGuidColumn(), $guids)
+            ->update([$db->getDeletedAtColumn() => $deletedAt = now()]);
 
         if (! $deleted) {
+            $this->callEventCallbacks(
+                'deleted.missing', [$db, $ldap, $db->newCollection()]
+            );
+
             return;
         }
 
         // Next, we will retrieve the ID's of all users who
         // were deleted from the above query so we can
         // log them appropriately using an event.
-        $ids = $database->newQuery()
+        $ids = $db->newQuery()
             ->onlyTrashed()
-            ->select($database->getKeyName())
-            ->whereNotNull($database->getLdapGuidColumn())
-            ->where($database->getLdapDomainColumn(), '=', $domain)
-            ->where($database->getDeletedAtColumn(), '=', $deletedAt)
-            ->pluck($database->getKeyName());
+            ->select($db->getKeyName())
+            ->whereNotNull($db->getLdapGuidColumn())
+            ->where($db->getLdapDomainColumn(), '=', $domain)
+            ->where($db->getDeletedAtColumn(), '=', $deletedAt)
+            ->pluck($db->getKeyName());
 
-        $this->callEventCallbacks('deleted.missing', [$database, $ldap, $ids]);
+        $this->callEventCallbacks(
+            'deleted.missing', [$db, $ldap, $ids]
+        );
     }
 
     /**
