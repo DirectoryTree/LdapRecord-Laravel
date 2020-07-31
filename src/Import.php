@@ -98,8 +98,6 @@ class Import
      */
     protected $events = [
         'importing', 'imported',
-        'restoring', 'restored',
-        'deleting', 'deleted',
         'deleting.missing', 'deleted.missing',
         'starting', 'failed', 'completed',
     ];

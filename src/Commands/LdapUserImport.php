@@ -39,6 +39,19 @@ class LdapUserImport extends Import
     /**
      * {@inheritDoc}
      */
+    public function __construct($ldap = null)
+    {
+        parent::__construct($ldap);
+
+        $this->events = array_merge([
+            'restoring', 'restored',
+            'deleting', 'deleted',
+        ], $this->events);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     protected function registerDefaultCallbacks()
     {
         parent::registerDefaultCallbacks();
@@ -64,6 +77,18 @@ class LdapUserImport extends Import
 
             if ($this->restoreEnabledUsers) {
                 $this->restore($database, $object);
+            }
+        });
+
+        $this->registerEventCallback('deleted', function ($database, $ldap) {
+            if ($this->logging) {
+                Log::info("Soft-deleted user [{$ldap->getRdn()}]. Their user account is disabled.");
+            }
+        });
+
+        $this->registerEventCallback('restored', function ($database, $ldap) {
+            if ($this->logging) {
+                Log::info("Restored user [{$ldap->getRdn()}]. Their user account has been re-enabled.");
             }
         });
 
@@ -152,11 +177,11 @@ class LdapUserImport extends Import
             && ! $database->trashed()
             && $this->userIsDisabled($object)
         ) {
+            $this->callEventCallbacks('deleting', [$database, $object]);
+
             $database->delete();
 
-            if ($this->logging) {
-                Log::info("Soft-deleted user [{$object->getRdn()}]. Their user account is disabled.");
-            }
+            $this->callEventCallbacks('deleted', [$database, $object]);
         }
     }
 
@@ -178,11 +203,11 @@ class LdapUserImport extends Import
             && $database->trashed()
             && $this->userIsEnabled($object)
         ) {
+            $this->callEventCallbacks('restoring', [$database, $object]);
+
             $database->restore();
 
-            if ($this->logging) {
-                Log::info("Restored user [{$object->getRdn()}]. Their user account has been re-enabled.");
-            }
+            $this->callEventCallbacks('restored', [$database, $object]);
         }
     }
 
