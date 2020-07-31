@@ -321,7 +321,7 @@ class Import
 
         $this->callEventCallbacks('starting', $this->objects);
 
-        $this->import($importer);
+        $this->imported = $this->import($importer);
 
         $this->callEventCallbacks('completed', [$this->objects, $this->imported]);
 
@@ -344,7 +344,7 @@ class Import
      */
     protected function import($importer)
     {
-        return $this->imported = $this->objects->map(
+        return $this->objects->map(
             $this->buildImportCallback($importer)
         )->filter();
     }
