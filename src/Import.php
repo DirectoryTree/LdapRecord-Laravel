@@ -119,8 +119,6 @@ class Import
     public function __construct($ldap = null)
     {
         $this->ldap = $ldap;
-
-        $this->registerDefaultCallbacks();
     }
 
     /**
@@ -297,6 +295,8 @@ class Import
      */
     public function execute()
     {
+        $this->registerDefaultCallbacks();
+
         $importer = $this->importer ?? $this->createLdapImporter();
 
         if (! $this->ldap && ! $this->hasImportableObjects()) {
@@ -331,6 +331,8 @@ class Import
                 $ldapRecord
             );
         }
+
+        $this->flushEventCallbacks();
 
         return $this->imported;
     }
@@ -392,8 +394,16 @@ class Import
         foreach ($this->eventCallbacks[$event] ?? [] as $callback) {
             $callback(...Arr::wrap($arguments));
         }
+    }
 
-        $this->eventCallbacks[$event] = [];
+    /**
+     * Flush all the event callbacks.
+     *
+     * @return void
+     */
+    protected function flushEventCallbacks()
+    {
+        $this->eventCallbacks = [];
     }
 
     /**
