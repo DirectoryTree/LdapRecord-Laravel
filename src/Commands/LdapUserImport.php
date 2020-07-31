@@ -56,12 +56,6 @@ class LdapUserImport extends Import
     {
         parent::registerDefaultCallbacks();
 
-        $this->registerEventCallback('importing', function ($database, $object) {
-            if (! $database->exists) {
-                event(new Importing($object, $database));
-            }
-        });
-
         $this->registerEventCallback('imported', function ($database, $object) {
             if ($database->wasRecentlyCreated) {
                 event(new Imported($object, $database));
