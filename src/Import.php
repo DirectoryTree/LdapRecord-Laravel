@@ -4,6 +4,8 @@ namespace LdapRecord\Laravel;
 
 use Exception;
 use InvalidArgumentException;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
 use LdapRecord\Models\Model as LdapRecord;
 use LdapRecord\Query\Model\Builder as LdapQuery;
 use Illuminate\Database\Eloquent\Model as Eloquent;
@@ -39,6 +41,13 @@ class Import
      * @var \LdapRecord\Query\Collection|null
      */
     protected $objects;
+
+    /**
+     * The successfully imported Eloquent models.
+     *
+     * @var \LdapRecord\Query\Collection|null
+     */
+    protected $imported;
 
     /**
      * The callback to use for synchronizing attributes.
@@ -92,7 +101,7 @@ class Import
         'restoring', 'restored',
         'deleting', 'deleted',
         'deleting.missing', 'deleted.missing',
-        'failed', 'completed',
+        'starting', 'failed', 'completed',
     ];
 
     /**
@@ -264,18 +273,18 @@ class Import
      */
     protected function registerDefaultCallbacks()
     {
-        $this->registerEventCallback('imported', function ($database, $object) {
-            if (! $database->wasRecentlyCreated) {
-                return;
-            }
+        if (! $this->logging) {
+            return;
+        }
 
-            if ($this->logging) {
-                logger()->info("Imported user [{$object->getRdn()}]");
+        $this->registerEventCallback('imported', function ($database, $object) {
+            if ($database->wasRecentlyCreated) {
+                Log::info("Imported user [{$object->getRdn()}]");
             }
         });
 
         $this->registerEventCallback('failed', function ($database, $object, $e) {
-            logger()->error("Importing user [{$object->getRdn()}] failed. {$e->getMessage()}");
+            Log::error("Importing user [{$object->getRdn()}] failed. {$e->getMessage()}");
         });
     }
 
@@ -290,48 +299,52 @@ class Import
     {
         $importer = $this->importer ?? $this->createLdapImporter();
 
-        if (! $this->ldap && ! $this->objects) {
-            throw new LdapImportException('No LdapRecord model or objects have been defined for importing.');
+        if (! $this->ldap && ! $this->hasImportableObjects()) {
+            throw new LdapImportException('No LdapRecord model or importable objects have been defined.');
         }
 
-        if ($this->objects) {
-            $ldapRecord = $this->objects->first()->newInstance();
+        // We will attempt to retrieve the LDAP model
+        // instance to be able to retrieve objects
+        // from, if none have been loaded yet.
+        $ldapRecord = $this->objects
+            ? $this->objects->first()->newInstance()
+            : $this->createLdapModel();
 
-            $objects = $this->objects;
-        } else {
-            $ldapRecord = $this->createLdapModel();
-
-            $objects = $this->applyLdapQueryConstraints(
+        // If no LDAP objects have been preloaded, we
+        // will load them here using the LDAP model
+        // and apply any query constraints.
+        if (! $this->objects) {
+            $this->objects = $this->applyLdapQueryConstraints(
                 $ldapRecord->newQuery()
             )->paginate();
         }
 
-        $imported = $this->import($objects, $importer);
+        $this->callEventCallbacks('starting', $this->objects);
 
-        $this->callEventCallbacks('completed', $imported);
+        $this->import($importer);
+
+        $this->callEventCallbacks('completed', [$this->objects, $this->imported]);
 
         if ($this->trashMissing) {
             $this->softDeleteMissing(
                 $importer->createEloquentModel(),
-                $ldapRecord,
-                $imported
+                $ldapRecord
             );
         }
 
-        return $imported;
+        return $this->imported;
     }
 
     /**
      * Import the objects into the database.
      *
-     * @param \LdapRecord\Query\Collection $objects
-     * @param LdapImporter                 $importer
+     * @param LdapImporter $importer
      *
      * @return \LdapRecord\Query\Collection
      */
-    protected function import($objects, $importer)
+    protected function import($importer)
     {
-        return $objects->map(
+        return $this->imported = $this->objects->map(
             $this->buildImportCallback($importer)
         )->filter();
     }
@@ -348,7 +361,7 @@ class Import
         return function ($object) use ($importer) {
             $database = $importer->createOrFindEloquentModel($object);
 
-            $this->callEventCallbacks('importing', $database, $object);
+            $this->callEventCallbacks('importing', [$database, $object]);
 
             try {
                 if ($this->using) {
@@ -357,28 +370,30 @@ class Import
                     tap($importer->synchronize($object, $database))->save();
                 }
 
-                $this->callEventCallbacks('imported', $database, $object);
+                $this->callEventCallbacks('imported', [$database, $object]);
 
                 return $database;
             } catch (Exception $e) {
-                $this->callEventCallbacks('failed', $database, $object, $e);
+                $this->callEventCallbacks('failed', [$database, $object, $e]);
             }
         };
     }
 
     /**
-     * Call all of the callbacks for the event.
+     * Call and then flush all of the callbacks for the event.
      *
-     * @param string   $event
-     * @param mixed ...$args
+     * @param string $event
+     * @param mixed  $arguments
      *
      * @return void
      */
-    protected function callEventCallbacks($event, ...$args)
+    protected function callEventCallbacks($event, $arguments = [])
     {
         foreach ($this->eventCallbacks[$event] ?? [] as $callback) {
-            $callback(...$args);
+            $callback(...Arr::wrap($arguments));
         }
+
+        $this->eventCallbacks[$event] = [];
     }
 
     /**
@@ -422,41 +437,28 @@ class Import
     }
 
     /**
-     * Create a new LdapRecord model.
-     *
-     * @return LdapRecord
-     */
-    protected function createLdapModel()
-    {
-        $class = '\\'.ltrim($this->ldap, '\\');
-
-        return new $class;
-    }
-
-    /**
      * Soft-delete missing Eloquent models that are missing from the imported.
      *
      * @param Eloquent                     $database
      * @param LdapRecord                   $ldap
-     * @param \LdapRecord\Query\Collection $imported
      *
      * @return void
      */
-    protected function softDeleteMissing(Eloquent $database, LdapRecord $ldap, $imported)
+    protected function softDeleteMissing(Eloquent $database, LdapRecord $ldap)
     {
         if (! $this->isUsingSoftDeletes($database)) {
             return;
         }
 
-        if ($imported->isEmpty()) {
+        if ($this->objects->isEmpty()) {
             return;
         }
 
-        $this->callEventCallbacks('deleting.missing', $database, $ldap, $imported);
+        $this->callEventCallbacks('deleting.missing', [$database, $ldap, $this->imported]);
 
         $domain = $ldap->getConnectionName() ?? config('ldap.default');
 
-        $guids = $imported->pluck($database->getLdapGuidColumn())->toArray();
+        $guids = $this->imported->pluck($database->getLdapGuidColumn())->toArray();
 
         // Here we'll soft-delete all users whom have a 'guid' present
         // but are missing from our imported guid array and are from
@@ -483,6 +485,28 @@ class Import
             ->where($database->getDeletedAtColumn(), '=', $deletedAt)
             ->pluck($database->getKeyName());
 
-        $this->callEventCallbacks('deleted.missing', $database, $ldap, $ids);
+        $this->callEventCallbacks('deleted.missing', [$database, $ldap, $ids]);
+    }
+
+    /**
+     * Determine if importable objects have been set.
+     *
+     * @return bool
+     */
+    protected function hasImportableObjects()
+    {
+        return $this->objects && $this->objects->isNotEmpty();
+    }
+
+    /**
+     * Create a new LdapRecord model.
+     *
+     * @return LdapRecord
+     */
+    protected function createLdapModel()
+    {
+        $class = '\\'.ltrim($this->ldap, '\\');
+
+        return new $class;
     }
 }

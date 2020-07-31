@@ -3,6 +3,7 @@
 namespace LdapRecord\Laravel\Commands;
 
 use LdapRecord\Laravel\Import;
+use Illuminate\Support\Facades\Log;
 use LdapRecord\Laravel\Events\Imported;
 use LdapRecord\Laravel\Events\Importing;
 use LdapRecord\Laravel\LdapUserRepository;
@@ -126,7 +127,7 @@ class LdapUserImport extends Import
             $users = $query->getModel()->newCollection();
 
             return $this->objects = ($user = $query->findByAnr($username))
-                ? $users->push($user)
+                ? $users->add($user)
                 : $users;
         }
 
@@ -143,18 +144,18 @@ class LdapUserImport extends Import
      */
     protected function delete(Eloquent $database, LdapRecord $object)
     {
+        // If deleting is enabled, the model supports soft deletes,
+        // the model isn't already deleted, and the LDAP user is
+        // disabled, we'll go ahead and delete the users model.
         if (
             $this->isUsingSoftDeletes($database)
             && ! $database->trashed()
             && $this->userIsDisabled($object)
         ) {
-            // If deleting is enabled, the model supports soft deletes, the model
-            // isn't already deleted, and the LDAP user is disabled, we'll
-            // go ahead and delete the users model.
             $database->delete();
 
             if ($this->logging) {
-                logger()->info("Soft-deleted user [{$object->getRdn()}]. Their user account is disabled.");
+                Log::info("Soft-deleted user [{$object->getRdn()}]. Their user account is disabled.");
             }
         }
     }
@@ -169,18 +170,18 @@ class LdapUserImport extends Import
      */
     protected function restore(Eloquent $database, LdapRecord $object)
     {
+        // If the model has soft-deletes enabled, the model is
+        // currently deleted, and the LDAP user account
+        // is enabled, we'll restore the users model.
         if (
             $this->isUsingSoftDeletes($database)
             && $database->trashed()
             && $this->userIsEnabled($object)
         ) {
-            // If the model has soft-deletes enabled, the model is
-            // currently deleted, and the LDAP user account
-            // is enabled, we'll restore the users model.
             $database->restore();
 
             if ($this->logging) {
-                logger()->info("Restored user [{$object->getRdn()}]. Their user account has been re-enabled.");
+                Log::info("Restored user [{$object->getRdn()}]. Their user account has been re-enabled.");
             }
         }
     }

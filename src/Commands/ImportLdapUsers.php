@@ -38,14 +38,35 @@ class ImportLdapUsers extends Command
     protected $description = 'Imports LDAP users into the application database.';
 
     /**
-     * A list of user GUIDs that were successfully imported.
+     * The LDAP user import instance.
      *
-     * @var array
+     * @var LdapUserImport
      */
-    protected $imported = [];
+    protected $import;
+
+    /**
+     * The LDAP objects being imported.
+     *
+     * @var \LdapRecord\Query\Collection
+     */
+    protected $objects;
+
+    /**
+     * Constructor.
+     *
+     * @param LdapUserImport $import
+     */
+    public function __construct(LdapUserImport $import)
+    {
+        parent::__construct();
+
+        $this->import = $import;
+    }
 
     /**
      * Execute the console command.
+     *
+     * @param LdapUserImport $import
      *
      * @return void
      *
@@ -58,98 +79,165 @@ class ImportLdapUsers extends Command
 
         if (! $provider instanceof UserProvider) {
             return $this->error("Provider [{$this->argument('provider')}] is not configured for LDAP authentication.");
-        } elseif (! $provider instanceof DatabaseUserProvider) {
+        } elseif (!$provider instanceof DatabaseUserProvider) {
             return $this->error("Provider [{$this->argument('provider')}] is not configured for database synchronization.");
         }
 
-        $import = $this->newLdapUserImport()
-                ->setLdapImporter($provider->getLdapUserImporter())
-                ->setLdapUserRepository($provider->getLdapUserRepository());
+        $this->applyCommandOptions();
+        $this->applyProviderImporter($provider);
+        $this->applyProviderRepository($provider);
 
-        $import->registerEventCallback('deleting.missing', function () {
-            $this->info('Soft-deleting all missing users...');
-        });
-
-        $import->registerEventCallback('deleted.missing', function ($database, $ldap, $ids) {
-            $this->info("Successfully soft-deleted [{$ids->count()}] users.");
-        });
-
-        $users = $import->loadObjectsFromRepository($this->argument('user'));
-
-        if (($count = $users->count()) === 0) {
-            return $this->info('There were no users found to import.');
-        } elseif ($count === 1) {
-            $this->info("Found user [{$users->first()->getRdn()}].");
-        } else {
-            $this->info("Found [$count] user(s).");
+        if (! $this->hasObjectsToImport()) {
+            return;
         }
 
-        if (
-            $this->input->isInteractive()
-            && $this->confirm('Would you like to display the user(s) to be imported / synchronized?', $default = false)
-        ) {
-            $this->display($users);
-        }
+        $this->registerEventCallbacks();
 
+        $this->confirmAndDisplayObjects();
+
+        $this->confirmAndExecuteImport();
+    }
+
+    /**
+     * Confirm and execute the import.
+     *
+     * @return void
+     */
+    protected function confirmAndExecuteImport()
+    {
         if (
             ! $this->input->isInteractive()
             || $this->confirm('Would you like these users to be imported / synchronized?', $default = true)
         ) {
-            $this->info("Successfully imported / synchronized [{$import->execute()->count()}] user(s).");
+            $imported = $this->import->execute();
+
+            $this->info("Successfully imported / synchronized [{$imported->count()}] user(s).");
         } else {
             $this->info('Okay, no users were imported / synchronized.');
         }
     }
 
     /**
-     * Create a new LDAP user import.
+     * Register the import event callbacks for the command.
      *
-     * @return LdapUserImport
+     * @return void
      */
-    protected function newLdapUserImport()
+    protected function registerEventCallbacks()
     {
-        $import = new LdapUserImport();
+        $this->import->registerEventCallback('starting', function ($objects) {
+            $this->output->progressStart($objects->count());
+        });
 
+        $this->import->registerEventCallback('imported', function () {
+            $this->output->progressAdvance();
+        });
+
+        $this->import->registerEventCallback('failed', function () {
+            $this->output->progressAdvance();
+        });
+
+        $this->import->registerEventCallback('completed', function () {
+            $this->output->progressFinish();
+        });
+    }
+
+    /**
+     * Determine if there are LDAP objects to import.
+     *
+     * @return bool
+     */
+    protected function hasObjectsToImport()
+    {
+        $this->objects = $this->import->loadObjectsFromRepository($this->argument('user'));
+
+        switch(true) {
+            case $this->objects->count() === 0:
+                $this->info('There were no users found to import.');
+                return false;
+            case $this->objects->count() === 1:
+                $this->info("Found user [{$this->objects->first()->getRdn()}].");
+                return true;
+            default:
+                $this->info("Found [{$this->objects->count()}] user(s).");
+                return true;
+        }
+    }
+
+    /**
+     * Prepare the import by applying the command options.
+     *
+     * @return void
+     */
+    protected function applyCommandOptions()
+    {
         if ($filter = $this->option('filter')) {
-            $import->applyFilter($filter);
+            $this->import->applyFilter($filter);
         }
 
         if ($attributes = $this->option('attributes')) {
-            $import->limitAttributes(explode(',', $attributes));
+            $this->import->limitAttributes(explode(',', $attributes));
+        }
+
+        if (! $this->isLogging()) {
+            $this->import->disableLogging();
         }
 
         if ($this->isRestoring()) {
-            $import->restoreEnabledUsers();
+            $this->import->restoreEnabledUsers();
         }
 
         if ($this->isDeleting()) {
-            $import->trashDisabledUsers();
+            $this->import->trashDisabledUsers();
         }
 
         if ($this->isDeletingMissing()) {
-            $import->trashMissing();
+            $this->import->trashMissing();
         }
+    }
 
-        return $import;
+    /**
+     * Set the importer to use on the import.
+     *
+     * @param DatabaseUserProvider $provider
+     */
+    protected function applyProviderImporter(DatabaseUserProvider $provider)
+    {
+        $this->import->setLdapImporter($provider->getLdapUserImporter());
+    }
+
+    /**
+     * Set the repository to use on the import.
+     *
+     * @param DatabaseUserProvider $provider
+     */
+    protected function applyProviderRepository(DatabaseUserProvider $provider)
+    {
+        $this->import->setLdapUserRepository($provider->getLdapUserRepository());
     }
 
     /**
      * Displays the given users in a table.
      *
-     * @param \LdapRecord\Query\Collection $users
-     *
      * @return void
      */
-    public function display($users = [])
+    protected function confirmAndDisplayObjects()
     {
+        if (! $this->input->isInteractive()) {
+            return;
+        }
+
+        if (! $this->confirm('Would you like to display the user(s) to be imported / synchronized?', $default = false)) {
+            return;
+        }
+
         $headers = ['Name', 'Distinguished Name'];
 
         $data = [];
 
-        foreach ($users as $user) {
+        foreach ($this->objects as $objects) {
             $data[] = [
-                'name' => $user->getRdn(),
-                'dn' => $user->getDn(),
+                'name' => $objects->getRdn(),
+                'dn' => $objects->getDn(),
             ];
         }
 
@@ -157,58 +245,11 @@ class ImportLdapUsers extends Command
     }
 
     /**
-     * Import the users and return the total number imported.
-     *
-     * @param LdapImporter $importer
-     * @param array        $users
-     *
-     * @return void
-     */
-    public function import(LdapImporter $importer, array $users = [])
-    {
-        $this->imported = [];
-
-        $this->output->progressStart(count($users));
-
-        /** @var LdapModel $user */
-        foreach ($users as $user) {
-            try {
-                // Import the user and retrieve it's model.
-                $model = $importer->run($user);
-
-                // Save the returned model.
-                $this->save($user, $model);
-
-                if ($user instanceof ActiveDirectory) {
-                    if ($this->isDeleting()) {
-                        $this->delete($user, $model);
-                    }
-
-                    if ($this->isRestoring()) {
-                        $this->restore($user, $model);
-                    }
-                }
-
-                $this->imported[] = $user->getConvertedGuid();
-            } catch (Exception $e) {
-                // Log the unsuccessful import.
-                if ($this->isLogging()) {
-                    logger()->error("Importing user [{$user->getRdn()}] failed. {$e->getMessage()}");
-                }
-            }
-
-            $this->output->progressAdvance();
-        }
-
-        $this->output->progressFinish();
-    }
-
-    /**
      * Determine if logging is enabled.
      *
      * @return bool
      */
-    public function isLogging()
+    protected function isLogging()
     {
         return ! $this->option('no-log');
     }
@@ -218,7 +259,7 @@ class ImportLdapUsers extends Command
      *
      * @return bool
      */
-    public function isDeleting()
+    protected function isDeleting()
     {
         return $this->option('delete') == 'true';
     }
@@ -228,7 +269,7 @@ class ImportLdapUsers extends Command
      *
      * @return bool
      */
-    public function isDeletingMissing()
+    protected function isDeletingMissing()
     {
         return $this->option('delete-missing') == 'true' && is_null($this->argument('user'));
     }
@@ -238,7 +279,7 @@ class ImportLdapUsers extends Command
      *
      * @return bool
      */
-    public function isRestoring()
+    protected function isRestoring()
     {
         return $this->option('restore') == 'true';
     }
