@@ -47,6 +47,27 @@ class EmulatedQueryTest extends TestCase
         $this->assertEquals($attributes['objectclass'], $result['objectclass']);
     }
 
+    public function test_update_attributes()
+    {
+        $query = Container::getConnection('default')->query();
+
+        $dn = 'cn=John Doe,dc=local,dc=com';
+        $attributes = ['objectclass' => ['foo', 'bar']];
+
+        $this->assertTrue($query->insert($dn, $attributes));
+
+        $result = $query->first();
+        $this->assertEquals($attributes['objectclass'], $result['objectclass']);
+
+        $newAttributes = ['objectclass' => ['baz', 'zal'], 'cn' => ['John Doe']];
+
+        $query->updateAttributes($dn, $newAttributes);
+
+        $result = $query->newInstance()->first();
+        $this->assertEquals($newAttributes['cn'], $result['cn']);
+        $this->assertEquals($newAttributes['objectclass'], $result['objectclass']);
+    }
+
     public function test_find()
     {
         $query = Container::getConnection('default')->query();
@@ -132,6 +153,24 @@ class EmulatedQueryTest extends TestCase
         $this->assertCount(1, $results);
         $this->assertEquals($john, $results[0]['dn'][0]);
         $this->assertEquals('johndoe', $results[0]['samaccountname'][0]);
+    }
+
+    public function test_where_with_alternate_casing()
+    {
+        $query = Container::getConnection('default')->query();
+
+        $attributes = ['objectclass' => ['bar', 'baz']];
+
+        $query->insert($john = 'cn=John Doe,dc=local,dc=com', array_merge($attributes, ['sAMAccountName' => ['johndoe']]));
+
+        $result = $query->where('samaccountname', '=', 'johndoe')->first();
+        $this->assertEquals('johndoe', $result['samaccountname'][0]);
+
+        $this->assertTrue($query->updateAttributes($john, ['sAMAccountName' => 'jdoe']));
+
+        $result = $query->newInstance()->where('samaccountname', '=', 'jdoe')->first();
+
+        $this->assertEquals('jdoe', $result['samaccountname'][0]);
     }
 
     public function test_where_has()

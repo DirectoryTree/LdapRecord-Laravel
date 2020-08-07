@@ -201,7 +201,7 @@ trait EmulatesQueries
         $this->query->{$relationMethod}('attributes', function ($query) use ($type, $bindings) {
             $this->addFilterToDatabaseQuery(
                 $query,
-                $bindings['field'],
+                $this->normalizeAttributeName($bindings['field']),
                 $bindings['operator'],
                 $bindings['value']
             );
@@ -346,7 +346,9 @@ trait EmulatesQueries
         $type = $modification[BatchModification::KEY_MODTYPE];
         $values = $modification[BatchModification::KEY_VALUES] ?? [];
 
-        $attribute = $model->attributes()->firstOrCreate(['name' => $name]);
+        $attribute = $model->attributes()->firstOrCreate([
+            'name' => $name
+        ]);
 
         switch ($type) {
             case LDAP_MODIFY_BATCH_ADD:
@@ -448,7 +450,9 @@ trait EmulatesQueries
         });
 
         foreach ($attributes as $name => $values) {
-            $attribute = $model->attributes()->create(['name' => $name]);
+            $attribute = $model->attributes()->create([
+                'name' => $this->normalizeAttributeName($name)
+            ]);
 
             foreach ((array) $values as $value) {
                 $attribute->values()->create(['value' => $value]);
@@ -456,6 +460,42 @@ trait EmulatesQueries
         }
 
         return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function updateAttributes($dn, array $attributes)
+    {
+        if (! $model = $this->findEloquentModelByDn($dn)) {
+            return false;
+        }
+
+        foreach ($attributes as $name => $values) {
+            $attribute = $model->attributes()->firstOrCreate([
+                'name' => $this->normalizeAttributeName($name)
+            ]);
+
+            $attribute->values()->delete();
+
+            foreach ((array) $values as $value) {
+                $attribute->values()->create(['value' => $value]);
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Normalize the attribute name.
+     *
+     * @param string $field
+     *
+     * @return string
+     */
+    protected function normalizeAttributeName($field)
+    {
+        return strtolower($field);
     }
 
     /**
