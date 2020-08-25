@@ -2,15 +2,15 @@
 
 namespace LdapRecord\Laravel;
 
-use Illuminate\Auth\EloquentUserProvider;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Auth\EloquentUserProvider;
 use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use LdapRecord\Laravel\Auth\ListensForLdapBindFailure;
 use LdapRecord\Laravel\Auth\NoDatabaseUserProvider;
 use LdapRecord\Laravel\Commands\ImportLdapUsers;
-use LdapRecord\Laravel\Commands\MakeLdapImport;
+use LdapRecord\Laravel\Commands\TestLdapAuthentication;
 
 class LdapAuthServiceProvider extends ServiceProvider
 {
@@ -57,7 +57,10 @@ class LdapAuthServiceProvider extends ServiceProvider
      */
     protected function registerCommands()
     {
-        $this->commands([ImportLdapUsers::class]);
+        $this->commands([
+            ImportLdapUsers::class,
+            TestLdapAuthentication::class,
+        ]);
     }
 
     /**
