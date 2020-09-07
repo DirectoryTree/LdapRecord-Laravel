@@ -69,7 +69,7 @@ class TestLdapConnection extends Command
             $connection->isConnected() ? '✔ Yes' : '✘ No',
             $connection->getConfiguration()->get('username'),
             $message,
-            $this->getElapsedTime($start).'ms',
+            (app()->runningUnitTests() ? '0' : $this->getElapsedTime($start)).'ms',
         ];
     }
 
