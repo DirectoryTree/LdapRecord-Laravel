@@ -6,6 +6,7 @@ use Illuminate\Auth\EloquentUserProvider;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
+use LdapRecord\Laravel\Auth\BindFailureListener;
 use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use LdapRecord\Laravel\Auth\ListensForLdapBindFailure;
 use LdapRecord\Laravel\Auth\NoDatabaseUserProvider;
@@ -114,6 +115,7 @@ class LdapAuthServiceProvider extends ServiceProvider
      */
     protected function registerLoginControllerListener()
     {
+        // Laravel UI support.
         if (class_exists($loginController = 'App\Http\Controllers\Auth\LoginController')) {
             app()->resolving($loginController, function ($controller) {
                 $traits = class_uses_recursive($controller);
@@ -121,6 +123,13 @@ class LdapAuthServiceProvider extends ServiceProvider
                 if (in_array(ListensForLdapBindFailure::class, $traits)) {
                     $controller->listenForLdapBindFailure();
                 }
+            });
+        }
+
+        // Laravel Jetstream support.
+        if (class_exists($loginRequest = 'Laravel\Fortify\Http\Requests\LoginRequest')) {
+            app()->resolving($loginRequest, function () {
+                app(BindFailureListener::class)->listenForLdapBindFailure();
             });
         }
     }

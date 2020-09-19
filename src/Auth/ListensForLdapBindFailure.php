@@ -73,8 +73,12 @@ trait ListensForLdapBindFailure
      */
     protected function throwLoginValidationException($message)
     {
+        if (class_exists($fortify = 'Laravel\Fortify\Fortify')) {
+            $username = $fortify::username();
+        }
+
         throw ValidationException::withMessages([
-            $this->username() => $message,
+            $username ?? $this->username() => $message,
         ]);
     }
 
