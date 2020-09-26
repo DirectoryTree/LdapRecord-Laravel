@@ -46,7 +46,7 @@ class BindFailureListener
      *
      * @return void
      */
-    public static function whenResolving($class, Closure $callback = null)
+    protected static function whenResolving($class, Closure $callback = null)
     {
         if (! class_exists($class)) {
             return;
