@@ -2,17 +2,39 @@
 
 namespace LdapRecord\Laravel\Auth;
 
-use Illuminate\Validation\ValidationException;
-use LdapRecord\Auth\Events\Failed;
+use Closure;
 use LdapRecord\Container;
 use LdapRecord\DetectsErrors;
+use LdapRecord\Auth\Events\Failed;
+use Illuminate\Validation\ValidationException;
 
 trait ListensForLdapBindFailure
 {
     use DetectsErrors;
 
     /**
+     * The bind error handler callback.
+     *
+     * @var Closure|null
+     */
+    protected static $bindErrorHandler;
+
+    /**
+     * Set the bind error handler callback.
+     *
+     * @param Closure $callback
+     *
+     * @return void
+     */
+    public static function setErrorHandler(Closure $callback)
+    {
+        static::$bindErrorHandler = $callback;
+    }
+
+    /**
      * Setup a listener for an LDAP bind failure.
+     *
+     * @return void
      */
     public function listenForLdapBindFailure()
     {
@@ -29,23 +51,24 @@ trait ListensForLdapBindFailure
      * @param string      $errorMessage
      * @param string|null $diagnosticMessage
      *
+     * @return void
+     *
      * @throws ValidationException
      */
     protected function ldapBindFailed($errorMessage, $diagnosticMessage = null)
     {
         switch (true) {
             case $this->causedByLostConnection($errorMessage):
-                $this->handleLdapBindError($errorMessage);
-                break;
+                return $this->handleLdapBindError($errorMessage);
             case $this->causedByInvalidCredentials($errorMessage, $diagnosticMessage):
                 // We'll bypass any invalid LDAP credential errors and let
                 // the login controller handle it. This is so proper
                 // translation can be done on the validation error.
-                break;
+                return;
             default:
                 foreach ($this->ldapDiagnosticCodeErrorMap() as $code => $message) {
                     if ($this->errorContainsMessage($diagnosticMessage, (string) $code)) {
-                        $this->handleLdapBindError($message, $code);
+                        return $this->handleLdapBindError($message, $code);
                     }
                 }
         }
@@ -54,14 +77,18 @@ trait ListensForLdapBindFailure
     /**
      * Handle the LDAP bind error.
      *
-     * @param string $message
-     * @param string $code
+     * @param string      $message
+     * @param string|null $code
+     *
+     * @return void
      *
      * @throws ValidationException
      */
     protected function handleLdapBindError($message, $code = null)
     {
-        $this->throwLoginValidationException($message);
+        ($callback = static::$bindErrorHandler)
+            ? $callback($message, $code)
+            : $this->throwLoginValidationException($message);
     }
 
     /**
@@ -73,8 +100,12 @@ trait ListensForLdapBindFailure
      */
     protected function throwLoginValidationException($message)
     {
+        if (class_exists($fortify = 'Laravel\Fortify\Fortify')) {
+            $username = $fortify::username();
+        }
+
         throw ValidationException::withMessages([
-            $this->username() => $message,
+            $username ?? $this->username() => $message,
         ]);
     }
 

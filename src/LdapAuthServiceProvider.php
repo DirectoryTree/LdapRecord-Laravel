@@ -2,12 +2,12 @@
 
 namespace LdapRecord\Laravel;
 
+use Illuminate\Auth\EloquentUserProvider;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Auth\EloquentUserProvider;
+use LdapRecord\Laravel\Auth\BindFailureListener;
 use LdapRecord\Laravel\Auth\DatabaseUserProvider;
-use LdapRecord\Laravel\Auth\ListensForLdapBindFailure;
 use LdapRecord\Laravel\Auth\NoDatabaseUserProvider;
 use LdapRecord\Laravel\Commands\ImportLdapUsers;
 
@@ -46,7 +46,7 @@ class LdapAuthServiceProvider extends ServiceProvider
         $this->registerMigrations();
         $this->registerAuthProvider();
         $this->registerEventListeners();
-        $this->registerLoginControllerListener();
+        $this->registerLoginControllerListeners();
     }
 
     /**
@@ -112,17 +112,10 @@ class LdapAuthServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    protected function registerLoginControllerListener()
+    protected function registerLoginControllerListeners()
     {
-        if (class_exists($loginController = 'App\Http\Controllers\Auth\LoginController')) {
-            app()->resolving($loginController, function ($controller) {
-                $traits = class_uses_recursive($controller);
-
-                if (in_array(ListensForLdapBindFailure::class, $traits)) {
-                    $controller->listenForLdapBindFailure();
-                }
-            });
-        }
+        BindFailureListener::usingLaravelUi();
+        BindFailureListener::usingLaravelJetstream();
     }
 
     /**
