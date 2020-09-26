@@ -20,6 +20,18 @@ trait ListensForLdapBindFailure
     protected static $bindErrorHandler;
 
     /**
+     * Set the bind error handler callback.
+     *
+     * @param Closure $callback
+     *
+     * @return void
+     */
+    public static function setErrorHandler(Closure $callback)
+    {
+        static::$bindErrorHandler = $callback;
+    }
+
+    /**
      * Setup a listener for an LDAP bind failure.
      *
      * @return void
@@ -31,18 +43,6 @@ trait ListensForLdapBindFailure
 
             $this->ldapBindFailed($error->getErrorMessage(), $error->getDiagnosticMessage());
         });
-    }
-
-    /**
-     * Set the bind error handler callback.
-     *
-     * @param Closure $callback
-     *
-     * @return void
-     */
-    public static function bindErrorHandler(Closure $callback)
-    {
-        static::$bindErrorHandler = $callback;
     }
 
     /**

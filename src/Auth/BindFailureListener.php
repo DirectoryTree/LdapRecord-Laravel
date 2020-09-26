@@ -4,7 +4,7 @@ namespace LdapRecord\Laravel\Auth;
 
 use Closure;
 
-class ListenForBindFailure
+class BindFailureListener
 {
     use ListensForLdapBindFailure;
 

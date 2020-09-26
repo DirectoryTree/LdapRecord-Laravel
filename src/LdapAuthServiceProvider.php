@@ -6,7 +6,7 @@ use Illuminate\Auth\EloquentUserProvider;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
-use LdapRecord\Laravel\Auth\ListenForBindFailure;
+use LdapRecord\Laravel\Auth\BindFailureListener;
 use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use LdapRecord\Laravel\Auth\NoDatabaseUserProvider;
 use LdapRecord\Laravel\Commands\ImportLdapUsers;
@@ -114,8 +114,8 @@ class LdapAuthServiceProvider extends ServiceProvider
      */
     protected function registerLoginControllerListeners()
     {
-        ListenForBindFailure::usingLaravelUi();
-        ListenForBindFailure::usingLaravelJetstream();
+        BindFailureListener::usingLaravelUi();
+        BindFailureListener::usingLaravelJetstream();
     }
 
     /**
