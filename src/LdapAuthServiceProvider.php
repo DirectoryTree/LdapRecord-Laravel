@@ -10,7 +10,6 @@ use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use LdapRecord\Laravel\Auth\ListensForLdapBindFailure;
 use LdapRecord\Laravel\Auth\NoDatabaseUserProvider;
 use LdapRecord\Laravel\Commands\ImportLdapUsers;
-use LdapRecord\Laravel\Commands\TestLdapAuthentication;
 
 class LdapAuthServiceProvider extends ServiceProvider
 {
@@ -57,10 +56,7 @@ class LdapAuthServiceProvider extends ServiceProvider
      */
     protected function registerCommands()
     {
-        $this->commands([
-            ImportLdapUsers::class,
-            TestLdapAuthentication::class,
-        ]);
+        $this->commands([ImportLdapUsers::class]);
     }
 
     /**
