@@ -23,6 +23,13 @@ class DatabaseUserProviderTest extends DatabaseProviderTestCase
         $this->assertSame($importer, $provider->getLdapUserImporter());
     }
 
+    public function test_method_calls_are_passed_to_eloquent()
+    {
+        $provider = $this->createDatabaseUserProvider();
+
+        $this->assertEquals(TestUserModelStub::class, $provider->getModel());
+    }
+
     public function test_retrieve_by_id_uses_eloquent()
     {
         $model = $this->createTestUser([
