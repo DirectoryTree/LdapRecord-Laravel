@@ -66,7 +66,7 @@ class LdapUserRepository
     /**
      * Retrieve a user by the given credentials.
      *
-     * @param array  $credentials
+     * @param array $credentials
      *
      * @return \LdapRecord\Models\Model|null
      */
