@@ -145,6 +145,9 @@ class DatabaseUserProvider extends UserProvider
      */
     public function retrieveByCredentials(array $credentials)
     {
+        // We want to make sure we capture any LDAP exceptions that
+        // occur here in case of connectivity failure, so we know
+        // to fallback and attempt database authentication.
         $user = rescue(function () use ($credentials) {
             return call_user_func($this->userResolver, $credentials);
         });
