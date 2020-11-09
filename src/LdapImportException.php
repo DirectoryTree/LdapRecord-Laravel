@@ -16,13 +16,10 @@ class LdapImportException extends LdapRecordException
      */
     public static function missingGuid(Model $model)
     {
+        $class =  get_class($model);
+
         return new static(
-            sprintf(
-                'Attribute [%s] does not exist on LDAP model [%s] object [%s]',
-                $model->getGuidKey(),
-                get_class($model),
-                $model->getDn()
-            )
+            "Attribute [{$model->getGuidKey()}] does not exist on LDAP model [{$class}] object [{$model->getDn()}]"
         );
     }
 }
