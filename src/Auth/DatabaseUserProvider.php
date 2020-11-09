@@ -181,7 +181,7 @@ class DatabaseUserProvider extends UserProvider
      *
      * @param array $credentials
      *
-     * @throws Exception
+     * @throws \Exception
      *
      * @return Authenticatable|null
      */
@@ -212,7 +212,9 @@ class DatabaseUserProvider extends UserProvider
             return false;
         }
 
-        if ($model->save() && $model->wasRecentlyCreated) {
+        $model->save();
+
+        if ($model->wasRecentlyCreated) {
             event(new Imported($this->user, $model));
         }
 
