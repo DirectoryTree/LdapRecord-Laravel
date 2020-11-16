@@ -45,11 +45,11 @@ Search for LDAP objects with a [fluent and easy to use interface](https://ldapre
 
 ✏️ **Active Record LDAP Models**
 
-LDAP objects are [individual models](https://ldaprecord.com/docs/models). Persist them to your LDAP server with a single `save()`.
+LDAP objects are [individual models](https://ldaprecord.com/docs/core/v1/models). Persist them to your LDAP server with a single `save()`.
 
 💫 **LDAP Directory Emulator**
 
-Test [authenticating](https://ldaprecord.com/docs/laravel/v/1auth/testing/#getting-started) and
+Test [authenticating](https://ldaprecord.com/docs/laravel/v1/auth/testing/#getting-started) and
 [querying users](https://ldaprecord.com/docs/laravel/v1/testing/#getting-started) without
 changing your application code.
 
