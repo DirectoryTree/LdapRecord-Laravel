@@ -29,7 +29,7 @@
 
 🔑 **Authenticate LDAP users into your application**
 
-Allow LDAP users to log into your application and control which users can login via [Scopes](https://ldaprecord.com/docs/laravel/v1/models/#query-scopes) and [Rules](https://ldaprecord.com/docs/laravel/v1/auth/configuration/#rules).
+Allow LDAP users to log into your application and control which users can login via [Scopes](https://ldaprecord.com/docs/laravel/v1/usage/#scopes) and [Rules](https://ldaprecord.com/docs/laravel/v1/auth/configuration/#rules).
 
 🔄 **Import & Synchronize LDAP users**
 
