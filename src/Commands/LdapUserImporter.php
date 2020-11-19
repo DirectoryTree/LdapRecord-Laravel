@@ -2,8 +2,9 @@
 
 namespace LdapRecord\Laravel\Commands;
 
-use LdapRecord\Laravel\Import;
+// TODO: Verify importing event needs to be fired
 use Illuminate\Support\Facades\Log;
+use LdapRecord\Laravel\Import\Importer;
 use LdapRecord\Laravel\Events\Imported;
 use LdapRecord\Laravel\Events\Importing;
 use LdapRecord\Laravel\LdapUserRepository;
@@ -13,7 +14,7 @@ use LdapRecord\Laravel\Events\DeletedMissing;
 use LdapRecord\Models\Attributes\AccountControl;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 
-class LdapUserImport extends Import
+class LdapUserImporter extends Importer
 {
     /**
      * The LDAP user repository to use for importing.
@@ -37,12 +38,12 @@ class LdapUserImport extends Import
     protected $trashDisabledUsers = false;
 
     /**
-     * {@inheritDoc}
+     * Constructor.
+     *
+     * @return void
      */
-    public function __construct($ldap = null)
+    public function __construct()
     {
-        parent::__construct($ldap);
-
         $this->events = array_merge([
             'restoring', 'restored',
             'deleting', 'deleted',

@@ -1,16 +1,17 @@
 <?php
 
-namespace LdapRecord\Laravel;
+namespace LdapRecord\Laravel\Import;
 
 use Exception;
 use InvalidArgumentException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
+use LdapRecord\Laravel\DetectsSoftDeletes;
 use LdapRecord\Models\Model as LdapRecord;
 use LdapRecord\Query\Model\Builder as LdapQuery;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 
-class Import
+class Importer
 {
     use DetectsSoftDeletes;
 
@@ -19,7 +20,7 @@ class Import
      *
      * @var string|null
      */
-    protected $ldap;
+    protected $model;
 
     /**
      * The Eloquent database model.
@@ -31,7 +32,7 @@ class Import
     /**
      * The custom LDAP importer to use.
      *
-     * @var \LdapRecord\Laravel\LdapImporter|null
+     * @var Synchronizer|null
      */
     protected $importer;
 
@@ -54,21 +55,21 @@ class Import
      *
      * @var callable|null
      */
-    protected $using;
+    protected $importCallback;
 
     /**
      * The sync attributes to use for the import.
      *
      * @var array|null
      */
-    protected $sync;
+    protected $syncAttributes;
 
     /**
      * The attributes to request from the LDAP server.
      *
      * @var string|null
      */
-    protected $attributes;
+    protected $onlyAttributes;
 
     /**
      * The filter to use for limiting LDAP query results.
@@ -89,7 +90,7 @@ class Import
      *
      * @var bool
      */
-    protected $trashMissing = false;
+    protected $softDeleteMissing = false;
 
     /**
      * The import events that callbacks can be registered on.
@@ -110,13 +111,17 @@ class Import
     protected $eventCallbacks = [];
 
     /**
-     * Constructor.
+     * Set the LdapRecord model to use for importing.
      *
-     * @param string|null $ldap
+     * @param string $model
+     *
+     * @return $this
      */
-    public function __construct($ldap = null)
+    public function setLdapModel($model)
     {
-        $this->ldap = $ldap;
+        $this->model = $model;
+
+        return $this;
     }
 
     /**
@@ -126,7 +131,7 @@ class Import
      *
      * @return $this
      */
-    public function into($eloquent)
+    public function setEloquentModel($eloquent)
     {
         $this->eloquent = $eloquent;
 
@@ -140,7 +145,7 @@ class Import
      *
      * @return $this
      */
-    public function objects($objects)
+    public function setLdapObjects($objects)
     {
         $this->objects = $objects;
 
@@ -148,15 +153,15 @@ class Import
     }
 
     /**
-     * Synchronize
+     * Set the attribute map for synchronizing database attributes.
      *
      * @param array $attributes
      *
      * @return $this
      */
-    public function syncAttributes(array $attributes)
+    public function setLdapSyncAttributes(array $attributes)
     {
-        $this->sync = $attributes;
+        $this->syncAttributes = $attributes;
 
         return $this;
     }
@@ -164,13 +169,13 @@ class Import
     /**
      * Import objects using a callback.
      *
-     * @param callable $using
+     * @param callable $callback
      *
      * @return $this
      */
-    public function using(callable $using)
+    public function setImportCallback(callable $callback)
     {
-        $this->using = $using;
+        $this->importCallback = $callback;
 
         return $this;
     }
@@ -182,23 +187,37 @@ class Import
      *
      * @return $this
      */
-    public function limitAttributes($attributes)
+    public function setLdapRequestAttributes($attributes)
     {
-        $this->attributes = $attributes;
+        $this->onlyAttributes = $attributes;
 
         return $this;
     }
 
     /**
-     * Apply an LDAP filter to the import query.
+     * Apply a raw LDAP filter to the import query.
      *
      * @param string $filter
      *
      * @return $this
      */
-    public function applyFilter($filter)
+    public function setLdapRawFilter($filter)
     {
         $this->filter = $filter;
+
+        return $this;
+    }
+
+    /**
+     * Set the LDAP importer to use.
+     *
+     * @param Synchronizer $importer
+     *
+     * @return $this
+     */
+    public function setLdapImporter(Synchronizer $importer)
+    {
+        $this->importer = $importer;
 
         return $this;
     }
@@ -220,23 +239,9 @@ class Import
      *
      * @return $this
      */
-    public function trashMissing()
+    public function enableSoftDeletes()
     {
-        $this->trashMissing = true;
-
-        return $this;
-    }
-
-    /**
-     * Set the LDAP importer to use.
-     *
-     * @param LdapImporter $importer
-     *
-     * @return $this
-     */
-    public function setLdapImporter(LdapImporter $importer)
-    {
-        $this->importer = $importer;
+        $this->softDeleteMissing = true;
 
         return $this;
     }
@@ -289,6 +294,7 @@ class Import
      *
      * @return \LdapRecord\Query\Collection
      *
+     * @throws ImportException
      * @throws \LdapRecord\LdapRecordException
      */
     public function execute()
@@ -297,8 +303,8 @@ class Import
 
         $importer = $this->importer ?? $this->createLdapImporter();
 
-        if (! $this->ldap && ! $this->hasImportableObjects()) {
-            throw new LdapImportException('No LdapRecord model or importable objects have been defined.');
+        if (! $this->model && ! $this->hasImportableObjects()) {
+            throw new ImportException('No LdapRecord model or importable objects have been defined.');
         }
 
         // We will attempt to retrieve the LDAP model
@@ -323,7 +329,7 @@ class Import
 
         $this->callEventCallbacks('completed', [$this->objects, $this->imported]);
 
-        if ($this->trashMissing) {
+        if ($this->softDeleteMissing) {
             $this->softDeleteMissing(
                 $importer->createEloquentModel(),
                 $ldapRecord
@@ -338,7 +344,7 @@ class Import
     /**
      * Import the objects into the database.
      *
-     * @param LdapImporter $importer
+     * @param Synchronizer $importer
      *
      * @return \LdapRecord\Query\Collection
      */
@@ -352,7 +358,7 @@ class Import
     /**
      * Build the import callback.
      *
-     * @param LdapImporter $importer
+     * @param Synchronizer $importer
      *
      * @return \Closure
      */
@@ -364,8 +370,8 @@ class Import
             $this->callEventCallbacks('importing', [$db, $object]);
 
             try {
-                if ($this->using) {
-                    call_user_func($this->using, $db, $object);
+                if ($this->importCallback) {
+                    call_user_func($this->importCallback, $db, $object);
                 } else {
                     tap($importer->synchronize($object, $db))->save();
                 }
@@ -407,20 +413,22 @@ class Import
     /**
      * Create a new LDAP importer.
      *
-     * @return LdapImporter
+     * @return Synchronizer
+     *
+     * @throws ImportException
      */
     protected function createLdapImporter()
     {
         if (! $this->eloquent) {
-            throw new LdapImportException('No Eloquent model has been defined for importing.');
+            throw new ImportException('No Eloquent model has been defined for importing.');
         }
 
-        if (! $this->using && empty($this->sync)) {
-            throw new LdapImportException('Sync attributes or a using callback must be defined to import objects.');
+        if (! $this->importCallback && empty($this->syncAttributes)) {
+            throw new ImportException('Sync attributes or a using callback must be defined to import objects.');
         }
 
-        return new LdapImporter(
-            $this->eloquent, ['sync_attributes' => $this->sync]
+        return new Synchronizer(
+            $this->eloquent, ['sync_attributes' => $this->syncAttributes]
         );
     }
 
@@ -433,8 +441,8 @@ class Import
      */
     protected function applyLdapQueryConstraints(LdapQuery $query)
     {
-        if ($this->attributes) {
-            $query->select($this->attributes);
+        if ($this->onlyAttributes) {
+            $query->select($this->onlyAttributes);
         }
 
         if ($this->filter) {
@@ -519,7 +527,7 @@ class Import
      */
     protected function createLdapModel()
     {
-        $class = '\\'.ltrim($this->ldap, '\\');
+        $class = '\\'.ltrim($this->model, '\\');
 
         return new $class;
     }

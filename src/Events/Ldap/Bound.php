@@ -1,16 +1,16 @@
 <?php
 
-namespace LdapRecord\Laravel\Events;
+namespace LdapRecord\Laravel\Events\Ldap;
 
 use Illuminate\Contracts\Auth\Authenticatable;
-use LdapRecord\Models\Model as LdapModel;
+use LdapRecord\Models\Model;
 
-class AuthenticationRejected
+class Bound
 {
     /**
-     * The user that has been denied authentication.
+     * The LDAP user that has successfully authenticated.
      *
-     * @var LdapModel
+     * @var Model
      */
     public $user;
 
@@ -24,10 +24,10 @@ class AuthenticationRejected
     /**
      * Constructor.
      *
-     * @param LdapModel            $user
+     * @param Model                $user
      * @param Authenticatable|null $model
      */
-    public function __construct(LdapModel $user, Authenticatable $model = null)
+    public function __construct(Model $user, Authenticatable $model = null)
     {
         $this->user = $user;
         $this->model = $model;

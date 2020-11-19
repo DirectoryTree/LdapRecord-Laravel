@@ -5,10 +5,10 @@ namespace LdapRecord\Laravel\Tests;
 use LdapRecord\Auth\Guard;
 use LdapRecord\Connection;
 use LdapRecord\Laravel\Auth\Rule;
-use LdapRecord\Laravel\Events\Authenticated;
-use LdapRecord\Laravel\Events\Authenticating;
-use LdapRecord\Laravel\Events\AuthenticationFailed;
-use LdapRecord\Laravel\Events\AuthenticationRejected;
+use LdapRecord\Laravel\Events\Ldap\Bound;
+use LdapRecord\Laravel\Events\Ldap\Binding;
+use LdapRecord\Laravel\Events\Ldap\BindFailed;
+use LdapRecord\Laravel\Events\Auth\Rejected;
 use LdapRecord\Laravel\LdapUserAuthenticator;
 use LdapRecord\Models\Model;
 use Mockery as m;
@@ -32,10 +32,10 @@ class LdapUserAuthenticatorTest extends TestCase
         $auth = new LdapUserAuthenticator;
 
         $this->expectsEvents([
-            Authenticating::class,
-            Authenticated::class,
+            Binding::class,
+            Bound::class,
         ])->doesntExpectEvents([
-            AuthenticationFailed::class,
+            BindFailed::class,
         ]);
 
         $this->assertTrue($auth->attempt($model, 'password'));
@@ -58,10 +58,10 @@ class LdapUserAuthenticatorTest extends TestCase
         $auth = new LdapUserAuthenticator;
 
         $this->expectsEvents([
-            Authenticating::class,
-            AuthenticationFailed::class,
+            Binding::class,
+            BindFailed::class,
         ])->doesntExpectEvents([
-            Authenticated::class,
+            Bound::class,
         ]);
 
         $this->assertFalse($auth->attempt($model, 'password'));
@@ -84,11 +84,11 @@ class LdapUserAuthenticatorTest extends TestCase
         $auth = new LdapUserAuthenticator([TestFailingLdapAuthRule::class]);
 
         $this->expectsEvents([
-            Authenticating::class,
-            AuthenticationRejected::class,
+            Binding::class,
+            Rejected::class,
         ])->doesntExpectEvents([
-            Authenticated::class,
-            AuthenticationFailed::class,
+            Bound::class,
+            BindFailed::class,
         ]);
 
         $this->assertFalse($auth->attempt($model, 'password'));
@@ -112,11 +112,11 @@ class LdapUserAuthenticatorTest extends TestCase
         $auth->setEloquentModel(new TestUserModelStub());
 
         $this->expectsEvents([
-            Authenticating::class,
-            Authenticated::class,
+            Binding::class,
+            Bound::class,
         ])->doesntExpectEvents([
-            AuthenticationRejected::class,
-            AuthenticationFailed::class,
+            Rejected::class,
+            BindFailed::class,
         ]);
 
         $this->assertTrue($auth->attempt($model, 'password'));

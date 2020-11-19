@@ -36,7 +36,7 @@ class ImportLdapUsers extends Command
     /**
      * The LDAP user import instance.
      *
-     * @var LdapUserImport
+     * @var LdapUserImporter
      */
     protected $import;
 
@@ -50,9 +50,9 @@ class ImportLdapUsers extends Command
     /**
      * Constructor.
      *
-     * @param LdapUserImport $import
+     * @param LdapUserImporter $import
      */
-    public function __construct(LdapUserImport $import)
+    public function __construct(LdapUserImporter $import)
     {
         parent::__construct();
 
@@ -175,11 +175,11 @@ class ImportLdapUsers extends Command
     protected function applyCommandOptions()
     {
         if ($filter = $this->option('filter')) {
-            $this->import->applyFilter($filter);
+            $this->import->setLdapRawFilter($filter);
         }
 
         if ($attributes = $this->option('attributes')) {
-            $this->import->limitAttributes(explode(',', $attributes));
+            $this->import->setLdapRequestAttributes(explode(',', $attributes));
         }
 
         if (! $this->isLogging()) {
@@ -195,7 +195,7 @@ class ImportLdapUsers extends Command
         }
 
         if ($this->isDeletingMissing()) {
-            $this->import->trashMissing();
+            $this->import->enableSoftDeletes();
         }
     }
 

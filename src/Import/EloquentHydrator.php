@@ -1,6 +1,6 @@
 <?php
 
-namespace LdapRecord\Laravel;
+namespace LdapRecord\Laravel\Import;
 
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 use LdapRecord\Models\Model as LdapModel;

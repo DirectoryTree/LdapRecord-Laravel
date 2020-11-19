@@ -1,10 +1,10 @@
 <?php
 
-namespace LdapRecord\Laravel\Events;
+namespace LdapRecord\Laravel\Events\Ldap;
 
 use LdapRecord\Models\Model;
 
-class Authenticating
+class Binding
 {
     /**
      * The LDAP user that is authenticating.

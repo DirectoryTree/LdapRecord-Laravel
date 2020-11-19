@@ -1,6 +1,6 @@
 <?php
 
-namespace LdapRecord\Laravel\Hydrators;
+namespace LdapRecord\Laravel\Import\Hydrators;
 
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Support\Arr;

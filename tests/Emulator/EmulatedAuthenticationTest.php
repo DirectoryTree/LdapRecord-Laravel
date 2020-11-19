@@ -5,8 +5,8 @@ namespace LdapRecord\Laravel\Tests\Emulator;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use LdapRecord\Laravel\Events\Authenticated;
-use LdapRecord\Laravel\Events\Authenticating;
+use LdapRecord\Laravel\Events\Ldap\Bound;
+use LdapRecord\Laravel\Events\Ldap\Binding;
 use LdapRecord\Laravel\Events\DiscoveredWithCredentials;
 use LdapRecord\Laravel\Events\Imported;
 use LdapRecord\Laravel\Events\Importing;
@@ -29,8 +29,8 @@ class EmulatedAuthenticationTest extends DatabaseProviderTestCase
             Imported::class,
             Synchronizing::class,
             Synchronized::class,
-            Authenticating::class,
-            Authenticated::class,
+            Binding::class,
+            Bound::class,
             DiscoveredWithCredentials::class,
         ]);
 
@@ -60,13 +60,13 @@ class EmulatedAuthenticationTest extends DatabaseProviderTestCase
     public function test_database_sync_authentication_fails()
     {
         $this->expectsEvents([
-            Authenticating::class,
+            Binding::class,
             Importing::class,
             Synchronizing::class,
             Synchronized::class,
             DiscoveredWithCredentials::class,
         ])->doesntExpectEvents([
-            Authenticated::class,
+            Bound::class,
             Imported::class,
         ]);
 
@@ -99,8 +99,8 @@ class EmulatedAuthenticationTest extends DatabaseProviderTestCase
     public function test_database_authentication_fallback_works_when_enabled_and_exception_is_thrown()
     {
         $this->doesntExpectEvents([
-            Authenticating::class,
-            Authenticated::class,
+            Binding::class,
+            Bound::class,
             DiscoveredWithCredentials::class,
             Importing::class,
             Imported::class,
@@ -139,8 +139,8 @@ class EmulatedAuthenticationTest extends DatabaseProviderTestCase
     public function test_database_authentication_fallback_works_when_enabled_and_null_is_returned()
     {
         $this->doesntExpectEvents([
-            Authenticating::class,
-            Authenticated::class,
+            Binding::class,
+            Bound::class,
             DiscoveredWithCredentials::class,
             Importing::class,
             Imported::class,
@@ -200,8 +200,8 @@ class EmulatedAuthenticationTest extends DatabaseProviderTestCase
     public function test_plain_ldap_authentication_passes()
     {
         $this->expectsEvents([
-            Authenticating::class,
-            Authenticated::class,
+            Binding::class,
+            Bound::class,
             DiscoveredWithCredentials::class,
         ])->doesntExpectEvents([
             Importing::class,
@@ -231,10 +231,10 @@ class EmulatedAuthenticationTest extends DatabaseProviderTestCase
     public function test_plain_ldap_authentication_fails()
     {
         $this->expectsEvents([
-            Authenticating::class,
+            Binding::class,
             DiscoveredWithCredentials::class,
         ])->doesntExpectEvents([
-            Authenticated::class,
+            Bound::class,
             Importing::class,
             Imported::class,
             Synchronizing::class,

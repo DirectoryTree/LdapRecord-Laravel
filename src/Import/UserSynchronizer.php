@@ -1,8 +1,8 @@
 <?php
 
-namespace LdapRecord\Laravel;
+namespace LdapRecord\Laravel\Import;
 
-class LdapUserImporter extends LdapImporter
+class UserSynchronizer extends Synchronizer
 {
     /**
      * Get the class name of the hydrator to use.

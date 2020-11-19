@@ -3,12 +3,12 @@
 namespace LdapRecord\Laravel\Tests;
 
 use Illuminate\Events\Dispatcher;
-use LdapRecord\Laravel\Events\Authenticated;
-use LdapRecord\Laravel\Events\AuthenticatedModelTrashed;
 use LdapRecord\Laravel\Events\AuthenticatedWithWindows;
-use LdapRecord\Laravel\Events\Authenticating;
-use LdapRecord\Laravel\Events\AuthenticationFailed;
-use LdapRecord\Laravel\Events\AuthenticationRejected;
+use LdapRecord\Laravel\Events\Ldap\Bound;
+use LdapRecord\Laravel\Events\Ldap\Binding;
+use LdapRecord\Laravel\Events\Ldap\BindFailed;
+use LdapRecord\Laravel\Events\Auth\Rejected;
+use LdapRecord\Laravel\Events\Auth\EloquentModelTrashed;
 use LdapRecord\Laravel\Events\DiscoveredWithCredentials;
 use LdapRecord\Laravel\Events\Imported;
 use LdapRecord\Laravel\Events\Importing;
@@ -46,13 +46,13 @@ class LdapAuthServiceProviderTest extends TestCase
             Imported::class,
             Synchronized::class,
             Synchronizing::class,
-            Authenticated::class,
-            Authenticating::class,
-            AuthenticationFailed::class,
-            AuthenticationRejected::class,
+            Bound::class,
+            Binding::class,
+            BindFailed::class,
+            Rejected::class,
             DiscoveredWithCredentials::class,
             AuthenticatedWithWindows::class,
-            AuthenticatedModelTrashed::class,
+            EloquentModelTrashed::class,
         ];
 
         foreach ($events as $event) {

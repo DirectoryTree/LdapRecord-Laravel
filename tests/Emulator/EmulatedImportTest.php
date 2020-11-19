@@ -5,7 +5,7 @@ namespace LdapRecord\Laravel\Tests\Emulator;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Event;
 use LdapRecord\Laravel\Events\DeletedMissing;
-use LdapRecord\Laravel\LdapImportException;
+use LdapRecord\Laravel\Import\ImportException;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Laravel\Tests\DatabaseProviderTestCase;
 use LdapRecord\Laravel\Tests\TestUserModelStub;
@@ -65,7 +65,7 @@ class EmulatedImportTest extends DatabaseProviderTestCase
             'objectguid' => $this->faker->uuid,
         ]);
 
-        $this->expectException(LdapImportException::class);
+        $this->expectException(ImportException::class);
 
         $this->artisan('ldap:import', [
             'provider' => 'ldap-database',

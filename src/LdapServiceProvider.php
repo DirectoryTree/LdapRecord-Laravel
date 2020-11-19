@@ -96,6 +96,8 @@ class LdapServiceProvider extends ServiceProvider
      * Register the LDAP cache store on the given connection.
      *
      * @param Connection $connection
+     *
+     * @return void
      */
     protected function registerLdapCache(Connection $connection)
     {

@@ -7,18 +7,18 @@ use Illuminate\Auth\EloquentUserProvider;
 use Illuminate\Contracts\Auth\Authenticatable;
 use LdapRecord\Laravel\Events\Imported;
 use LdapRecord\Laravel\LdapUserAuthenticator;
-use LdapRecord\Laravel\LdapUserImporter;
+use LdapRecord\Laravel\Import\UserSynchronizer;
 use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Models\Model;
 
 class DatabaseUserProvider extends UserProvider
 {
     /**
-     * The LDAP user importer instance.
+     * The LDAP user synchronizer instance.
      *
-     * @var LdapUserImporter
+     * @var UserSynchronizer
      */
-    protected $importer;
+    protected $synchronizer;
 
     /**
      * The eloquent user provider.
@@ -53,18 +53,18 @@ class DatabaseUserProvider extends UserProvider
      *
      * @param LdapUserAuthenticator $auth
      * @param LdapUserRepository    $users
-     * @param LdapUserImporter      $importer
+     * @param UserSynchronizer      $synchronizer
      * @param EloquentUserProvider  $eloquent
      */
     public function __construct(
         LdapUserRepository $users,
         LdapUserAuthenticator $auth,
-        LdapUserImporter $importer,
+        UserSynchronizer $synchronizer,
         EloquentUserProvider $eloquent
     ) {
         parent::__construct($users, $auth);
 
-        $this->importer = $importer;
+        $this->synchronizer = $synchronizer;
         $this->eloquent = $eloquent;
 
         $this->userResolver = function ($credentials) {
@@ -75,11 +75,11 @@ class DatabaseUserProvider extends UserProvider
     /**
      * Get the LDAP user importer.
      *
-     * @return LdapUserImporter
+     * @return UserSynchronizer
      */
     public function getLdapUserImporter()
     {
-        return $this->importer;
+        return $this->synchronizer;
     }
 
     /**
@@ -163,7 +163,7 @@ class DatabaseUserProvider extends UserProvider
 
         $this->setAuthenticatingUser($user);
 
-        return $this->importer->run($user, $credentials);
+        return $this->synchronizer->run($user, $credentials);
     }
 
     /**
@@ -202,7 +202,9 @@ class DatabaseUserProvider extends UserProvider
             return false;
         }
 
-        if ($model->save() && $model->wasRecentlyCreated) {
+        $model->save();
+
+        if ($model->wasRecentlyCreated) {
             event(new Imported($this->user, $model));
         }
 

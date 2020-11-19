@@ -1,11 +1,11 @@
 <?php
 
-namespace LdapRecord\Laravel;
+namespace LdapRecord\Laravel\Import;
 
 use LdapRecord\LdapRecordException;
 use LdapRecord\Models\Model;
 
-class LdapImportException extends LdapRecordException
+class ImportException extends LdapRecordException
 {
     /**
      * Generate a new exception for a model that is missing a GUID.

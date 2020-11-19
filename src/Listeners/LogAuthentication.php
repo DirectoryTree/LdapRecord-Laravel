@@ -3,18 +3,18 @@
 namespace LdapRecord\Laravel\Listeners;
 
 use Illuminate\Support\Facades\Log;
-use LdapRecord\Laravel\Events\Authenticating;
+use LdapRecord\Laravel\Events\Ldap\Binding;
 
 class LogAuthentication
 {
     /**
      * Handle the event.
      *
-     * @param Authenticating $event
+     * @param Binding $event
      *
      * @return void
      */
-    public function handle(Authenticating $event)
+    public function handle(Binding $event)
     {
         Log::info("User [{$event->user->getName()}] is authenticating.");
     }

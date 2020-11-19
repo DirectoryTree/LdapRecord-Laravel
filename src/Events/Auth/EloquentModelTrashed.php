@@ -1,14 +1,14 @@
 <?php
 
-namespace LdapRecord\Laravel\Events;
+namespace LdapRecord\Laravel\Events\Auth;
 
 use Illuminate\Contracts\Auth\Authenticatable;
 use LdapRecord\Models\Model;
 
-class AuthenticationFailed
+class EloquentModelTrashed
 {
     /**
-     * The user that failed authentication.
+     * The authenticated LDAP user.
      *
      * @var Model
      */
@@ -17,17 +17,17 @@ class AuthenticationFailed
     /**
      * The LDAP users authenticatable model.
      *
-     * @var Authenticatable|null
+     * @var Authenticatable
      */
     public $model;
 
     /**
      * Constructor.
      *
-     * @param Model                $user
-     * @param Authenticatable|null $model
+     * @param Model           $user
+     * @param Authenticatable $model
      */
-    public function __construct(Model $user, Authenticatable $model = null)
+    public function __construct(Model $user, Authenticatable $model)
     {
         $this->user = $user;
         $this->model = $model;

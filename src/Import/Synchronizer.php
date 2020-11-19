@@ -1,6 +1,6 @@
 <?php
 
-namespace LdapRecord\Laravel;
+namespace LdapRecord\Laravel\Import;
 
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Support\Arr;
@@ -10,7 +10,7 @@ use LdapRecord\Laravel\Events\Synchronizing;
 use LdapRecord\LdapRecordException;
 use LdapRecord\Models\Model as LdapModel;
 
-class LdapImporter
+class Synchronizer
 {
     /**
      * The Eloquent model to use for importing.
@@ -92,7 +92,7 @@ class LdapImporter
         // identifier. Doing so would cause overwrites of the
         // first database model that does not contain one.
         if (is_null($guid = $ldap->getConvertedGuid())) {
-            throw LdapImportException::missingGuid($ldap);
+            throw ImportException::missingGuid($ldap);
         }
 
         $query = $this->newEloquentQuery(

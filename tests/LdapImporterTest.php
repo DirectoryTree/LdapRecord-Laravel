@@ -7,10 +7,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Schema;
-use LdapRecord\Laravel\Import;
+use LdapRecord\Laravel\Import\Importer;
 use LdapRecord\Laravel\ImportableFromLdap;
 use LdapRecord\Laravel\LdapImportable;
-use LdapRecord\Laravel\LdapImporter;
+use LdapRecord\Laravel\Import\Synchronizer;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\LdapRecordException;
 use LdapRecord\Models\ActiveDirectory\Group as LdapGroup;
@@ -45,7 +45,7 @@ class LdapImporterTest extends TestCase
     {
         $object = LdapGroup::create(['cn' => 'Group']);
 
-        $importer = new LdapImporter(Group::class, [
+        $importer = new Synchronizer(Group::class, [
             'sync_attributes' => ['name' => 'cn'],
         ]);
 
@@ -61,7 +61,7 @@ class LdapImporterTest extends TestCase
             'cn' => 'Group',
         ]);
 
-        $importer = new LdapImporter(Group::class, [
+        $importer = new Synchronizer(Group::class, [
             'sync_attributes' => ['name' => 'cn'],
         ]);
 
@@ -85,7 +85,7 @@ class LdapImporterTest extends TestCase
             'cn' => 'Group',
         ]);
 
-        $importer = new LdapImporter(Group::class, [
+        $importer = new Synchronizer(Group::class, [
             'sync_attributes' => ['name' => 'cn'],
         ]);
 
@@ -108,7 +108,7 @@ class LdapImporterTest extends TestCase
             'cn' => 'Group',
         ]);
 
-        $importer = new LdapImporter(Group::class, [
+        $importer = new Synchronizer(Group::class, [
             'sync_attributes' => ['name' => 'cn'],
         ]);
 
@@ -125,9 +125,10 @@ class LdapImporterTest extends TestCase
             'cn' => 'Group',
         ]);
 
-        $imported = (new Import(LdapGroup::class))
-            ->into(Group::class)
-            ->syncAttributes(['name' => 'cn'])
+        $imported = (new Importer)
+            ->setLdapModel(LdapGroup::class)
+            ->setEloquentModel(Group::class)
+            ->setLdapSyncAttributes(['name' => 'cn'])
             ->execute();
 
         $this->assertCount(1, $imported);
@@ -141,12 +142,13 @@ class LdapImporterTest extends TestCase
             'cn' => 'Group',
         ]);
 
-        $imported = (new Import(LdapGroup::class))
-            ->into(Group::class)
-            ->using(function ($database, $object) {
-                $database->name = $object->getFirstAttribute('cn');
-
-                $database->save();
+        $imported = (new Importer)
+            ->setLdapModel(LdapGroup::class)
+            ->setEloquentModel(Group::class)
+            ->setImportCallback(function ($database, $object) {
+                $database
+                    ->forceFill(['name' => $object->getFirstAttribute('cn')])
+                    ->save();
             })->execute();
 
         $this->assertCount(1, $imported);

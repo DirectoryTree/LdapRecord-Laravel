@@ -3,13 +3,13 @@
 namespace LdapRecord\Laravel;
 
 use Closure;
-use LdapRecord\Laravel\Auth\Validator;
-use LdapRecord\Laravel\Events\Authenticated;
-use LdapRecord\Laravel\Events\AuthenticatedModelTrashed;
-use LdapRecord\Laravel\Events\Authenticating;
-use LdapRecord\Laravel\Events\AuthenticationFailed;
-use LdapRecord\Laravel\Events\AuthenticationRejected;
 use LdapRecord\Models\Model;
+use LdapRecord\Laravel\Auth\Validator;
+use LdapRecord\Laravel\Events\Ldap\Bound;
+use LdapRecord\Laravel\Events\Ldap\Binding;
+use LdapRecord\Laravel\Events\Ldap\BindFailed;
+use LdapRecord\Laravel\Events\Auth\Rejected;
+use LdapRecord\Laravel\Events\Auth\EloquentModelTrashed;
 
 class LdapUserAuthenticator
 {
@@ -183,50 +183,60 @@ class LdapUserAuthenticator
      * Fire the "attempting" event.
      *
      * @param Model $user
+     *
+     * @return void
      */
     protected function attempting(Model $user)
     {
-        event(new Authenticating($user, $user->getDn()));
+        event(new Binding($user, $user->getDn()));
     }
 
     /**
      * Fire the "passed" event.
      *
      * @param Model $user
+     *
+     * @return void
      */
     protected function passed(Model $user)
     {
-        event(new Authenticated($user, $this->eloquentModel));
+        event(new Bound($user, $this->eloquentModel));
     }
 
     /**
      * Fire the "trashed" event.
      *
      * @param Model $user
+     *
+     * @return void
      */
     protected function trashed(Model $user)
     {
-        event(new AuthenticatedModelTrashed($user, $this->eloquentModel));
+        event(new EloquentModelTrashed($user, $this->eloquentModel));
     }
 
     /**
      * Fire the "failed" event.
      *
      * @param Model $user
+     *
+     * @return void
      */
     protected function failed(Model $user)
     {
-        event(new AuthenticationFailed($user, $this->eloquentModel));
+        event(new BindFailed($user, $this->eloquentModel));
     }
 
     /**
      * Fire the "rejected" event.
      *
      * @param Model $user
+     *
+     * @return void
      */
     protected function rejected(Model $user)
     {
-        event(new AuthenticationRejected($user, $this->eloquentModel));
+        event(new Rejected($user, $this->eloquentModel));
     }
 
     /**

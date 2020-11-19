@@ -7,7 +7,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use LdapRecord\Laravel\LdapUserAuthenticator;
-use LdapRecord\Laravel\LdapUserImporter;
+use LdapRecord\Laravel\Import\UserSynchronizer;
 use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Models\ActiveDirectory\User;
 use LdapRecord\Models\Model;
@@ -58,7 +58,7 @@ class DatabaseProviderTestCase extends TestCase
     protected function createDatabaseUserProvider(
         LdapUserRepository $repo = null,
         LdapUserAuthenticator $auth = null,
-        LdapUserImporter $importer = null,
+        UserSynchronizer $importer = null,
         EloquentUserProvider $eloquent = null
     ) {
         return new DatabaseUserProvider(
@@ -81,7 +81,7 @@ class DatabaseProviderTestCase extends TestCase
 
     protected function createLdapUserImporter($eloquentModel = null, array $config = [])
     {
-        return new LdapUserImporter($eloquentModel ?? TestUserModelStub::class, $config);
+        return new UserSynchronizer($eloquentModel ?? TestUserModelStub::class, $config);
     }
 
     protected function createEloquentUserProvider($model = null)

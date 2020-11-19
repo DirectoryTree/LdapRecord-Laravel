@@ -2,6 +2,7 @@
 
 namespace LdapRecord\Laravel;
 
+use LdapRecord\Laravel\Import\UserSynchronizer;
 use Illuminate\Auth\EloquentUserProvider;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
@@ -24,13 +25,13 @@ class LdapAuthServiceProvider extends ServiceProvider
         Events\Synchronized::class              => Listeners\LogSynchronized::class,
         Events\Synchronizing::class             => Listeners\LogSynchronizing::class,
         Events\DeletedMissing::class            => Listeners\LogDeletedMissing::class,
-        Events\Authenticated::class             => Listeners\LogAuthenticated::class,
-        Events\Authenticating::class            => Listeners\LogAuthentication::class,
-        Events\AuthenticationFailed::class      => Listeners\LogAuthenticationFailure::class,
-        Events\AuthenticationRejected::class    => Listeners\LogAuthenticationRejection::class,
+        Events\Ldap\Bound::class             => Listeners\LogAuthenticated::class,
+        Events\Ldap\Binding::class            => Listeners\LogAuthentication::class,
+        Events\Ldap\BindFailed::class      => Listeners\LogAuthenticationFailure::class,
+        Events\Auth\Rejected::class    => Listeners\LogAuthenticationRejection::class,
         Events\DiscoveredWithCredentials::class => Listeners\LogDiscovery::class,
         Events\AuthenticatedWithWindows::class  => Listeners\LogWindowsAuth::class,
-        Events\AuthenticatedModelTrashed::class => Listeners\LogTrashedModel::class,
+        Events\Auth\EloquentModelTrashed::class => Listeners\LogTrashedModel::class,
     ];
 
     /**
@@ -130,7 +131,7 @@ class LdapAuthServiceProvider extends ServiceProvider
         return new DatabaseUserProvider(
             $this->makeLdapUserRepository($config),
             $this->makeLdapUserAuthenticator($config),
-            $this->makeLdapUserImporter($config['database']),
+            $this->makeLdapUserSynchronizer($config['database']),
             new EloquentUserProvider($this->app->make('hash'), $config['database']['model'])
         );
     }
@@ -179,10 +180,10 @@ class LdapAuthServiceProvider extends ServiceProvider
      *
      * @param array $config
      *
-     * @return LdapUserImporter
+     * @return UserSynchronizer
      */
-    protected function makeLdapUserImporter(array $config)
+    protected function makeLdapUserSynchronizer(array $config)
     {
-        return new LdapUserImporter($config['model'], $config);
+        return new UserSynchronizer($config['model'], $config);
     }
 }

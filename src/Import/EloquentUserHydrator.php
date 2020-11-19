@@ -1,6 +1,6 @@
 <?php
 
-namespace LdapRecord\Laravel;
+namespace LdapRecord\Laravel\Import;
 
 class EloquentUserHydrator extends EloquentHydrator
 {

@@ -4,7 +4,7 @@ namespace LdapRecord\Laravel\Tests;
 
 use Illuminate\Support\Facades\Hash;
 use LdapRecord\Laravel\LdapUserAuthenticator;
-use LdapRecord\Laravel\LdapUserImporter;
+use LdapRecord\Laravel\Import\UserSynchronizer;
 use LdapRecord\Laravel\LdapUserRepository;
 use Mockery as m;
 
@@ -14,7 +14,7 @@ class DatabaseUserProviderTest extends DatabaseProviderTestCase
 
     public function test_importer_can_be_retrieved()
     {
-        $importer = new LdapUserImporter(TestUserModelStub::class, []);
+        $importer = new UserSynchronizer(TestUserModelStub::class, []);
         $provider = $this->createDatabaseUserProvider(
             $this->createLdapUserRepository(),
             $this->createLdapUserAuthenticator(),

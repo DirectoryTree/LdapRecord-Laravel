@@ -4,7 +4,8 @@ namespace LdapRecord\Laravel\Tests\Emulator;
 
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Testing\WithFaker;
-use LdapRecord\Laravel\Events\Authenticated;
+use LdapRecord\Laravel\Events\Ldap\Bound;
+use LdapRecord\Laravel\Events\Ldap\Binding;
 use LdapRecord\Laravel\Events\Imported;
 use LdapRecord\Laravel\Events\Importing;
 use LdapRecord\Laravel\Events\Synchronized;
@@ -26,7 +27,8 @@ class EmulatedWindowsAuthenticateTest extends DatabaseProviderTestCase
             Imported::class,
             Synchronizing::class,
             Synchronized::class,
-            Authenticated::class,
+            Binding::class,
+            Bound::class,
             AuthenticatedWithWindows::class,
         ]);
 

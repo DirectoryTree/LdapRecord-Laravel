@@ -3,18 +3,18 @@
 namespace LdapRecord\Laravel\Listeners;
 
 use Illuminate\Support\Facades\Log;
-use LdapRecord\Laravel\Events\AuthenticationFailed;
+use LdapRecord\Laravel\Events\Ldap\BindFailed;
 
 class LogAuthenticationFailure
 {
     /**
      * Handle the event.
      *
-     * @param AuthenticationFailed $event
+     * @param BindFailed $event
      *
      * @return void
      */
-    public function handle(AuthenticationFailed $event)
+    public function handle(BindFailed $event)
     {
         Log::info("User [{$event->user->getName()}] has failed LDAP authentication.");
     }

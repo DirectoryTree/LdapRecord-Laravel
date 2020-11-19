@@ -3,11 +3,11 @@
 namespace LdapRecord\Laravel\Tests;
 
 use Illuminate\Support\Facades\Hash;
-use LdapRecord\Laravel\EloquentHydrator;
-use LdapRecord\Laravel\Hydrators\AttributeHydrator;
-use LdapRecord\Laravel\Hydrators\DomainHydrator;
-use LdapRecord\Laravel\Hydrators\GuidHydrator;
-use LdapRecord\Laravel\Hydrators\PasswordHydrator;
+use LdapRecord\Laravel\Import\EloquentHydrator;
+use LdapRecord\Laravel\Import\Hydrators\AttributeHydrator;
+use LdapRecord\Laravel\Import\Hydrators\DomainHydrator;
+use LdapRecord\Laravel\Import\Hydrators\GuidHydrator;
+use LdapRecord\Laravel\Import\Hydrators\PasswordHydrator;
 use LdapRecord\Models\Entry;
 
 class EloquentHydratorTest extends TestCase
@@ -96,11 +96,11 @@ class EloquentHydratorTest extends TestCase
             'bar' => 'baz',
             'objectguid' => 'bf9679e7-0de6-11d0-a285-00aa003049e2',
         ]);
+
         $model = new TestUserModelStub;
 
-        $hydrator = new EloquentHydrator(['sync_attributes' => ['foo' => 'bar']]);
-
-        $hydrator->hydrate($entry, $model);
+        (new EloquentHydrator(['sync_attributes' => ['foo' => 'bar']]))
+            ->hydrate($entry, $model);
 
         $this->assertEquals('baz', $model->foo);
         $this->assertEquals('default', $model->domain);

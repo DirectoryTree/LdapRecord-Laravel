@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Hash;
 use LdapRecord\Laravel\Events\Importing;
 use LdapRecord\Laravel\Events\Synchronized;
 use LdapRecord\Laravel\Events\Synchronizing;
-use LdapRecord\Laravel\LdapUserImporter;
+use LdapRecord\Laravel\Import\UserSynchronizer;
 use LdapRecord\Models\Model;
 use Mockery as m;
 
@@ -16,14 +16,14 @@ class LdapUserImporterTest extends DatabaseProviderTestCase
 
     public function test_eloquent_model_can_be_set()
     {
-        $importer = new LdapUserImporter(TestUserModelStub::class, []);
+        $importer = new UserSynchronizer(TestUserModelStub::class, []);
         $this->assertSame(TestUserModelStub::class, $importer->getEloquentModel());
         $this->assertInstanceOf(TestUserModelStub::class, $importer->createEloquentModel());
     }
 
     public function test_config_can_be_set()
     {
-        $importer = new LdapUserImporter(TestUserModelStub::class, []);
+        $importer = new UserSynchronizer(TestUserModelStub::class, []);
         $config = ['foo' => 'bar'];
         $importer->setConfig($config);
         $this->assertEquals($config, $importer->getConfig());
@@ -35,7 +35,7 @@ class LdapUserImporterTest extends DatabaseProviderTestCase
 
         $ldapModel = $this->getMockLdapModel();
 
-        $importer = new LdapUserImporter(TestUserModelStub::class, ['sync_attributes' => []]);
+        $importer = new UserSynchronizer(TestUserModelStub::class, ['sync_attributes' => []]);
 
         $model = $importer->run($ldapModel);
         $this->assertInstanceOf(TestUserModelStub::class, $model);
@@ -52,7 +52,7 @@ class LdapUserImporterTest extends DatabaseProviderTestCase
 
         $attributesToSynchronize = ['name' => 'cn'];
 
-        $importer = new LdapUserImporter(TestUserModelStub::class, $attributesToSynchronize);
+        $importer = new UserSynchronizer(TestUserModelStub::class, $attributesToSynchronize);
 
         $model = $importer->run($ldapModel);
         $this->assertInstanceOf(TestUserModelStub::class, $model);
@@ -69,7 +69,7 @@ class LdapUserImporterTest extends DatabaseProviderTestCase
 
         $ldapModel = $this->getMockLdapModel(['cn' => 'john', 'mail' => 'test@email.com']);
 
-        $importer = new LdapUserImporter(TestUserModelStub::class, [
+        $importer = new UserSynchronizer(TestUserModelStub::class, [
             'sync_attributes' => [TestLdapUserAttributeHandler::class],
         ]);
 
@@ -90,7 +90,7 @@ class LdapUserImporterTest extends DatabaseProviderTestCase
 
         $ldapModel = $this->getMockLdapModel(['cn' => 'john', 'mail' => 'test@email.com']);
 
-        $importer = new LdapUserImporter(TestUserModelStub::class, [
+        $importer = new UserSynchronizer(TestUserModelStub::class, [
             'sync_attributes' => TestLdapUserAttributeHandler::class,
         ]);
 
@@ -111,7 +111,7 @@ class LdapUserImporterTest extends DatabaseProviderTestCase
 
         $ldapModel = $this->getMockLdapModel();
 
-        $importer = new LdapUserImporter(TestUserModelStub::class, [
+        $importer = new UserSynchronizer(TestUserModelStub::class, [
             'sync_passwords' => true,
             'sync_attributes' => [],
         ]);
@@ -128,7 +128,7 @@ class LdapUserImporterTest extends DatabaseProviderTestCase
 
         $ldapModel = $this->getMockLdapModel(['']);
 
-        $importer = new LdapUserImporter(TestUserModelStub::class, [
+        $importer = new UserSynchronizer(TestUserModelStub::class, [
             'sync_passwords' => false,
             'sync_attributes' => [],
         ]);
@@ -155,7 +155,7 @@ class LdapUserImporterTest extends DatabaseProviderTestCase
 
         $ldapModel = $this->getMockLdapModel();
 
-        $importer = new LdapUserImporter(TestUserModelStub::class, [
+        $importer = new UserSynchronizer(TestUserModelStub::class, [
             'sync_passwords' => true,
             'sync_attributes' => [],
         ]);
