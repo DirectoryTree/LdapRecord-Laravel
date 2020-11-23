@@ -3,7 +3,7 @@
 namespace LdapRecord\Laravel\Listeners;
 
 use Illuminate\Support\Facades\Log;
-use LdapRecord\Laravel\Events\Synchronized;
+use LdapRecord\Laravel\Events\Import\Synchronized;
 
 class LogSynchronized
 {
@@ -16,6 +16,6 @@ class LogSynchronized
      */
     public function handle(Synchronized $event)
     {
-        Log::info("Object with name [{$event->user->getName()}] has been successfully synchronized.");
+        Log::info("Object with name [{$event->object->getName()}] has been successfully synchronized.");
     }
 }

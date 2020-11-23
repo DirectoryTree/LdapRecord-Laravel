@@ -2,11 +2,14 @@
 
 namespace LdapRecord\Laravel\Import;
 
+use Closure;
 use Exception;
-use InvalidArgumentException;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Log;
 use LdapRecord\Laravel\DetectsSoftDeletes;
+use LdapRecord\Laravel\Events\Import\BulkImportCompleted;
+use LdapRecord\Laravel\Events\Import\BulkImportDeletedMissing;
+use LdapRecord\Laravel\Events\Import\BulkImportStarted;
+use LdapRecord\Laravel\Events\Import\Imported;
+use LdapRecord\Laravel\Events\Import\ImportFailed;
 use LdapRecord\Models\Model as LdapRecord;
 use LdapRecord\Query\Model\Builder as LdapQuery;
 use Illuminate\Database\Eloquent\Model as Eloquent;
@@ -30,11 +33,11 @@ class Importer
     protected $eloquent;
 
     /**
-     * The custom LDAP importer to use.
+     * The synchronizer instance.
      *
      * @var Synchronizer|null
      */
-    protected $importer;
+    protected $synchronizer;
 
     /**
      * The defined set of objects to import.
@@ -46,16 +49,9 @@ class Importer
     /**
      * The successfully imported Eloquent models.
      *
-     * @var \LdapRecord\Query\Collection|null
+     * @var \Illuminate\Support\Collection|null
      */
     protected $imported;
-
-    /**
-     * The callback to use for synchronizing attributes.
-     *
-     * @var callable|null
-     */
-    protected $importCallback;
 
     /**
      * The sync attributes to use for the import.
@@ -63,6 +59,13 @@ class Importer
      * @var array|null
      */
     protected $syncAttributes;
+
+    /**
+     * The callback to use for synchronizing attributes.
+     *
+     * @var Closure|null
+     */
+    protected $syncUsingCallback;
 
     /**
      * The attributes to request from the LDAP server.
@@ -91,24 +94,6 @@ class Importer
      * @var bool
      */
     protected $softDeleteMissing = false;
-
-    /**
-     * The import events that callbacks can be registered on.
-     *
-     * @var array
-     */
-    protected $events = [
-        'importing', 'imported',
-        'deleting.missing', 'deleted.missing',
-        'starting', 'failed', 'completed',
-    ];
-
-    /**
-     * The registered event callbacks.
-     *
-     * @var array
-     */
-    protected $eventCallbacks = [];
 
     /**
      * Set the LdapRecord model to use for importing.
@@ -167,20 +152,6 @@ class Importer
     }
 
     /**
-     * Import objects using a callback.
-     *
-     * @param callable $callback
-     *
-     * @return $this
-     */
-    public function setImportCallback(callable $callback)
-    {
-        $this->importCallback = $callback;
-
-        return $this;
-    }
-
-    /**
      * Limit the LDAP query to return only the given attributes.
      *
      * @param string|array $attributes
@@ -217,7 +188,21 @@ class Importer
      */
     public function setLdapImporter(Synchronizer $importer)
     {
-        $this->importer = $importer;
+        $this->synchronizer = $importer;
+
+        return $this;
+    }
+
+    /**
+     * Import objects using a callback.
+     *
+     * @param Closure $callback
+     *
+     * @return $this
+     */
+    public function syncAttributesUsing(Closure $callback)
+    {
+        $this->syncUsingCallback = $callback;
 
         return $this;
     }
@@ -247,49 +232,6 @@ class Importer
     }
 
     /**
-     * Register an event callback on the importer.
-     *
-     * @param string   $event
-     * @param callable $callback
-     *
-     * @return $this
-     */
-    public function registerEventCallback($event, callable $callback)
-    {
-        if (! in_array($event, $this->events)) {
-            throw new InvalidArgumentException(
-                sprintf('Event [%s] is not a valid import event. Valid events are: %s', $event, implode(', ', $this->events))
-            );
-        }
-
-        $this->eventCallbacks[$event][] = $callback;
-
-        return $this;
-    }
-
-    /**
-     * Register the default import event callbacks.
-     *
-     * @return void
-     */
-    protected function registerDefaultCallbacks()
-    {
-        if (! $this->logging) {
-            return;
-        }
-
-        $this->registerEventCallback('imported', function ($db, $object) {
-            if ($db->wasRecentlyCreated) {
-                Log::info("Imported user [{$object->getRdn()}]");
-            }
-        });
-
-        $this->registerEventCallback('failed', function ($db, $object, $e) {
-            Log::error("Importing user [{$object->getRdn()}] failed. {$e->getMessage()}");
-        });
-    }
-
-    /**
      * Execute the import.
      *
      * @return \LdapRecord\Query\Collection
@@ -299,9 +241,7 @@ class Importer
      */
     public function execute()
     {
-        $this->registerDefaultCallbacks();
-
-        $importer = $this->importer ?? $this->createLdapImporter();
+        $importer = $this->getSynchronizer();
 
         if (! $this->model && ! $this->hasImportableObjects()) {
             throw new ImportException('No LdapRecord model or importable objects have been defined.');
@@ -323,11 +263,11 @@ class Importer
             )->paginate();
         }
 
-        $this->callEventCallbacks('starting', $this->objects);
+        event(new BulkImportStarted($this->objects));
 
         $this->imported = $this->import($importer);
 
-        $this->callEventCallbacks('completed', [$this->objects, $this->imported]);
+        event(new BulkImportCompleted($this->objects, $this->imported));
 
         if ($this->softDeleteMissing) {
             $this->softDeleteMissing(
@@ -335,8 +275,6 @@ class Importer
                 $ldapRecord
             );
         }
-
-        $this->flushEventCallbacks();
 
         return $this->imported;
     }
@@ -346,11 +284,11 @@ class Importer
      *
      * @param Synchronizer $importer
      *
-     * @return \LdapRecord\Query\Collection
+     * @return \Illuminate\Support\Collection
      */
     protected function import($importer)
     {
-        return $this->objects->map(
+        return collect($this->objects->all())->map(
             $this->buildImportCallback($importer)
         )->filter();
     }
@@ -360,70 +298,57 @@ class Importer
      *
      * @param Synchronizer $importer
      *
-     * @return \Closure
+     * @return Closure
      */
     protected function buildImportCallback($importer)
     {
         return function ($object) use ($importer) {
-            $db = $importer->createOrFindEloquentModel($object);
-
-            $this->callEventCallbacks('importing', [$db, $object]);
+            $eloquent = $importer->createOrFindEloquentModel($object);
 
             try {
-                if ($this->importCallback) {
-                    call_user_func($this->importCallback, $db, $object);
-                } else {
-                    tap($importer->synchronize($object, $db))->save();
-                }
+                $importer->synchronize($object, $eloquent)->save();
 
-                $this->callEventCallbacks('imported', [$db, $object]);
+                event(new Imported($object, $eloquent));
 
-                return $db;
+                return $eloquent;
             } catch (Exception $e) {
-                $this->callEventCallbacks('failed', [$db, $object, $e]);
+                event(new ImportFailed($object, $eloquent, $e));
             }
         };
     }
 
     /**
-     * Call and then flush all of the callbacks for the event.
-     *
-     * @param string $event
-     * @param mixed  $arguments
-     *
-     * @return void
-     */
-    protected function callEventCallbacks($event, $arguments = [])
-    {
-        foreach ($this->eventCallbacks[$event] ?? [] as $callback) {
-            $callback(...Arr::wrap($arguments));
-        }
-    }
-
-    /**
-     * Flush all the event callbacks.
-     *
-     * @return void
-     */
-    protected function flushEventCallbacks()
-    {
-        $this->eventCallbacks = [];
-    }
-
-    /**
-     * Create a new LDAP importer.
+     * Get or make the synchronizer.
      *
      * @return Synchronizer
      *
      * @throws ImportException
      */
-    protected function createLdapImporter()
+    protected function getSynchronizer()
+    {
+        $synchronizer = $this->synchronizer ?? $this->createSynchronizer();
+
+        if ($this->syncUsingCallback) {
+            $synchronizer->syncUsing($this->syncUsingCallback);
+        }
+
+        return $synchronizer;
+    }
+
+    /**
+     * Create a new LDAP synchronizer.
+     *
+     * @return Synchronizer
+     *
+     * @throws ImportException
+     */
+    protected function createSynchronizer()
     {
         if (! $this->eloquent) {
             throw new ImportException('No Eloquent model has been defined for importing.');
         }
 
-        if (! $this->importCallback && empty($this->syncAttributes)) {
+        if (! $this->syncUsingCallback && empty($this->syncAttributes)) {
             throw new ImportException('Sync attributes or a using callback must be defined to import objects.');
         }
 
@@ -455,14 +380,14 @@ class Importer
     /**
      * Soft-delete missing Eloquent models that are missing from the imported.
      *
-     * @param Eloquent                     $db
+     * @param Eloquent                     $eloquent
      * @param LdapRecord                   $ldap
      *
      * @return void
      */
-    protected function softDeleteMissing(Eloquent $db, LdapRecord $ldap)
+    protected function softDeleteMissing(Eloquent $eloquent, LdapRecord $ldap)
     {
-        if (! $this->isUsingSoftDeletes($db)) {
+        if (! $this->isUsingSoftDeletes($eloquent)) {
             return;
         }
 
@@ -470,44 +395,30 @@ class Importer
             return;
         }
 
-        $this->callEventCallbacks('deleting.missing', [$db, $ldap, $this->imported]);
-
         $domain = $ldap->getConnectionName() ?? config('ldap.default');
 
-        $guids = $this->imported->pluck($db->getLdapGuidColumn())->toArray();
+        $existing = $eloquent->newQuery()
+            ->whereNotNull($eloquent->getLdapGuidColumn())
+            ->where($eloquent->getLdapDomainColumn(), '=', $domain)
+            ->pluck($eloquent->getLdapGuidColumn());
 
-        // Here we'll soft-delete all users whom have a 'guid' present
-        // but are missing from our imported guid array and are from
-        // our LDAP domain that has just been imported. This ensures
-        // the deleted users are the ones from the same domain.
-        $deleted = $db->newQuery()
-            ->whereNotNull($db->getLdapGuidColumn())
-            ->where($db->getLdapDomainColumn(), '=', $domain)
-            ->whereNotIn($db->getLdapGuidColumn(), $guids)
-            ->update([$db->getDeletedAtColumn() => $deletedAt = now()]);
+        $toDelete = $existing->diff(
+            $this->imported->pluck($eloquent->getLdapGuidColumn())
+        );
 
-        if (! $deleted) {
-            $this->callEventCallbacks(
-                'deleted.missing', [$db, $ldap, $db->newCollection()]
-            );
-
+        if ($toDelete->isEmpty()) {
             return;
         }
 
-        // Next, we will retrieve the ID's of all users who
-        // were deleted from the above query so we can
-        // log them appropriately using an event.
-        $ids = $db->newQuery()
-            ->onlyTrashed()
-            ->select($db->getKeyName())
-            ->whereNotNull($db->getLdapGuidColumn())
-            ->where($db->getLdapDomainColumn(), '=', $domain)
-            ->where($db->getDeletedAtColumn(), '=', $deletedAt)
-            ->pluck($db->getKeyName());
+        $deleted = $eloquent->newQuery()
+            ->whereNotNull($eloquent->getLdapGuidColumn())
+            ->where($eloquent->getLdapDomainColumn(), '=', $domain)
+            ->whereIn($eloquent->getLdapGuidColumn(), $toDelete->toArray())
+            ->update([$eloquent->getDeletedAtColumn() => $deletedAt = now()]);
 
-        $this->callEventCallbacks(
-            'deleted.missing', [$db, $ldap, $ids]
-        );
+        if ($deleted > 0) {
+            event(new BulkImportDeletedMissing($ldap, $eloquent, $toDelete));
+        }
     }
 
     /**

@@ -4,9 +4,16 @@ namespace LdapRecord\Laravel\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Event;
 use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use LdapRecord\Laravel\Auth\UserProvider;
 use LdapRecord\Laravel\DetectsSoftDeletes;
+use LdapRecord\Laravel\Events\Import\Imported;
+use LdapRecord\Laravel\Events\Import\ImportFailed;
+use LdapRecord\Laravel\Events\Import\BulkImportStarted;
+use LdapRecord\Laravel\Events\Import\BulkImportCompleted;
+use LdapRecord\Laravel\Events\BulkImportDeletedMissing;
+use Symfony\Component\Console\Helper\ProgressBar;
 
 class ImportLdapUsers extends Command
 {
@@ -48,6 +55,13 @@ class ImportLdapUsers extends Command
     protected $objects;
 
     /**
+     * The import progress bar indicator.
+     *
+     * @var ProgressBar|null
+     */
+    protected $progress;
+
+    /**
      * Constructor.
      *
      * @param LdapUserImporter $import
@@ -73,7 +87,7 @@ class ImportLdapUsers extends Command
 
         if (! $provider instanceof UserProvider) {
             return $this->error("Provider [{$this->argument('provider')}] is not configured for LDAP authentication.");
-        } elseif (!$provider instanceof DatabaseUserProvider) {
+        } elseif (! $provider instanceof DatabaseUserProvider) {
             return $this->error("Provider [{$this->argument('provider')}] is not configured for database synchronization.");
         }
 
@@ -85,7 +99,7 @@ class ImportLdapUsers extends Command
             return;
         }
 
-        $this->registerEventCallbacks();
+        $this->registerEventListeners();
 
         $this->confirmAndDisplayObjects();
 
@@ -116,32 +130,34 @@ class ImportLdapUsers extends Command
      *
      * @return void
      */
-    protected function registerEventCallbacks()
+    protected function registerEventListeners()
     {
-        $this->import->registerEventCallback('starting', function ($objects) {
-            $this->output->progressStart($objects->count());
+        Event::listen(BulkImportStarted::class, function (BulkImportStarted $event) {
+            $this->progress = $this->output->createProgressBar($event->objects->count());
         });
 
-        $this->import->registerEventCallback('imported', function () {
-            $this->output->progressAdvance();
+        Event::listen(Imported::class, function () {
+            if ($this->progress) {
+                $this->progress->advance();
+            }
         });
 
-        $this->import->registerEventCallback('failed', function () {
-            $this->output->progressAdvance();
+        Event::listen(ImportFailed::class, function () {
+            if ($this->progress) {
+                $this->progress->advance();
+            }
         });
 
-        $this->import->registerEventCallback('deleting.missing', function () {
-            $this->info('Soft-deleting all missing users...');
-        });
-
-        $this->import->registerEventCallback('deleted.missing', function ($db, $ldap, $ids) {
-            $ids->isEmpty()
+        Event::listen(BulkImportDeletedMissing::class, function (BulkImportDeletedMissing $event) {
+            $event->deleted->isEmpty()
                 ? $this->info('No missing users found. None have been soft-deleted.')
-                : $this->info("Successfully soft-deleted [{$ids->count()}] users.");
+                : $this->info("Successfully soft-deleted [{$event->deleted->count()}] users.");
         });
 
-        $this->import->registerEventCallback('completed', function () {
-            $this->output->progressFinish();
+        Event::listen(BulkImportCompleted::class, function (BulkImportCompleted $event) {
+            if ($this->progress) {
+                $this->progress->finish();
+            }
         });
     }
 
@@ -236,16 +252,16 @@ class ImportLdapUsers extends Command
 
         $headers = ['Name', 'Distinguished Name'];
 
-        $data = [];
+        $rows = [];
 
-        foreach ($this->objects as $objects) {
-            $data[] = [
-                'name' => $objects->getRdn(),
-                'dn' => $objects->getDn(),
+        foreach ($this->objects as $object) {
+            $rows[] = [
+                'name' => $object->getRdn(),
+                'dn' => $object->getDn(),
             ];
         }
 
-        $this->table($headers, $data);
+        $this->table($headers, $rows);
     }
 
     /**

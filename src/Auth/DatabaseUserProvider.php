@@ -5,7 +5,8 @@ namespace LdapRecord\Laravel\Auth;
 use Closure;
 use Illuminate\Auth\EloquentUserProvider;
 use Illuminate\Contracts\Auth\Authenticatable;
-use LdapRecord\Laravel\Events\Imported;
+use LdapRecord\Laravel\Events\Auth\Completed;
+use LdapRecord\Laravel\Events\Import\Imported;
 use LdapRecord\Laravel\LdapUserAuthenticator;
 use LdapRecord\Laravel\Import\UserSynchronizer;
 use LdapRecord\Laravel\LdapUserRepository;
@@ -185,28 +186,30 @@ class DatabaseUserProvider extends UserProvider
     /**
      * {@inheritdoc}
      */
-    public function validateCredentials(Authenticatable $model, array $credentials)
+    public function validateCredentials(Authenticatable $user, array $credentials)
     {
         // If an LDAP user has not been located, fallback is enabled, and
         // the given Eloquent model exists, we will attempt to validate
         // the users password normally via the Eloquent user provider.
         if (! $this->user instanceof Model) {
-            return $this->fallback && $model->exists
-                ? $this->eloquent->validateCredentials($model, $credentials)
+            return $this->fallback && $user->exists
+                ? $this->eloquent->validateCredentials($user, $credentials)
                 : false;
         }
 
-        $this->auth->setEloquentModel($model);
+        $this->auth->setEloquentModel($user);
 
         if (! $this->auth->attempt($this->user, $credentials['password'])) {
             return false;
         }
 
-        $model->save();
+        $user->save();
 
-        if ($model->wasRecentlyCreated) {
-            event(new Imported($this->user, $model));
+        if ($user->wasRecentlyCreated) {
+            event(new Imported($this->user, $user));
         }
+
+        event(new Completed($this->user, $user));
 
         return true;
     }

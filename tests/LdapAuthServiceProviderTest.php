@@ -8,12 +8,12 @@ use LdapRecord\Laravel\Events\Ldap\Bound;
 use LdapRecord\Laravel\Events\Ldap\Binding;
 use LdapRecord\Laravel\Events\Ldap\BindFailed;
 use LdapRecord\Laravel\Events\Auth\Rejected;
-use LdapRecord\Laravel\Events\Auth\EloquentModelTrashed;
+use LdapRecord\Laravel\Events\Auth\EloquentUserTrashed;
 use LdapRecord\Laravel\Events\DiscoveredWithCredentials;
-use LdapRecord\Laravel\Events\Imported;
-use LdapRecord\Laravel\Events\Importing;
-use LdapRecord\Laravel\Events\Synchronized;
-use LdapRecord\Laravel\Events\Synchronizing;
+use LdapRecord\Laravel\Events\Import\Imported;
+use LdapRecord\Laravel\Events\Import\Importing;
+use LdapRecord\Laravel\Events\Import\Synchronized;
+use LdapRecord\Laravel\Events\Import\Synchronizing;
 use LdapRecord\Laravel\LdapAuthServiceProvider;
 
 class LdapAuthServiceProviderTest extends TestCase
@@ -52,7 +52,7 @@ class LdapAuthServiceProviderTest extends TestCase
             Rejected::class,
             DiscoveredWithCredentials::class,
             AuthenticatedWithWindows::class,
-            EloquentModelTrashed::class,
+            EloquentUserTrashed::class,
         ];
 
         foreach ($events as $event) {

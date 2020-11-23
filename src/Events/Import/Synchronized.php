@@ -1,6 +1,6 @@
 <?php
 
-namespace LdapRecord\Laravel\Events;
+namespace LdapRecord\Laravel\Events\Import;
 
 use Illuminate\Database\Eloquent\Model;
 use LdapRecord\Models\Model as LdapModel;
@@ -8,14 +8,14 @@ use LdapRecord\Models\Model as LdapModel;
 class Synchronized
 {
     /**
-     * The LDAP user that was synchronized.
+     * The LDAP object that was synchronized.
      *
      * @var LdapModel
      */
-    public $user;
+    public $object;
 
     /**
-     * The LDAP users database model that was synchronized.
+     * The LDAP objects database model that was synchronized.
      *
      * @var Model
      */
@@ -24,12 +24,12 @@ class Synchronized
     /**
      * Constructor.
      *
-     * @param LdapModel $user
+     * @param LdapModel $object
      * @param Model     $model
      */
-    public function __construct(LdapModel $user, Model $model)
+    public function __construct(LdapModel $object, Model $model)
     {
-        $this->user = $user;
+        $this->object = $object;
         $this->model = $model;
     }
 }

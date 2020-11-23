@@ -3,9 +3,9 @@
 namespace LdapRecord\Laravel\Tests;
 
 use Illuminate\Support\Facades\Hash;
-use LdapRecord\Laravel\Events\Importing;
-use LdapRecord\Laravel\Events\Synchronized;
-use LdapRecord\Laravel\Events\Synchronizing;
+use LdapRecord\Laravel\Events\Import\Importing;
+use LdapRecord\Laravel\Events\Import\Synchronized;
+use LdapRecord\Laravel\Events\Import\Synchronizing;
 use LdapRecord\Laravel\Import\UserSynchronizer;
 use LdapRecord\Models\Model;
 use Mockery as m;

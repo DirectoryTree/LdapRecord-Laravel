@@ -3,7 +3,7 @@
 namespace LdapRecord\Laravel\Listeners;
 
 use Illuminate\Support\Facades\Log;
-use LdapRecord\Laravel\Events\Imported;
+use LdapRecord\Laravel\Events\Import\Imported;
 
 class LogImported
 {
@@ -16,6 +16,6 @@ class LogImported
      */
     public function handle(Imported $event)
     {
-        Log::info("Object with name [{$event->user->getName()}] has been successfully imported.");
+        Log::info("Object with name [{$event->ldap->getName()}] has been successfully imported.");
     }
 }

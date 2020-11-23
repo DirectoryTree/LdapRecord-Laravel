@@ -20,18 +20,18 @@ class LdapAuthServiceProvider extends ServiceProvider
      * @var array
      */
     protected $events = [
-        Events\Importing::class                 => Listeners\LogImporting::class,
-        Events\Imported::class                  => Listeners\LogImported::class,
-        Events\Synchronized::class              => Listeners\LogSynchronized::class,
-        Events\Synchronizing::class             => Listeners\LogSynchronizing::class,
+        Events\Import\Importing::class          => Listeners\LogImporting::class,
+        Events\Import\Imported::class           => Listeners\LogImported::class,
+        Events\Import\Synchronized::class       => Listeners\LogSynchronized::class,
+        Events\Import\Synchronizing::class      => Listeners\LogSynchronizing::class,
         Events\DeletedMissing::class            => Listeners\LogDeletedMissing::class,
-        Events\Ldap\Bound::class             => Listeners\LogAuthenticated::class,
-        Events\Ldap\Binding::class            => Listeners\LogAuthentication::class,
-        Events\Ldap\BindFailed::class      => Listeners\LogAuthenticationFailure::class,
-        Events\Auth\Rejected::class    => Listeners\LogAuthenticationRejection::class,
+        Events\Ldap\Bound::class                => Listeners\LogAuthenticated::class,
+        Events\Ldap\Binding::class              => Listeners\LogAuthentication::class,
+        Events\Ldap\BindFailed::class           => Listeners\LogAuthenticationFailure::class,
+        Events\Auth\Rejected::class             => Listeners\LogAuthenticationRejection::class,
         Events\DiscoveredWithCredentials::class => Listeners\LogDiscovery::class,
         Events\AuthenticatedWithWindows::class  => Listeners\LogWindowsAuth::class,
-        Events\Auth\EloquentModelTrashed::class => Listeners\LogTrashedModel::class,
+        Events\Auth\EloquentUserTrashed::class  => Listeners\LogTrashedModel::class,
     ];
 
     /**

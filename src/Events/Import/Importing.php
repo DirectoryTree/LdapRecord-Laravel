@@ -1,6 +1,6 @@
 <?php
 
-namespace LdapRecord\Laravel\Events;
+namespace LdapRecord\Laravel\Events\Import;
 
 use Illuminate\Database\Eloquent\Model;
 use LdapRecord\Models\Model as LdapModel;
@@ -8,14 +8,14 @@ use LdapRecord\Models\Model as LdapModel;
 class Importing
 {
     /**
-     * The user being imported.
+     * The LDAP object being imported.
      *
      * @var LdapModel
      */
-    public $user;
+    public $object;
 
     /**
-     * The model belonging to the user being imported.
+     * The model belonging to the object being imported.
      *
      * @var Model
      */
@@ -24,12 +24,12 @@ class Importing
     /**
      * Constructor.
      *
-     * @param LdapModel $user
+     * @param LdapModel $object
      * @param Model     $model
      */
-    public function __construct(LdapModel $user, Model $model)
+    public function __construct(LdapModel $object, Model $model)
     {
-        $this->user = $user;
+        $this->object = $object;
         $this->model = $model;
     }
 }

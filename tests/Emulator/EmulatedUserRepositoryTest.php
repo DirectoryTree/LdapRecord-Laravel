@@ -30,10 +30,10 @@ class EmulatedUserRepositoryTest extends TestCase
     {
         DirectoryEmulator::setup();
 
-        $user = User::create(['cn' => 'John', 'objectguid' => Uuid::uuid4()]);
+        $user = User::create(['cn' => 'John', 'objectguid' => Uuid::uuid4()->toString()]);
 
         $repo = new LdapUserRepository(User::class);
-        $this->assertNull($repo->findByGuid(Uuid::uuid4()));
+        $this->assertNull($repo->findByGuid(Uuid::uuid4()->toString()));
         $this->assertTrue($user->is($repo->findByGuid($user->getConvertedGuid())));
     }
 

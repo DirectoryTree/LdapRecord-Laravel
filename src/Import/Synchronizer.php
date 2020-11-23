@@ -2,11 +2,12 @@
 
 namespace LdapRecord\Laravel\Import;
 
+use Closure;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Support\Arr;
-use LdapRecord\Laravel\Events\Importing;
-use LdapRecord\Laravel\Events\Synchronized;
-use LdapRecord\Laravel\Events\Synchronizing;
+use LdapRecord\Laravel\Events\Import\Importing;
+use LdapRecord\Laravel\Events\Import\Synchronized;
+use LdapRecord\Laravel\Events\Import\Synchronizing;
 use LdapRecord\LdapRecordException;
 use LdapRecord\Models\Model as LdapModel;
 
@@ -27,6 +28,11 @@ class Synchronizer
     protected $config;
 
     /**
+     * @var callable
+     */
+    protected $syncUsingCallback;
+
+    /**
      * Constructor.
      *
      * @param string $eloquentModel
@@ -36,6 +42,20 @@ class Synchronizer
     {
         $this->eloquentModel = $eloquentModel;
         $this->config = $config;
+    }
+
+    /**
+     * Set a callback to use for syncing attributes.
+     *
+     * @param Closure $callback
+     *
+     * @return $this
+     */
+    public function syncUsing(Closure $callback)
+    {
+        $this->syncUsingCallback = $callback;
+
+        return $this;
     }
 
     /**
@@ -57,24 +77,26 @@ class Synchronizer
      * Synchronize the Eloquent database model with the LDAP model.
      *
      * @param LdapModel     $object
-     * @param EloquentModel $database
+     * @param EloquentModel $eloquent
      * @param array         $data
      *
      * @return EloquentModel
      */
-    public function synchronize(LdapModel $object, EloquentModel $database, array $data = [])
+    public function synchronize(LdapModel $object, EloquentModel $eloquent, array $data = [])
     {
-        if (! $database->exists) {
-            event(new Importing($object, $database));
+        if (! $eloquent->exists) {
+            event(new Importing($object, $eloquent));
         }
 
-        event(new Synchronizing($object, $database));
+        event(new Synchronizing($object, $eloquent));
 
-        $this->hydrate($object, $database, $data);
+        $this->syncUsingCallback
+            ? call_user_func($this->syncUsingCallback, $object, $eloquent)
+            : $this->hydrate($object, $eloquent, $data);
 
-        event(new Synchronized($object, $database));
+        event(new Synchronized($object, $eloquent));
 
-        return $database;
+        return $eloquent;
     }
 
     /**

@@ -9,7 +9,7 @@ use LdapRecord\Laravel\Events\Ldap\Bound;
 use LdapRecord\Laravel\Events\Ldap\Binding;
 use LdapRecord\Laravel\Events\Ldap\BindFailed;
 use LdapRecord\Laravel\Events\Auth\Rejected;
-use LdapRecord\Laravel\Events\Auth\EloquentModelTrashed;
+use LdapRecord\Laravel\Events\Auth\EloquentUserTrashed;
 
 class LdapUserAuthenticator
 {
@@ -212,7 +212,7 @@ class LdapUserAuthenticator
      */
     protected function trashed(Model $user)
     {
-        event(new EloquentModelTrashed($user, $this->eloquentModel));
+        event(new EloquentUserTrashed($user, $this->eloquentModel));
     }
 
     /**

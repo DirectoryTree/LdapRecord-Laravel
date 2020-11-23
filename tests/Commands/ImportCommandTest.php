@@ -5,6 +5,7 @@ namespace LdapRecord\Laravel\Tests;
 use Illuminate\Support\Facades\Auth;
 use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Models\ActiveDirectory\User;
+use LdapRecord\Models\Collection;
 use LdapRecord\Query\Model\Builder;
 use Mockery as m;
 
@@ -49,7 +50,7 @@ class ImportCommandTest extends DatabaseProviderTestCase
 
     public function test_users_are_imported_into_the_database()
     {
-        $users = collect([
+        $users = new Collection([
             new User([
                 'cn' => 'Steve Bauman',
                 'mail' => 'sbauman@test.com',

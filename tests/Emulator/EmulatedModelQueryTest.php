@@ -97,10 +97,10 @@ class EmulatedModelQueryTest extends TestCase
         $model = TestModelStub::create(['cn' => 'John Doe']);
 
         $this->assertEquals('cn=John Doe,dc=local,dc=com', $model->getDn());
-        $this->assertTrue($model->rename('cn=Jane Doe', 'dc=local,dc=com'));
+        $this->assertNull($model->rename('cn=Jane Doe', 'dc=local,dc=com'));
         $this->assertEquals('cn=Jane Doe,dc=local,dc=com', $model->getDn());
 
-        $this->assertTrue($model->rename('cn=Jane Doe', 'ou=Users,dc=local,dc=com'));
+        $this->assertNull($model->rename('cn=Jane Doe', 'ou=Users,dc=local,dc=com'));
         $this->assertEquals('cn=Jane Doe,ou=Users,dc=local,dc=com', $model->getDn());
     }
 
@@ -111,7 +111,7 @@ class EmulatedModelQueryTest extends TestCase
             $model->save();
         });
 
-        $this->assertTrue($model->delete());
+        $this->assertNull($model->delete());
         $this->assertFalse($model->exists);
         $this->assertNull(TestModelStub::find($model->getDn()));
     }
@@ -145,7 +145,7 @@ class EmulatedModelQueryTest extends TestCase
 
         $model->foo = 'bar';
 
-        $this->assertTrue($model->save());
+        $this->assertNull($model->save());
         $this->assertEquals(['bar'], $model->foo);
 
         $model = TestModelStub::find($model->getDn());
@@ -156,11 +156,11 @@ class EmulatedModelQueryTest extends TestCase
     {
         $model = tap(new TestModelStub, function ($model) {
             $model->foo = ['bar'];
-            $this->assertTrue($model->save());
+            $this->assertNull($model->save());
         });
 
         $model->foo = array_merge($model->foo, ['baz']);
-        $this->assertTrue($model->save());
+        $this->assertNull($model->save());
 
         $model = TestModelStub::find($model->getDn());
         $this->assertEquals(['bar', 'baz'], $model->foo);
@@ -170,7 +170,7 @@ class EmulatedModelQueryTest extends TestCase
     {
         $model = tap(new TestModelStub, function ($model) {
             $model->foo = ['bar'];
-            $this->assertTrue($model->save());
+            $this->assertNull($model->save());
         });
 
         $model->foo = null;

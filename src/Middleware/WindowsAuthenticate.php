@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model as Eloquent;
 use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use LdapRecord\Laravel\Auth\UserProvider;
 use LdapRecord\Laravel\Events\AuthenticatedWithWindows;
-use LdapRecord\Laravel\Events\Imported;
+use LdapRecord\Laravel\Events\Import\Imported;
 use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Models\Model;
 

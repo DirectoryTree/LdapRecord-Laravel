@@ -145,7 +145,7 @@ class LdapImporterTest extends TestCase
         $imported = (new Importer)
             ->setLdapModel(LdapGroup::class)
             ->setEloquentModel(Group::class)
-            ->setImportCallback(function ($database, $object) {
+            ->syncAttributesUsing(function ($object, $database) {
                 $database
                     ->forceFill(['name' => $object->getFirstAttribute('cn')])
                     ->save();

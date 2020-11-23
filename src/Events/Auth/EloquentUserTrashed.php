@@ -5,21 +5,21 @@ namespace LdapRecord\Laravel\Events\Auth;
 use Illuminate\Contracts\Auth\Authenticatable;
 use LdapRecord\Models\Model;
 
-class EloquentModelTrashed
+class EloquentUserTrashed
 {
     /**
-     * The authenticated LDAP user.
+     * The LDAP model that belongs to the trashed Eloquent model.
      *
      * @var Model
      */
-    public $user;
+    public $ldap;
 
     /**
      * The LDAP users authenticatable model.
      *
      * @var Authenticatable
      */
-    public $model;
+    public $user;
 
     /**
      * Constructor.
@@ -29,7 +29,7 @@ class EloquentModelTrashed
      */
     public function __construct(Model $user, Authenticatable $model)
     {
-        $this->user = $user;
-        $this->model = $model;
+        $this->ldap = $user;
+        $this->user = $model;
     }
 }

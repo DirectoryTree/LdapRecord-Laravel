@@ -2,15 +2,12 @@
 
 namespace LdapRecord\Laravel\Commands;
 
-// TODO: Verify importing event needs to be fired
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Event;
 use LdapRecord\Laravel\Import\Importer;
-use LdapRecord\Laravel\Events\Imported;
-use LdapRecord\Laravel\Events\Importing;
+use LdapRecord\Laravel\Events\Import\Imported;
 use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Models\Model as LdapRecord;
 use LdapRecord\Models\Types\ActiveDirectory;
-use LdapRecord\Laravel\Events\DeletedMissing;
 use LdapRecord\Models\Attributes\AccountControl;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 
@@ -44,51 +41,18 @@ class LdapUserImporter extends Importer
      */
     public function __construct()
     {
-        $this->events = array_merge([
-            'restoring', 'restored',
-            'deleting', 'deleted',
-        ], $this->events);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    protected function registerDefaultCallbacks()
-    {
-        parent::registerDefaultCallbacks();
-
-        $this->registerEventCallback('imported', function ($database, $object) {
-            if ($database->wasRecentlyCreated) {
-                event(new Imported($object, $database));
-            }
-
-            if (! $object instanceof ActiveDirectory) {
+        Event::listen(Imported::class, function (Imported $event) {
+            if (! $event->ldap instanceof ActiveDirectory) {
                 return;
             }
 
             if ($this->trashDisabledUsers) {
-                $this->delete($database, $object);
+                $this->delete($event->eloquent, $event->ldap);
             }
 
             if ($this->restoreEnabledUsers) {
-                $this->restore($database, $object);
+                $this->restore($event->eloquent, $event->ldap);
             }
-        });
-
-        $this->registerEventCallback('deleted', function ($database, $ldap) {
-            if ($this->logging) {
-                Log::info("Soft-deleted user [{$ldap->getRdn()}]. Their user account is disabled.");
-            }
-        });
-
-        $this->registerEventCallback('restored', function ($database, $ldap) {
-            if ($this->logging) {
-                Log::info("Restored user [{$ldap->getRdn()}]. Their user account has been re-enabled.");
-            }
-        });
-
-        $this->registerEventCallback('deleted.missing', function ($database, $ldap, $ids) {
-            event(new DeletedMissing($ids, $ldap, $database));
         });
     }
 
@@ -143,66 +107,58 @@ class LdapUserImporter extends Importer
             $this->repository->query()
         );
 
-        if ($username) {
-            $users = $query->getModel()->newCollection();
-
-            return $this->objects = ($user = $query->findByAnr($username))
-                ? $users->add($user)
-                : $users;
+        if (! $username) {
+            return $this->objects = $query->paginate();
         }
 
-        return $this->objects = $query->paginate();
+        $users = $query->getModel()->newCollection();
+
+        return $this->objects = ($user = $query->findByAnr($username))
+            ? $users->add($user)
+            : $users;
     }
 
     /**
      * Soft deletes the specified model if their LDAP account is disabled.
      *
-     * @param Eloquent   $database
+     * @param Eloquent   $eloquent
      * @param LdapRecord $object
      *
      * @return void
      */
-    protected function delete(Eloquent $database, LdapRecord $object)
+    protected function delete(Eloquent $eloquent, LdapRecord $object)
     {
         // If deleting is enabled, the model supports soft deletes,
         // the model isn't already deleted, and the LDAP user is
         // disabled, we'll go ahead and delete the users model.
         if (
-            $this->isUsingSoftDeletes($database)
-            && ! $database->trashed()
+            $this->isUsingSoftDeletes($eloquent)
+            && ! $eloquent->trashed()
             && $this->userIsDisabled($object)
         ) {
-            $this->callEventCallbacks('deleting', [$database, $object]);
-
-            $database->delete();
-
-            $this->callEventCallbacks('deleted', [$database, $object]);
+            $eloquent->delete();
         }
     }
 
     /**
      * Restores soft-deleted models if their LDAP account is enabled.
      *
-     * @param Eloquent   $database
+     * @param Eloquent   $eloquent
      * @param LdapRecord $object
      *
      * @return void
      */
-    protected function restore(Eloquent $database, LdapRecord $object)
+    protected function restore(Eloquent $eloquent, LdapRecord $object)
     {
         // If the model has soft-deletes enabled, the model is
         // currently deleted, and the LDAP user account
         // is enabled, we'll restore the users model.
         if (
-            $this->isUsingSoftDeletes($database)
-            && $database->trashed()
+            $this->isUsingSoftDeletes($eloquent)
+            && $eloquent->trashed()
             && $this->userIsEnabled($object)
         ) {
-            $this->callEventCallbacks('restoring', [$database, $object]);
-
-            $database->restore();
-
-            $this->callEventCallbacks('restored', [$database, $object]);
+            $eloquent->restore();
         }
     }
 
