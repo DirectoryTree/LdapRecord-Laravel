@@ -10,7 +10,7 @@ use LdapRecord\Laravel\Events\Import\Imported;
 use LdapRecord\Laravel\Events\Import\Importing;
 use LdapRecord\Laravel\Events\Import\Synchronized;
 use LdapRecord\Laravel\Events\Import\Synchronizing;
-use LdapRecord\Laravel\Events\AuthenticatedWithWindows;
+use LdapRecord\Laravel\Events\Auth\CompletedWithWindows;
 use LdapRecord\Models\ActiveDirectory\User;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Laravel\Tests\DatabaseProviderTestCase;
@@ -29,7 +29,7 @@ class EmulatedWindowsAuthenticateTest extends DatabaseProviderTestCase
             Synchronized::class,
             Binding::class,
             Bound::class,
-            AuthenticatedWithWindows::class,
+            CompletedWithWindows::class,
         ]);
 
         DirectoryEmulator::setup();

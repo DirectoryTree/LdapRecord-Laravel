@@ -3,9 +3,10 @@
 namespace LdapRecord\Laravel\Events\Ldap;
 
 use Illuminate\Contracts\Auth\Authenticatable;
+use LdapRecord\Laravel\Events\LoggableEvent;
 use LdapRecord\Models\Model;
 
-class Bound
+class Bound extends LoggableEvent
 {
     /**
      * The LDAP user that has successfully authenticated.
@@ -31,5 +32,13 @@ class Bound
     {
         $this->user = $user;
         $this->model = $model;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getLogMessage()
+    {
+        return "User [{$this->user->getName()}] has successfully passed LDAP authentication.";
     }
 }

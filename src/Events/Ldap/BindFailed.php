@@ -3,9 +3,10 @@
 namespace LdapRecord\Laravel\Events\Ldap;
 
 use Illuminate\Contracts\Auth\Authenticatable;
+use LdapRecord\Laravel\Events\LoggableEvent;
 use LdapRecord\Models\Model;
 
-class BindFailed
+class BindFailed extends LoggableEvent
 {
     /**
      * The user that failed authentication.
@@ -31,5 +32,13 @@ class BindFailed
     {
         $this->user = $user;
         $this->model = $model;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getLogMessage()
+    {
+        return "User [{$this->user->getName()}] has failed LDAP authentication.";
     }
 }

@@ -3,10 +3,11 @@
 namespace LdapRecord\Laravel\Events\Import;
 
 use Illuminate\Support\Collection;
+use LdapRecord\Laravel\Events\LoggableEvent;
 use LdapRecord\Models\Model as LdapRecord;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 
-class BulkImportDeletedMissing
+class BulkImportDeletedMissing extends LoggableEvent
 {
     /**
      * The LdapRecord model used to import.
@@ -41,5 +42,15 @@ class BulkImportDeletedMissing
         $this->ldap = $ldap;
         $this->eloquent = $eloquent;
         $this->deleted = $deleted;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getLogMessage()
+    {
+        $guids = $this->deleted->values()->implode(', ');
+
+        return "Users with guids [$guids] have been soft-deleted due to being missing from LDAP result.";
     }
 }

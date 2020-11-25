@@ -3,8 +3,9 @@
 namespace LdapRecord\Laravel\Events\Ldap;
 
 use LdapRecord\Models\Model;
+use LdapRecord\Laravel\Events\LoggableEvent;
 
-class Binding
+class Binding extends LoggableEvent
 {
     /**
      * The LDAP user that is authenticating.
@@ -30,5 +31,13 @@ class Binding
     {
         $this->user = $user;
         $this->username = $username;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getLogMessage()
+    {
+        return "User [{$this->user->getName()}] is authenticating.";
     }
 }

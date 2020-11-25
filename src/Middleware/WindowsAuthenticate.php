@@ -8,7 +8,7 @@ use Illuminate\Contracts\Auth\Factory as Auth;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use LdapRecord\Laravel\Auth\UserProvider;
-use LdapRecord\Laravel\Events\AuthenticatedWithWindows;
+use LdapRecord\Laravel\Events\Auth\CompletedWithWindows;
 use LdapRecord\Laravel\Events\Import\Imported;
 use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Models\Model;
@@ -366,7 +366,7 @@ class WindowsAuthenticate
      */
     protected function fireAuthenticatedEvent(Model $user, $model = null)
     {
-        event(new AuthenticatedWithWindows($user, $model));
+        event(new CompletedWithWindows($user, $model));
     }
 
     /**

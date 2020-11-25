@@ -3,9 +3,10 @@
 namespace LdapRecord\Laravel\Events\Import;
 
 use LdapRecord\Models\Model as LdapModel;
+use LdapRecord\Laravel\Events\LoggableEvent;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 
-class Imported
+class Imported extends LoggableEvent
 {
     /**
      * The successfully imported LDAP objects model.
@@ -31,5 +32,13 @@ class Imported
     {
         $this->ldap = $ldap;
         $this->eloquent = $eloquent;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getLogMessage()
+    {
+        return "Object with name [{$this->ldap->getName()}] has been successfully imported.";
     }
 }

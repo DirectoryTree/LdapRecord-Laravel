@@ -2,10 +2,12 @@
 
 namespace LdapRecord\Laravel\Events\Import;
 
+use Illuminate\Database\Eloquent\Model;
+use LdapRecord\Laravel\Events\LoggableEvent;
 use LdapRecord\Query\Collection as LdapCollection;
 use Illuminate\Support\Collection as LaravelCollection;
 
-class BulkImportCompleted
+class BulkImportCompleted extends LoggableEvent
 {
     /**
      * The LDAP objects imported.
@@ -31,5 +33,19 @@ class BulkImportCompleted
     {
         $this->objects = $objects;
         $this->imported = $imported;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getLogMessage()
+    {
+        $imported = $this->imported->filter(function (Model $eloquent) {
+            return $eloquent->wasRecentlyCreated;
+        })->count();
+
+        $synchronized = $this->imported->count() - $imported;
+
+        return "Completed import. Imported [$imported] LDAP objects. Synchronized [$synchronized] LDAP objects.";
     }
 }

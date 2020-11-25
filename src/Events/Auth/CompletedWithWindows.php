@@ -1,11 +1,12 @@
 <?php
 
-namespace LdapRecord\Laravel\Events;
+namespace LdapRecord\Laravel\Events\Auth;
 
-use Illuminate\Contracts\Auth\Authenticatable;
 use LdapRecord\Models\Model;
+use LdapRecord\Laravel\Events\LoggableEvent;
+use Illuminate\Contracts\Auth\Authenticatable;
 
-class AuthenticatedWithWindows
+class CompletedWithWindows extends LoggableEvent
 {
     /**
      * The authenticated LDAP user.
@@ -31,5 +32,13 @@ class AuthenticatedWithWindows
     {
         $this->user = $user;
         $this->model = $model;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getLogMessage()
+    {
+        return "User [{$this->user->getName()}] has successfully authenticated via NTLM.";
     }
 }

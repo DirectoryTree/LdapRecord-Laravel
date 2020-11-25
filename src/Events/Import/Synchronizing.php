@@ -4,8 +4,9 @@ namespace LdapRecord\Laravel\Events\Import;
 
 use Illuminate\Database\Eloquent\Model;
 use LdapRecord\Models\Model as LdapModel;
+use LdapRecord\Laravel\Events\LoggableEvent;
 
-class Synchronizing
+class Synchronizing extends LoggableEvent
 {
     /**
      * The object being synchronized.
@@ -31,5 +32,13 @@ class Synchronizing
     {
         $this->object = $object;
         $this->model = $model;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getLogMessage()
+    {
+        return "Object with name [{$this->object->getName()}] has been successfully synchronized.";
     }
 }

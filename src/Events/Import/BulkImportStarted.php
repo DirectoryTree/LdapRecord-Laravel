@@ -3,8 +3,9 @@
 namespace LdapRecord\Laravel\Events\Import;
 
 use LdapRecord\Query\Collection;
+use LdapRecord\Laravel\Events\LoggableEvent;
 
-class BulkImportStarted
+class BulkImportStarted extends LoggableEvent
 {
     /**
      * The LDAP objects being imported.
@@ -21,5 +22,13 @@ class BulkImportStarted
     public function __construct($objects)
     {
         $this->objects = $objects;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getLogMessage()
+    {
+        return "Starting import of [{$this->objects->count()}] LDAP objects.";
     }
 }

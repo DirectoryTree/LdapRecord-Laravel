@@ -2,10 +2,11 @@
 
 namespace LdapRecord\Laravel\Events\Auth;
 
+use LdapRecord\Laravel\Events\LoggableEvent;
 use LdapRecord\Models\Model as LdapModel;
 use Illuminate\Contracts\Auth\Authenticatable;
 
-class Rejected
+class Rejected extends LoggableEvent
 {
     /**
      * The LDAP model that belongs to the authenticatable model.
@@ -31,5 +32,13 @@ class Rejected
     {
         $this->ldap = $ldap;
         $this->user = $user;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getLogMessage()
+    {
+        return "User [{$this->ldap->getName()}] has failed validation. They have been denied authentication.";
     }
 }

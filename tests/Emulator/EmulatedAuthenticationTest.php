@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use LdapRecord\Laravel\Events\Ldap\Bound;
 use LdapRecord\Laravel\Events\Ldap\Binding;
-use LdapRecord\Laravel\Events\DiscoveredWithCredentials;
+use LdapRecord\Laravel\Events\Auth\DiscoveredWithCredentials;
 use LdapRecord\Laravel\Events\Import\Imported;
 use LdapRecord\Laravel\Events\Import\Importing;
 use LdapRecord\Laravel\Events\Import\Synchronized;

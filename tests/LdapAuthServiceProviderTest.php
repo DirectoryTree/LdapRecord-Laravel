@@ -3,13 +3,13 @@
 namespace LdapRecord\Laravel\Tests;
 
 use Illuminate\Events\Dispatcher;
-use LdapRecord\Laravel\Events\AuthenticatedWithWindows;
 use LdapRecord\Laravel\Events\Ldap\Bound;
 use LdapRecord\Laravel\Events\Ldap\Binding;
 use LdapRecord\Laravel\Events\Ldap\BindFailed;
 use LdapRecord\Laravel\Events\Auth\Rejected;
 use LdapRecord\Laravel\Events\Auth\EloquentUserTrashed;
-use LdapRecord\Laravel\Events\DiscoveredWithCredentials;
+use LdapRecord\Laravel\Events\Auth\CompletedWithWindows;
+use LdapRecord\Laravel\Events\Auth\DiscoveredWithCredentials;
 use LdapRecord\Laravel\Events\Import\Imported;
 use LdapRecord\Laravel\Events\Import\Importing;
 use LdapRecord\Laravel\Events\Import\Synchronized;
@@ -51,7 +51,7 @@ class LdapAuthServiceProviderTest extends TestCase
             BindFailed::class,
             Rejected::class,
             DiscoveredWithCredentials::class,
-            AuthenticatedWithWindows::class,
+            CompletedWithWindows::class,
             EloquentUserTrashed::class,
         ];
 

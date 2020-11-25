@@ -2,10 +2,10 @@
 
 namespace LdapRecord\Laravel;
 
-use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Str;
+use Illuminate\Contracts\Support\Arrayable;
 use LdapRecord\Laravel\Auth\LdapAuthenticatable;
-use LdapRecord\Laravel\Events\DiscoveredWithCredentials;
+use LdapRecord\Laravel\Events\Auth\DiscoveredWithCredentials;
 
 class LdapUserRepository
 {

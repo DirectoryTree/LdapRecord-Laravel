@@ -4,7 +4,7 @@ namespace LdapRecord\Laravel\Tests;
 
 use Illuminate\Http\Request;
 use LdapRecord\Laravel\Auth\Rule;
-use LdapRecord\Laravel\Events\AuthenticatedWithWindows;
+use LdapRecord\Laravel\Events\Auth\CompletedWithWindows;
 use LdapRecord\Laravel\Events\Import\Imported;
 use LdapRecord\Laravel\Events\Import\Importing;
 use LdapRecord\Laravel\Events\Import\Synchronized;
@@ -38,7 +38,7 @@ class WindowsAuthMiddlewareTest extends DatabaseProviderTestCase
             Imported::class,
             Synchronizing::class,
             Synchronized::class,
-            AuthenticatedWithWindows::class,
+            CompletedWithWindows::class,
         ]);
 
         $middleware = new WindowsAuthenticate(app('auth'));
@@ -56,7 +56,7 @@ class WindowsAuthMiddlewareTest extends DatabaseProviderTestCase
             Imported::class,
             Synchronizing::class,
             Synchronized::class,
-            AuthenticatedWithWindows::class,
+            CompletedWithWindows::class,
         ]);
 
         auth()->login($this->createTestUser([
@@ -79,7 +79,7 @@ class WindowsAuthMiddlewareTest extends DatabaseProviderTestCase
             Imported::class,
             Synchronizing::class,
             Synchronized::class,
-            AuthenticatedWithWindows::class,
+            CompletedWithWindows::class,
         ]);
 
         $this->setupDatabaseUserProvider();
@@ -111,7 +111,7 @@ class WindowsAuthMiddlewareTest extends DatabaseProviderTestCase
             Imported::class,
             Synchronizing::class,
             Synchronized::class,
-            AuthenticatedWithWindows::class,
+            CompletedWithWindows::class,
         ]);
 
         $this->setupDatabaseUserProvider();
@@ -151,7 +151,7 @@ class WindowsAuthMiddlewareTest extends DatabaseProviderTestCase
 
     public function test_authenticates_with_plain_user_provider()
     {
-        $this->expectsEvents([AuthenticatedWithWindows::class]);
+        $this->expectsEvents([CompletedWithWindows::class]);
         $this->doesntExpectEvents([
             Importing::class,
             Imported::class,

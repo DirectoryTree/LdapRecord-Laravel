@@ -2,6 +2,8 @@
 
 namespace LdapRecord\Laravel;
 
+use Illuminate\Support\Facades\Log;
+use LdapRecord\Laravel\Events\LoggableEvent;
 use LdapRecord\Laravel\Import\UserSynchronizer;
 use Illuminate\Auth\EloquentUserProvider;
 use Illuminate\Support\Facades\Auth;
@@ -14,26 +16,6 @@ use LdapRecord\Laravel\Commands\ImportLdapUsers;
 
 class LdapAuthServiceProvider extends ServiceProvider
 {
-    /**
-     * The events to log (if enabled).
-     *
-     * @var array
-     */
-    protected $events = [
-        Events\Import\Importing::class          => Listeners\LogImporting::class,
-        Events\Import\Imported::class           => Listeners\LogImported::class,
-        Events\Import\Synchronized::class       => Listeners\LogSynchronized::class,
-        Events\Import\Synchronizing::class      => Listeners\LogSynchronizing::class,
-        Events\DeletedMissing::class            => Listeners\LogDeletedMissing::class,
-        Events\Ldap\Bound::class                => Listeners\LogAuthenticated::class,
-        Events\Ldap\Binding::class              => Listeners\LogAuthentication::class,
-        Events\Ldap\BindFailed::class           => Listeners\LogAuthenticationFailure::class,
-        Events\Auth\Rejected::class             => Listeners\LogAuthenticationRejection::class,
-        Events\DiscoveredWithCredentials::class => Listeners\LogDiscovery::class,
-        Events\AuthenticatedWithWindows::class  => Listeners\LogWindowsAuth::class,
-        Events\Auth\EloquentUserTrashed::class  => Listeners\LogTrashedModel::class,
-    ];
-
     /**
      * Run service provider boot operations.
      *
@@ -99,13 +81,13 @@ class LdapAuthServiceProvider extends ServiceProvider
      */
     protected function registerEventListeners()
     {
-        if (config('ldap.logging', true)) {
-            // If logging is enabled, we will set up our event listeners that
-            // log each event fired throughout the authentication process.
-            foreach ($this->events as $event => $listener) {
-                Event::listen($event, $listener);
-            }
-        }
+        Event::listen('LdapRecord\Laravel\Events\*', function ($eventName, array $events) {
+            collect($events)->filter(function ($event) {
+                return $event instanceof LoggableEvent;
+            })->each(function (LoggableEvent $event) {
+                Log::log($event->getLogLevel(), $event->getLogMessage());
+            });
+        });
     }
 
     /**

@@ -3,9 +3,10 @@
 namespace LdapRecord\Laravel\Events\Auth;
 
 use LdapRecord\Models\Model as LdapModel;
+use LdapRecord\Laravel\Events\LoggableEvent;
 use Illuminate\Contracts\Auth\Authenticatable;
 
-class Completed
+class Completed extends LoggableEvent
 {
     /**
      * The LDAP model that belongs to the authenticatable model.
@@ -31,5 +32,13 @@ class Completed
     {
         $this->ldap = $ldap;
         $this->user = $user;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getLogMessage()
+    {
+        return "User [{$this->ldap->getName()}] has successfully authenticated.";
     }
 }

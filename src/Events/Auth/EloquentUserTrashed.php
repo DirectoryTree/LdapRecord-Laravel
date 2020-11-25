@@ -3,9 +3,10 @@
 namespace LdapRecord\Laravel\Events\Auth;
 
 use Illuminate\Contracts\Auth\Authenticatable;
+use LdapRecord\Laravel\Events\LoggableEvent;
 use LdapRecord\Models\Model;
 
-class EloquentUserTrashed
+class EloquentUserTrashed extends LoggableEvent
 {
     /**
      * The LDAP model that belongs to the trashed Eloquent model.
@@ -31,5 +32,13 @@ class EloquentUserTrashed
     {
         $this->ldap = $user;
         $this->user = $model;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getLogMessage()
+    {
+        return "User [{$this->ldap->getName()}] was denied authentication because their model is soft-deleted.";
     }
 }
