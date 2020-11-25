@@ -10,8 +10,8 @@ class DomainHydrator extends Hydrator
     /**
      * {@inheritdoc}
      */
-    public function hydrate(LdapModel $user, EloquentModel $database)
+    public function hydrate(LdapModel $object, EloquentModel $eloquent)
     {
-        $database->setLdapDomain($user->getConnectionName() ?? config('ldap.default'));
+        $eloquent->setLdapDomain($object->getConnectionName() ?? config('ldap.default'));
     }
 }

@@ -49,10 +49,10 @@ abstract class Hydrator
     /**
      * Hydrate the database model with the LDAP user.
      *
-     * @param LdapModel     $user
-     * @param EloquentModel $database
+     * @param LdapModel     $object
+     * @param EloquentModel $eloquent
      *
      * @return void
      */
-    abstract public function hydrate(LdapModel $user, EloquentModel $database);
+    abstract public function hydrate(LdapModel $object, EloquentModel $eloquent);
 }

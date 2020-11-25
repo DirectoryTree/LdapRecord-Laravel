@@ -10,8 +10,8 @@ class GuidHydrator extends Hydrator
     /**
      * {@inheritdoc}
      */
-    public function hydrate(LdapModel $user, EloquentModel $database)
+    public function hydrate(LdapModel $object, EloquentModel $eloquent)
     {
-        $database->setLdapGuid($user->getConvertedGuid());
+        $eloquent->setLdapGuid($object->getConvertedGuid());
     }
 }

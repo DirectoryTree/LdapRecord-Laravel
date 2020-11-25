@@ -13,22 +13,20 @@ class PasswordHydrator extends Hydrator
     /**
      * {@inheritdoc}
      */
-    public function hydrate(LdapModel $user, EloquentModel $database)
+    public function hydrate(LdapModel $object, EloquentModel $eloquent)
     {
-        if ($this->hasPasswordColumn()) {
-            // We will ensure that we always have a password to
-            // save to the user, even if one is not given.
-            $password = $this->password() ?? Str::random();
+        if (! $this->hasPasswordColumn()) {
+            return;
+        }
 
-            // If password sync is disabled, we will be sure to overwrite
-            // the password so it is not saved to the eloquent model.
-            if (! $this->isSyncingPasswords()) {
-                $password = Str::random();
-            }
+        $password = $this->password() ?? Str::random();
 
-            if ($this->passwordNeedsUpdate($database, $password)) {
-                $this->setPassword($database, $password);
-            }
+        if (! $this->isSyncingPasswords()) {
+            $password = Str::random();
+        }
+
+        if ($this->passwordNeedsUpdate($eloquent, $password)) {
+            $this->setPassword($eloquent, $password);
         }
     }
 
@@ -45,7 +43,9 @@ class PasswordHydrator extends Hydrator
         // If the model has a mutator for the password field, we
         // can assume hashing passwords is taken care of.
         // Otherwise, we will hash it normally.
-        $password = $model->hasSetMutator($this->passwordColumn()) ? $password : Hash::make($password);
+        $password = $model->hasSetMutator($this->passwordColumn())
+            ? $password
+            : Hash::make($password);
 
         $model->setAttribute($this->passwordColumn(), $password);
     }

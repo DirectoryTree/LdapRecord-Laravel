@@ -2,31 +2,27 @@
 
 namespace LdapRecord\Laravel\Import\Hydrators;
 
-use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Support\Arr;
 use LdapRecord\Models\Model as LdapModel;
+use Illuminate\Database\Eloquent\Model as EloquentModel;
 
 class AttributeHydrator extends Hydrator
 {
     /**
      * {@inheritdoc}
      */
-    public function hydrate(LdapModel $user, EloquentModel $database)
+    public function hydrate(LdapModel $object, EloquentModel $eloquent)
     {
-        foreach ($this->getSyncAttributes() as $modelField => $ldapField) {
-            // If the field is a loaded class and contains a `handle()`
-            // method, we need to construct the attribute handler.
+        foreach ($this->getSyncAttributes() as $eloquentField => $ldapField) {
             if ($this->isAttributeHandler($ldapField)) {
-                // We will construct the attribute handler using Laravel's
-                // IoC to allow developers to utilize application
-                // dependencies in the constructor.
-                app($ldapField)->handle($user, $database);
-            } else {
-                // We'll try to retrieve the value from the LDAP model. If the LDAP field is
-                // a string, we'll assume the developer wants the attribute, or a null
-                // value. Otherwise, the raw value of the LDAP field will be used.
-                $database->{$modelField} = is_string($ldapField) ? $user->getFirstAttribute($ldapField) : $ldapField;
+                app($ldapField)->handle($object, $eloquent);
+
+                continue;
             }
+
+            $eloquent->{$eloquentField} = is_string($ldapField)
+                ? $object->getFirstAttribute($ldapField)
+                : $ldapField;
         }
     }
 
@@ -37,7 +33,9 @@ class AttributeHydrator extends Hydrator
      */
     protected function getSyncAttributes()
     {
-        return (array) Arr::get($this->config, 'sync_attributes', ['name' => 'cn', 'email' => 'mail']);
+        return (array) Arr::get(
+            $this->config, 'sync_attributes', $default = ['name' => 'cn', 'email' => 'mail']
+        );
     }
 
     /**
