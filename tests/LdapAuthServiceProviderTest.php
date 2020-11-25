@@ -2,18 +2,6 @@
 
 namespace LdapRecord\Laravel\Tests;
 
-use Illuminate\Events\Dispatcher;
-use LdapRecord\Laravel\Events\Ldap\Bound;
-use LdapRecord\Laravel\Events\Ldap\Binding;
-use LdapRecord\Laravel\Events\Ldap\BindFailed;
-use LdapRecord\Laravel\Events\Auth\Rejected;
-use LdapRecord\Laravel\Events\Auth\EloquentUserTrashed;
-use LdapRecord\Laravel\Events\Auth\CompletedWithWindows;
-use LdapRecord\Laravel\Events\Auth\DiscoveredWithCredentials;
-use LdapRecord\Laravel\Events\Import\Imported;
-use LdapRecord\Laravel\Events\Import\Importing;
-use LdapRecord\Laravel\Events\Import\Synchronized;
-use LdapRecord\Laravel\Events\Import\Synchronizing;
 use LdapRecord\Laravel\LdapAuthServiceProvider;
 
 class LdapAuthServiceProviderTest extends TestCase
@@ -34,29 +22,5 @@ class LdapAuthServiceProviderTest extends TestCase
         $this->assertFileExists($migrationFile);
 
         unlink($migrationFile);
-    }
-
-    public function test_event_listeners_are_setup_when_logging_is_enabled()
-    {
-        /** @var Dispatcher $event */
-        $dispatcher = app(Dispatcher::class);
-
-        $events = [
-            Importing::class,
-            Imported::class,
-            Synchronized::class,
-            Synchronizing::class,
-            Bound::class,
-            Binding::class,
-            BindFailed::class,
-            Rejected::class,
-            DiscoveredWithCredentials::class,
-            CompletedWithWindows::class,
-            EloquentUserTrashed::class,
-        ];
-
-        foreach ($events as $event) {
-            $this->assertTrue($dispatcher->hasListeners($event));
-        }
     }
 }
