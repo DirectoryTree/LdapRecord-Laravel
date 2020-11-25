@@ -12,7 +12,7 @@ use LdapRecord\Laravel\Events\Import\Imported;
 use LdapRecord\Laravel\Events\Import\ImportFailed;
 use LdapRecord\Laravel\Events\Import\BulkImportStarted;
 use LdapRecord\Laravel\Events\Import\BulkImportCompleted;
-use LdapRecord\Laravel\Events\BulkImportDeletedMissing;
+use LdapRecord\Laravel\Events\Import\BulkImportDeletedMissing;
 use Symfony\Component\Console\Helper\ProgressBar;
 
 class ImportLdapUsers extends Command
@@ -89,6 +89,10 @@ class ImportLdapUsers extends Command
             return $this->error("Provider [{$this->argument('provider')}] is not configured for LDAP authentication.");
         } elseif (! $provider instanceof DatabaseUserProvider) {
             return $this->error("Provider [{$this->argument('provider')}] is not configured for database synchronization.");
+        }
+
+        if (! $this->isLogging()) {
+            config(['ldap.logging' => false]);
         }
 
         $this->applyCommandOptions();
@@ -196,10 +200,6 @@ class ImportLdapUsers extends Command
 
         if ($attributes = $this->option('attributes')) {
             $this->import->setLdapRequestAttributes(explode(',', $attributes));
-        }
-
-        if (! $this->isLogging()) {
-            $this->import->disableLogging();
         }
 
         if ($this->isRestoring()) {

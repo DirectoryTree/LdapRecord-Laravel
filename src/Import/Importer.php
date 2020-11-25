@@ -40,14 +40,14 @@ class Importer
     protected $synchronizer;
 
     /**
-     * The defined set of objects to import.
+     * The LDAP objects to import.
      *
      * @var \LdapRecord\Query\Collection|null
      */
     protected $objects;
 
     /**
-     * The successfully imported Eloquent models.
+     * The successfully imported LDAP object Eloquent models.
      *
      * @var \Illuminate\Support\Collection|null
      */
@@ -80,13 +80,6 @@ class Importer
      * @var string|null
      */
     protected $filter;
-
-    /**
-     * Whether logging is enabled.
-     *
-     * @var bool
-     */
-    protected $logging = true;
 
     /**
      * Whether to trash Eloquent models that were missing from the import.
@@ -208,18 +201,6 @@ class Importer
     }
 
     /**
-     * Disable writing to the log when objects are imported.
-     *
-     * @return $this
-     */
-    public function disableLogging()
-    {
-        $this->logging = false;
-
-        return $this;
-    }
-
-    /**
      * Soft-delete all Eloquent models that were missing from the import.
      *
      * @return $this
@@ -234,7 +215,7 @@ class Importer
     /**
      * Execute the import.
      *
-     * @return \LdapRecord\Query\Collection
+     * @return \Illuminate\Support\Collection
      *
      * @throws ImportException
      * @throws \LdapRecord\LdapRecordException
