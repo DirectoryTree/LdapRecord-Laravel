@@ -39,6 +39,6 @@ class Synchronizing extends LoggableEvent
      */
     public function getLogMessage()
     {
-        return "Object with name [{$this->object->getName()}] has been successfully synchronized.";
+        return "Object with name [{$this->object->getName()}] is being synchronized.";
     }
 }
