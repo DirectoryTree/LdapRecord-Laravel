@@ -99,9 +99,12 @@ trait EmulatesModelQueries
     protected function process(array $results)
     {
         return $this->model->newCollection($results)->transform(function ($object) {
-            return $this->model->newInstance()->setDn($object['dn'])->setRawAttributes(
-                $this->transform($object)
-            );
+            return $this->model->newInstance()
+                ->setDn($object['dn'])
+                ->setRawAttributes(array_merge(
+                    $this->transform($object),
+                    [$object['guid_key'] => [$object['guid']]]
+                ));
         });
     }
 }
