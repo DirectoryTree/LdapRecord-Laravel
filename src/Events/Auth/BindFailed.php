@@ -14,6 +14,6 @@ class BindFailed extends Event implements LoggableEvent
      */
     public function getLogMessage()
     {
-        return "User [{$this->eloquent->getName()}] has failed LDAP authentication.";
+        return "User [{$this->object->getName()}] has failed LDAP authentication.";
     }
 }
