@@ -4,7 +4,7 @@ namespace LdapRecord\Laravel\Tests\Emulator;
 
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Event;
-use LdapRecord\Laravel\Events\Import\BulkImportDeletedMissing;
+use LdapRecord\Laravel\Events\Import\DeletedMissing;
 use LdapRecord\Laravel\Import\ImportException;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Laravel\Tests\DatabaseProviderTestCase;
@@ -124,7 +124,7 @@ class EmulatedImportTest extends DatabaseProviderTestCase
 
     public function test_missing_users_are_soft_deleted_when_flag_is_enabled()
     {
-        Event::fake(BulkImportDeletedMissing::class);
+        Event::fake(DeletedMissing::class);
 
         $this->setupDatabaseUserProvider();
 
@@ -191,7 +191,7 @@ class EmulatedImportTest extends DatabaseProviderTestCase
             '--delete-missing' => true,
         ])->assertExitCode(0);
 
-        Event::assertDispatched(BulkImportDeletedMissing::class, function (BulkImportDeletedMissing $event) use ($missingLdapUser) {
+        Event::assertDispatched(DeletedMissing::class, function (DeletedMissing $event) use ($missingLdapUser) {
             return $event->deleted->count() == 1
                 && $event->deleted->first() == $missingLdapUser->guid
                 && $event->ldap instanceof User

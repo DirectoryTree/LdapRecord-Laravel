@@ -5,9 +5,10 @@ namespace LdapRecord\Laravel\Import;
 use Closure;
 use Exception;
 use LdapRecord\Laravel\DetectsSoftDeletes;
-use LdapRecord\Laravel\Events\Import\BulkImportCompleted;
-use LdapRecord\Laravel\Events\Import\BulkImportDeletedMissing;
-use LdapRecord\Laravel\Events\Import\BulkImportStarted;
+use LdapRecord\Laravel\Events\Import\Completed;
+use LdapRecord\Laravel\Events\Import\DeletedMissing;
+use LdapRecord\Laravel\Events\Import\Saved;
+use LdapRecord\Laravel\Events\Import\Started;
 use LdapRecord\Laravel\Events\Import\Imported;
 use LdapRecord\Laravel\Events\Import\ImportFailed;
 use LdapRecord\Models\Model as LdapRecord;
@@ -244,11 +245,11 @@ class Importer
             )->paginate();
         }
 
-        event(new BulkImportStarted($this->objects));
+        event(new Started($this->objects));
 
         $this->imported = $this->import($importer);
 
-        event(new BulkImportCompleted($this->objects, $this->imported));
+        event(new Completed($this->objects, $this->imported));
 
         if ($this->softDeleteMissing) {
             $this->softDeleteMissing(
@@ -263,33 +264,37 @@ class Importer
     /**
      * Import the objects into the database.
      *
-     * @param Synchronizer $importer
+     * @param Synchronizer $synchronizer
      *
      * @return \Illuminate\Support\Collection
      */
-    protected function import($importer)
+    protected function import($synchronizer)
     {
         return collect($this->objects->all())->map(
-            $this->buildImportCallback($importer)
+            $this->buildImportCallback($synchronizer)
         )->filter();
     }
 
     /**
      * Build the import callback.
      *
-     * @param Synchronizer $importer
+     * @param Synchronizer $synchronizer
      *
      * @return Closure
      */
-    protected function buildImportCallback($importer)
+    protected function buildImportCallback($synchronizer)
     {
-        return function ($object) use ($importer) {
-            $eloquent = $importer->createOrFindEloquentModel($object);
+        return function ($object) use ($synchronizer) {
+            $eloquent = $synchronizer->createOrFindEloquentModel($object);
 
             try {
-                $importer->synchronize($object, $eloquent)->save();
+                $synchronizer->synchronize($object, $eloquent)->save();
 
-                event(new Imported($object, $eloquent));
+                event(new Saved($object, $eloquent));
+
+                if ($eloquent->wasRecentlyCreated) {
+                    event(new Imported($object, $eloquent));
+                }
 
                 return $eloquent;
             } catch (Exception $e) {
@@ -330,7 +335,7 @@ class Importer
         }
 
         if (! $this->syncUsingCallback && empty($this->syncAttributes)) {
-            throw new ImportException('Sync attributes or a using callback must be defined to import objects.');
+            throw new ImportException('Sync attributes or a sync callback must be defined to import objects.');
         }
 
         return new Synchronizer(
@@ -398,7 +403,7 @@ class Importer
             ->update([$eloquent->getDeletedAtColumn() => $deletedAt = now()]);
 
         if ($deleted > 0) {
-            event(new BulkImportDeletedMissing($ldap, $eloquent, $toDelete));
+            event(new DeletedMissing($ldap, $eloquent, $toDelete));
         }
     }
 

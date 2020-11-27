@@ -11,10 +11,10 @@ use Mockery as m;
 
 class ImportCommandTest extends DatabaseProviderTestCase
 {
-    public function test_command_exits_when_invalid_provider_used()
+    public function test_command_exits_when_provider_does_not_exist()
     {
-        $this->artisan('ldap:import', ['provider' => 'eloquent'])
-            ->expectsOutput('Provider [eloquent] is not configured for LDAP authentication.')
+        $this->artisan('ldap:import', ['provider' => 'invalid'])
+            ->expectsOutput('Provider [invalid] does not exist.')
             ->assertExitCode(0);
     }
 
