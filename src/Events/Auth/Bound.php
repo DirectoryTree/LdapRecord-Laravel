@@ -5,7 +5,7 @@ namespace LdapRecord\Laravel\Events\Auth;
 use LdapRecord\Laravel\Events\Loggable;
 use LdapRecord\Laravel\Events\LoggableEvent;
 
-class EloquentUserTrashed extends Event implements LoggableEvent
+class Bound extends Event implements LoggableEvent
 {
     use Loggable;
 
@@ -14,6 +14,6 @@ class EloquentUserTrashed extends Event implements LoggableEvent
      */
     public function getLogMessage()
     {
-        return "User [{$this->object->getName()}] was denied authentication because their model is soft-deleted.";
+        return "User [{$this->object->getName()}] has successfully passed LDAP authentication.";
     }
 }

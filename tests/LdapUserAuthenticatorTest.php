@@ -5,9 +5,9 @@ namespace LdapRecord\Laravel\Tests;
 use LdapRecord\Auth\Guard;
 use LdapRecord\Connection;
 use LdapRecord\Laravel\Auth\Rule;
-use LdapRecord\Laravel\Events\Ldap\Bound;
-use LdapRecord\Laravel\Events\Ldap\Binding;
-use LdapRecord\Laravel\Events\Ldap\BindFailed;
+use LdapRecord\Laravel\Events\Auth\Bound;
+use LdapRecord\Laravel\Events\Auth\Binding;
+use LdapRecord\Laravel\Events\Auth\BindFailed;
 use LdapRecord\Laravel\Events\Auth\Rejected;
 use LdapRecord\Laravel\LdapUserAuthenticator;
 use LdapRecord\Models\Model;
@@ -125,7 +125,7 @@ class LdapUserAuthenticatorTest extends TestCase
     protected function getAuthenticatingModelMock($dn)
     {
         $model = m::mock(Model::class);
-        $model->shouldReceive('getDn')->twice()->andReturn($dn);
+        $model->shouldReceive('getDn')->once()->andReturn($dn);
 
         return $model;
     }

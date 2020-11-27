@@ -3,25 +3,28 @@
 namespace LdapRecord\Laravel\Events\Import;
 
 use Illuminate\Support\Collection;
+use LdapRecord\Laravel\Events\Loggable;
 use LdapRecord\Laravel\Events\LoggableEvent;
 use LdapRecord\Models\Model as LdapRecord;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 
-class DeletedMissing extends LoggableEvent
+class DeletedMissing implements LoggableEvent
 {
+    use Loggable;
+
     /**
      * The LdapRecord model used to import.
      *
      * @var LdapRecord
      */
-    public $ldap;
+    public $ldapModel;
 
     /**
      * The Eloquent model used to import.
      *
      * @var Eloquent
      */
-    public $eloquent;
+    public $eloquentModel;
 
     /**
      * The Object GUIDs that have been deleted.
@@ -33,14 +36,14 @@ class DeletedMissing extends LoggableEvent
     /**
      * Constructor.
      *
-     * @param LdapRecord $ldap
-     * @param Eloquent   $eloquent
+     * @param LdapRecord $ldapModel
+     * @param Eloquent   $eloquentModel
      * @param Collection $deleted
      */
-    public function __construct(LdapRecord $ldap, Eloquent $eloquent, Collection $deleted)
+    public function __construct(LdapRecord $ldapModel, Eloquent $eloquentModel, Collection $deleted)
     {
-        $this->ldap = $ldap;
-        $this->eloquent = $eloquent;
+        $this->ldapModel = $ldapModel;
+        $this->eloquentModel = $eloquentModel;
         $this->deleted = $deleted;
     }
 

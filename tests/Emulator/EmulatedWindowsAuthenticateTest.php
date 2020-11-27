@@ -4,8 +4,8 @@ namespace LdapRecord\Laravel\Tests\Emulator;
 
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Testing\WithFaker;
-use LdapRecord\Laravel\Events\Ldap\Bound;
-use LdapRecord\Laravel\Events\Ldap\Binding;
+use LdapRecord\Laravel\Events\Auth\Bound;
+use LdapRecord\Laravel\Events\Auth\Binding;
 use LdapRecord\Laravel\Events\Import\Imported;
 use LdapRecord\Laravel\Events\Import\Importing;
 use LdapRecord\Laravel\Events\Import\Synchronized;

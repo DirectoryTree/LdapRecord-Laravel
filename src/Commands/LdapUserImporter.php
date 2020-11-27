@@ -44,7 +44,7 @@ class LdapUserImporter extends Importer
     public function __construct()
     {
         Event::listen(Saved::class, function (Saved $event) {
-            if (! $event->ldap instanceof ActiveDirectory) {
+            if (! $event->object instanceof ActiveDirectory) {
                 return;
             }
 
@@ -53,11 +53,11 @@ class LdapUserImporter extends Importer
             }
 
             if ($this->trashDisabledUsers) {
-                $this->delete($event->ldap, $event->eloquent);
+                $this->delete($event->object, $event->eloquent);
             }
 
             if ($this->restoreEnabledUsers) {
-                $this->restore($event->ldap, $event->eloquent);
+                $this->restore($event->object, $event->eloquent);
             }
         });
     }

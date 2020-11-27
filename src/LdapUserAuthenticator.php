@@ -5,9 +5,9 @@ namespace LdapRecord\Laravel;
 use Closure;
 use LdapRecord\Models\Model;
 use LdapRecord\Laravel\Auth\Validator;
-use LdapRecord\Laravel\Events\Ldap\Bound;
-use LdapRecord\Laravel\Events\Ldap\Binding;
-use LdapRecord\Laravel\Events\Ldap\BindFailed;
+use LdapRecord\Laravel\Events\Auth\Bound;
+use LdapRecord\Laravel\Events\Auth\Binding;
+use LdapRecord\Laravel\Events\Auth\BindFailed;
 use LdapRecord\Laravel\Events\Auth\Rejected;
 use LdapRecord\Laravel\Events\Auth\EloquentUserTrashed;
 
@@ -188,7 +188,7 @@ class LdapUserAuthenticator
      */
     protected function attempting(Model $user)
     {
-        event(new Binding($user, $user->getDn()));
+        event(new Binding($user, $this->eloquentModel));
     }
 
     /**

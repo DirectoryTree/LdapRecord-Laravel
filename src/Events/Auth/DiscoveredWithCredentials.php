@@ -3,10 +3,13 @@
 namespace LdapRecord\Laravel\Events\Auth;
 
 use LdapRecord\Models\Model;
+use LdapRecord\Laravel\Events\Loggable;
 use LdapRecord\Laravel\Events\LoggableEvent;
 
-class DiscoveredWithCredentials extends LoggableEvent
+class DiscoveredWithCredentials implements LoggableEvent
 {
+    use Loggable;
+
     /**
      * The discovered LDAP user before authentication.
      *

@@ -3,10 +3,13 @@
 namespace LdapRecord\Laravel\Events\Import;
 
 use LdapRecord\Query\Collection;
+use LdapRecord\Laravel\Events\Loggable;
 use LdapRecord\Laravel\Events\LoggableEvent;
 
-class Started extends LoggableEvent
+class Started implements LoggableEvent
 {
+    use Loggable;
+
     /**
      * The LDAP objects being imported.
      *

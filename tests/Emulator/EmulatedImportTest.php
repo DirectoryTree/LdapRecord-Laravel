@@ -194,8 +194,8 @@ class EmulatedImportTest extends DatabaseProviderTestCase
         Event::assertDispatched(DeletedMissing::class, function (DeletedMissing $event) use ($missingLdapUser) {
             return $event->deleted->count() == 1
                 && $event->deleted->first() == $missingLdapUser->guid
-                && $event->ldap instanceof User
-                && $event->eloquent instanceof TestUserModelStub;
+                && $event->ldapModel instanceof User
+                && $event->eloquentModel instanceof TestUserModelStub;
         });
 
         $this->assertTrue($missingLdapUser->fresh()->trashed());

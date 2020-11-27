@@ -3,25 +3,14 @@
 namespace LdapRecord\Laravel\Events\Import;
 
 use Exception;
+use LdapRecord\Laravel\Events\Loggable;
 use LdapRecord\Laravel\Events\LoggableEvent;
 use LdapRecord\Models\Model as LdapModel;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 
-class ImportFailed extends LoggableEvent
+class ImportFailed extends Event implements LoggableEvent
 {
-    /**
-     * The LDAP user that was successfully imported.
-     *
-     * @var LdapModel
-     */
-    public $object;
-
-    /**
-     * The model belonging to the user that was imported.
-     *
-     * @var Eloquent
-     */
-    public $eloquent;
+    use Loggable;
 
     /**
      * The exception that was thrown during import.
@@ -39,8 +28,8 @@ class ImportFailed extends LoggableEvent
      */
     public function __construct(LdapModel $object, Eloquent $eloquent, Exception $exception)
     {
-        $this->object = $object;
-        $this->eloquent = $eloquent;
+        parent::__construct($object, $eloquent);
+
         $this->exception = $exception;
     }
 
