@@ -10,9 +10,9 @@ use LdapRecord\Laravel\Auth\UserProvider;
 use LdapRecord\Laravel\DetectsSoftDeletes;
 use LdapRecord\Laravel\Events\Import\Imported;
 use LdapRecord\Laravel\Events\Import\ImportFailed;
-use LdapRecord\Laravel\Events\Import\BulkImportStarted;
-use LdapRecord\Laravel\Events\Import\BulkImportCompleted;
-use LdapRecord\Laravel\Events\Import\BulkImportDeletedMissing;
+use LdapRecord\Laravel\Events\Import\Started;
+use LdapRecord\Laravel\Events\Import\Completed;
+use LdapRecord\Laravel\Events\Import\DeletedMissing;
 use Symfony\Component\Console\Helper\ProgressBar;
 
 class ImportLdapUsers extends Command
@@ -24,7 +24,7 @@ class ImportLdapUsers extends Command
      *
      * @var string
      */
-    protected $signature = 'ldap:import {provider : The authentication provider to import.}
+    protected $signature = 'ldap:import {provider=ldap : The authentication provider to import.}
             {user? : The specific user to import.}
             {--f|filter= : The raw LDAP filter for limiting users imported.}
             {--a|attributes= : Comma separated list of LDAP attributes to select. }
@@ -83,17 +83,17 @@ class ImportLdapUsers extends Command
     public function handle()
     {
         /** @var \LdapRecord\Laravel\Auth\DatabaseUserProvider $provider */
-        $provider = Auth::createUserProvider($this->argument('provider'));
+        $provider = Auth::createUserProvider($providerName = $this->argument('provider'));
 
-        if (! $provider instanceof UserProvider) {
-            return $this->error("Provider [{$this->argument('provider')}] is not configured for LDAP authentication.");
+        if (is_null($provider)) {
+            return $this->error("Provider [{$providerName}] does not exist.");
+        } else if (! $provider instanceof UserProvider) {
+            return $this->error("Provider [{$providerName}] is not configured for LDAP authentication.");
         } elseif (! $provider instanceof DatabaseUserProvider) {
-            return $this->error("Provider [{$this->argument('provider')}] is not configured for database synchronization.");
+            return $this->error("Provider [{$providerName}] is not configured for database synchronization.");
         }
 
-        if (! $this->isLogging()) {
-            config(['ldap.logging' => false]);
-        }
+        config(['ldap.logging' => $this->isLogging()]);
 
         $this->applyCommandOptions();
         $this->applyProviderImporter($provider);
@@ -121,11 +121,11 @@ class ImportLdapUsers extends Command
             ! $this->input->isInteractive()
             || $this->confirm('Would you like these users to be imported / synchronized?', $default = true)
         ) {
-            $imported = $this->import->execute();
+            $imported = $this->import->execute()->count();
 
-            $this->info("Successfully imported / synchronized [{$imported->count()}] user(s).");
+            $this->info("\n Successfully imported / synchronized [$imported] user(s).");
         } else {
-            $this->info('Okay, no users were imported / synchronized.');
+            $this->info("\n Okay, no users were imported / synchronized.");
         }
     }
 
@@ -136,7 +136,7 @@ class ImportLdapUsers extends Command
      */
     protected function registerEventListeners()
     {
-        Event::listen(BulkImportStarted::class, function (BulkImportStarted $event) {
+        Event::listen(Started::class, function (Started $event) {
             $this->progress = $this->output->createProgressBar($event->objects->count());
         });
 
@@ -152,13 +152,13 @@ class ImportLdapUsers extends Command
             }
         });
 
-        Event::listen(BulkImportDeletedMissing::class, function (BulkImportDeletedMissing $event) {
+        Event::listen(DeletedMissing::class, function (DeletedMissing $event) {
             $event->deleted->isEmpty()
-                ? $this->info('No missing users found. None have been soft-deleted.')
-                : $this->info("Successfully soft-deleted [{$event->deleted->count()}] users.");
+                ? $this->info("\n No missing users found. None have been soft-deleted.")
+                : $this->info("\n Successfully soft-deleted [{$event->deleted->count()}] users.");
         });
 
-        Event::listen(BulkImportCompleted::class, function (BulkImportCompleted $event) {
+        Event::listen(Completed::class, function (Completed $event) {
             if ($this->progress) {
                 $this->progress->finish();
             }

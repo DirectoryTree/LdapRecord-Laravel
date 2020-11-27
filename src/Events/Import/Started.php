@@ -5,7 +5,7 @@ namespace LdapRecord\Laravel\Events\Import;
 use LdapRecord\Query\Collection;
 use LdapRecord\Laravel\Events\LoggableEvent;
 
-class BulkImportStarted extends LoggableEvent
+class Started extends LoggableEvent
 {
     /**
      * The LDAP objects being imported.

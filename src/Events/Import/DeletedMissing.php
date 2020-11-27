@@ -7,7 +7,7 @@ use LdapRecord\Laravel\Events\LoggableEvent;
 use LdapRecord\Models\Model as LdapRecord;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 
-class BulkImportDeletedMissing extends LoggableEvent
+class DeletedMissing extends LoggableEvent
 {
     /**
      * The LdapRecord model used to import.

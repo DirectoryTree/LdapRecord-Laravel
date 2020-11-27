@@ -7,7 +7,7 @@ use LdapRecord\Laravel\Events\LoggableEvent;
 use LdapRecord\Query\Collection as LdapCollection;
 use Illuminate\Support\Collection as LaravelCollection;
 
-class BulkImportCompleted extends LoggableEvent
+class Completed extends LoggableEvent
 {
     /**
      * The LDAP objects imported.
@@ -46,6 +46,6 @@ class BulkImportCompleted extends LoggableEvent
 
         $synchronized = $this->imported->count() - $imported;
 
-        return "Completed import. Imported [$imported] LDAP objects. Synchronized [$synchronized] LDAP objects.";
+        return "Completed import. Imported [$imported] new LDAP objects. Synchronized [$synchronized] existing LDAP objects.";
     }
 }
