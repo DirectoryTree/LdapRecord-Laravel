@@ -3,7 +3,7 @@
 namespace LdapRecord\Laravel\Events\Auth;
 
 use LdapRecord\Models\Model as LdapModel;
-use Illuminate\Database\Eloquent\Model as EloquentModel;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 
 abstract class Event
 {
@@ -17,7 +17,7 @@ abstract class Event
     /**
      * The LDAP users authenticatable Eloquent model.
      *
-     * @var EloquentModel|null
+     * @var Eloquent|null
      */
     public $eloquent;
 
@@ -25,9 +25,9 @@ abstract class Event
      * Constructor.
      *
      * @param LdapModel          $object
-     * @param EloquentModel|null $user
+     * @param Eloquent|null $user
      */
-    public function __construct(LdapModel $object, EloquentModel $user = null)
+    public function __construct(LdapModel $object, Eloquent $user = null)
     {
         $this->object = $object;
         $this->eloquent = $user;
