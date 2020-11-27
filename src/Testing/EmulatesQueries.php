@@ -101,7 +101,7 @@ trait EmulatesQueries
      * @param Closure|null $closure
      * @param string       $state
      *
-     * @return ModelBuilder|Builder
+     * @return Builder
      */
     public function newNestedInstance(Closure $closure = null, $state = 'and')
     {
@@ -433,21 +433,11 @@ trait EmulatesQueries
             throw new Exception('LDAP objects must have object classes to be created.');
         }
 
-        $model = tap($this->newEloquentModel(), function ($model) use ($dn, $attributes) {
-            $dn = new DistinguishedName($dn);
+        $model = $this->applyObjectAttributesToEloquent(
+            $this->newEloquentModel(), $dn, $attributes
+        );
 
-            $model->dn = $dn->get();
-            $model->name = $dn->relative();
-            $model->parent_dn = $dn->parent();
-            $model->domain = $this->connection->name();
-
-            $guidKey = $this->determineGuidKey() ?? $this->determineGuidKeyFromAttributes($attributes);
-
-            $model->guid_key = $guidKey;
-            $model->guid = $this->pullGuidFromAttributes($guidKey, $attributes) ?? Uuid::uuid4()->toString();
-
-            $model->save();
-        });
+        $model->save();
 
         foreach ($attributes as $name => $values) {
             $attribute = $model->attributes()->create([
@@ -460,6 +450,32 @@ trait EmulatesQueries
         }
 
         return true;
+    }
+
+    /**
+     * Apply the LDAP objects attributes to the Eloquent model.
+     *
+     * @param LdapObject $model
+     * @param string     $dn
+     * @param array      $attributes
+     *
+     * @return LdapObject
+     */
+    protected function applyObjectAttributesToEloquent(LdapObject $model, $dn, $attributes)
+    {
+        $dn = new DistinguishedName($dn);
+
+        $model->dn = $dn->get();
+        $model->name = $dn->relative();
+        $model->parent_dn = $dn->parent();
+        $model->domain = $this->connection->name();
+
+        $guidKey = $this->determineGuidKey() ?? $this->determineGuidKeyFromAttributes($attributes);
+
+        $model->guid_key = $guidKey;
+        $model->guid = $this->pullGuidFromAttributes($guidKey, $attributes) ?? Uuid::uuid4()->toString();
+
+        return $model;
     }
 
     /**
