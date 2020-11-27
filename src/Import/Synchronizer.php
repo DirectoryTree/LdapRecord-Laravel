@@ -113,7 +113,7 @@ class Synchronizer
         // We cannot import an LDAP object without a valid GUID
         // identifier. Doing so would cause overwrites of the
         // first database model that does not contain one.
-        if (is_null($guid = $ldap->getConvertedGuid())) {
+        if (! $guid = $ldap->getConvertedGuid()) {
             throw ImportException::missingGuid($ldap);
         }
 
