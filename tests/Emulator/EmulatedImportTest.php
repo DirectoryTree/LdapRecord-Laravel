@@ -5,6 +5,7 @@ namespace LdapRecord\Laravel\Tests\Emulator;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Event;
 use LdapRecord\Laravel\Events\Import\DeletedMissing;
+use LdapRecord\Laravel\Events\Import\ImportFailed;
 use LdapRecord\Laravel\Import\ImportException;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Laravel\Tests\DatabaseProviderTestCase;
@@ -59,17 +60,12 @@ class EmulatedImportTest extends DatabaseProviderTestCase
 
     public function test_import_fails_when_required_attributes_are_missing()
     {
-        User::create([
-            'cn' => $this->faker->name,
-            'mail' => $this->faker->email,
-            'objectguid' => $this->faker->uuid,
-        ]);
+        User::create(['cn' => $this->faker->name]);
 
-        $this->expectException(ImportException::class);
+        $this->expectsEvents(ImportFailed::class);
 
         $this->artisan('ldap:import', [
             'provider' => 'ldap-database',
-            '--attributes' => 'foo,bar,baz',
             '--no-interaction',
         ])->assertExitCode(0);
     }

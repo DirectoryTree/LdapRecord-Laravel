@@ -12,10 +12,10 @@ use LdapRecord\Laravel\Events\Import\Imported;
 use LdapRecord\Laravel\Events\Import\Importing;
 use LdapRecord\Laravel\Events\Import\Synchronized;
 use LdapRecord\Laravel\Events\Import\Synchronizing;
+use LdapRecord\Laravel\Import\ImportException;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Laravel\Tests\DatabaseProviderTestCase;
 use LdapRecord\Laravel\Tests\TestUserModelStub;
-use LdapRecord\LdapRecordException;
 use LdapRecord\Models\ActiveDirectory\User;
 
 class EmulatedAuthenticationTest extends DatabaseProviderTestCase
@@ -77,7 +77,6 @@ class EmulatedAuthenticationTest extends DatabaseProviderTestCase
         $user = User::create([
             'cn' => 'John',
             'mail' => 'jdoe@email.com',
-            'objectguid' => $this->faker->uuid,
         ]);
 
         $this->assertFalse(Auth::attempt(['mail' => $user->mail[0], 'password' => 'secret']));
@@ -89,9 +88,13 @@ class EmulatedAuthenticationTest extends DatabaseProviderTestCase
 
         $this->setupDatabaseUserProvider();
 
-        $user = User::create(['cn' => 'John', 'mail' => 'jdoe@email.com']);
+        $user = User::create([
+            'cn' => 'John',
+            'mail' => 'jdoe@email.com',
+            'objectguid' => '',
+        ]);
 
-        $this->expectException(LdapRecordException::class);
+        $this->expectException(ImportException::class);
 
         $this->assertFalse(Auth::attempt(['mail' => $user->mail[0], 'password' => 'secret']));
     }

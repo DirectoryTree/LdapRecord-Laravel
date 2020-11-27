@@ -196,8 +196,9 @@ class EmulatedModelQueryTest extends TestCase
             $model->save();
         });
 
+        $this->assertNull($model->getObjectGuid());
         $this->assertTrue($model->is($model->fresh()));
-        $this->assertEquals($model, $model->fresh());
+        $this->assertIsString($model->fresh()->getObjectGuid());
     }
 
     public function test_select()
@@ -230,8 +231,8 @@ class EmulatedModelQueryTest extends TestCase
         $this->assertCount(2, $models);
         $this->assertTrue($john->is($models[0]));
         $this->assertTrue($jane->is($models[1]));
-        $this->assertEquals($john->getAttributes(), $models[0]->getAttributes());
-        $this->assertEquals($jane->getAttributes(), $models[1]->getAttributes());
+        $this->assertEquals($john->fresh()->getAttributes(), $models[0]->getAttributes());
+        $this->assertEquals($jane->fresh()->getAttributes(), $models[1]->getAttributes());
     }
 
     public function test_get_only_returns_matching_object_classes()
