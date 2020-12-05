@@ -10,6 +10,7 @@ use LdapRecord\Container;
 use LdapRecord\Laravel\Commands\MakeLdapModel;
 use LdapRecord\Laravel\Commands\MakeLdapRule;
 use LdapRecord\Laravel\Commands\MakeLdapScope;
+use LdapRecord\Laravel\Commands\BrowseLdapServer;
 use LdapRecord\Laravel\Commands\TestLdapConnection;
 
 class LdapServiceProvider extends ServiceProvider
@@ -53,6 +54,7 @@ class LdapServiceProvider extends ServiceProvider
             MakeLdapScope::class,
             MakeLdapModel::class,
             TestLdapConnection::class,
+            BrowseLdapServer::class,
         ]);
     }
 
