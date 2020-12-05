@@ -182,7 +182,7 @@ class BrowseLdapServer extends Command
         return $this->newLdapQuery()
             ->in($this->selectedDn)
             ->listing()
-            ->get()
+            ->paginate()
             ->map(function (Entry $object) {
                 return $object->getDn();
             })->toArray();
