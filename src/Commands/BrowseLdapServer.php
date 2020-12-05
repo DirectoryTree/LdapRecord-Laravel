@@ -19,7 +19,7 @@ class BrowseLdapServer extends Command
      *
      * @var string
      */
-    protected $signature = 'ldap:browse {connection=default : The LDAP connection to browse.}"';
+    protected $signature = 'ldap:browse {connection=default : The LDAP connection to browse.}';
 
     /**
      * The LDAP connections base DN (root).
