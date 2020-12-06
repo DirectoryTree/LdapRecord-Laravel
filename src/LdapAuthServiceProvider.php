@@ -83,7 +83,7 @@ class LdapAuthServiceProvider extends ServiceProvider
     {
         Event::listen('LdapRecord\Laravel\Events\*', function ($eventName, array $events) {
             collect($events)->filter(function ($event) {
-                return $event instanceof LoggableEvent;
+                return $event instanceof LoggableEvent && $event->shouldLogEvent();
             })->each(function (LoggableEvent $event) {
                 Log::log($event->getLogLevel(), $event->getLogMessage());
             });
