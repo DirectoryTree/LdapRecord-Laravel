@@ -5,6 +5,7 @@ namespace LdapRecord\Laravel\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
+use LdapRecord\Models\Entry;
 use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use LdapRecord\Laravel\Auth\UserProvider;
 use LdapRecord\Laravel\DetectsSoftDeletes;
@@ -30,7 +31,7 @@ class ImportLdapUsers extends Command
             {--a|attributes= : Comma separated list of LDAP attributes to select. }
             {--d|delete : Soft-delete the users model if their LDAP account is disabled.}
             {--r|restore : Restores soft-deleted models if their LDAP account is enabled.}
-            {--delete-missing : Soft-delete all users that are missing from the import. }
+            {--dm|delete-missing : Soft-delete all users that are missing from the import. }
             {--no-log : Disables logging successful and unsuccessful imports.}';
 
     /**
@@ -82,6 +83,8 @@ class ImportLdapUsers extends Command
      */
     public function handle()
     {
+        config(['ldap.logging' => $this->isLogging()]);
+
         /** @var \LdapRecord\Laravel\Auth\DatabaseUserProvider $provider */
         $provider = Auth::createUserProvider($providerName = $this->argument('provider'));
 
@@ -92,8 +95,6 @@ class ImportLdapUsers extends Command
         } elseif (! $provider instanceof DatabaseUserProvider) {
             return $this->error("Provider [{$providerName}] is not configured for database synchronization.");
         }
-
-        config(['ldap.logging' => $this->isLogging()]);
 
         $this->applyCommandOptions();
         $this->applyProviderImporter($provider);
@@ -252,14 +253,14 @@ class ImportLdapUsers extends Command
 
         $headers = ['Name', 'Distinguished Name'];
 
-        $rows = [];
-
-        foreach ($this->objects as $object) {
-            $rows[] = [
+        $rows = $this->objects->sortBy(function (Entry $object) {
+            return $object->getName();
+        })->map(function (Entry $object) {
+            return [
                 'name' => $object->getRdn(),
                 'dn' => $object->getDn(),
             ];
-        }
+        })->toArray();
 
         $this->table($headers, $rows);
     }
