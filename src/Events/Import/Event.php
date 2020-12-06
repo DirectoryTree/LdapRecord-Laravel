@@ -3,7 +3,7 @@
 namespace LdapRecord\Laravel\Events\Import;
 
 use LdapRecord\Models\Model as LdapModel;
-use Illuminate\Database\Eloquent\Model as Eloquent;
+use Illuminate\Database\Eloquent\Model as EloquentModel;
 
 abstract class Event
 {
@@ -17,17 +17,17 @@ abstract class Event
     /**
      * The Eloquent model belonging to the LDAP object.
      *
-     * @var Eloquent
+     * @var EloquentModel
      */
     public $eloquent;
 
     /**
      * Constructor.
      *
-     * @param LdapModel $object
-     * @param Eloquent  $eloquent
+     * @param LdapModel     $object
+     * @param EloquentModel $eloquent
      */
-    public function __construct(LdapModel $object, Eloquent $eloquent)
+    public function __construct(LdapModel $object, EloquentModel $eloquent)
     {
         $this->object = $object;
         $this->eloquent = $eloquent;
