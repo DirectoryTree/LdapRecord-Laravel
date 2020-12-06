@@ -3,6 +3,7 @@
 namespace LdapRecord\Laravel\Commands;
 
 use InvalidArgumentException;
+use LdapRecord\Container;
 use LdapRecord\Models\Entry;
 use Illuminate\Console\Command;
 use LdapRecord\Models\Attributes\DistinguishedName;
@@ -62,6 +63,14 @@ class BrowseLdapServer extends Command
      */
     public function handle()
     {
+        $connection = $this->argument('connection');
+
+        $this->info("Connecting to [$connection]...");
+
+        Container::getConnection($connection)->connect();
+
+        $this->info("Successfully connected.");
+
         $this->baseDn = $this->newLdapQuery()->getDn();
 
         $this->selectedDn = $this->baseDn;
@@ -182,11 +191,11 @@ class BrowseLdapServer extends Command
             ->in($this->selectedDn)
             ->listing()
             ->paginate()
-            ->map(function (Entry $object) {
+            ->sortBy(function (Entry $object) {
+                return $object->getName();
+            })->map(function (Entry $object) {
                 return $object->getDn();
-            })->sortBy(function (Entry $object) {
-                return $object->getDn();
-            })->toArray();
+            })->values()->toArray();
     }
 
     /**
