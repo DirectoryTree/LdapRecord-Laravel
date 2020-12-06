@@ -17,6 +17,13 @@ class LdapUserRepository
     protected $model;
 
     /**
+     * The credential array keys to bypass.
+     *
+     * @var array
+     */
+    protected $bypassCredentialKeys = ['password', 'fallback'];
+
+    /**
      * Constructor.
      *
      * @param string $model
@@ -79,7 +86,7 @@ class LdapUserRepository
         $query = $this->query();
 
         foreach ($credentials as $key => $value) {
-            if (Str::contains($key, ['password', 'fallback'])) {
+            if (Str::contains($key, $this->bypassCredentialKeys)) {
                 continue;
             }
 
@@ -90,11 +97,13 @@ class LdapUserRepository
             }
         }
 
-        if (! is_null($user = $query->first())) {
-            event(new DiscoveredWithCredentials($user));
-
-            return $user;
+        if (is_null($user = $query->first())) {
+            return;
         }
+
+        event(new DiscoveredWithCredentials($user));
+
+        return $user;
     }
 
     /**
