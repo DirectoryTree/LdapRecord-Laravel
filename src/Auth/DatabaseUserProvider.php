@@ -78,7 +78,7 @@ class DatabaseUserProvider extends UserProvider
      *
      * @return UserSynchronizer
      */
-    public function getLdapUserImporter()
+    public function getLdapUserSynchronizer()
     {
         return $this->synchronizer;
     }

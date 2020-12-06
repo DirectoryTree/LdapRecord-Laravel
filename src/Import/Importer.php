@@ -174,15 +174,15 @@ class Importer
     }
 
     /**
-     * Set the LDAP importer to use.
+     * Set the LDAP synchronizer to use.
      *
-     * @param Synchronizer $importer
+     * @param Synchronizer $synchronizer
      *
      * @return $this
      */
-    public function setLdapImporter(Synchronizer $importer)
+    public function setLdapSynchronizer(Synchronizer $synchronizer)
     {
-        $this->synchronizer = $importer;
+        $this->synchronizer = $synchronizer;
 
         return $this;
     }

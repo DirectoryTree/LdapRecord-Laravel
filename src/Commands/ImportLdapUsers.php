@@ -97,7 +97,7 @@ class ImportLdapUsers extends Command
         }
 
         $this->applyCommandOptions();
-        $this->applyProviderImporter($provider);
+        $this->applyProviderSynchronizer($provider);
         $this->applyProviderRepository($provider);
 
         if (! $this->hasObjectsToImport()) {
@@ -217,13 +217,13 @@ class ImportLdapUsers extends Command
     }
 
     /**
-     * Set the importer to use on the import.
+     * Set the synchronizer to use on the import.
      *
      * @param DatabaseUserProvider $provider
      */
-    protected function applyProviderImporter(DatabaseUserProvider $provider)
+    protected function applyProviderSynchronizer(DatabaseUserProvider $provider)
     {
-        $this->import->setLdapImporter($provider->getLdapUserImporter());
+        $this->import->setLdapSynchronizer($provider->getLdapUserSynchronizer());
     }
 
     /**

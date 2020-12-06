@@ -255,9 +255,9 @@ class WindowsAuthenticate
         // Here we will determine if the current provider in use uses database
         // synchronization. We will execute the LDAP importer in such case,
         // synchronizing the user and saving their database model.
-        $model = $provider instanceof DatabaseUserProvider ?
-            $provider->getLdapUserImporter()->run($user) :
-            null;
+        $model = $provider instanceof DatabaseUserProvider
+            ? $provider->getLdapUserSynchronizer()->run($user)
+            : null;
 
         // Here we will use the LDAP user authenticator to validate that the single-sign-on
         // user is allowed to sign into our application. For our callback, we will always

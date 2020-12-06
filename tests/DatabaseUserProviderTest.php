@@ -20,7 +20,7 @@ class DatabaseUserProviderTest extends DatabaseProviderTestCase
             $this->createLdapUserAuthenticator(),
             $importer
         );
-        $this->assertSame($importer, $provider->getLdapUserImporter());
+        $this->assertSame($importer, $provider->getLdapUserSynchronizer());
     }
 
     public function test_retrieve_by_id_uses_eloquent()
