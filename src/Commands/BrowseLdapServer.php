@@ -2,6 +2,7 @@
 
 namespace LdapRecord\Laravel\Commands;
 
+use InvalidArgumentException;
 use LdapRecord\Models\Entry;
 use Illuminate\Console\Command;
 use LdapRecord\Models\Attributes\DistinguishedName;
@@ -36,6 +37,25 @@ class BrowseLdapServer extends Command
     protected $selectedDn;
 
     /**
+     * The operations and their tasks.
+     *
+     * @var array
+     */
+    protected $operations;
+
+    /**
+     * Constructor.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->operations = $this->getOperationTasks();
+    }
+
+    /**
      * Execute the command.
      *
      * @return void
@@ -60,7 +80,7 @@ class BrowseLdapServer extends Command
     {
         $this->info("Viewing object [$this->selectedDn]");
 
-        $operations = $this->getOperations();
+        $operations = $this->getAvailableOperations();
 
         // If the base DN is equal to the currently selected DN, the
         // developer cannot navigate up any further. We'll remove
@@ -78,38 +98,17 @@ class BrowseLdapServer extends Command
      * @param string $operation
      *
      * @return void
+     *
+     * @throws InvalidArgumentException
      */
     protected function performOperation($operation)
     {
-        $operations = [
-            static::OPERATION_INSPECT_OBJECT => function () {
-                $this->displayAttributes();
-            },
-            static::OPERATION_NAVIGATE_UP => function () {
-                $this->selectedDn = (new DistinguishedName($this->selectedDn))->parent();
+        throw_if(
+            ! array_key_exists($operation, $this->operations),
+            new InvalidArgumentException("Operation [$operation] does not exist.")
+        );
 
-                $this->askForOperation();
-            },
-            static::OPERATION_NAVIGATE_DOWN => function () {
-                $this->displayNestedObjects();
-
-                $this->askForOperation();
-            },
-            static::OPERATION_NAVIGATE_TO_ROOT => function () {
-                $this->selectedDn = $this->baseDn;
-
-                $this->askForOperation();
-            },
-            static::OPERATION_NAVIGATE_TO => function () {
-                $this->selectedDn = $this->ask('Enter the objects distinguished name you would like to navigate to.');
-
-                $this->displayNestedObjects();
-
-                $this->askForOperation();
-            }
-        ];
-
-        return $operations[$operation]();
+        return $this->operations[$operation]();
     }
 
     /**
@@ -125,7 +124,7 @@ class BrowseLdapServer extends Command
             return $this->askForOperation('This object contains no nested objects. Select operation');
         }
 
-        $dns[static::OPERATION_NAVIGATE_UP] = $this->getOperations()[static::OPERATION_NAVIGATE_UP];
+        $dns[static::OPERATION_NAVIGATE_UP] = $this->getAvailableOperations()[static::OPERATION_NAVIGATE_UP];
 
         $selected = $this->choice('Select an object to inspect', $dns);
 
@@ -185,7 +184,45 @@ class BrowseLdapServer extends Command
             ->paginate()
             ->map(function (Entry $object) {
                 return $object->getDn();
+            })->sortBy(function (Entry $object) {
+                return $object->getDn();
             })->toArray();
+    }
+
+    /**
+     * Get the operations tasks.
+     *
+     * @return \Closure[]
+     */
+    protected function getOperationTasks()
+    {
+        return [
+            static::OPERATION_INSPECT_OBJECT => function () {
+                $this->displayAttributes();
+            },
+            static::OPERATION_NAVIGATE_UP => function () {
+                $this->selectedDn = (new DistinguishedName($this->selectedDn))->parent();
+
+                $this->askForOperation();
+            },
+            static::OPERATION_NAVIGATE_DOWN => function () {
+                $this->displayNestedObjects();
+
+                $this->askForOperation();
+            },
+            static::OPERATION_NAVIGATE_TO_ROOT => function () {
+                $this->selectedDn = $this->baseDn;
+
+                $this->askForOperation();
+            },
+            static::OPERATION_NAVIGATE_TO => function () {
+                $this->selectedDn = $this->ask('Enter the objects distinguished name you would like to navigate to.');
+
+                $this->displayNestedObjects();
+
+                $this->askForOperation();
+            }
+        ];
     }
 
     /**
@@ -193,7 +230,7 @@ class BrowseLdapServer extends Command
      *
      * @return array
      */
-    protected function getOperations()
+    protected function getAvailableOperations()
     {
         return [
             static::OPERATION_INSPECT_OBJECT => 'View the selected objects attributes',
