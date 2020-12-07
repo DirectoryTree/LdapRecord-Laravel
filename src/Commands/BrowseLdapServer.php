@@ -201,7 +201,7 @@ class BrowseLdapServer extends Command
     /**
      * Get the operations tasks.
      *
-     * @return \Closure[]
+     * @return array
      */
     protected function getOperationTasks()
     {
