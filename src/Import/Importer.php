@@ -138,7 +138,7 @@ class Importer
      *
      * @return $this
      */
-    public function setLdapSyncAttributes(array $attributes)
+    public function setSyncAttributes(array $attributes)
     {
         $this->syncAttributes = $attributes;
 
@@ -253,8 +253,7 @@ class Importer
 
         if ($this->softDeleteMissing) {
             $this->softDeleteMissing(
-                $importer->createEloquentModel(),
-                $ldapRecord
+                $importer->createEloquentModel(), $ldapRecord
             );
         }
 

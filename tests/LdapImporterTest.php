@@ -128,7 +128,7 @@ class LdapImporterTest extends TestCase
         $imported = (new Importer)
             ->setLdapModel(LdapGroup::class)
             ->setEloquentModel(Group::class)
-            ->setLdapSyncAttributes(['name' => 'cn'])
+            ->setSyncAttributes(['name' => 'cn'])
             ->execute();
 
         $this->assertCount(1, $imported);
