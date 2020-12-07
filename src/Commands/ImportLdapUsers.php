@@ -72,6 +72,8 @@ class ImportLdapUsers extends Command
         parent::__construct();
 
         $this->import = $import;
+
+        $this->registerEventListeners();
     }
 
     /**
@@ -97,14 +99,20 @@ class ImportLdapUsers extends Command
         }
 
         $this->applyCommandOptions();
-        $this->applyProviderSynchronizer($provider);
         $this->applyProviderRepository($provider);
+        $this->applyProviderSynchronizer($provider);
 
-        if (! $this->hasObjectsToImport()) {
-            return;
+        $this->objects = $this->import->loadObjectsFromRepository($this->argument('user'));
+
+        if ($this->objects->count() === 0) {
+            return $this->info('There were no users found to import.');
         }
 
-        $this->registerEventListeners();
+        if ($this->objects->count() === 1) {
+            $this->info("Found user [{$this->objects->first()->getRdn()}].");
+        } else {
+            $this->info("Found [{$this->objects->count()}] user(s).");
+        }
 
         $this->confirmAndDisplayObjects();
 
@@ -164,28 +172,6 @@ class ImportLdapUsers extends Command
                 $this->progress->finish();
             }
         });
-    }
-
-    /**
-     * Determine if there are LDAP objects to import.
-     *
-     * @return bool
-     */
-    protected function hasObjectsToImport()
-    {
-        $this->objects = $this->import->loadObjectsFromRepository($this->argument('user'));
-
-        switch(true) {
-            case $this->objects->count() === 0:
-                $this->info('There were no users found to import.');
-                return false;
-            case $this->objects->count() === 1:
-                $this->info("Found user [{$this->objects->first()->getRdn()}].");
-                return true;
-            default:
-                $this->info("Found [{$this->objects->count()}] user(s).");
-                return true;
-        }
     }
 
     /**
