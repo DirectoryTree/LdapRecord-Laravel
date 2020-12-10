@@ -7,6 +7,7 @@ use Exception;
 use LdapRecord\Laravel\DetectsSoftDeletes;
 use LdapRecord\Laravel\Events\Import\Completed;
 use LdapRecord\Laravel\Events\Import\DeletedMissing;
+use LdapRecord\Laravel\Events\Import\Restored;
 use LdapRecord\Laravel\Events\Import\Saved;
 use LdapRecord\Laravel\Events\Import\Started;
 use LdapRecord\Laravel\Events\Import\Imported;
@@ -88,6 +89,13 @@ class Importer
      * @var bool
      */
     protected $softDeleteMissing = false;
+
+    /**
+     * Whether to restore trashed Eloquent models that were previously missing.
+     *
+     * @var bool
+     */
+    protected $softRestoreDiscovered = false;
 
     /**
      * Set the LdapRecord model to use for importing.
@@ -214,6 +222,18 @@ class Importer
     }
 
     /**
+     * Soft-restore all Eloquent models that were previously missing.
+     *
+     * @return $this
+     */
+    public function enableSoftRestore()
+    {
+        $this->softRestoreDiscovered = true;
+
+        return $this;
+    }
+
+    /**
      * Execute the import.
      *
      * @return \Illuminate\Support\Collection
@@ -253,7 +273,7 @@ class Importer
 
         if ($this->softDeleteMissing) {
             $this->softDeleteMissing(
-                $importer->createEloquentModel(), $ldapRecord
+                $ldapRecord, $importer->createEloquentModel()
             );
         }
 
@@ -275,7 +295,7 @@ class Importer
     }
 
     /**
-     * Build the import callback.
+     * Build the callback that executes the import process on each LDAP object.
      *
      * @param Synchronizer $synchronizer
      *
@@ -287,7 +307,13 @@ class Importer
             $eloquent = $synchronizer->createOrFindEloquentModel($object);
 
             try {
-                $synchronizer->synchronize($object, $eloquent)->save();
+                $synchronizer->synchronize($object, $eloquent);
+
+                if ($this->softRestoreDiscovered) {
+                    $this->softRestoreDiscovered($object, $eloquent);
+                }
+
+                $eloquent->save();
 
                 event(new Saved($object, $eloquent));
 
@@ -363,14 +389,37 @@ class Importer
     }
 
     /**
-     * Soft-delete missing Eloquent models that are missing from the imported.
+     * Soft-restore the discovered LDAP objects Eloquent model.
      *
-     * @param Eloquent                     $eloquent
-     * @param LdapRecord                   $ldap
+     * @param LdapRecord $object
+     * @param Eloquent   $model
      *
      * @return void
      */
-    protected function softDeleteMissing(Eloquent $eloquent, LdapRecord $ldap)
+    protected function softRestoreDiscovered(LdapRecord $object, Eloquent $model)
+    {
+        if (! $this->isUsingSoftDeletes($model)) {
+            return;
+        }
+
+        if (! $model->trashed()) {
+            return;
+        }
+
+        $model->restore();
+
+        event(new Restored($object, $model));
+    }
+
+    /**
+     * Soft-delete missing Eloquent models that are missing from the imported.
+     *
+     * @param LdapRecord $ldap
+     * @param Eloquent   $eloquent
+     *
+     * @return void
+     */
+    protected function softDeleteMissing(LdapRecord $ldap, Eloquent $eloquent)
     {
         if (! $this->isUsingSoftDeletes($eloquent)) {
             return;
