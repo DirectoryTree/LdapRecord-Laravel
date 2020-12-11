@@ -21,9 +21,9 @@ class LdapServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        $this->registerLogging();
         $this->registerConfiguration();
         $this->registerCommands();
-        $this->registerLogging();
         $this->registerLdapConnections();
     }
 
@@ -68,7 +68,7 @@ class LdapServiceProvider extends ServiceProvider
         }
 
         if (! is_null($logger = Log::getFacadeRoot())) {
-            Container::getInstance()->setLogger($logger);
+            Container::setLogger($logger);
         }
     }
 
