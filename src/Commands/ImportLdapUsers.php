@@ -72,8 +72,6 @@ class ImportLdapUsers extends Command
         parent::__construct();
 
         $this->import = $import;
-
-        $this->registerEventListeners();
     }
 
     /**
@@ -85,6 +83,8 @@ class ImportLdapUsers extends Command
      */
     public function handle()
     {
+        $this->registerEventListeners();
+
         config(['ldap.logging' => $this->isLogging()]);
 
         /** @var \LdapRecord\Laravel\Auth\DatabaseUserProvider $provider */
