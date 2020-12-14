@@ -205,26 +205,30 @@ class ImportLdapUsers extends Command
         $existing = $eloquent->newQuery()
             ->whereNotNull($eloquent->getLdapGuidColumn())
             ->where($eloquent->getLdapDomainColumn(), '=', $domain)
-            ->pluck($eloquent->getLdapGuidColumn(), '=', $domain);
+            ->pluck($eloquent->getLdapGuidColumn());
 
         $toDelete = $existing->diff($this->imported);
 
-        if ($toDelete->isNotEmpty()) {
-            $deleted = $eloquent->newQuery()
-                ->whereNotNull($eloquent->getLdapGuidColumn())
-                ->where($eloquent->getLdapDomainColumn(), '=', $domain)
-                ->whereIn($eloquent->getLdapGuidColumn(), $toDelete->toArray())
-                ->update([$eloquent->getDeletedAtColumn() => $deletedAt = now()]);
-
-            if (!$deleted) {
-                return $this->info('No missing users found. None have been soft-deleted.');
-            }
+        if ($toDelete->isEmpty()) {
+            return $this->info('No missing users found. None have been soft-deleted.');
         }
+
+        $deleted = $eloquent->newQuery()
+            ->whereNotNull($eloquent->getLdapGuidColumn())
+            ->where($eloquent->getLdapDomainColumn(), '=', $domain)
+            ->whereIn($eloquent->getLdapGuidColumn(), $toDelete->toArray())
+            ->update([$eloquent->getDeletedAtColumn() => $deletedAt = now()]);
 
         $this->info("Successfully soft-deleted [$deleted] users.");
 
-        // Log all ID's which were deleted using an event.
-        event(new DeletedMissing($toDelete, $ldap, $eloquent));
+        $ids = $eloquent->newQuery()
+            ->select($eloquent->getKeyName())
+            ->onlyTrashed()
+            ->whereIn($eloquent->getLdapGuidColumn(), $toDelete->toArray())
+            ->get()
+            ->pluck($eloquent->getKeyName());
+
+        event(new DeletedMissing($ids, $ldap, $eloquent));
     }
 
     /**
