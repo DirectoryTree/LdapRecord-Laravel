@@ -2,8 +2,8 @@
 
 namespace LdapRecord\Laravel\Testing;
 
-use LdapRecord\Testing\DirectoryFake;
 use LdapRecord\Testing\LdapFake;
+use LdapRecord\Testing\DirectoryFake;
 
 class DirectoryEmulator extends DirectoryFake
 {
@@ -43,8 +43,10 @@ class DirectoryEmulator extends DirectoryFake
      *
      * @return void
      */
-    public static function teardown()
+    public static function tearDown()
     {
+        parent::tearDown();
+
         app(LdapDatabaseManager::class)->teardown();
     }
 }
