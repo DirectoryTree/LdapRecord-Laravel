@@ -5,10 +5,18 @@ namespace LdapRecord\Laravel\Tests;
 use Illuminate\Support\Facades\Hash;
 use LdapRecord\Laravel\LdapAuthServiceProvider;
 use LdapRecord\Laravel\LdapServiceProvider;
+use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
 {
+    protected function tearDown(): void
+    {
+        DirectoryEmulator::teardown();
+
+        parent::tearDown();
+    }
+
     public function createApplication()
     {
         $app = parent::createApplication();

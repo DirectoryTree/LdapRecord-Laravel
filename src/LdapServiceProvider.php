@@ -70,7 +70,7 @@ class LdapServiceProvider extends ServiceProvider
         }
 
         if (! is_null($logger = Log::getFacadeRoot())) {
-            Container::setLogger($logger);
+            Container::getInstance()->setLogger($logger);
         }
     }
 
