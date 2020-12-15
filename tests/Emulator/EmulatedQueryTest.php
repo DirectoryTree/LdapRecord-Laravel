@@ -13,14 +13,7 @@ class EmulatedQueryTest extends TestCase
     {
         parent::setUp();
 
-        DirectoryEmulator::setup('default');
-    }
-
-    protected function tearDown(): void
-    {
-        DirectoryEmulator::teardown();
-
-        parent::tearDown();
+        DirectoryEmulator::setup();
     }
 
     protected function getEnvironmentSetup($app)

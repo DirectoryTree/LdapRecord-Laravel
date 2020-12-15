@@ -13,20 +13,6 @@ use Ramsey\Uuid\Uuid;
 
 class EmulatedModelQueryTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        DirectoryEmulator::setup('default');
-    }
-
-    protected function tearDown(): void
-    {
-        DirectoryEmulator::teardown();
-
-        parent::tearDown();
-    }
-
     protected function getEnvironmentSetup($app)
     {
         parent::getEnvironmentSetup($app);
@@ -35,6 +21,13 @@ class EmulatedModelQueryTest extends TestCase
         $app['config']->set('ldap.connections.default', [
             'base_dn' => 'dc=local,dc=com',
         ]);
+    }
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        DirectoryEmulator::setup();
     }
 
     public function test_file_database_can_be_used()

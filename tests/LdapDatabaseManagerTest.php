@@ -82,6 +82,6 @@ class LdapDatabaseManagerTest extends TestCase
 
         $manager->teardown();
 
-        $this->assertFileNotExists($file);
+        $this->assertFileDoesNotExist($file);
     }
 }

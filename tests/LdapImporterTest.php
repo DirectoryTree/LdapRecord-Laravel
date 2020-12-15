@@ -29,7 +29,7 @@ class LdapImporterTest extends TestCase
             $table->string('domain')->nullable();
         });
 
-        DirectoryEmulator::setup('default');
+        DirectoryEmulator::setup();
     }
 
     protected function tearDown(): void

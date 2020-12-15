@@ -30,14 +30,14 @@ class ListenForLdapBindFailureTest extends TestCase
 
     public function test_validation_exception_is_not_thrown_when_no_error_is_given()
     {
-        $fake = DirectoryEmulator::setup('default');
+        $fake = DirectoryEmulator::setup();
 
         $this->assertFalse($fake->auth()->attempt('user', 'secret'));
     }
 
     public function test_validation_exception_is_not_thrown_when_invalid_credentials_is_returned()
     {
-        $fake = DirectoryEmulator::setup('default');
+        $fake = DirectoryEmulator::setup();
 
         /** @var LdapFake $ldap */
         $ldap = $fake->getLdapConnection();
@@ -48,7 +48,7 @@ class ListenForLdapBindFailureTest extends TestCase
 
     public function test_validation_exception_is_thrown_on_lost_connection()
     {
-        $fake = DirectoryEmulator::setup('default');
+        $fake = DirectoryEmulator::setup();
 
         /** @var LdapFake $ldap */
         $ldap = $fake->getLdapConnection();
@@ -61,7 +61,7 @@ class ListenForLdapBindFailureTest extends TestCase
 
     protected function directoryThrowsValidationErrorWithCode($code)
     {
-        $fake = DirectoryEmulator::setup('default');
+        $fake = DirectoryEmulator::setup();
 
         /** @var LdapFake $ldap */
         $ldap = $fake->getLdapConnection();
