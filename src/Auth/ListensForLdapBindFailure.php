@@ -38,7 +38,7 @@ trait ListensForLdapBindFailure
      */
     public function listenForLdapBindFailure()
     {
-        Container::getEventDispatcher()->listen(Failed::class, function (Failed $event) {
+        Container::getInstance()->getEventDispatcher()->listen(Failed::class, function (Failed $event) {
             $error = $event->getConnection()->getDetailedError();
 
             $this->ldapBindFailed($error->getErrorMessage(), $error->getDiagnosticMessage());
