@@ -12,7 +12,7 @@ abstract class TestCase extends BaseTestCase
 {
     protected function tearDown(): void
     {
-        DirectoryEmulator::teardown();
+        DirectoryEmulator::tearDown();
 
         parent::tearDown();
     }

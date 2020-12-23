@@ -43,7 +43,7 @@ class DirectoryEmulator extends DirectoryFake
      *
      * @return void
      */
-    public static function teardown()
+    public static function tearDown()
     {
         parent::tearDown();
 
