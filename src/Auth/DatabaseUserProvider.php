@@ -7,6 +7,7 @@ use Illuminate\Auth\EloquentUserProvider;
 use Illuminate\Contracts\Auth\Authenticatable;
 use LdapRecord\Laravel\Events\Auth\Completed;
 use LdapRecord\Laravel\Events\Import\Imported;
+use LdapRecord\Laravel\Events\Import\Saved;
 use LdapRecord\Laravel\LdapUserAuthenticator;
 use LdapRecord\Laravel\Import\UserSynchronizer;
 use LdapRecord\Laravel\LdapUserRepository;
@@ -204,6 +205,8 @@ class DatabaseUserProvider extends UserProvider
         }
 
         $user->save();
+
+        event(new Saved($this->user, $user));
 
         if ($user->wasRecentlyCreated) {
             event(new Imported($this->user, $user));

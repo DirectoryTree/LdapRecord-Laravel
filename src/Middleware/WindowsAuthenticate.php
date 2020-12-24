@@ -10,6 +10,7 @@ use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use LdapRecord\Laravel\Auth\UserProvider;
 use LdapRecord\Laravel\Events\Auth\CompletedWithWindows;
 use LdapRecord\Laravel\Events\Import\Imported;
+use LdapRecord\Laravel\Events\Import\Saved;
 use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Models\Model;
 
@@ -272,8 +273,14 @@ class WindowsAuthenticate
             return;
         }
 
-        if ($model && $model->save() && $model->wasRecentlyCreated) {
-            $this->fireImportedEvent($user, $model);
+        if ($model) {
+            $model->save();
+
+            $this->fireSavedEvent($user, $model);
+
+            $model->wasRecentlyCreated
+                ? $this->fireImportedEvent($user, $model)
+                : null;
         }
 
         $this->fireAuthenticatedEvent($user, $model);
@@ -354,6 +361,19 @@ class WindowsAuthenticate
     protected function fireImportedEvent(Model $user, Eloquent $model)
     {
         event(new Imported($user, $model));
+    }
+
+    /**
+     * Fires the saved event.
+     *
+     * @param Model $user
+     * @param Eloquent $model
+     *
+     * @return void
+     */
+    protected function fireSavedEvent(Model $user, Eloquent $model)
+    {
+        event(new Saved($user, $model));
     }
 
     /**
