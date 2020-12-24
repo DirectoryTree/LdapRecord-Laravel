@@ -3,6 +3,7 @@
 namespace LdapRecord\Laravel\Tests;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Models\ActiveDirectory\User;
 use LdapRecord\Models\Collection;
@@ -58,6 +59,8 @@ class ImportCommandTest extends DatabaseProviderTestCase
             ])
         ]);
 
+        Log::shouldReceive('log')->times(6);
+
         $repo = m::mock(LdapUserRepository::class, function ($repo) use ($users) {
             $query = m::mock(Builder::class);
             $query->shouldReceive('paginate')->once()->andReturn($users);
@@ -65,11 +68,11 @@ class ImportCommandTest extends DatabaseProviderTestCase
             $repo->shouldReceive('query')->once()->andReturn($query);
         });
 
-        $importer = $this->createLdapUserImporter(TestUserModelStub::class, [
+        $synchronizer = $this->createLdapUserSynchronizer(TestUserModelStub::class, [
             'sync_attributes' => ['name' => 'cn', 'email' => 'mail'],
         ]);
 
-        $provider = $this->createDatabaseUserProvider($repo, $this->createLdapUserAuthenticator(), $importer);
+        $provider = $this->createDatabaseUserProvider($repo, $this->createLdapUserAuthenticator(), $synchronizer);
 
         Auth::shouldReceive('createUserProvider')->once()->withArgs(['ldap-database'])->andReturn($provider);
 
