@@ -16,9 +16,8 @@
 </p>
 
 <h4 align="center">
-    <a href="https://ldaprecord.com/docs/laravel/v1/quickstart/">Quickstart</a>
     <span> · </span>
-    <a href="https://ldaprecord.com/docs/laravel/v1/">Documentation</a>
+    <a href="https://ldaprecord.com/docs/laravel/v2/">Documentation</a>
     <span> · </span>
     <a href="https://github.com/DirectoryTree/LdapRecord-Lumen">Lumen Integration</a>
     <span> · </span>
@@ -29,28 +28,28 @@
 
 🔑 **Authenticate LDAP users into your application**
 
-Allow LDAP users to log into your application and control which users can login via [Scopes](https://ldaprecord.com/docs/laravel/v1/usage/#scopes) and [Rules](https://ldaprecord.com/docs/laravel/v1/auth/configuration/#rules).
+Allow LDAP users to log into your application and control which users can login via [Scopes](https://ldaprecord.com/docs/laravel/v2/usage/#scopes) and [Rules](https://ldaprecord.com/docs/laravel/v1/auth/configuration/#rules).
 
 🔄 **Import & Synchronize LDAP users**
 
-Import users from your directory via a [command](https://ldaprecord.com/docs/laravel/v1/auth/importing): `php artisan ldap:import`.
+Import users from your directory via a [command](https://ldaprecord.com/docs/laravel/v2/auth/database/importing): `php artisan ldap:import`.
 
 💼 **Multi-Domain Support**
 
-Authenticate users from as many LDAP domains as you'd like. Support comes [out of the box](https://ldaprecord.com/docs/laravel/v1/auth/multi-domain).
+Authenticate users from as many LDAP domains as you'd like. Support comes [out of the box](https://ldaprecord.com/docs/laravel/v2/auth/multi-domain).
 
 🎩 **Eloquent Query Builder**
 
-Search for LDAP objects with a [fluent and easy to use interface](https://ldaprecord.com/docs/core/v1/searching) you're used to. You'll feel right at home.
+Search for LDAP objects with a [fluent and easy to use interface](https://ldaprecord.com/docs/core/v2/searching) you're used to. You'll feel right at home.
 
 ✏️ **Active Record LDAP Models**
 
-LDAP objects are [individual models](https://ldaprecord.com/docs/core/v1/models). Persist them to your LDAP server with a single `save()`.
+LDAP objects are [individual models](https://ldaprecord.com/docs/core/v2/models). Persist them to your LDAP server with a single `save()`.
 
 💫 **LDAP Directory Emulator**
 
-Test [authenticating](https://ldaprecord.com/docs/laravel/v1/auth/testing/#getting-started) and
-[querying users](https://ldaprecord.com/docs/laravel/v1/testing/#getting-started) without
+Test [authenticating](https://ldaprecord.com/docs/laravel/v2/auth/testing/#getting-started) and
+[querying users](https://ldaprecord.com/docs/laravel/v2/testing/#getting-started) without
 changing your application code.
 
 Create, update, and delete LDAP objects without touching a real LDAP server.
