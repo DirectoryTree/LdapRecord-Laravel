@@ -25,19 +25,19 @@
 
 ---
 
-🔑 **Authenticate LDAP users into your application**
+🔑  **Authenticate LDAP users into your application**
 
 Allow LDAP users to log into your application and control which users can login via [Scopes](https://ldaprecord.com/docs/laravel/v2/usage/#scopes) and [Rules](https://ldaprecord.com/docs/laravel/v1/auth/configuration/#rules).
 
-🔄 **Import & Synchronize LDAP users**
+🔄  **Import & Synchronize LDAP users**
 
 Import users from your directory via a [command](https://ldaprecord.com/docs/laravel/v2/auth/database/importing): `php artisan ldap:import`.
 
-💼 **Multi-Domain Support**
+💼  **Multi-Domain Support**
 
 Authenticate users from as many LDAP domains as you'd like. Support comes [out of the box](https://ldaprecord.com/docs/laravel/v2/auth/multi-domain).
 
-🎩 **Eloquent Query Builder**
+🎩  **Eloquent Query Builder**
 
 Search for LDAP objects with a [fluent and easy to use interface](https://ldaprecord.com/docs/core/v2/searching) you're used to. You'll feel right at home.
 
@@ -45,7 +45,7 @@ Search for LDAP objects with a [fluent and easy to use interface](https://ldapre
 
 LDAP objects are [individual models](https://ldaprecord.com/docs/core/v2/models). Persist them to your LDAP server with a single `save()`.
 
-💫 **LDAP Directory Emulator**
+💫  **LDAP Directory Emulator**
 
 Test [authenticating](https://ldaprecord.com/docs/laravel/v2/auth/testing/#getting-started) and
 [querying users](https://ldaprecord.com/docs/laravel/v2/testing/#getting-started) without
