@@ -287,7 +287,7 @@ class Importer
      *
      * @return \Illuminate\Support\Collection
      */
-    protected function import($synchronizer)
+    protected function import(Synchronizer $synchronizer)
     {
         return collect($this->objects->all())->map(
             $this->buildImportCallback($synchronizer)
@@ -301,7 +301,7 @@ class Importer
      *
      * @return Closure
      */
-    protected function buildImportCallback($synchronizer)
+    protected function buildImportCallback(Synchronizer $synchronizer)
     {
         return function ($object) use ($synchronizer) {
             $eloquent = $synchronizer->createOrFindEloquentModel($object);
