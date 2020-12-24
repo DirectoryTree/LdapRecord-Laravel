@@ -20,7 +20,7 @@
     <span> · </span>
     <a href="https://github.com/DirectoryTree/LdapRecord-Lumen">Lumen Integration</a>
     <span> · </span>
-    <a href="https://github.com/DirectoryTree/LdapRecord-Discussions/issues/new">Post a Question</a>
+    <a href="https://github.com/DirectoryTree/LdapRecord-Laravel/discussions/new">Post a Question</a>
 </h4>
 
 ---
