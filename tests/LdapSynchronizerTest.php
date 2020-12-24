@@ -40,13 +40,13 @@ class LdapSynchronizerTest extends TestCase
     {
         $object = LdapGroup::create(['cn' => 'Group']);
 
-        $importer = new Synchronizer(TestGroupModelStub::class, [
+        $synchronizer = new Synchronizer(TestGroupModelStub::class, [
             'sync_attributes' => ['name' => 'cn'],
         ]);
 
         $this->expectException(LdapRecordException::class);
 
-        $importer->run($object);
+        $synchronizer->run($object);
     }
 
     public function test_importer_sets_configured_attributes()
@@ -56,12 +56,12 @@ class LdapSynchronizerTest extends TestCase
             'cn' => 'Group',
         ]);
 
-        $importer = new Synchronizer(TestGroupModelStub::class, [
+        $synchronizer = new Synchronizer(TestGroupModelStub::class, [
             'sync_attributes' => ['name' => 'cn'],
         ]);
 
         /** @var TestGroupModelStub $group */
-        $group = $importer->run($object);
+        $group = $synchronizer->run($object);
 
         $this->assertEquals('default', $group->getLdapDomain());
         $this->assertEquals($object->getConvertedGuid(), $group->getLdapGuid());
@@ -80,11 +80,11 @@ class LdapSynchronizerTest extends TestCase
             'cn' => 'Group',
         ]);
 
-        $importer = new Synchronizer(TestGroupModelStub::class, [
+        $synchronizer = new Synchronizer(TestGroupModelStub::class, [
             'sync_attributes' => ['name' => 'cn'],
         ]);
 
-        $group = $importer->run($object);
+        $group = $synchronizer->run($object);
 
         $this->assertTrue($group->exists);
         $this->assertEquals($guid, $group->guid);
@@ -103,11 +103,11 @@ class LdapSynchronizerTest extends TestCase
             'cn' => 'Group',
         ]);
 
-        $importer = new Synchronizer(TestGroupModelStub::class, [
+        $synchronizer = new Synchronizer(TestGroupModelStub::class, [
             'sync_attributes' => ['name' => 'cn'],
         ]);
 
-        $imported = $importer->run($object);
+        $imported = $synchronizer->run($object);
 
         $this->assertEquals($group->id, $imported->id);
         $this->assertTrue($imported->trashed());

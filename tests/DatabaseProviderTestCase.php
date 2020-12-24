@@ -58,13 +58,13 @@ class DatabaseProviderTestCase extends TestCase
     protected function createDatabaseUserProvider(
         LdapUserRepository $repo = null,
         LdapUserAuthenticator $auth = null,
-        UserSynchronizer $importer = null,
+        UserSynchronizer $synchronizer = null,
         EloquentUserProvider $eloquent = null
     ) {
         return new DatabaseUserProvider(
             $repo ?? $this->createLdapUserRepository(),
             $auth ?? $this->createLdapUserAuthenticator(),
-            $importer ?? $this->createLdapUserImporter(),
+            $synchronizer ?? $this->createLdapUserSynchronizer(),
             $eloquent ?? $this->createEloquentUserProvider()
         );
     }
@@ -79,7 +79,7 @@ class DatabaseProviderTestCase extends TestCase
         return new LdapUserAuthenticator();
     }
 
-    protected function createLdapUserImporter($eloquentModel = null, array $config = [])
+    protected function createLdapUserSynchronizer($eloquentModel = null, array $config = [])
     {
         return new UserSynchronizer($eloquentModel ?? TestUserModelStub::class, $config);
     }

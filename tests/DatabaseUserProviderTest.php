@@ -14,13 +14,15 @@ class DatabaseUserProviderTest extends DatabaseProviderTestCase
 
     public function test_importer_can_be_retrieved()
     {
-        $importer = new UserSynchronizer(TestUserModelStub::class, []);
+        $synchronizer = new UserSynchronizer(TestUserModelStub::class, []);
+
         $provider = $this->createDatabaseUserProvider(
             $this->createLdapUserRepository(),
             $this->createLdapUserAuthenticator(),
-            $importer
+            $synchronizer
         );
-        $this->assertSame($importer, $provider->getLdapUserSynchronizer());
+
+        $this->assertSame($synchronizer, $provider->getLdapUserSynchronizer());
     }
 
     public function test_retrieve_by_id_uses_eloquent()
@@ -62,6 +64,7 @@ class DatabaseUserProviderTest extends DatabaseProviderTestCase
         $provider = $this->createDatabaseUserProvider();
 
         $provider->updateRememberToken($model, 'new-token');
+
         $this->assertEquals('new-token', $model->fresh()->remember_token);
     }
 
@@ -80,6 +83,7 @@ class DatabaseUserProviderTest extends DatabaseProviderTestCase
         $provider = $this->createDatabaseUserProvider($repo);
 
         $databaseModel = $provider->retrieveByCredentials($credentials);
+
         $this->assertFalse($databaseModel->exists);
         $this->assertEquals('John Doe', $databaseModel->name);
         $this->assertEquals('jdoe@test.com', $databaseModel->email);
@@ -91,6 +95,7 @@ class DatabaseUserProviderTest extends DatabaseProviderTestCase
         $databaseModel = new TestUserModelStub;
 
         $provider = $this->createDatabaseUserProvider();
+
         $this->assertFalse($provider->validateCredentials($databaseModel, ['password' => 'secret']));
         $this->assertFalse($databaseModel->exists);
     }

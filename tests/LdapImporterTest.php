@@ -42,6 +42,7 @@ class LdapImporterTest extends TestCase
             ->execute();
 
         $this->assertCount(1, $imported);
+        $this->assertTrue($imported->first()->exists);
         $this->assertEquals($object->getFirstAttribute('cn'), $imported->first()->name);
     }
 
