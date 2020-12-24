@@ -16,7 +16,6 @@
 </p>
 
 <h4 align="center">
-    <span> · </span>
     <a href="https://ldaprecord.com/docs/laravel/v2/">Documentation</a>
     <span> · </span>
     <a href="https://github.com/DirectoryTree/LdapRecord-Lumen">Lumen Integration</a>
