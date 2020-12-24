@@ -8,6 +8,7 @@ use LdapRecord\Laravel\Events\Auth\Bound;
 use LdapRecord\Laravel\Events\Auth\Binding;
 use LdapRecord\Laravel\Events\Import\Imported;
 use LdapRecord\Laravel\Events\Import\Importing;
+use LdapRecord\Laravel\Events\Import\Saved;
 use LdapRecord\Laravel\Events\Import\Synchronized;
 use LdapRecord\Laravel\Events\Import\Synchronizing;
 use LdapRecord\Laravel\Events\Auth\CompletedWithWindows;
@@ -29,6 +30,7 @@ class EmulatedWindowsAuthenticateTest extends DatabaseProviderTestCase
             Synchronized::class,
             Binding::class,
             Bound::class,
+            Saved::class,
             CompletedWithWindows::class,
         ]);
 

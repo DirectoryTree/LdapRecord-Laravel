@@ -7,9 +7,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use LdapRecord\Laravel\Events\Auth\Bound;
 use LdapRecord\Laravel\Events\Auth\Binding;
+use LdapRecord\Laravel\Events\Auth\Completed;
 use LdapRecord\Laravel\Events\Auth\DiscoveredWithCredentials;
 use LdapRecord\Laravel\Events\Import\Imported;
 use LdapRecord\Laravel\Events\Import\Importing;
+use LdapRecord\Laravel\Events\Import\Saved;
 use LdapRecord\Laravel\Events\Import\Synchronized;
 use LdapRecord\Laravel\Events\Import\Synchronizing;
 use LdapRecord\Laravel\Import\ImportException;
@@ -25,13 +27,15 @@ class EmulatedAuthenticationTest extends DatabaseProviderTestCase
     public function test_database_sync_authentication_passes()
     {
         $this->expectsEvents([
+            DiscoveredWithCredentials::class,
             Importing::class,
             Imported::class,
+            Saved::class,
             Synchronizing::class,
             Synchronized::class,
             Binding::class,
             Bound::class,
-            DiscoveredWithCredentials::class,
+            Completed::class,
         ]);
 
         $fake = DirectoryEmulator::setup();
