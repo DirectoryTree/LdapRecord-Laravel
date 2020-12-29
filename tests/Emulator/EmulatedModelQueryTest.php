@@ -512,13 +512,13 @@ class EmulatedModelQueryTest extends TestCase
     public function test_where_anr()
     {
         $withCn = TestModelStub::create(['cn' => 'John']);
-        $withMail = TestModelStub::create(['mail' => 'jane@mail.com']);
-        $withGivenName = TestModelStub::create(['givenname' => 'Jane']);
-        $withDisplayName = TestModelStub::create(['displayname' => 'Bob']);
+        $withMail = TestModelStub::create(['cn' => 'Janet', 'mail' => 'janet@mail.com']);
+        $withGivenName = TestModelStub::create(['cn' => 'Zolt', 'givenname' => 'Zolt']);
+        $withDisplayName = TestModelStub::create(['cn' => 'Bob', 'displayname' => 'Bob']);
 
         $this->assertTrue($withCn->is(TestModelStub::where('anr', '=', 'John')->first()));
-        $this->assertTrue($withMail->is(TestModelStub::where('anr', '=', 'jane@mail.com')->first()));
-        $this->assertTrue($withGivenName->is(TestModelStub::where('anr', '=', 'Jane')->first()));
+        $this->assertTrue($withMail->is(TestModelStub::where('anr', '=', 'janet@mail.com')->first()));
+        $this->assertTrue($withGivenName->is(TestModelStub::where('anr', '=', 'Zolt')->first()));
         $this->assertTrue($withDisplayName->is(TestModelStub::where('anr', '=', 'Bob')->first()));
     }
 
