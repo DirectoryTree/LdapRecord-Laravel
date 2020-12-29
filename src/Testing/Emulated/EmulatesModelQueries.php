@@ -7,14 +7,18 @@ use LdapRecord\Laravel\Testing\EmulatesQueries;
 
 trait EmulatesModelQueries
 {
-    use EmulatesQueries;
+    use EmulatesQueries {
+        addFilterToDatabaseQuery as baseAddFilterToDatabaseQuery;
+    }
 
     /**
      * {@inheritdoc}
      */
     public function newInstance($baseDn = null)
     {
-        return (new self($this->connection))->in($baseDn)->setModel($this->model);
+        return (new self($this->connection))
+            ->setModel($this->model)
+            ->in($baseDn);
     }
 
     /**
@@ -106,5 +110,30 @@ trait EmulatesModelQueries
                     [$object['guid_key'] => [$object['guid']]]
                 ));
         });
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function addFilterToDatabaseQuery($query, $field, $operator, $value)
+    {
+        if ($field === 'anr') {
+            return $query->whereIn('name', $this->model->getAnrAttributes())
+                ->whereHas('values', function ($query) use ($value) {
+                    $query->where('value', 'like', "%$value%");
+                });
+        }
+
+        return $this->baseAddFilterToDatabaseQuery($query, $field, $operator, $value);
+    }
+
+    /**
+     * Override the possibility of the underlying LDAP model being compatible with ANR.
+     *
+     * @return false
+     */
+    protected function modelIsCompatibleWithAnr()
+    {
+        return true;
     }
 }

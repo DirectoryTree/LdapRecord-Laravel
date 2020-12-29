@@ -469,6 +469,59 @@ class EmulatedModelQueryTest extends TestCase
         $this->assertCount(2, TestModelStub::in('ou=Users,dc=local,dc=com')->get());
     }
 
+    public function test_find_by_anr()
+    {
+        TestModelStub::create(['cn' => 'John']);
+        TestModelStub::create(['cn' => 'Jane']);
+
+        $result = TestModelStub::findByAnr('John');
+
+        $this->assertInstanceOf(TestModelStub::class, $result);
+        $this->assertEquals('John', $result->cn[0]);
+    }
+
+    public function test_find_many_by_anr()
+    {
+        TestModelStub::create(['cn' => 'John']);
+        TestModelStub::create(['cn' => 'Jane']);
+
+        $results = TestModelStub::findManyByAnr(['John', 'Jane']);
+
+        $this->assertCount(2, $results);
+        $this->assertEquals('John', $results[0]->cn[0]);
+        $this->assertEquals('Jane', $results[1]->cn[0]);
+    }
+
+    public function test_find_by_anr_respects_querying_in_scope()
+    {
+        tap(new TestModelStub(['cn' => 'Jane']), function ($model) {
+            $model->inside('ou=Other,dc=local,dc=com')->save();
+            $model->refresh();
+        });
+
+        $model = tap(new TestModelStub(['cn' => 'Jane']), function ($model) {
+            $model->inside('ou=Users,dc=local,dc=com')->save();
+            $model->refresh();
+        });
+
+        $result = TestModelStub::in('ou=Users,dc=local,dc=com')->findByAnr('Jane');
+
+        $this->assertTrue($model->is($result));
+    }
+
+    public function test_where_anr()
+    {
+        $withCn = TestModelStub::create(['cn' => 'John']);
+        $withMail = TestModelStub::create(['mail' => 'jane@mail.com']);
+        $withGivenName = TestModelStub::create(['givenname' => 'Jane']);
+        $withDisplayName = TestModelStub::create(['displayname' => 'Bob']);
+
+        $this->assertTrue($withCn->is(TestModelStub::where('anr', '=', 'John')->first()));
+        $this->assertTrue($withMail->is(TestModelStub::where('anr', '=', 'jane@mail.com')->first()));
+        $this->assertTrue($withGivenName->is(TestModelStub::where('anr', '=', 'Jane')->first()));
+        $this->assertTrue($withDisplayName->is(TestModelStub::where('anr', '=', 'Bob')->first()));
+    }
+
     public function test_listing()
     {
         TestModelStub::create(['cn' => 'John']);

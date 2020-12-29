@@ -243,7 +243,7 @@ trait EmulatesQueries
     }
 
     /**
-     * Adds an LDAP "Where" filter to the underlying Eloquent builder.
+     * Adds an LDAP "where" filter to the underlying Eloquent builder.
      *
      * @param \Illuminate\Database\Eloquent\Builder $query
      * @param string                                $field
