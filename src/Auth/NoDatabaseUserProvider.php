@@ -36,7 +36,7 @@ class NoDatabaseUserProvider extends UserProvider
      */
     public function retrieveByCredentials(array $credentials)
     {
-        return $this->users->findByCredentials($credentials);
+        return $this->fetchLdapUserByCredentials($credentials);
     }
 
     /**

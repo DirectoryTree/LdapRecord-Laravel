@@ -35,13 +35,6 @@ class DatabaseUserProvider extends UserProvider
     protected $user;
 
     /**
-     * The user resolver to use for finding the authenticating user.
-     *
-     * @var \Closure
-     */
-    protected $userResolver;
-
-    /**
      * Whether falling back to Eloquent auth is being used.
      *
      * @var bool
@@ -66,10 +59,6 @@ class DatabaseUserProvider extends UserProvider
 
         $this->importer = $importer;
         $this->eloquent = $eloquent;
-
-        $this->userResolver = function ($credentials) {
-            return $this->users->findByCredentials($credentials);
-        };
     }
 
     /**
@@ -158,14 +147,10 @@ class DatabaseUserProvider extends UserProvider
      */
     public function retrieveByCredentials(array $credentials)
     {
-        $user = rescue(function () use ($credentials) {
-            return call_user_func($this->userResolver, $credentials);
-        });
-
         // If an LDAP user is not located by their credentials and fallback
         // is enabled, we will attempt to locate the local database user
         // instead and perform validation on their password normally.
-        if (! $user) {
+        if (! $user = $this->fetchLdapUserByCredentials($credentials)) {
             return isset($credentials['fallback'])
                 ? $this->retrieveByCredentialsUsingEloquent($credentials)
                 : null;
