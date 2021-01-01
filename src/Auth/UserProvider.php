@@ -2,10 +2,11 @@
 
 namespace LdapRecord\Laravel\Auth;
 
-use Illuminate\Contracts\Auth\UserProvider as LaravelUserProvider;
-use Illuminate\Validation\ValidationException;
-use LdapRecord\Laravel\LdapUserAuthenticator;
+use Exception;
 use LdapRecord\Laravel\LdapUserRepository;
+use LdapRecord\Laravel\LdapUserAuthenticator;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Contracts\Auth\UserProvider as LaravelUserProvider;
 
 abstract class UserProvider implements LaravelUserProvider
 {
@@ -55,13 +56,13 @@ abstract class UserProvider implements LaravelUserProvider
      *
      * @throws ValidationException
      */
-    protected function fetchLdapUserByCredentials($credentials)
+    protected function fetchLdapUserByCredentials(array $credentials)
     {
-        return rescue(function () use ($credentials) {
+        try {
             return call_user_func($this->userResolver, $credentials);
-        }, function ($e) {
+        } catch (Exception $e) {
             $this->handleException($e);
-        });
+        }
     }
 
     /**
