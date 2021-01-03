@@ -39,6 +39,10 @@ class TestLdapConnection extends Command
             $connections = Container::getInstance()->all();
         }
 
+        if (empty($connections)) {
+            return $this->error('No LDAP connections have been defined.');
+        }
+
         $tested = [];
 
         foreach ($connections as $name => $connection) {
