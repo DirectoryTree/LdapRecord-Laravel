@@ -5,7 +5,8 @@ namespace LdapRecord\Laravel\Auth;
 use Closure;
 use LdapRecord\Container;
 use LdapRecord\DetectsErrors;
-use LdapRecord\Auth\Events\Failed;
+use LdapRecord\Events\Connecting;
+use LdapRecord\Auth\Events\Failed as BindFailed;
 use Illuminate\Validation\ValidationException;
 
 trait ListensForLdapBindFailure
@@ -38,10 +39,32 @@ trait ListensForLdapBindFailure
      */
     public function listenForLdapBindFailure()
     {
-        Container::getInstance()->getEventDispatcher()->listen(Failed::class, function (Failed $event) {
-            $error = $event->getConnection()->getDetailedError();
+        $dispatcher = Container::getInstance()->getEventDispatcher();
 
-            $this->ldapBindFailed($error->getErrorMessage(), $error->getDiagnosticMessage());
+        $isOnLastHost = true;
+
+        // We will setup an event listener on the connecting event to determine if there are
+        // multiple LDAP hosts in use. If there are, we will make sure to wait until the
+        // last LDAP host is attempted before throwing the login validation exception.
+        $dispatcher->listen(Connecting::class, function (Connecting $event) use (&$isOnLastHost) {
+            $connection = $event->getConnection();
+
+            $numberOfHosts = count($connection->getConfiguration()->get('hosts'));
+
+            $numberOfHostsAttempted = count($connection->attempted());
+
+            $isOnLastHost = ($numberOfHosts - 1) - $numberOfHostsAttempted === 0;
+        });
+
+        $dispatcher->listen(BindFailed::class, function (BindFailed $event) use (&$isOnLastHost) {
+            if (! $isOnLastHost) {
+                return;
+            }
+
+            $this->ldapBindFailed(
+                $event->getConnection()->getLastError(),
+                $event->getConnection()->getDiagnosticMessage()
+            );
         });
     }
 
