@@ -2,13 +2,13 @@
 
 namespace LdapRecord\Laravel\Commands;
 
+use LdapRecord\Models\Entry;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
-use LdapRecord\Models\Entry;
-use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use LdapRecord\Laravel\Auth\UserProvider;
 use LdapRecord\Laravel\DetectsSoftDeletes;
+use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use LdapRecord\Laravel\Events\Import\Imported;
 use LdapRecord\Laravel\Events\Import\ImportFailed;
 use LdapRecord\Laravel\Events\Import\Started;

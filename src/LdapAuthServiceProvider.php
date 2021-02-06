@@ -3,16 +3,16 @@
 namespace LdapRecord\Laravel;
 
 use Illuminate\Support\Facades\Log;
-use LdapRecord\Laravel\Events\LoggableEvent;
-use LdapRecord\Laravel\Import\UserSynchronizer;
-use Illuminate\Auth\EloquentUserProvider;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Auth\EloquentUserProvider;
+use LdapRecord\Laravel\Events\LoggableEvent;
+use LdapRecord\Laravel\Import\UserSynchronizer;
+use LdapRecord\Laravel\Commands\ImportLdapUsers;
 use LdapRecord\Laravel\Auth\BindFailureListener;
 use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use LdapRecord\Laravel\Auth\NoDatabaseUserProvider;
-use LdapRecord\Laravel\Commands\ImportLdapUsers;
 
 class LdapAuthServiceProvider extends ServiceProvider
 {

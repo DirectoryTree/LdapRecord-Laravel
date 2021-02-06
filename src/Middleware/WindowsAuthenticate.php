@@ -4,15 +4,15 @@ namespace LdapRecord\Laravel\Middleware;
 
 use Closure;
 use Illuminate\Support\Arr;
-use Illuminate\Contracts\Auth\Factory as Auth;
-use Illuminate\Database\Eloquent\Model as Eloquent;
-use LdapRecord\Laravel\Auth\DatabaseUserProvider;
-use LdapRecord\Laravel\Auth\UserProvider;
-use LdapRecord\Laravel\Events\Auth\CompletedWithWindows;
-use LdapRecord\Laravel\Events\Import\Imported;
-use LdapRecord\Laravel\Events\Import\Saved;
-use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Models\Model;
+use Illuminate\Contracts\Auth\Factory as Auth;
+use LdapRecord\Laravel\Auth\UserProvider;
+use LdapRecord\Laravel\LdapUserRepository;
+use LdapRecord\Laravel\Events\Import\Saved;
+use LdapRecord\Laravel\Events\Import\Imported;
+use LdapRecord\Laravel\Auth\DatabaseUserProvider;
+use Illuminate\Database\Eloquent\Model as Eloquent;
+use LdapRecord\Laravel\Events\Auth\CompletedWithWindows;
 
 class WindowsAuthenticate
 {

@@ -3,13 +3,13 @@
 namespace LdapRecord\Laravel\Import;
 
 use Closure;
-use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Support\Arr;
+use LdapRecord\LdapRecordException;
+use LdapRecord\Models\Model as LdapModel;
 use LdapRecord\Laravel\Events\Import\Importing;
 use LdapRecord\Laravel\Events\Import\Synchronized;
 use LdapRecord\Laravel\Events\Import\Synchronizing;
-use LdapRecord\LdapRecordException;
-use LdapRecord\Models\Model as LdapModel;
+use Illuminate\Database\Eloquent\Model as EloquentModel;
 
 class Synchronizer
 {

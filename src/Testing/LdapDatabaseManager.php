@@ -2,12 +2,12 @@
 
 namespace LdapRecord\Laravel\Testing;
 
-use Illuminate\Database\Connection;
-use Illuminate\Database\DatabaseManager;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Schema\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use Illuminate\Database\Connection;
+use Illuminate\Database\Schema\Builder;
+use Illuminate\Database\DatabaseManager;
+use Illuminate\Database\Schema\Blueprint;
 
 class LdapDatabaseManager
 {

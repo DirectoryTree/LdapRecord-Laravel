@@ -4,15 +4,15 @@ namespace LdapRecord\Laravel\Testing;
 
 use Closure;
 use Exception;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Arr;
+use Ramsey\Uuid\Uuid;
 use LdapRecord\Connection;
-use LdapRecord\Models\Attributes\DistinguishedName;
-use LdapRecord\Models\Attributes\Guid;
-use LdapRecord\Models\BatchModification;
+use Illuminate\Support\Arr;
+use Illuminate\Database\Eloquent\Model;
 use LdapRecord\Query\Collection;
 use LdapRecord\Query\Model\Builder;
-use Ramsey\Uuid\Uuid;
+use LdapRecord\Models\Attributes\Guid;
+use LdapRecord\Models\BatchModification;
+use LdapRecord\Models\Attributes\DistinguishedName;
 
 trait EmulatesQueries
 {

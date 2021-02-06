@@ -4,15 +4,15 @@ namespace LdapRecord\Laravel\Import;
 
 use Closure;
 use Exception;
+use LdapRecord\Models\Model as LdapRecord;
 use LdapRecord\Laravel\DetectsSoftDeletes;
-use LdapRecord\Laravel\Events\Import\Completed;
-use LdapRecord\Laravel\Events\Import\DeletedMissing;
-use LdapRecord\Laravel\Events\Import\Restored;
 use LdapRecord\Laravel\Events\Import\Saved;
 use LdapRecord\Laravel\Events\Import\Started;
 use LdapRecord\Laravel\Events\Import\Imported;
+use LdapRecord\Laravel\Events\Import\Restored;
+use LdapRecord\Laravel\Events\Import\Completed;
 use LdapRecord\Laravel\Events\Import\ImportFailed;
-use LdapRecord\Models\Model as LdapRecord;
+use LdapRecord\Laravel\Events\Import\DeletedMissing;
 use LdapRecord\Query\Model\Builder as LdapQuery;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 
