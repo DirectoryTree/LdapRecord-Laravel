@@ -1,11 +1,12 @@
 <?php
 
-namespace LdapRecord\Laravel\Tests;
+namespace LdapRecord\Laravel\Tests\Unit;
 
-use Illuminate\Log\LogManager;
 use LdapRecord\Container;
-use LdapRecord\Laravel\LdapServiceProvider;
 use LdapRecord\Query\Cache;
+use Illuminate\Log\LogManager;
+use LdapRecord\Laravel\Tests\TestCase;
+use LdapRecord\Laravel\LdapServiceProvider;
 
 class LdapServiceProviderTest extends TestCase
 {

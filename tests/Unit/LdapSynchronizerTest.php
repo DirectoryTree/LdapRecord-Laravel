@@ -1,13 +1,18 @@
 <?php
 
-namespace LdapRecord\Laravel\Tests;
+namespace LdapRecord\Laravel\Tests\Unit;
 
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Facades\Schema;
-use LdapRecord\Laravel\Import\Synchronizer;
-use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\LdapRecordException;
+use LdapRecord\Laravel\Tests\TestCase;
+use Illuminate\Support\Facades\Schema;
+use LdapRecord\Laravel\LdapImportable;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Schema\Blueprint;
+use LdapRecord\Laravel\ImportableFromLdap;
+use LdapRecord\Laravel\Import\Synchronizer;
+use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Models\ActiveDirectory\Group as LdapGroup;
 
 class LdapSynchronizerTest extends TestCase
@@ -18,7 +23,7 @@ class LdapSynchronizerTest extends TestCase
     {
         parent::setUp();
 
-        Schema::create('test_group_model_stubs', function (Blueprint $table) {
+        Schema::create('test_synchronizer_group_model_stubs', function (Blueprint $table) {
             $table->increments('id');
             $table->softDeletes();
             $table->string('guid')->unique()->nullable();
@@ -40,7 +45,7 @@ class LdapSynchronizerTest extends TestCase
     {
         $object = LdapGroup::create(['cn' => 'Group']);
 
-        $synchronizer = new Synchronizer(TestGroupModelStub::class, [
+        $synchronizer = new Synchronizer(TestSynchronizerGroupModelStub::class, [
             'sync_attributes' => ['name' => 'cn'],
         ]);
 
@@ -56,11 +61,11 @@ class LdapSynchronizerTest extends TestCase
             'cn' => 'Group',
         ]);
 
-        $synchronizer = new Synchronizer(TestGroupModelStub::class, [
+        $synchronizer = new Synchronizer(TestSynchronizerGroupModelStub::class, [
             'sync_attributes' => ['name' => 'cn'],
         ]);
 
-        /** @var TestGroupModelStub $group */
+        /** @var TestSynchronizerGroupModelStub $group */
         $group = $synchronizer->run($object);
 
         $this->assertEquals('default', $group->getLdapDomain());
@@ -73,14 +78,14 @@ class LdapSynchronizerTest extends TestCase
     {
         $guid = $this->faker->uuid;
 
-        TestGroupModelStub::create(['guid' => $guid]);
+        TestSynchronizerGroupModelStub::create(['guid' => $guid]);
 
         $object = LdapGroup::create([
             'objectguid' => $guid,
             'cn' => 'Group',
         ]);
 
-        $synchronizer = new Synchronizer(TestGroupModelStub::class, [
+        $synchronizer = new Synchronizer(TestSynchronizerGroupModelStub::class, [
             'sync_attributes' => ['name' => 'cn'],
         ]);
 
@@ -94,7 +99,7 @@ class LdapSynchronizerTest extends TestCase
     {
         $guid = $this->faker->uuid;
 
-        $group = TestGroupModelStub::create(['guid' => $guid]);
+        $group = TestSynchronizerGroupModelStub::create(['guid' => $guid]);
 
         $group->delete();
 
@@ -103,7 +108,7 @@ class LdapSynchronizerTest extends TestCase
             'cn' => 'Group',
         ]);
 
-        $synchronizer = new Synchronizer(TestGroupModelStub::class, [
+        $synchronizer = new Synchronizer(TestSynchronizerGroupModelStub::class, [
             'sync_attributes' => ['name' => 'cn'],
         ]);
 
@@ -114,3 +119,11 @@ class LdapSynchronizerTest extends TestCase
     }
 }
 
+class TestSynchronizerGroupModelStub extends Model implements LdapImportable
+{
+    use ImportableFromLdap, SoftDeletes;
+
+    public $timestamps = false;
+
+    protected $guarded = [];
+}

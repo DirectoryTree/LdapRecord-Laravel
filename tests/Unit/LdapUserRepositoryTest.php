@@ -1,25 +1,29 @@
 <?php
 
-namespace LdapRecord\Laravel\Tests;
+namespace LdapRecord\Laravel\Tests\Unit;
 
-use LdapRecord\Laravel\Auth\LdapAuthenticatable;
-use LdapRecord\Laravel\LdapUserRepository;
+use Mockery as m;
 use LdapRecord\Models\Entry;
 use LdapRecord\Query\Model\Builder;
-use Mockery as m;
+use LdapRecord\Laravel\Tests\TestCase;
+use LdapRecord\Laravel\LdapUserRepository;
+use LdapRecord\Laravel\Auth\LdapAuthenticatable;
 
 class LdapUserRepositoryTest extends TestCase
 {
     public function test_model_can_be_created()
     {
         $model = (new LdapUserRepository(Entry::class))->createModel();
+
         $this->assertInstanceOf(Entry::class, $model);
     }
 
     public function test_query_can_be_created()
     {
         $repository = new LdapUserRepository(Entry::class);
+
         $query = $repository->query();
+
         $this->assertInstanceOf(Builder::class, $query);
         $this->assertInstanceOf(Entry::class, $query->getModel());
     }
@@ -27,12 +31,14 @@ class LdapUserRepositoryTest extends TestCase
     public function test_query_selects_are_merged()
     {
         $repository = new LdapUserRepository(Entry::class);
+
         $this->assertEquals(['*', 'objectguid', 'objectclass'], $repository->query()->getSelects());
     }
 
     public function test_find_by_credentials_returns_null_with_empty_array()
     {
         $repository = new LdapUserRepository(Entry::class);
+
         $this->assertNull($repository->findByCredentials());
     }
 

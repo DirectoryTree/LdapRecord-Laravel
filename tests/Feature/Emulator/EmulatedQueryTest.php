@@ -1,11 +1,11 @@
 <?php
 
-namespace LdapRecord\Laravel\Tests\Emulator;
+namespace LdapRecord\Laravel\Tests\Feature\Emulator;
 
-use LdapRecord\Container;
-use LdapRecord\Laravel\Testing\DirectoryEmulator;
-use LdapRecord\Laravel\Tests\TestCase;
 use Ramsey\Uuid\Uuid;
+use LdapRecord\Container;
+use LdapRecord\Laravel\Tests\TestCase;
+use LdapRecord\Laravel\Testing\DirectoryEmulator;
 
 class EmulatedQueryTest extends TestCase
 {

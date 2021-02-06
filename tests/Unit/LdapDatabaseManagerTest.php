@@ -1,11 +1,12 @@
 <?php
 
-namespace LdapRecord\Laravel\Tests;
+namespace LdapRecord\Laravel\Tests\Unit;
 
 use Illuminate\Database\Connection;
-use LdapRecord\Laravel\Testing\LdapDatabaseManager;
+use LdapRecord\Laravel\Tests\TestCase;
 use PHPUnit\Framework\Constraint\FileExists;
 use PHPUnit\Framework\Constraint\LogicalNot;
+use LdapRecord\Laravel\Testing\LdapDatabaseManager;
 
 class LdapDatabaseManagerTest extends TestCase
 {

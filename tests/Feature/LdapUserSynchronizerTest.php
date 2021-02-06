@@ -1,16 +1,16 @@
 <?php
 
-namespace LdapRecord\Laravel\Tests;
+namespace LdapRecord\Laravel\Tests\Feature;
 
+use Mockery as m;
+use LdapRecord\Models\Model;
 use Illuminate\Support\Facades\Hash;
+use LdapRecord\Laravel\Import\UserSynchronizer;
 use LdapRecord\Laravel\Events\Import\Importing;
 use LdapRecord\Laravel\Events\Import\Synchronized;
 use LdapRecord\Laravel\Events\Import\Synchronizing;
-use LdapRecord\Laravel\Import\UserSynchronizer;
-use LdapRecord\Models\Model;
-use Mockery as m;
 
-class LdapUserSynchronizerTest extends DatabaseProviderTestCase
+class LdapUserSynchronizerTest extends DatabaseUserProviderTest
 {
     use CreatesTestUsers;
 

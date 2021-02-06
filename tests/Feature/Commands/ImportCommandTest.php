@@ -1,14 +1,20 @@
 <?php
 
-namespace LdapRecord\Laravel\Tests;
+namespace LdapRecord\Laravel\Tests\Feature\Commands;
 
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use LdapRecord\Laravel\LdapUserRepository;
-use LdapRecord\Models\ActiveDirectory\User;
+use Mockery as m;
 use LdapRecord\Models\Collection;
 use LdapRecord\Query\Model\Builder;
-use Mockery as m;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Auth\User;
+use LdapRecord\Laravel\Auth\HasLdapUser;
+use LdapRecord\Laravel\LdapUserRepository;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use LdapRecord\Laravel\Auth\LdapAuthenticatable;
+use LdapRecord\Laravel\Auth\AuthenticatesWithLdap;
+use LdapRecord\Models\ActiveDirectory\User as LdapUser;
+use LdapRecord\Laravel\Tests\Feature\DatabaseProviderTestCase;
 
 class ImportCommandTest extends DatabaseProviderTestCase
 {
@@ -52,7 +58,7 @@ class ImportCommandTest extends DatabaseProviderTestCase
     public function test_users_are_imported_into_the_database()
     {
         $users = new Collection([
-            new User([
+            new LdapUser([
                 'cn' => 'Steve Bauman',
                 'mail' => 'sbauman@test.com',
                 'objectguid' => 'bf9679e7-0de6-11d0-a285-00aa003049e2',
@@ -68,7 +74,7 @@ class ImportCommandTest extends DatabaseProviderTestCase
             $repo->shouldReceive('query')->once()->andReturn($query);
         });
 
-        $synchronizer = $this->createLdapUserSynchronizer(TestUserModelStub::class, [
+        $synchronizer = $this->createLdapUserSynchronizer(TestImportUserModelStub::class, [
             'sync_attributes' => ['name' => 'cn', 'email' => 'mail'],
         ]);
 
@@ -87,3 +93,13 @@ class ImportCommandTest extends DatabaseProviderTestCase
         ]);
     }
 }
+
+class TestImportUserModelStub extends User implements LdapAuthenticatable
+{
+    use SoftDeletes, AuthenticatesWithLdap, HasLdapUser;
+
+    protected $guarded = [];
+
+    protected $table = 'users';
+}
+

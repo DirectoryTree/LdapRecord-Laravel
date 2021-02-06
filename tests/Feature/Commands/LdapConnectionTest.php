@@ -1,6 +1,6 @@
 <?php
 
-namespace LdapRecord\Laravel\Tests\Commands;
+namespace LdapRecord\Laravel\Tests\Feature\Commands;
 
 use Mockery as m;
 use LdapRecord\Container;

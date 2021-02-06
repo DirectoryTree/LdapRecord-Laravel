@@ -1,6 +1,6 @@
 <?php
 
-namespace LdapRecord\Laravel\Tests\Emulator;
+namespace LdapRecord\Laravel\Tests\Feature\Emulator;
 
 use LdapRecord\Connection;
 use LdapRecord\Container;

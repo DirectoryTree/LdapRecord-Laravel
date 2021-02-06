@@ -1,7 +1,8 @@
 <?php
 
-namespace LdapRecord\Laravel\Tests;
+namespace LdapRecord\Laravel\Tests\Unit;
 
+use LdapRecord\Laravel\Tests\TestCase;
 use Illuminate\Validation\ValidationException;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Laravel\Auth\ListensForLdapBindFailure;

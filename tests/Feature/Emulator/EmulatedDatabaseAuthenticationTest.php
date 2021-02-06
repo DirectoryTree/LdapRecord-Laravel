@@ -1,26 +1,30 @@
 <?php
 
-namespace LdapRecord\Laravel\Tests\Emulator;
+namespace LdapRecord\Laravel\Tests\Feature\Emulator;
 
-use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use LdapRecord\Laravel\Auth\HasLdapUser;
+use LdapRecord\Laravel\Auth\LdapAuthenticatable;
+use Illuminate\Foundation\Testing\WithFaker;
+use LdapRecord\Laravel\Auth\AuthenticatesWithLdap;
 use LdapRecord\Laravel\Events\Auth\Bound;
 use LdapRecord\Laravel\Events\Auth\Binding;
+use LdapRecord\Laravel\Events\Import\Saved;
 use LdapRecord\Laravel\Events\Auth\Completed;
-use LdapRecord\Laravel\Events\Auth\DiscoveredWithCredentials;
+use LdapRecord\Laravel\Import\ImportException;
 use LdapRecord\Laravel\Events\Import\Imported;
 use LdapRecord\Laravel\Events\Import\Importing;
-use LdapRecord\Laravel\Events\Import\Saved;
+use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Laravel\Events\Import\Synchronized;
 use LdapRecord\Laravel\Events\Import\Synchronizing;
-use LdapRecord\Laravel\Import\ImportException;
-use LdapRecord\Laravel\Testing\DirectoryEmulator;
-use LdapRecord\Laravel\Tests\DatabaseProviderTestCase;
-use LdapRecord\Laravel\Tests\TestUserModelStub;
-use LdapRecord\Models\ActiveDirectory\User;
+use LdapRecord\Models\ActiveDirectory\User as LdapUser;
+use LdapRecord\Laravel\Events\Auth\DiscoveredWithCredentials;
+use LdapRecord\Laravel\Tests\Feature\DatabaseProviderTestCase;
 
-class EmulatedAuthenticationTest extends DatabaseProviderTestCase
+class EmulatedDatabaseAuthenticationTest extends DatabaseProviderTestCase
 {
     use WithFaker;
 
@@ -40,9 +44,16 @@ class EmulatedAuthenticationTest extends DatabaseProviderTestCase
 
         $fake = DirectoryEmulator::setup();
 
-        $this->setupDatabaseUserProvider();
+        $this->setupDatabaseUserProvider(['database' => [
+            'model' => TestEmulatorUserModelStub::class,
+            'sync_passwords' => true,
+            'sync_attributes' => [
+                'name' => 'cn',
+                'email' => 'mail',
+            ],
+        ]]);
 
-        $user = User::create([
+        $user = LdapUser::create([
             'cn' => 'John',
             'mail' => 'jdoe@email.com',
             'objectguid' => $this->faker->uuid,
@@ -54,7 +65,7 @@ class EmulatedAuthenticationTest extends DatabaseProviderTestCase
 
         $model = Auth::user();
 
-        $this->assertInstanceOf(TestUserModelStub::class, $model);
+        $this->assertInstanceOf(TestEmulatorUserModelStub::class, $model);
         $this->assertEquals($user->cn[0], $model->name);
         $this->assertEquals($user->mail[0], $model->email);
         $this->assertEquals($user->getConvertedGuid(), $model->guid);
@@ -76,9 +87,11 @@ class EmulatedAuthenticationTest extends DatabaseProviderTestCase
 
         DirectoryEmulator::setup();
 
-        $this->setupDatabaseUserProvider();
+        $this->setupDatabaseUserProvider(['database' => [
+            'model' => TestEmulatorUserModelStub::class,
+        ]]);
 
-        $user = User::create([
+        $user = LdapUser::create([
             'cn' => 'John',
             'mail' => 'jdoe@email.com',
         ]);
@@ -90,9 +103,11 @@ class EmulatedAuthenticationTest extends DatabaseProviderTestCase
     {
         DirectoryEmulator::setup();
 
-        $this->setupDatabaseUserProvider();
+        $this->setupDatabaseUserProvider(['database' => [
+            'model' => TestEmulatorUserModelStub::class,
+        ]]);
 
-        $user = User::create([
+        $user = LdapUser::create([
             'cn' => 'John',
             'mail' => 'jdoe@email.com',
             'objectguid' => '',
@@ -117,7 +132,9 @@ class EmulatedAuthenticationTest extends DatabaseProviderTestCase
 
         DirectoryEmulator::setup();
 
-        $this->setupDatabaseUserProvider();
+        $this->setupDatabaseUserProvider(['database' => [
+            'model' => TestEmulatorUserModelStub::class,
+        ]]);
 
         $guard = Auth::guard();
 
@@ -127,7 +144,7 @@ class EmulatedAuthenticationTest extends DatabaseProviderTestCase
             throw new \Exception;
         });
 
-        $user = TestUserModelStub::create([
+        $user = TestEmulatorUserModelStub::create([
             'name' => 'John Doe',
             'email' => 'jdoe@email.com',
             'password' => Hash::make('secret'),
@@ -157,16 +174,19 @@ class EmulatedAuthenticationTest extends DatabaseProviderTestCase
 
         DirectoryEmulator::setup();
 
-        $this->setupDatabaseUserProvider();
+        $this->setupDatabaseUserProvider(['database' => [
+            'model' => TestEmulatorUserModelStub::class,
+        ]]);
 
         $guard = Auth::guard();
 
         $databaseUserProvider = $guard->getProvider();
 
         $databaseUserProvider->resolveUsersUsing(function () {
+            // Do nothing.
         });
 
-        $user = TestUserModelStub::create([
+        $user = TestEmulatorUserModelStub::create([
             'name' => 'John Doe',
             'email' => 'jdoe@email.com',
             'password' => Hash::make('secret'),
@@ -186,16 +206,19 @@ class EmulatedAuthenticationTest extends DatabaseProviderTestCase
     {
         DirectoryEmulator::setup();
 
-        $this->setupDatabaseUserProvider();
+        $this->setupDatabaseUserProvider(['database' => [
+            'model' => TestEmulatorUserModelStub::class,
+        ]]);
 
         $guard = Auth::guard();
 
         $databaseUserProvider = $guard->getProvider();
 
         $databaseUserProvider->resolveUsersUsing(function () {
+            // Do nothing.
         });
 
-        $user = TestUserModelStub::create([
+        $user = TestEmulatorUserModelStub::create([
             'name' => 'John Doe',
             'email' => 'jdoe@email.com',
             'password' => Hash::make('secret'),
@@ -203,57 +226,13 @@ class EmulatedAuthenticationTest extends DatabaseProviderTestCase
 
         $this->assertFalse($guard->attempt(['mail' => $user->email, 'password' => 'secret']));
     }
+}
 
-    public function test_plain_ldap_authentication_passes()
-    {
-        $this->expectsEvents([
-            Binding::class,
-            Bound::class,
-            DiscoveredWithCredentials::class,
-        ])->doesntExpectEvents([
-            Importing::class,
-            Imported::class,
-            Synchronizing::class,
-            Synchronized::class,
-        ]);
+class TestEmulatorUserModelStub extends User implements LdapAuthenticatable
+{
+    use SoftDeletes, AuthenticatesWithLdap, HasLdapUser;
 
-        $fake = DirectoryEmulator::setup();
+    protected $guarded = [];
 
-        $this->setupPlainUserProvider();
-
-        $user = User::create(['cn' => 'John', 'mail' => 'jdoe@email.com']);
-
-        $fake->actingAs($user);
-
-        $this->assertTrue(Auth::attempt(['mail' => $user->mail[0], 'password' => 'secret']));
-
-        $model = Auth::user();
-
-        $this->assertInstanceOf(User::class, $model);
-        $this->assertTrue($user->is($model));
-        $this->assertEquals($user->mail[0], $model->mail[0]);
-        $this->assertEquals($user->getDn(), $model->getDn());
-    }
-
-    public function test_plain_ldap_authentication_fails()
-    {
-        $this->expectsEvents([
-            Binding::class,
-            DiscoveredWithCredentials::class,
-        ])->doesntExpectEvents([
-            Bound::class,
-            Importing::class,
-            Imported::class,
-            Synchronizing::class,
-            Synchronized::class,
-        ]);
-
-        DirectoryEmulator::setup();
-
-        $this->setupPlainUserProvider();
-
-        $user = User::create(['cn' => 'John', 'mail' => 'jdoe@email.com']);
-
-        $this->assertFalse(Auth::attempt(['mail' => $user->mail[0], 'password' => 'secret']));
-    }
+    protected $table = 'users';
 }

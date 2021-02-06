@@ -1,18 +1,18 @@
 <?php
 
-namespace LdapRecord\Laravel\Tests;
+namespace LdapRecord\Laravel\Tests\Feature;
 
+use Mockery as m;
 use Illuminate\Http\Request;
 use LdapRecord\Laravel\Auth\Rule;
-use LdapRecord\Laravel\Events\Auth\CompletedWithWindows;
+use LdapRecord\Laravel\LdapUserRepository;
+use LdapRecord\Models\ActiveDirectory\User;
 use LdapRecord\Laravel\Events\Import\Imported;
 use LdapRecord\Laravel\Events\Import\Importing;
 use LdapRecord\Laravel\Events\Import\Synchronized;
 use LdapRecord\Laravel\Events\Import\Synchronizing;
-use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Laravel\Middleware\WindowsAuthenticate;
-use LdapRecord\Models\ActiveDirectory\User;
-use Mockery as m;
+use LdapRecord\Laravel\Events\Auth\CompletedWithWindows;
 
 class WindowsAuthMiddlewareTest extends DatabaseProviderTestCase
 {
@@ -44,6 +44,7 @@ class WindowsAuthMiddlewareTest extends DatabaseProviderTestCase
         $middleware = new WindowsAuthenticate(app('auth'));
 
         $request = new Request;
+
         $middleware->handle($request, function () {
             $this->assertTrue(true);
         });
@@ -66,7 +67,9 @@ class WindowsAuthMiddlewareTest extends DatabaseProviderTestCase
         ]));
 
         $middleware = new WindowsAuthenticate(app('auth'));
+
         $request = new Request;
+
         $middleware->handle($request, function () {
             $this->assertTrue(true);
         });
@@ -82,12 +85,17 @@ class WindowsAuthMiddlewareTest extends DatabaseProviderTestCase
             CompletedWithWindows::class,
         ]);
 
-        $this->setupDatabaseUserProvider();
+        $this->setupDatabaseUserProvider([
+            'database' => [
+                'model' => TestUserModelStub::class,
+            ],
+        ]);
 
         $users = m::mock(LdapUserRepository::class);
         $users->shouldReceive('findBy')->once()->withArgs(['samaccountname', 'SteveBauman'])->andReturnNull();
 
         $auth = app('auth');
+
         $auth->guard()->getProvider()->setLdapUserRepository($users);
 
         $middleware = new WindowsAuthenticate($auth);
@@ -114,7 +122,11 @@ class WindowsAuthMiddlewareTest extends DatabaseProviderTestCase
             CompletedWithWindows::class,
         ]);
 
-        $this->setupDatabaseUserProvider();
+        $this->setupDatabaseUserProvider([
+            'database' => [
+                'model' => TestUserModelStub::class,
+            ],
+        ]);
 
         $user = new User([
             'cn' => 'SteveBauman',
@@ -128,7 +140,9 @@ class WindowsAuthMiddlewareTest extends DatabaseProviderTestCase
         $users->shouldReceive('findBy')->once()->withArgs(['samaccountname', 'SteveBauman'])->andReturn($user);
 
         $auth = app('auth');
+
         $guard = $auth->guard();
+
         $guard->getProvider()->setLdapUserRepository($users);
 
         $middleware = new WindowsAuthenticate($auth);
@@ -152,6 +166,7 @@ class WindowsAuthMiddlewareTest extends DatabaseProviderTestCase
     public function test_authenticates_with_plain_user_provider()
     {
         $this->expectsEvents([CompletedWithWindows::class]);
+
         $this->doesntExpectEvents([
             Importing::class,
             Imported::class,
@@ -331,7 +346,9 @@ class WindowsAuthMiddlewareTest extends DatabaseProviderTestCase
         $users->shouldReceive('findBy')->once()->withArgs(['samaccountname', 'SteveBauman'])->andReturn($user);
 
         $auth = app('auth');
+
         $guard = $auth->guard();
+
         $guard->getProvider()->setLdapUserRepository($users);
 
         $middleware = new WindowsAuthenticate($auth);
@@ -360,7 +377,9 @@ class WindowsAuthMiddlewareTest extends DatabaseProviderTestCase
         $this->assertTrue(auth()->check());
         
         $middleware = new WindowsAuthenticate(app('auth'));
+
         $request = new Request;
+
         $middleware->handle($request, function () {
             $this->assertFalse(auth()->check());
         });
@@ -371,6 +390,7 @@ class WindowsAuthMiddlewareTest extends DatabaseProviderTestCase
         WindowsAuthenticate::guards('invalid');
 
         $middleware = new WindowsAuthenticate(app('auth'));
+
         $request = tap(new Request, function ($request) {
             $request->server->set('AUTH_USER', 'Local\SteveBauman');
         });

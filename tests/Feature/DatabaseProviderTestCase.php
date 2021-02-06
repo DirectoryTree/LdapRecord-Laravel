@@ -1,6 +1,6 @@
 <?php
 
-namespace LdapRecord\Laravel\Tests;
+namespace LdapRecord\Laravel\Tests\Feature;
 
 use Illuminate\Auth\EloquentUserProvider;
 use Illuminate\Database\Schema\Blueprint;
@@ -10,6 +10,7 @@ use LdapRecord\Laravel\LdapUserAuthenticator;
 use LdapRecord\Laravel\Import\UserSynchronizer;
 use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Models\ActiveDirectory\User;
+use LdapRecord\Laravel\Tests\TestCase;
 use LdapRecord\Models\Model;
 use Mockery as m;
 

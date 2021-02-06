@@ -1,11 +1,16 @@
 <?php
 
-namespace LdapRecord\Laravel\Tests;
+namespace LdapRecord\Laravel\Tests\Unit;
 
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use LdapRecord\Laravel\ImportableFromLdap;
+use LdapRecord\Laravel\LdapImportable;
+use LdapRecord\Laravel\Tests\TestCase;
 use Illuminate\Support\Facades\Schema;
 use LdapRecord\Laravel\Import\Importer;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Foundation\Testing\WithFaker;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Models\ActiveDirectory\Group as LdapGroup;
 
@@ -17,7 +22,7 @@ class LdapImporterTest extends TestCase
     {
         parent::setUp();
 
-        Schema::create('test_group_model_stubs', function (Blueprint $table) {
+        Schema::create('test_importer_group_model_stubs', function (Blueprint $table) {
             $table->increments('id');
             $table->softDeletes();
             $table->string('guid')->unique()->nullable();
@@ -37,7 +42,7 @@ class LdapImporterTest extends TestCase
 
         $imported = (new Importer)
             ->setLdapModel(LdapGroup::class)
-            ->setEloquentModel(TestGroupModelStub::class)
+            ->setEloquentModel(TestImporterGroupModelStub::class)
             ->setSyncAttributes(['name' => 'cn'])
             ->execute();
 
@@ -55,7 +60,7 @@ class LdapImporterTest extends TestCase
 
         $imported = (new Importer)
             ->setLdapModel(LdapGroup::class)
-            ->setEloquentModel(TestGroupModelStub::class)
+            ->setEloquentModel(TestImporterGroupModelStub::class)
             ->syncAttributesUsing(function ($object, $database) {
                 $database
                     ->forceFill(['name' => $object->getFirstAttribute('cn')])
@@ -65,4 +70,13 @@ class LdapImporterTest extends TestCase
         $this->assertCount(1, $imported);
         $this->assertEquals($object->getFirstAttribute('cn'), $imported->first()->name);
     }
+}
+
+class TestImporterGroupModelStub extends Model implements LdapImportable
+{
+    use ImportableFromLdap, SoftDeletes;
+
+    public $timestamps = false;
+
+    protected $guarded = [];
 }

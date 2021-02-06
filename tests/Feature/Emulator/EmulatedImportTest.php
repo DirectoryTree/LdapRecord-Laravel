@@ -1,17 +1,16 @@
 <?php
 
-namespace LdapRecord\Laravel\Tests\Emulator;
+namespace LdapRecord\Laravel\Tests\Feature\Emulator;
 
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Event;
-use LdapRecord\Laravel\Events\Import\DeletedMissing;
-use LdapRecord\Laravel\Events\Import\ImportFailed;
-use LdapRecord\Laravel\Import\ImportException;
-use LdapRecord\Laravel\Testing\DirectoryEmulator;
-use LdapRecord\Laravel\Tests\DatabaseProviderTestCase;
-use LdapRecord\Laravel\Tests\TestUserModelStub;
+use Illuminate\Foundation\Testing\WithFaker;
 use LdapRecord\Models\ActiveDirectory\User;
 use LdapRecord\Models\Attributes\AccountControl;
+use LdapRecord\Laravel\Testing\DirectoryEmulator;
+use LdapRecord\Laravel\Events\Import\ImportFailed;
+use LdapRecord\Laravel\Events\Import\DeletedMissing;
+use LdapRecord\Laravel\Tests\Feature\TestUserModelStub;
+use LdapRecord\Laravel\Tests\Feature\DatabaseProviderTestCase;
 
 class EmulatedImportTest extends DatabaseProviderTestCase
 {
@@ -21,7 +20,11 @@ class EmulatedImportTest extends DatabaseProviderTestCase
     {
         parent::setUp();
 
-        $this->setupDatabaseUserProvider();
+        $this->setupDatabaseUserProvider([
+            'database' => [
+                'model' => TestUserModelStub::class,
+            ],
+        ]);
 
         DirectoryEmulator::setup();
     }
@@ -45,6 +48,7 @@ class EmulatedImportTest extends DatabaseProviderTestCase
         ])->assertExitCode(0);
 
         $imported = TestUserModelStub::get();
+
         $this->assertCount(10, $imported);
 
         for ($i = 0; $i < 10; $i++) {
@@ -121,8 +125,6 @@ class EmulatedImportTest extends DatabaseProviderTestCase
     public function test_missing_users_are_soft_deleted_when_flag_is_enabled()
     {
         Event::fake(DeletedMissing::class);
-
-        $this->setupDatabaseUserProvider();
 
         DirectoryEmulator::setup();
 
@@ -206,9 +208,8 @@ class EmulatedImportTest extends DatabaseProviderTestCase
     {
         $this->setupDatabaseUserProvider([
             'database' => [
-                'sync_existing' => [
-                    'email' => 'mail',
-                ],
+                'model' => TestUserModelStub::class,
+                'sync_existing' => ['email' => 'mail'],
             ],
         ]);
 
@@ -240,9 +241,8 @@ class EmulatedImportTest extends DatabaseProviderTestCase
     {
         $this->setupDatabaseUserProvider([
             'database' => [
-                'sync_existing' => [
-                    'domain' => 'my-domain',
-                ],
+                'model' => TestUserModelStub::class,
+                'sync_existing' => ['domain' => 'my-domain'],
             ],
         ]);
 

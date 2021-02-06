@@ -1,17 +1,19 @@
 <?php
 
-namespace LdapRecord\Laravel\Tests;
+namespace LdapRecord\Laravel\Tests\Unit;
 
+use Mockery as m;
 use LdapRecord\Auth\Guard;
 use LdapRecord\Connection;
+use LdapRecord\Models\Model;
 use LdapRecord\Laravel\Auth\Rule;
+use LdapRecord\Laravel\Tests\TestCase;
 use LdapRecord\Laravel\Events\Auth\Bound;
 use LdapRecord\Laravel\Events\Auth\Binding;
 use LdapRecord\Laravel\Events\Auth\BindFailed;
 use LdapRecord\Laravel\Events\Auth\Rejected;
 use LdapRecord\Laravel\LdapUserAuthenticator;
-use LdapRecord\Models\Model;
-use Mockery as m;
+use Illuminate\Database\Eloquent\Model as EloquentModel;
 
 class LdapUserAuthenticatorTest extends TestCase
 {
@@ -20,6 +22,7 @@ class LdapUserAuthenticatorTest extends TestCase
         $dn = 'cn=John Doe,dc=local,dc=com';
 
         $model = $this->getAuthenticatingModelMock($dn);
+
         $model->shouldReceive('getConnection')->once()->andReturn(
             m::mock(Connection::class, function ($connection) use ($dn) {
                 $auth = m::mock(Guard::class);
@@ -46,6 +49,7 @@ class LdapUserAuthenticatorTest extends TestCase
         $dn = 'cn=John Doe,dc=local,dc=com';
 
         $model = $this->getAuthenticatingModelMock($dn);
+
         $model->shouldReceive('getConnection')->once()->andReturn(
             m::mock(Connection::class, function ($connection) use ($dn) {
                 $auth = m::mock(Guard::class);
@@ -72,6 +76,7 @@ class LdapUserAuthenticatorTest extends TestCase
         $dn = 'cn=John Doe,dc=local,dc=com';
 
         $model = $this->getAuthenticatingModelMock($dn);
+
         $model->shouldReceive('getConnection')->once()->andReturn(
             m::mock(Connection::class, function ($connection) use ($dn) {
                 $auth = m::mock(Guard::class);
@@ -99,6 +104,7 @@ class LdapUserAuthenticatorTest extends TestCase
         $dn = 'cn=John Doe,dc=local,dc=com';
 
         $model = $this->getAuthenticatingModelMock($dn);
+
         $model->shouldReceive('getConnection')->once()->andReturn(
             m::mock(Connection::class, function ($connection) use ($dn) {
                 $auth = m::mock(Guard::class);
@@ -109,7 +115,8 @@ class LdapUserAuthenticatorTest extends TestCase
         );
 
         $auth = new LdapUserAuthenticator([TestLdapAuthRuleWithEloquentModel::class]);
-        $auth->setEloquentModel(new TestUserModelStub());
+
+        $auth->setEloquentModel(new TestLdapUserAuthenticatedModelStub);
 
         $this->expectsEvents([
             Binding::class,
@@ -129,6 +136,11 @@ class LdapUserAuthenticatorTest extends TestCase
 
         return $model;
     }
+}
+
+class TestLdapUserAuthenticatedModelStub extends EloquentModel
+{
+    //
 }
 
 class TestLdapAuthRuleWithEloquentModel extends Rule

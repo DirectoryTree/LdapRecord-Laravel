@@ -1,13 +1,13 @@
 <?php
 
-namespace LdapRecord\Laravel\Tests\Emulator;
+namespace LdapRecord\Laravel\Tests\Feature\Emulator;
 
-use LdapRecord\Laravel\LdapUserRepository;
-use LdapRecord\Laravel\Testing\DirectoryEmulator;
-use LdapRecord\Laravel\Tests\TestCase;
-use LdapRecord\Laravel\Tests\TestUserModelStub;
-use LdapRecord\Models\ActiveDirectory\User;
 use Ramsey\Uuid\Uuid;
+use LdapRecord\Laravel\Tests\TestCase;
+use LdapRecord\Laravel\LdapUserRepository;
+use LdapRecord\Models\ActiveDirectory\User;
+use LdapRecord\Laravel\Testing\DirectoryEmulator;
+use LdapRecord\Laravel\Tests\Feature\TestUserModelStub;
 
 class EmulatedUserRepositoryTest extends TestCase
 {

@@ -3,8 +3,9 @@
 namespace LdapRecord\Laravel\Tests;
 
 use Illuminate\Support\Facades\Hash;
-use LdapRecord\Laravel\LdapAuthServiceProvider;
+use LdapRecord\Models\ActiveDirectory\User;
 use LdapRecord\Laravel\LdapServiceProvider;
+use LdapRecord\Laravel\LdapAuthServiceProvider;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 
@@ -62,39 +63,36 @@ abstract class TestCase extends BaseTestCase
         ]);
     }
 
+    protected function setupLdapUserProvider($guardName, array $config)
+    {
+        config()->set('auth.defaults.guard', $guardName);
+
+        config()->set("auth.guards.$guardName", [
+            'driver' => 'session',
+            'provider' => $guardName,
+        ]);
+
+        config()->set("auth.providers.$guardName", array_merge([
+            'rules' => [],
+            'driver' => 'ldap',
+            'model' => User::class,
+        ], $config));
+    }
+
     protected function setupPlainUserProvider(array $config = [])
     {
-        config()->set('auth.defaults.guard', 'ldap-plain');
-        config()->set('auth.guards.ldap-plain', [
-            'driver' => 'session',
-            'provider' => 'ldap-plain',
-        ]);
-        config()->set('auth.providers.ldap-plain', array_merge_recursive([
-            'driver' => 'ldap',
-            'rules' => [],
-            'model' => \LdapRecord\Models\ActiveDirectory\User::class,
-        ], $config));
+        $this->setupLdapUserProvider('ldap-plain', $config);
     }
 
     protected function setupDatabaseUserProvider(array $config = [])
     {
-        config()->set('auth.defaults.guard', 'ldap-database');
-        config()->set('auth.guards.ldap-database', [
-            'driver' => 'session',
-            'provider' => 'ldap-database',
-        ]);
-        config()->set('auth.providers.ldap-database', array_merge_recursive([
-            'driver' => 'ldap',
-            'rules' => [],
-            'model' => \LdapRecord\Models\ActiveDirectory\User::class,
+        $this->setupLdapUserProvider('ldap-database', array_merge([
             'database' => [
-                'model' => \LdapRecord\Laravel\Tests\TestUserModelStub::class,
-                'sync_passwords' => true,
                 'sync_attributes' => [
                     'name' => 'cn',
                     'email' => 'mail',
                 ],
             ],
-        ], $config));
+        ],$config));
     }
 }

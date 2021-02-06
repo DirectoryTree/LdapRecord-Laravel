@@ -1,10 +1,12 @@
 <?php
 
-namespace LdapRecord\Laravel\Tests;
+namespace LdapRecord\Laravel\Tests\Unit;
 
+use LdapRecord\Models\Entry;
 use LdapRecord\Laravel\Auth\Rule;
 use LdapRecord\Laravel\Auth\Validator;
-use LdapRecord\Models\Entry;
+use LdapRecord\Laravel\Tests\TestCase;
+use Illuminate\Database\Eloquent\Model;
 
 class ValidatorTest extends TestCase
 {
@@ -15,7 +17,7 @@ class ValidatorTest extends TestCase
 
     public function test_rules_can_be_added()
     {
-        $rule = new TestPassingRule(new Entry, new TestUserModelStub);
+        $rule = new TestPassingRule(new Entry, new TestRuleModelStub);
         $validator = new Validator([$rule]);
 
         $this->assertCount(1, $validator->getRules());
@@ -24,28 +26,33 @@ class ValidatorTest extends TestCase
 
     public function test_passing_validation_rule()
     {
-        $rule = new TestPassingRule(new Entry, new TestUserModelStub);
+        $rule = new TestPassingRule(new Entry, new TestRuleModelStub);
         $this->assertTrue((new Validator([$rule]))->passes());
     }
 
     public function test_failing_validation_rule()
     {
-        $rule = new TestFailingRule(new Entry, new TestUserModelStub);
+        $rule = new TestFailingRule(new Entry, new TestRuleModelStub);
         $this->assertFalse((new Validator([$rule]))->passes());
     }
 
     public function test_all_rules_are_validated()
     {
-        $rule = new TestPassingRule(new Entry, new TestUserModelStub);
+        $rule = new TestPassingRule(new Entry, new TestRuleModelStub);
 
         $validator = new Validator([$rule]);
 
         $this->assertTrue($validator->passes());
 
-        $validator->addRule(new TestFailingRule(new Entry, new TestUserModelStub));
+        $validator->addRule(new TestFailingRule(new Entry, new TestRuleModelStub));
 
         $this->assertFalse($validator->passes());
     }
+}
+
+class TestRuleModelStub extends Model
+{
+    //
 }
 
 class TestPassingRule extends Rule

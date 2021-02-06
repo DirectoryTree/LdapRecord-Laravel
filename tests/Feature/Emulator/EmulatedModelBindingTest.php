@@ -1,19 +1,23 @@
 <?php
 
-namespace LdapRecord\Laravel\Tests\Emulator;
+namespace LdapRecord\Laravel\Tests\Feature\Emulator;
 
-use Illuminate\Support\Facades\Auth;
-use LdapRecord\Laravel\Testing\DirectoryEmulator;
-use LdapRecord\Laravel\Tests\DatabaseProviderTestCase;
-use LdapRecord\Laravel\Tests\TestUserModelStub;
-use LdapRecord\Models\ActiveDirectory\User;
 use Ramsey\Uuid\Uuid;
+use Illuminate\Support\Facades\Auth;
+use LdapRecord\Models\ActiveDirectory\User;
+use LdapRecord\Laravel\Testing\DirectoryEmulator;
+use LdapRecord\Laravel\Tests\Feature\TestUserModelStub;
+use LdapRecord\Laravel\Tests\Feature\DatabaseProviderTestCase;
 
 class EmulatedModelBindingTest extends DatabaseProviderTestCase
 {
     public function test_ldap_users_are_bound_to_models_using_trait()
     {
-        $this->setupDatabaseUserProvider();
+        $this->setupDatabaseUserProvider([
+            'database' => [
+                'model' => TestUserModelStub::class,
+            ],
+        ]);
 
         DirectoryEmulator::setup();
 
@@ -39,7 +43,11 @@ class EmulatedModelBindingTest extends DatabaseProviderTestCase
 
     public function test_ldap_users_are_not_bound_when_model_cannot_be_located()
     {
-        $this->setupDatabaseUserProvider();
+        $this->setupDatabaseUserProvider([
+            'database' => [
+                'model' => TestUserModelStub::class,
+            ],
+        ]);
 
         DirectoryEmulator::setup();
 
