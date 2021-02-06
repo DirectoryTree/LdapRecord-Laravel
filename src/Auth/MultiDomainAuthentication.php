@@ -5,6 +5,7 @@ namespace LdapRecord\Laravel\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+/** @deprecated To be removed in next major version (v3.0). */
 trait MultiDomainAuthentication
 {
     use CreatesUserProvider;
