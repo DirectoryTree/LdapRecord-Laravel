@@ -22,7 +22,7 @@ class WindowsAuthMiddlewareTest extends DatabaseProviderTestCase
     {
         parent::setUp();
 
-        // Reset all middleware options.
+        // Reset all static middleware values.
         WindowsAuthenticate::$guards = null;
         WindowsAuthenticate::$serverKey = 'AUTH_USER';
         WindowsAuthenticate::$username = 'samaccountname';
