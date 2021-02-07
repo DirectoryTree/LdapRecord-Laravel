@@ -8,7 +8,7 @@ use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Laravel\LdapUserAuthenticator;
 use LdapRecord\Laravel\Import\UserSynchronizer;
 
-class DatabaseUserProviderTest extends DatabaseProviderTestCase
+class DatabaseUserTest extends DatabaseTestCase
 {
     use CreatesTestUsers;
 

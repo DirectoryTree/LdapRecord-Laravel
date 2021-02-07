@@ -10,9 +10,9 @@ use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Laravel\Events\Import\ImportFailed;
 use LdapRecord\Laravel\Events\Import\DeletedMissing;
 use LdapRecord\Laravel\Tests\Feature\TestUserModelStub;
-use LdapRecord\Laravel\Tests\Feature\DatabaseProviderTestCase;
+use LdapRecord\Laravel\Tests\Feature\DatabaseTestCase;
 
-class EmulatedImportTest extends DatabaseProviderTestCase
+class EmulatedImportTest extends DatabaseTestCase
 {
     use WithFaker;
 

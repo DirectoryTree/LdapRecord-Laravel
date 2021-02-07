@@ -10,7 +10,7 @@ use LdapRecord\Laravel\Events\Import\Importing;
 use LdapRecord\Laravel\Events\Import\Synchronized;
 use LdapRecord\Laravel\Events\Import\Synchronizing;
 
-class LdapUserSynchronizerTest extends DatabaseUserProviderTest
+class LdapUserSynchronizerTest extends DatabaseUserTest
 {
     use CreatesTestUsers;
 

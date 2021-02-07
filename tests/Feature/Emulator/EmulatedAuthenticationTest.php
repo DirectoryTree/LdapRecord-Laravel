@@ -13,9 +13,9 @@ use LdapRecord\Laravel\Events\Import\Synchronizing;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Models\ActiveDirectory\User as LdapUser;
 use LdapRecord\Laravel\Events\Auth\DiscoveredWithCredentials;
-use LdapRecord\Laravel\Tests\Feature\DatabaseProviderTestCase;
+use LdapRecord\Laravel\Tests\Feature\DatabaseTestCase;
 
-class EmulatedAuthenticationTest extends DatabaseProviderTestCase
+class EmulatedAuthenticationTest extends DatabaseTestCase
 {
     use WithFaker;
 
@@ -43,7 +43,10 @@ class EmulatedAuthenticationTest extends DatabaseProviderTestCase
 
         $fake->actingAs($user);
 
-        $this->assertTrue(Auth::attempt(['mail' => $user->mail[0], 'password' => 'secret']));
+        $this->assertTrue(Auth::attempt([
+            'mail' => $user->mail[0],
+            'password' => 'secret',
+        ]));
 
         $model = Auth::user();
 

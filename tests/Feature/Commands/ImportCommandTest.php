@@ -14,9 +14,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use LdapRecord\Laravel\Auth\LdapAuthenticatable;
 use LdapRecord\Laravel\Auth\AuthenticatesWithLdap;
 use LdapRecord\Models\ActiveDirectory\User as LdapUser;
-use LdapRecord\Laravel\Tests\Feature\DatabaseProviderTestCase;
+use LdapRecord\Laravel\Tests\Feature\DatabaseTestCase;
 
-class ImportCommandTest extends DatabaseProviderTestCase
+class ImportCommandTest extends DatabaseTestCase
 {
     public function test_command_exits_when_provider_does_not_exist()
     {

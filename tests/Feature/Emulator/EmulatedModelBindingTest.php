@@ -7,9 +7,9 @@ use Illuminate\Support\Facades\Auth;
 use LdapRecord\Models\ActiveDirectory\User;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Laravel\Tests\Feature\TestUserModelStub;
-use LdapRecord\Laravel\Tests\Feature\DatabaseProviderTestCase;
+use LdapRecord\Laravel\Tests\Feature\DatabaseTestCase;
 
-class EmulatedModelBindingTest extends DatabaseProviderTestCase
+class EmulatedModelBindingTest extends DatabaseTestCase
 {
     public function test_ldap_users_are_bound_to_models_using_trait()
     {

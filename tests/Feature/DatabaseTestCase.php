@@ -14,16 +14,16 @@ use LdapRecord\Laravel\Tests\TestCase;
 use LdapRecord\Models\Model;
 use Mockery as m;
 
-class DatabaseProviderTestCase extends TestCase
+class DatabaseTestCase extends TestCase
 {
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->runUserMigration();
+        $this->createUsersTable();
     }
 
-    protected function runUserMigration()
+    protected function createUsersTable()
     {
         // Setup the users database table.
         Schema::create('users', function (Blueprint $table) {

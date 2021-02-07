@@ -14,7 +14,7 @@ use LdapRecord\Laravel\Events\Import\Synchronizing;
 use LdapRecord\Laravel\Middleware\WindowsAuthenticate;
 use LdapRecord\Laravel\Events\Auth\CompletedWithWindows;
 
-class WindowsAuthMiddlewareTest extends DatabaseProviderTestCase
+class WindowsAuthMiddlewareTest extends DatabaseTestCase
 {
     use CreatesTestUsers;
 

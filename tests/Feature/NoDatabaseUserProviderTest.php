@@ -10,7 +10,7 @@ use LdapRecord\Models\ActiveDirectory\User;
 use LdapRecord\Laravel\LdapUserAuthenticator;
 use LdapRecord\Laravel\Auth\NoDatabaseUserProvider;
 
-class PlainUserProviderTest extends TestCase
+class NoDatabaseUserProviderTest extends TestCase
 {
     public function test_user_repository_can_be_retrieved()
     {

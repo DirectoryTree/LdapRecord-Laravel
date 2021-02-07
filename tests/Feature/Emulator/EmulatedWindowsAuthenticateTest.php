@@ -16,9 +16,9 @@ use LdapRecord\Laravel\Events\Import\Synchronizing;
 use LdapRecord\Laravel\Middleware\WindowsAuthenticate;
 use LdapRecord\Laravel\Tests\Feature\TestUserModelStub;
 use LdapRecord\Laravel\Events\Auth\CompletedWithWindows;
-use LdapRecord\Laravel\Tests\Feature\DatabaseProviderTestCase;
+use LdapRecord\Laravel\Tests\Feature\DatabaseTestCase;
 
-class EmulatedWindowsAuthenticateTest extends DatabaseProviderTestCase
+class EmulatedWindowsAuthenticateTest extends DatabaseTestCase
 {
     use WithFaker;
 

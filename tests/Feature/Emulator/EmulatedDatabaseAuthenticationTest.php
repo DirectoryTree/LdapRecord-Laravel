@@ -22,9 +22,9 @@ use LdapRecord\Laravel\Events\Import\Synchronized;
 use LdapRecord\Laravel\Events\Import\Synchronizing;
 use LdapRecord\Models\ActiveDirectory\User as LdapUser;
 use LdapRecord\Laravel\Events\Auth\DiscoveredWithCredentials;
-use LdapRecord\Laravel\Tests\Feature\DatabaseProviderTestCase;
+use LdapRecord\Laravel\Tests\Feature\DatabaseTestCase;
 
-class EmulatedDatabaseAuthenticationTest extends DatabaseProviderTestCase
+class EmulatedDatabaseAuthenticationTest extends DatabaseTestCase
 {
     use WithFaker;
 
