@@ -35,7 +35,7 @@ class DirectoryEmulator extends DirectoryFake
      */
     public static function makeConnectionFake(array $config = [])
     {
-        return new EmulatedConnectionFake($config, new LdapFake());
+        return (new EmulatedConnectionFake($config, new LdapFake))->shouldBeConnected();
     }
 
     /**

@@ -11,9 +11,9 @@ use LdapRecord\Laravel\Events\Import\Importing;
 use LdapRecord\Laravel\Events\Import\Synchronized;
 use LdapRecord\Laravel\Events\Import\Synchronizing;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
+use LdapRecord\Laravel\Tests\Feature\DatabaseTestCase;
 use LdapRecord\Models\ActiveDirectory\User as LdapUser;
 use LdapRecord\Laravel\Events\Auth\DiscoveredWithCredentials;
-use LdapRecord\Laravel\Tests\Feature\DatabaseTestCase;
 
 class EmulatedAuthenticationTest extends DatabaseTestCase
 {
@@ -69,7 +69,7 @@ class EmulatedAuthenticationTest extends DatabaseTestCase
             Synchronized::class,
         ]);
 
-        DirectoryEmulator::setup();
+        DirectoryEmulator::setup()->shouldBeConnected();
 
         $this->setupPlainUserProvider();
 

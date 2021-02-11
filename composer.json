@@ -7,7 +7,7 @@
     "require": {
         "php": ">=7.2",
         "ext-ldap": "*",
-        "directorytree/ldaprecord": "^2.1.1",
+        "directorytree/ldaprecord": "^2.1.2",
         "illuminate/support": "^5.6|^6.0|^7.0|^8.0"
     },
     "require-dev": {
