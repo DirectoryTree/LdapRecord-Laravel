@@ -661,7 +661,7 @@ trait EmulatesQueries
      *
      * @return array
      */
-    protected function parse($resource)
+    public function parse($resource)
     {
         return $resource->toArray();
     }
