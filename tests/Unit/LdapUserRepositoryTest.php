@@ -32,7 +32,7 @@ class LdapUserRepositoryTest extends TestCase
     {
         $repository = new LdapUserRepository(Entry::class);
 
-        $this->assertEquals(['*', 'objectguid', 'objectclass'], $repository->query()->getSelects());
+        $this->assertEquals(['objectguid', '*'], $repository->query()->getSelects());
     }
 
     public function test_find_by_credentials_returns_null_with_empty_array()
