@@ -2,7 +2,7 @@
 
 namespace LdapRecord\Laravel\Commands;
 
-use LdapRecord\Models\Entry;
+use LdapRecord\Models\Model;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
@@ -239,9 +239,9 @@ class ImportLdapUsers extends Command
 
         $headers = ['Name', 'Distinguished Name'];
 
-        $rows = $this->objects->sortBy(function (Entry $object) {
+        $rows = $this->objects->sortBy(function (Model $object) {
             return $object->getName();
-        })->map(function (Entry $object) {
+        })->map(function (Model $object) {
             return [
                 'name' => $object->getRdn(),
                 'dn' => $object->getDn(),

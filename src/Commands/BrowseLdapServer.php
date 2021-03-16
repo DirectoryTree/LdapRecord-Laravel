@@ -4,7 +4,7 @@ namespace LdapRecord\Laravel\Commands;
 
 use InvalidArgumentException;
 use LdapRecord\Container;
-use LdapRecord\Models\Entry;
+use LdapRecord\Models\Model;
 use Illuminate\Console\Command;
 use LdapRecord\Models\Attributes\DistinguishedName;
 
@@ -191,9 +191,9 @@ class BrowseLdapServer extends Command
             ->in($this->selectedDn)
             ->listing()
             ->paginate()
-            ->sortBy(function (Entry $object) {
+            ->sortBy(function (Model $object) {
                 return $object->getName();
-            })->map(function (Entry $object) {
+            })->map(function (Model $object) {
                 return $object->getDn();
             })->values()->toArray();
     }
