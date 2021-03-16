@@ -34,9 +34,8 @@ class ListenForLdapBindFailureTest extends TestCase
         $fake = DirectoryFake::setup('default')->shouldNotBeConnected();
 
         $expectedSelects = [
-            "*",
             "objectguid",
-            "objectclass"
+            "*",
         ];
 
         $expectedFilter = $fake->query()
