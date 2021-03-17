@@ -173,16 +173,46 @@ class Synchronizer
 
         return $query->orWhere(function ($query) use ($scopes, $ldap) {
             foreach ($scopes as $databaseColumn => $ldapAttribute) {
-                $operator = is_array($ldapAttribute)
-                    ? ($ldapAttribute['operator'] ?? '=')
-                    : '=';
-                $attribute = is_array($ldapAttribute)
-                    ? ($ldapAttribute['attribute'] ?? '')
-                    : $ldapAttribute;
+                [$operator, $value] = $this->getSyncScopeOperatorAndValue(
+                    $ldap, $ldapAttribute
+                );
 
-                $query->where($databaseColumn, $operator, $ldap->getFirstAttribute($attribute) ?? $attribute);
+                $query->where($databaseColumn, $operator, $value);
             }
         });
+    }
+
+    /**
+     * Get the scope clause operator and value from the attribute configuration.
+     *
+     * @param LdapModel    $ldap
+     * @param array|string $config
+     * 
+     * @return array
+     */
+    protected function getSyncScopeOperatorAndValue(LdapModel $ldap, $config)
+    {
+        $attribute = $this->getSyncScopeOption($config, 'attribute', $config);
+
+        $operator = $this->getSyncScopeOption($config, 'operator', '=');
+
+        $value =  $ldap->getFirstAttribute($attribute) ?? $attribute;
+
+        return [$operator, $value];
+    }
+
+    /**
+     * Get the sync scope option from the config array.
+     *
+     * @param array|string $config
+     * @param string       $option
+     * @param mixed        $default
+     * 
+     * @return mixed
+     */
+    protected function getSyncScopeOption($config, $option, $default)
+    {
+        return is_array($config) ? $config[$option] : $default;
     }
 
     /**
