@@ -4,7 +4,6 @@ namespace LdapRecord\Laravel\Import;
 
 use Closure;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
 use LdapRecord\LdapRecordException;
 use LdapRecord\Models\Model as LdapModel;
 use LdapRecord\Laravel\Events\Import\Importing;
