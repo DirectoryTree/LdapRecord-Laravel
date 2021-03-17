@@ -93,6 +93,6 @@ abstract class TestCase extends BaseTestCase
                     'email' => 'mail',
                 ],
             ],
-        ],$config));
+        ], $config));
     }
 }
