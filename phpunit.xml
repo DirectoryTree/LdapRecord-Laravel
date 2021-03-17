@@ -14,4 +14,16 @@
             <directory suffix="Test.php">./tests/</directory>
         </testsuite>
     </testsuites>
+    <php>
+        <env name="LDAP_CONNECTIONS" value="alpha,bravo"/>
+        <env name="LDAP_ALPHA_HOSTS" value="10.0.0.1,10.0.0.2"/>
+        <env name="LDAP_ALPHA_USERNAME" value="cn=user,dc=alpha,dc=com"/>
+        <env name="LDAP_ALPHA_PASSWORD" value="alpha-secret"/>
+        <env name="LDAP_ALPHA_BASE_DN" value="dc=alpha,dc=com"/>
+        <env name="LDAP_ALPHA_CACHE" value="true"/>
+        <env name="LDAP_BRAVO_HOSTS" value="172.0.0.1,172.0.0.2"/>
+        <env name="LDAP_BRAVO_USERNAME" value="cn=user,dc=bravo,dc=com"/>
+        <env name="LDAP_BRAVO_PASSWORD" value="bravo-secret"/>
+        <env name="LDAP_BRAVO_BASE_DN" value="dc=bravo,dc=com"/>
+    </php>
 </phpunit>
