@@ -30,7 +30,7 @@ class ListenForLdapBindFailureTest extends TestCase
     public function test_validation_exception_is_not_thrown_until_all_connection_hosts_are_attempted()
     {
         $this->setupPlainUserProvider(['model' => User::class]);
-
+        
         $fake = DirectoryFake::setup('default')->shouldNotBeConnected();
 
         $expectedSelects = [
@@ -94,8 +94,8 @@ class ListenForLdapBindFailureTest extends TestCase
         ]);
 
         $this->assertTrue($result);
-        $this->assertInstanceOf(User::class, Auth::user());
         $this->assertCount(2, $fake->attempted());
+        $this->assertInstanceOf(User::class, Auth::user());
         $this->assertEquals(['one', 'two'], array_Keys($fake->attempted()));
     }
 }

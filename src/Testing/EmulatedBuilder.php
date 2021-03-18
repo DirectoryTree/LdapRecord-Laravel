@@ -34,8 +34,8 @@ class EmulatedBuilder extends Builder
         }
 
         return (new $instance($this->connection))
-            ->setModel($model)
-            ->in($this->dn);
+            ->setBaseDn($this->baseDn)
+            ->setModel($model);
     }
 
     /**

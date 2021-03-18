@@ -40,6 +40,7 @@ class EmulatedConnectionFake extends ConnectionFake
      */
     public function query()
     {
-        return (new EmulatedBuilder($this))->in($this->configuration->get('base_dn'));
+        return (new EmulatedBuilder($this))
+            ->setBaseDn($this->configuration->get('base_dn'));
     }
 }

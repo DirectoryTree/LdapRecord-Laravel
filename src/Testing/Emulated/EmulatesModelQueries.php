@@ -18,7 +18,7 @@ trait EmulatesModelQueries
     {
         return (new self($this->connection))
             ->setModel($this->model)
-            ->in($baseDn);
+            ->setBaseDn($baseDn);
     }
 
     /**
