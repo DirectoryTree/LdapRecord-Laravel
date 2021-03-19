@@ -21,21 +21,30 @@ class EmulatedBuilder extends Builder
      */
     public function model(Model $model)
     {
-        switch (true) {
-            case $model instanceof ActiveDirectory:
-                $instance = Emulated\ActiveDirectoryBuilder::class;
-                break;
-            case $model instanceof OpenLDAP:
-                $instance = Emulated\OpenLdapBuilder::class;
-                break;
-            default:
-                $instance = Emulated\ModelBuilder::class;
-                break;
-        }
+        $builder = $this->determineBuilderFromModel($model);
 
-        return (new $instance($this->connection))
+        return (new $builder($this->connection))
             ->setBaseDn($this->baseDn)
             ->setModel($model);
+    }
+
+    /**
+     * Determine the query builder to use for the model.
+     *
+     * @param Model $model
+     * 
+     * @return string
+     */
+    protected function determineBuilderFromModel(Model $model)
+    {
+        switch (true) {
+            case $model instanceof ActiveDirectory:
+                return Emulated\ActiveDirectoryBuilder::class;
+            case $model instanceof OpenLDAP:
+                return Emulated\OpenLdapBuilder::class;
+            default:
+                return Emulated\ModelBuilder::class;
+        }
     }
 
     /**
@@ -47,11 +56,22 @@ class EmulatedBuilder extends Builder
      */
     protected function process($results)
     {
-        return array_map(function ($result) {
-            return array_merge(
-                $this->transform($result), $this->retrieveExtraAttributes($result)
-            );
-        }, $results);
+        return array_map([$this, 'mergeAttributesAndTransformResult'], $results);
+    }
+
+    /**
+     * Merge  and transform the result.
+     *
+     * @param array $result
+     * 
+     * @return array
+     */
+    protected function mergeAttributesAndTransformResult($result)
+    {
+        return array_merge(
+            $this->transform($result),
+            $this->retrieveExtraAttributes($result)
+        );
     }
 
     /**
@@ -64,7 +84,7 @@ class EmulatedBuilder extends Builder
     protected function retrieveExtraAttributes($result)
     {
         $attributes = array_filter(['dn', $result['guid_key'] ?? null]);
-
+        
         return array_map(function ($value) {
             return Arr::wrap($value);
         }, Arr::only($result, $attributes));
