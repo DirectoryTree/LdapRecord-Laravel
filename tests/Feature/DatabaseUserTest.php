@@ -4,6 +4,7 @@ namespace LdapRecord\Laravel\Tests\Feature;
 
 use Mockery as m;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Database\Eloquent\Model;
 use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Laravel\LdapUserAuthenticator;
 use LdapRecord\Laravel\Import\UserSynchronizer;
@@ -122,5 +123,14 @@ class DatabaseUserTest extends DatabaseTestCase
         $provider->validateCredentials($databaseModel, ['password' => 'secret']);
         $this->assertTrue($databaseModel->exists);
         $this->assertTrue($databaseModel->wasRecentlyCreated);
+    }
+
+    public function test_method_calls_are_passed_to_eloquent_user_provider()
+    {
+        $provider = $this->createDatabaseUserProvider();
+
+        $model = $provider->getModel();
+
+        $this->assertInstanceOf(Model::class, new $model);
     }
 }

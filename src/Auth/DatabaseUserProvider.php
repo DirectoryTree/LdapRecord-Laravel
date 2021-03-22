@@ -5,6 +5,7 @@ namespace LdapRecord\Laravel\Auth;
 use Closure;
 use LdapRecord\Models\Model;
 use Illuminate\Auth\EloquentUserProvider;
+use Illuminate\Support\Traits\ForwardsCalls;
 use Illuminate\Contracts\Auth\Authenticatable;
 use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Laravel\Events\Import\Saved;
@@ -15,6 +16,8 @@ use LdapRecord\Laravel\Import\UserSynchronizer;
 
 class DatabaseUserProvider extends UserProvider
 {
+    use ForwardsCalls;
+
     /**
      * The LDAP user synchronizer instance.
      *
@@ -61,6 +64,19 @@ class DatabaseUserProvider extends UserProvider
 
         $this->synchronizer = $synchronizer;
         $this->eloquent = $eloquent;
+    }
+
+    /**
+     * Dynamically pass missing methods to the Eloquent user provider.
+     *
+     * @param string $method
+     * @param array  $parameters
+     * 
+     * @return mixed
+     */
+    public function __call($method, $parameters)
+    {
+        return $this->forwardCallTo($this->eloquent, $method, $parameters);
     }
 
     /**
