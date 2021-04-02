@@ -2,16 +2,16 @@
 
 namespace LdapRecord\Laravel\Commands;
 
+use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Support\Facades\Event;
-use LdapRecord\Laravel\Import\Importer;
-use LdapRecord\Laravel\LdapUserRepository;
-use LdapRecord\Models\Model as LdapRecord;
-use LdapRecord\Models\Types\ActiveDirectory;
-use LdapRecord\Laravel\Events\Import\Saved;
 use LdapRecord\Laravel\Events\Import\Deleted;
 use LdapRecord\Laravel\Events\Import\Restored;
+use LdapRecord\Laravel\Events\Import\Saved;
+use LdapRecord\Laravel\Import\Importer;
+use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Models\Attributes\AccountControl;
-use Illuminate\Database\Eloquent\Model as Eloquent;
+use LdapRecord\Models\Model as LdapRecord;
+use LdapRecord\Models\Types\ActiveDirectory;
 
 class LdapUserImporter extends Importer
 {

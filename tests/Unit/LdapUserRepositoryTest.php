@@ -2,12 +2,12 @@
 
 namespace LdapRecord\Laravel\Tests\Unit;
 
-use Mockery as m;
+use LdapRecord\Laravel\Auth\LdapAuthenticatable;
+use LdapRecord\Laravel\LdapUserRepository;
+use LdapRecord\Laravel\Tests\TestCase;
 use LdapRecord\Models\Entry;
 use LdapRecord\Query\Model\Builder;
-use LdapRecord\Laravel\Tests\TestCase;
-use LdapRecord\Laravel\LdapUserRepository;
-use LdapRecord\Laravel\Auth\LdapAuthenticatable;
+use Mockery as m;
 
 class LdapUserRepositoryTest extends TestCase
 {

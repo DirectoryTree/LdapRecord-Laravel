@@ -3,10 +3,10 @@
 namespace LdapRecord\Laravel\Commands;
 
 use Exception;
-use LdapRecord\Container;
-use LdapRecord\Connection;
 use Illuminate\Console\Command;
 use LdapRecord\Auth\BindException;
+use LdapRecord\Connection;
+use LdapRecord\Container;
 
 class TestLdapConnection extends Command
 {

@@ -2,11 +2,11 @@
 
 namespace LdapRecord\Laravel\Tests\Unit;
 
-use LdapRecord\Models\Entry;
+use Illuminate\Database\Eloquent\Model;
 use LdapRecord\Laravel\Auth\Rule;
 use LdapRecord\Laravel\Auth\Validator;
 use LdapRecord\Laravel\Tests\TestCase;
-use Illuminate\Database\Eloquent\Model;
+use LdapRecord\Models\Entry;
 
 class ValidatorTest extends TestCase
 {

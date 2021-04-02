@@ -2,27 +2,27 @@
 
 namespace LdapRecord\Laravel\Tests\Feature\Emulator;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User;
+use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use LdapRecord\Laravel\Auth\AuthenticatesWithLdap;
 use LdapRecord\Laravel\Auth\HasLdapUser;
 use LdapRecord\Laravel\Auth\LdapAuthenticatable;
-use Illuminate\Foundation\Testing\WithFaker;
-use LdapRecord\Laravel\Auth\AuthenticatesWithLdap;
-use LdapRecord\Laravel\Events\Auth\Bound;
 use LdapRecord\Laravel\Events\Auth\Binding;
-use LdapRecord\Laravel\Events\Import\Saved;
+use LdapRecord\Laravel\Events\Auth\Bound;
 use LdapRecord\Laravel\Events\Auth\Completed;
-use LdapRecord\Laravel\Import\ImportException;
+use LdapRecord\Laravel\Events\Auth\DiscoveredWithCredentials;
 use LdapRecord\Laravel\Events\Import\Imported;
 use LdapRecord\Laravel\Events\Import\Importing;
-use LdapRecord\Laravel\Testing\DirectoryEmulator;
+use LdapRecord\Laravel\Events\Import\Saved;
 use LdapRecord\Laravel\Events\Import\Synchronized;
 use LdapRecord\Laravel\Events\Import\Synchronizing;
-use LdapRecord\Models\ActiveDirectory\User as LdapUser;
-use LdapRecord\Laravel\Events\Auth\DiscoveredWithCredentials;
+use LdapRecord\Laravel\Import\ImportException;
+use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Laravel\Tests\Feature\DatabaseTestCase;
+use LdapRecord\Models\ActiveDirectory\User as LdapUser;
 
 class EmulatedDatabaseAuthenticationTest extends DatabaseTestCase
 {

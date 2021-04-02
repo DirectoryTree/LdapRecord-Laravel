@@ -2,18 +2,18 @@
 
 namespace LdapRecord\Laravel\Commands;
 
-use LdapRecord\Models\Model;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
+use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use LdapRecord\Laravel\Auth\UserProvider;
 use LdapRecord\Laravel\DetectsSoftDeletes;
-use LdapRecord\Laravel\Auth\DatabaseUserProvider;
+use LdapRecord\Laravel\Events\Import\Completed;
+use LdapRecord\Laravel\Events\Import\DeletedMissing;
 use LdapRecord\Laravel\Events\Import\Imported;
 use LdapRecord\Laravel\Events\Import\ImportFailed;
 use LdapRecord\Laravel\Events\Import\Started;
-use LdapRecord\Laravel\Events\Import\Completed;
-use LdapRecord\Laravel\Events\Import\DeletedMissing;
+use LdapRecord\Models\Model;
 use Symfony\Component\Console\Helper\ProgressBar;
 
 class ImportLdapUsers extends Command
@@ -92,7 +92,7 @@ class ImportLdapUsers extends Command
 
         if (is_null($provider)) {
             return $this->error("Provider [{$providerName}] does not exist.");
-        } else if (! $provider instanceof UserProvider) {
+        } elseif (! $provider instanceof UserProvider) {
             return $this->error("Provider [{$providerName}] is not configured for LDAP authentication.");
         } elseif (! $provider instanceof DatabaseUserProvider) {
             return $this->error("Provider [{$providerName}] is not configured for database synchronization.");

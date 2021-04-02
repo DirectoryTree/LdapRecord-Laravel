@@ -3,15 +3,15 @@
 namespace LdapRecord\Laravel\Events\Import;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection as LaravelCollection;
 use LdapRecord\Laravel\Events\Loggable;
 use LdapRecord\Laravel\Events\LoggableEvent;
 use LdapRecord\Query\Collection as LdapCollection;
-use Illuminate\Support\Collection as LaravelCollection;
 
 class Completed implements LoggableEvent
 {
     use Loggable;
-    
+
     /**
      * The LDAP objects imported.
      *
@@ -39,7 +39,7 @@ class Completed implements LoggableEvent
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getLogMessage()
     {

@@ -2,13 +2,13 @@
 
 namespace LdapRecord\Laravel\Tests\Unit;
 
-use Mockery as m;
-use LdapRecord\Models\Entry;
-use LdapRecord\Laravel\Tests\TestCase;
-use LdapRecord\Laravel\LdapUserRepository;
-use LdapRecord\Models\ActiveDirectory\User;
-use LdapRecord\Laravel\LdapUserAuthenticator;
 use LdapRecord\Laravel\Auth\NoDatabaseUserProvider;
+use LdapRecord\Laravel\LdapUserAuthenticator;
+use LdapRecord\Laravel\LdapUserRepository;
+use LdapRecord\Laravel\Tests\TestCase;
+use LdapRecord\Models\ActiveDirectory\User;
+use LdapRecord\Models\Entry;
+use Mockery as m;
 
 class NoDatabaseUserProviderTest extends TestCase
 {

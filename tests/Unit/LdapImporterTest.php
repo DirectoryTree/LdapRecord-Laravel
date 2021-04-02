@@ -4,14 +4,14 @@ namespace LdapRecord\Laravel\Tests\Unit;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use LdapRecord\Laravel\ImportableFromLdap;
-use LdapRecord\Laravel\LdapImportable;
-use LdapRecord\Laravel\Tests\TestCase;
-use Illuminate\Support\Facades\Schema;
-use LdapRecord\Laravel\Import\Importer;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Schema;
+use LdapRecord\Laravel\Import\Importer;
+use LdapRecord\Laravel\ImportableFromLdap;
+use LdapRecord\Laravel\LdapImportable;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
+use LdapRecord\Laravel\Tests\TestCase;
 use LdapRecord\Models\ActiveDirectory\Group as LdapGroup;
 
 class LdapImporterTest extends TestCase

@@ -113,7 +113,7 @@ trait EmulatesModelQueries
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function addFilterToDatabaseQuery($query, $field, $operator, $value)
     {

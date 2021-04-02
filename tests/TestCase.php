@@ -3,10 +3,10 @@
 namespace LdapRecord\Laravel\Tests;
 
 use Illuminate\Support\Facades\Hash;
-use LdapRecord\Models\ActiveDirectory\User;
-use LdapRecord\Laravel\LdapServiceProvider;
 use LdapRecord\Laravel\LdapAuthServiceProvider;
+use LdapRecord\Laravel\LdapServiceProvider;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
+use LdapRecord\Models\ActiveDirectory\User;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase

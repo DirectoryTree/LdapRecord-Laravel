@@ -3,10 +3,10 @@
 namespace LdapRecord\Laravel\Events\Import;
 
 use Exception;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 use LdapRecord\Laravel\Events\Loggable;
 use LdapRecord\Laravel\Events\LoggableEvent;
 use LdapRecord\Models\Model as LdapModel;
-use Illuminate\Database\Eloquent\Model as Eloquent;
 
 class ImportFailed extends Event implements LoggableEvent
 {
@@ -34,7 +34,7 @@ class ImportFailed extends Event implements LoggableEvent
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getLogLevel()
     {
@@ -42,7 +42,7 @@ class ImportFailed extends Event implements LoggableEvent
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getLogMessage()
     {

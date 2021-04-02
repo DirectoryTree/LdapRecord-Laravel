@@ -3,10 +3,10 @@
 namespace LdapRecord\Laravel\Auth;
 
 use Exception;
-use LdapRecord\Laravel\LdapUserRepository;
-use LdapRecord\Laravel\LdapUserAuthenticator;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Contracts\Auth\UserProvider as LaravelUserProvider;
+use Illuminate\Validation\ValidationException;
+use LdapRecord\Laravel\LdapUserAuthenticator;
+use LdapRecord\Laravel\LdapUserRepository;
 
 abstract class UserProvider implements LaravelUserProvider
 {

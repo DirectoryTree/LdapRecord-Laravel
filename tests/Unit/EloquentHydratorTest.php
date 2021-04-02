@@ -2,17 +2,17 @@
 
 namespace LdapRecord\Laravel\Tests\Unit;
 
-use LdapRecord\Models\Entry;
-use Illuminate\Support\Facades\Hash;
-use LdapRecord\Laravel\Tests\TestCase;
 use Illuminate\Database\Eloquent\Model;
-use LdapRecord\Laravel\Import\EloquentHydrator;
-use LdapRecord\Laravel\Auth\LdapAuthenticatable;
+use Illuminate\Support\Facades\Hash;
 use LdapRecord\Laravel\Auth\AuthenticatesWithLdap;
+use LdapRecord\Laravel\Auth\LdapAuthenticatable;
+use LdapRecord\Laravel\Import\EloquentHydrator;
 use LdapRecord\Laravel\Import\Hydrators\AttributeHydrator;
 use LdapRecord\Laravel\Import\Hydrators\DomainHydrator;
 use LdapRecord\Laravel\Import\Hydrators\GuidHydrator;
 use LdapRecord\Laravel\Import\Hydrators\PasswordHydrator;
+use LdapRecord\Laravel\Tests\TestCase;
+use LdapRecord\Models\Entry;
 
 class EloquentHydratorTest extends TestCase
 {

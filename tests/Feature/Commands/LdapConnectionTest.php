@@ -2,11 +2,11 @@
 
 namespace LdapRecord\Laravel\Tests\Feature\Commands;
 
-use Mockery as m;
-use LdapRecord\Container;
-use LdapRecord\Connection;
-use LdapRecord\Laravel\Tests\TestCase;
 use LdapRecord\Configuration\DomainConfiguration;
+use LdapRecord\Connection;
+use LdapRecord\Container;
+use LdapRecord\Laravel\Tests\TestCase;
+use Mockery as m;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\BufferedOutput;
 
@@ -29,7 +29,7 @@ class LdapConnectionTest extends TestCase
             ->setRows([
                 [
                     'default', '✔ Yes', 'user', 'Successfully connected.', '0ms',
-                ]
+                ],
             ]);
 
         $table->render();

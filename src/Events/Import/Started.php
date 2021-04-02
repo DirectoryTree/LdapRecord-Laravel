@@ -2,9 +2,9 @@
 
 namespace LdapRecord\Laravel\Events\Import;
 
-use LdapRecord\Query\Collection;
 use LdapRecord\Laravel\Events\Loggable;
 use LdapRecord\Laravel\Events\LoggableEvent;
+use LdapRecord\Query\Collection;
 
 class Started implements LoggableEvent
 {
@@ -28,7 +28,7 @@ class Started implements LoggableEvent
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getLogMessage()
     {

@@ -2,9 +2,9 @@
 
 namespace LdapRecord\Laravel\Import\Hydrators;
 
+use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Support\Arr;
 use LdapRecord\Models\Model as LdapModel;
-use Illuminate\Database\Eloquent\Model as EloquentModel;
 
 class AttributeHydrator extends Hydrator
 {

@@ -2,18 +2,18 @@
 
 namespace LdapRecord\Laravel\Tests\Unit;
 
-use Mockery as m;
+use Illuminate\Database\Eloquent\Model as EloquentModel;
 use LdapRecord\Auth\Guard;
 use LdapRecord\Connection;
-use LdapRecord\Models\Model;
 use LdapRecord\Laravel\Auth\Rule;
-use LdapRecord\Laravel\Tests\TestCase;
-use LdapRecord\Laravel\Events\Auth\Bound;
-use LdapRecord\Laravel\Events\Auth\Binding;
 use LdapRecord\Laravel\Events\Auth\BindFailed;
+use LdapRecord\Laravel\Events\Auth\Binding;
+use LdapRecord\Laravel\Events\Auth\Bound;
 use LdapRecord\Laravel\Events\Auth\Rejected;
 use LdapRecord\Laravel\LdapUserAuthenticator;
-use Illuminate\Database\Eloquent\Model as EloquentModel;
+use LdapRecord\Laravel\Tests\TestCase;
+use LdapRecord\Models\Model;
+use Mockery as m;
 
 class LdapUserAuthenticatorTest extends TestCase
 {

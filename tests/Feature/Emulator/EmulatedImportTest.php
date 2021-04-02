@@ -2,15 +2,15 @@
 
 namespace LdapRecord\Laravel\Tests\Feature\Emulator;
 
-use Illuminate\Support\Facades\Event;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Event;
+use LdapRecord\Laravel\Events\Import\DeletedMissing;
+use LdapRecord\Laravel\Events\Import\ImportFailed;
+use LdapRecord\Laravel\Testing\DirectoryEmulator;
+use LdapRecord\Laravel\Tests\Feature\DatabaseTestCase;
+use LdapRecord\Laravel\Tests\Feature\TestUserModelStub;
 use LdapRecord\Models\ActiveDirectory\User;
 use LdapRecord\Models\Attributes\AccountControl;
-use LdapRecord\Laravel\Testing\DirectoryEmulator;
-use LdapRecord\Laravel\Events\Import\ImportFailed;
-use LdapRecord\Laravel\Events\Import\DeletedMissing;
-use LdapRecord\Laravel\Tests\Feature\TestUserModelStub;
-use LdapRecord\Laravel\Tests\Feature\DatabaseTestCase;
 
 class EmulatedImportTest extends DatabaseTestCase
 {

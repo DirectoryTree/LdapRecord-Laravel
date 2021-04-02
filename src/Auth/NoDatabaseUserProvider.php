@@ -2,8 +2,8 @@
 
 namespace LdapRecord\Laravel\Auth;
 
-use LdapRecord\Laravel\Events\Auth\Completed;
 use Illuminate\Contracts\Auth\Authenticatable;
+use LdapRecord\Laravel\Events\Auth\Completed;
 
 class NoDatabaseUserProvider extends UserProvider
 {

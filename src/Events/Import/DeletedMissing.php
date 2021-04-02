@@ -2,11 +2,11 @@
 
 namespace LdapRecord\Laravel\Events\Import;
 
+use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Support\Collection;
 use LdapRecord\Laravel\Events\Loggable;
 use LdapRecord\Laravel\Events\LoggableEvent;
 use LdapRecord\Models\Model as LdapRecord;
-use Illuminate\Database\Eloquent\Model as Eloquent;
 
 class DeletedMissing implements LoggableEvent
 {
@@ -48,7 +48,7 @@ class DeletedMissing implements LoggableEvent
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getLogMessage()
     {

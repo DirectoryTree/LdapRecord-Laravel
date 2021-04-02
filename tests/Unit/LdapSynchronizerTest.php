@@ -2,17 +2,17 @@
 
 namespace LdapRecord\Laravel\Tests\Unit;
 
-use LdapRecord\LdapRecordException;
-use LdapRecord\Laravel\Tests\TestCase;
-use Illuminate\Support\Facades\Schema;
-use LdapRecord\Laravel\LdapImportable;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Schema\Blueprint;
-use LdapRecord\Laravel\ImportableFromLdap;
-use LdapRecord\Laravel\Import\Synchronizer;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Schema;
+use LdapRecord\Laravel\Import\Synchronizer;
+use LdapRecord\Laravel\ImportableFromLdap;
+use LdapRecord\Laravel\LdapImportable;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
+use LdapRecord\Laravel\Tests\TestCase;
+use LdapRecord\LdapRecordException;
 use LdapRecord\Models\ActiveDirectory\Group as LdapGroup;
 
 class LdapSynchronizerTest extends TestCase

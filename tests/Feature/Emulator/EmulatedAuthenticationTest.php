@@ -2,10 +2,11 @@
 
 namespace LdapRecord\Laravel\Tests\Feature\Emulator;
 
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Testing\WithFaker;
-use LdapRecord\Laravel\Events\Auth\Bound;
+use Illuminate\Support\Facades\Auth;
 use LdapRecord\Laravel\Events\Auth\Binding;
+use LdapRecord\Laravel\Events\Auth\Bound;
+use LdapRecord\Laravel\Events\Auth\DiscoveredWithCredentials;
 use LdapRecord\Laravel\Events\Import\Imported;
 use LdapRecord\Laravel\Events\Import\Importing;
 use LdapRecord\Laravel\Events\Import\Synchronized;
@@ -13,7 +14,6 @@ use LdapRecord\Laravel\Events\Import\Synchronizing;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Laravel\Tests\Feature\DatabaseTestCase;
 use LdapRecord\Models\ActiveDirectory\User as LdapUser;
-use LdapRecord\Laravel\Events\Auth\DiscoveredWithCredentials;
 
 class EmulatedAuthenticationTest extends DatabaseTestCase
 {
@@ -38,7 +38,7 @@ class EmulatedAuthenticationTest extends DatabaseTestCase
 
         $user = LdapUser::create([
             'cn' => 'John',
-            'mail' => 'jdoe@email.com'
+            'mail' => 'jdoe@email.com',
         ]);
 
         $fake->actingAs($user);
@@ -75,10 +75,9 @@ class EmulatedAuthenticationTest extends DatabaseTestCase
 
         $user = LdapUser::create([
             'cn' => 'John',
-            'mail' => 'jdoe@email.com'
+            'mail' => 'jdoe@email.com',
         ]);
 
         $this->assertFalse(Auth::attempt(['mail' => $user->mail[0], 'password' => 'secret']));
     }
 }
-

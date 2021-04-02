@@ -2,21 +2,21 @@
 
 namespace LdapRecord\Laravel\Tests\Feature\Emulator;
 
-use Illuminate\Http\Request;
 use Illuminate\Foundation\Testing\WithFaker;
-use LdapRecord\Laravel\Events\Auth\Bound;
+use Illuminate\Http\Request;
 use LdapRecord\Laravel\Events\Auth\Binding;
-use LdapRecord\Models\ActiveDirectory\User;
-use LdapRecord\Laravel\Events\Import\Saved;
+use LdapRecord\Laravel\Events\Auth\Bound;
+use LdapRecord\Laravel\Events\Auth\CompletedWithWindows;
 use LdapRecord\Laravel\Events\Import\Imported;
 use LdapRecord\Laravel\Events\Import\Importing;
-use LdapRecord\Laravel\Testing\DirectoryEmulator;
+use LdapRecord\Laravel\Events\Import\Saved;
 use LdapRecord\Laravel\Events\Import\Synchronized;
 use LdapRecord\Laravel\Events\Import\Synchronizing;
 use LdapRecord\Laravel\Middleware\WindowsAuthenticate;
-use LdapRecord\Laravel\Tests\Feature\TestUserModelStub;
-use LdapRecord\Laravel\Events\Auth\CompletedWithWindows;
+use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Laravel\Tests\Feature\DatabaseTestCase;
+use LdapRecord\Laravel\Tests\Feature\TestUserModelStub;
+use LdapRecord\Models\ActiveDirectory\User;
 
 class EmulatedWindowsAuthenticateTest extends DatabaseTestCase
 {

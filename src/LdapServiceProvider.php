@@ -2,15 +2,15 @@
 
 namespace LdapRecord\Laravel;
 
-use LdapRecord\Container;
-use LdapRecord\Connection;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
-use LdapRecord\Laravel\Commands\MakeLdapRule;
-use LdapRecord\Laravel\Commands\MakeLdapModel;
-use LdapRecord\Laravel\Commands\MakeLdapScope;
+use LdapRecord\Connection;
+use LdapRecord\Container;
 use LdapRecord\Laravel\Commands\BrowseLdapServer;
+use LdapRecord\Laravel\Commands\MakeLdapModel;
+use LdapRecord\Laravel\Commands\MakeLdapRule;
+use LdapRecord\Laravel\Commands\MakeLdapScope;
 use LdapRecord\Laravel\Commands\TestLdapConnection;
 
 class LdapServiceProvider extends ServiceProvider
@@ -149,7 +149,7 @@ class LdapServiceProvider extends ServiceProvider
      * Make a connection's configuration from the connection's environment name.
      *
      * @param string $name
-     * 
+     *
      * @return array
      */
     protected function makeConnectionConfigFromEnv($name)
@@ -171,7 +171,7 @@ class LdapServiceProvider extends ServiceProvider
      *
      * @param string $env
      * @param string $name
-     * 
+     *
      * @return string
      */
     protected function makeEnvVariable($env, $name)

@@ -2,8 +2,8 @@
 
 namespace LdapRecord\Laravel\Tests\Unit;
 
-use LdapRecord\Laravel\Tests\TestCase;
 use LdapRecord\Laravel\LdapAuthServiceProvider;
+use LdapRecord\Laravel\Tests\TestCase;
 
 class LdapAuthServiceProviderTest extends TestCase
 {

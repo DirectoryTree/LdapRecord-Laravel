@@ -2,11 +2,11 @@
 
 namespace LdapRecord\Laravel\Commands;
 
+use Illuminate\Console\Command;
 use InvalidArgumentException;
 use LdapRecord\Container;
-use LdapRecord\Models\Model;
-use Illuminate\Console\Command;
 use LdapRecord\Models\Attributes\DistinguishedName;
+use LdapRecord\Models\Model;
 
 class BrowseLdapServer extends Command
 {
@@ -69,7 +69,7 @@ class BrowseLdapServer extends Command
 
         Container::getConnection($connection)->connect();
 
-        $this->info("Successfully connected.");
+        $this->info('Successfully connected.');
 
         $this->baseDn = $this->newLdapQuery()->getDn();
 
@@ -230,7 +230,7 @@ class BrowseLdapServer extends Command
                 $this->displayNestedObjects();
 
                 $this->askForOperation();
-            }
+            },
         ];
     }
 

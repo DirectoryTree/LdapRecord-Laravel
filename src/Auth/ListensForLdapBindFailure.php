@@ -3,11 +3,11 @@
 namespace LdapRecord\Laravel\Auth;
 
 use Closure;
+use Illuminate\Validation\ValidationException;
+use LdapRecord\Auth\Events\Failed as BindFailed;
 use LdapRecord\Container;
 use LdapRecord\DetectsErrors;
 use LdapRecord\Events\Connecting;
-use LdapRecord\Auth\Events\Failed as BindFailed;
-use Illuminate\Validation\ValidationException;
 
 trait ListensForLdapBindFailure
 {
@@ -127,13 +127,9 @@ trait ListensForLdapBindFailure
 
         if (class_exists($fortify = 'Laravel\Fortify\Fortify')) {
             $username = $fortify::username();
-        }
-
-        else if (method_exists($this, 'username')) {
+        } elseif (method_exists($this, 'username')) {
             $username = $this->username();
-        }
-
-        else if (property_exists($this, 'username')) {
+        } elseif (property_exists($this, 'username')) {
             $username = $this->username;
         }
 

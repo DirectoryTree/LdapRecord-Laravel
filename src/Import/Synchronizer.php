@@ -3,13 +3,13 @@
 namespace LdapRecord\Laravel\Import;
 
 use Closure;
+use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Support\Arr;
-use LdapRecord\LdapRecordException;
-use LdapRecord\Models\Model as LdapModel;
 use LdapRecord\Laravel\Events\Import\Importing;
 use LdapRecord\Laravel\Events\Import\Synchronized;
 use LdapRecord\Laravel\Events\Import\Synchronizing;
-use Illuminate\Database\Eloquent\Model as EloquentModel;
+use LdapRecord\LdapRecordException;
+use LdapRecord\Models\Model as LdapModel;
 
 class Synchronizer
 {
@@ -187,7 +187,7 @@ class Synchronizer
      *
      * @param LdapModel    $ldap
      * @param array|string $config
-     * 
+     *
      * @return array
      */
     protected function getSyncScopeOperatorAndValue(LdapModel $ldap, $config)
@@ -196,7 +196,7 @@ class Synchronizer
 
         $operator = $this->getSyncScopeOption($config, 'operator', '=');
 
-        $value =  $ldap->getFirstAttribute($attribute) ?? $attribute;
+        $value = $ldap->getFirstAttribute($attribute) ?? $attribute;
 
         return [$operator, $value];
     }
@@ -207,7 +207,7 @@ class Synchronizer
      * @param array|string $config
      * @param string       $option
      * @param mixed        $default
-     * 
+     *
      * @return mixed
      */
     protected function getSyncScopeOption($config, $option, $default)

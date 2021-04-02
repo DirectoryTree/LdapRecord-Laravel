@@ -2,9 +2,9 @@
 
 namespace LdapRecord\Laravel\Events\Auth;
 
-use LdapRecord\Models\Model;
 use LdapRecord\Laravel\Events\Loggable;
 use LdapRecord\Laravel\Events\LoggableEvent;
+use LdapRecord\Models\Model;
 
 class DiscoveredWithCredentials implements LoggableEvent
 {
@@ -28,7 +28,7 @@ class DiscoveredWithCredentials implements LoggableEvent
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getLogMessage()
     {

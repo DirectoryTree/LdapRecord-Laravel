@@ -2,8 +2,8 @@
 
 namespace LdapRecord\Laravel;
 
-use Illuminate\Support\Str;
 use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Support\Str;
 use LdapRecord\Laravel\Auth\LdapAuthenticatable;
 use LdapRecord\Laravel\Events\Auth\DiscoveredWithCredentials;
 

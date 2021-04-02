@@ -2,10 +2,10 @@
 
 namespace LdapRecord\Laravel\Tests\Feature\Emulator;
 
-use Ramsey\Uuid\Uuid;
 use LdapRecord\Container;
-use LdapRecord\Laravel\Tests\TestCase;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
+use LdapRecord\Laravel\Tests\TestCase;
+use Ramsey\Uuid\Uuid;
 
 class EmulatedQueryTest extends TestCase
 {

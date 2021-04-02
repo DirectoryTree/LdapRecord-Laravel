@@ -4,9 +4,9 @@ namespace LdapRecord\Laravel\Testing;
 
 use Illuminate\Support\Arr;
 use LdapRecord\Models\Model;
-use LdapRecord\Query\Builder;
-use LdapRecord\Models\Types\OpenLDAP;
 use LdapRecord\Models\Types\ActiveDirectory;
+use LdapRecord\Models\Types\OpenLDAP;
+use LdapRecord\Query\Builder;
 
 class EmulatedBuilder extends Builder
 {
@@ -32,7 +32,7 @@ class EmulatedBuilder extends Builder
      * Determine the query builder to use for the model.
      *
      * @param Model $model
-     * 
+     *
      * @return string
      */
     protected function determineBuilderFromModel(Model $model)
@@ -63,7 +63,7 @@ class EmulatedBuilder extends Builder
      * Merge  and transform the result.
      *
      * @param array $result
-     * 
+     *
      * @return array
      */
     protected function mergeAttributesAndTransformResult($result)
@@ -84,7 +84,7 @@ class EmulatedBuilder extends Builder
     protected function retrieveExtraAttributes($result)
     {
         $attributes = array_filter(['dn', $result['guid_key'] ?? null]);
-        
+
         return array_map(function ($value) {
             return Arr::wrap($value);
         }, Arr::only($result, $attributes));

@@ -3,16 +3,16 @@
 namespace LdapRecord\Laravel\Auth;
 
 use Closure;
-use LdapRecord\Models\Model;
 use Illuminate\Auth\EloquentUserProvider;
-use Illuminate\Support\Traits\ForwardsCalls;
 use Illuminate\Contracts\Auth\Authenticatable;
-use LdapRecord\Laravel\LdapUserRepository;
-use LdapRecord\Laravel\Events\Import\Saved;
+use Illuminate\Support\Traits\ForwardsCalls;
 use LdapRecord\Laravel\Events\Auth\Completed;
-use LdapRecord\Laravel\LdapUserAuthenticator;
 use LdapRecord\Laravel\Events\Import\Imported;
+use LdapRecord\Laravel\Events\Import\Saved;
 use LdapRecord\Laravel\Import\UserSynchronizer;
+use LdapRecord\Laravel\LdapUserAuthenticator;
+use LdapRecord\Laravel\LdapUserRepository;
+use LdapRecord\Models\Model;
 
 class DatabaseUserProvider extends UserProvider
 {
@@ -71,7 +71,7 @@ class DatabaseUserProvider extends UserProvider
      *
      * @param string $method
      * @param array  $parameters
-     * 
+     *
      * @return mixed
      */
     public function __call($method, $parameters)

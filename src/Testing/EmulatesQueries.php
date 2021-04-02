@@ -4,15 +4,15 @@ namespace LdapRecord\Laravel\Testing;
 
 use Closure;
 use Exception;
-use Ramsey\Uuid\Uuid;
-use LdapRecord\Connection;
-use Illuminate\Support\Arr;
 use Illuminate\Database\Eloquent\Model;
-use LdapRecord\Query\Collection;
-use LdapRecord\Query\Model\Builder;
+use Illuminate\Support\Arr;
+use LdapRecord\Connection;
+use LdapRecord\Models\Attributes\DistinguishedName;
 use LdapRecord\Models\Attributes\Guid;
 use LdapRecord\Models\BatchModification;
-use LdapRecord\Models\Attributes\DistinguishedName;
+use LdapRecord\Query\Collection;
+use LdapRecord\Query\Model\Builder;
+use Ramsey\Uuid\Uuid;
 
 trait EmulatesQueries
 {
@@ -347,7 +347,7 @@ trait EmulatesQueries
         $values = $modification[BatchModification::KEY_VALUES] ?? [];
 
         $attribute = $model->attributes()->firstOrCreate([
-            'name' => $name
+            'name' => $name,
         ]);
 
         switch ($type) {
@@ -441,7 +441,7 @@ trait EmulatesQueries
 
         foreach ($attributes as $name => $values) {
             $attribute = $model->attributes()->create([
-                'name' => $this->normalizeAttributeName($name)
+                'name' => $this->normalizeAttributeName($name),
             ]);
 
             foreach ((array) $values as $value) {
@@ -489,7 +489,7 @@ trait EmulatesQueries
 
         foreach ($attributes as $name => $values) {
             $attribute = $model->attributes()->firstOrCreate([
-                'name' => $this->normalizeAttributeName($name)
+                'name' => $this->normalizeAttributeName($name),
             ]);
 
             $attribute->values()->delete();

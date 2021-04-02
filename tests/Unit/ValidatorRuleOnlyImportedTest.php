@@ -2,10 +2,10 @@
 
 namespace LdapRecord\Laravel\Tests\Unit;
 
-use LdapRecord\Models\Entry;
-use LdapRecord\Laravel\Tests\TestCase;
 use Illuminate\Database\Eloquent\Model;
 use LdapRecord\Laravel\Auth\Rules\OnlyImported;
+use LdapRecord\Laravel\Tests\TestCase;
+use LdapRecord\Models\Entry;
 
 class ValidatorRuleOnlyImportedTest extends TestCase
 {

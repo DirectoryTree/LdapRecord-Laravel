@@ -10,7 +10,7 @@ class Imported extends Event implements LoggableEvent
     use Loggable;
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getLogMessage()
     {

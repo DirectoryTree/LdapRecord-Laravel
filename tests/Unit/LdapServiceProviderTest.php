@@ -3,11 +3,11 @@
 namespace LdapRecord\Laravel\Tests\Unit;
 
 use Illuminate\Log\LogManager;
-use LdapRecord\Container;
 use LdapRecord\Connection;
-use LdapRecord\Query\Cache;
-use LdapRecord\Laravel\Tests\TestCase;
+use LdapRecord\Container;
 use LdapRecord\Laravel\LdapServiceProvider;
+use LdapRecord\Laravel\Tests\TestCase;
+use LdapRecord\Query\Cache;
 
 class LdapServiceProviderTest extends TestCase
 {
@@ -46,7 +46,7 @@ class LdapServiceProviderTest extends TestCase
             $this->assertEquals('dc=alpha,dc=com', $config->get('base_dn'));
             $this->assertEquals('cn=user,dc=alpha,dc=com', $config->get('username'));
             $this->assertEquals('alpha-secret', $config->get('password'));
-            
+
             $this->assertInstanceOf(Cache::class, $connection->getCache());
         });
 

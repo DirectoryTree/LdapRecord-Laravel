@@ -2,19 +2,19 @@
 
 namespace LdapRecord\Laravel\Tests\Feature\Commands;
 
-use Mockery as m;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use LdapRecord\Laravel\Auth\AuthenticatesWithLdap;
+use LdapRecord\Laravel\Auth\HasLdapUser;
+use LdapRecord\Laravel\Auth\LdapAuthenticatable;
+use LdapRecord\Laravel\LdapUserRepository;
+use LdapRecord\Laravel\Tests\Feature\DatabaseTestCase;
+use LdapRecord\Models\ActiveDirectory\User as LdapUser;
 use LdapRecord\Models\Collection;
 use LdapRecord\Query\Model\Builder;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Foundation\Auth\User;
-use LdapRecord\Laravel\Auth\HasLdapUser;
-use LdapRecord\Laravel\LdapUserRepository;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use LdapRecord\Laravel\Auth\LdapAuthenticatable;
-use LdapRecord\Laravel\Auth\AuthenticatesWithLdap;
-use LdapRecord\Models\ActiveDirectory\User as LdapUser;
-use LdapRecord\Laravel\Tests\Feature\DatabaseTestCase;
+use Mockery as m;
 
 class ImportCommandTest extends DatabaseTestCase
 {
@@ -62,7 +62,7 @@ class ImportCommandTest extends DatabaseTestCase
                 'cn' => 'Steve Bauman',
                 'mail' => 'sbauman@test.com',
                 'objectguid' => 'bf9679e7-0de6-11d0-a285-00aa003049e2',
-            ])
+            ]),
         ]);
 
         Log::shouldReceive('log')->times(6);
@@ -102,4 +102,3 @@ class TestImportUserModelStub extends User implements LdapAuthenticatable
 
     protected $table = 'users';
 }
-

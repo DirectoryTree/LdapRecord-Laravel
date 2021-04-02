@@ -2,11 +2,11 @@
 
 namespace LdapRecord\Laravel\Tests\Feature;
 
-use LdapRecord\Testing\LdapFake;
 use Illuminate\Support\Facades\Auth;
-use LdapRecord\Testing\DirectoryFake;
 use LdapRecord\Laravel\Tests\TestCase;
 use LdapRecord\Models\ActiveDirectory\User;
+use LdapRecord\Testing\DirectoryFake;
+use LdapRecord\Testing\LdapFake;
 
 class ListenForLdapBindFailureTest extends TestCase
 {
@@ -30,12 +30,12 @@ class ListenForLdapBindFailureTest extends TestCase
     public function test_validation_exception_is_not_thrown_until_all_connection_hosts_are_attempted()
     {
         $this->setupPlainUserProvider(['model' => User::class]);
-        
+
         $fake = DirectoryFake::setup('default')->shouldNotBeConnected();
 
         $expectedSelects = [
-            "objectguid",
-            "*",
+            'objectguid',
+            '*',
         ];
 
         $expectedFilter = $fake->query()
@@ -52,8 +52,8 @@ class ListenForLdapBindFailureTest extends TestCase
         $expectedQueryResult = [
             [
                 'mail' => ['jdoe@local.com'],
-                'dn' => ['cn=jdoe,dc=local,dc=com']
-            ]
+                'dn' => ['cn=jdoe,dc=local,dc=com'],
+            ],
         ];
 
         $fake->getLdapConnection()->expect([
@@ -83,10 +83,10 @@ class ListenForLdapBindFailureTest extends TestCase
 
             // Search operation is executed for authenticating user.
             LdapFake::operation('search')
-                ->with(["dc=local,dc=com", $expectedFilter, $expectedSelects, false, 1])
+                ->with(['dc=local,dc=com', $expectedFilter, $expectedSelects, false, 1])
                 ->once()
-                ->andReturn($expectedQueryResult)
-        ])->shouldReturnError( "Can't contact LDAP server");
+                ->andReturn($expectedQueryResult),
+        ])->shouldReturnError("Can't contact LDAP server");
 
         $result = Auth::attempt([
             'mail' => 'jdoe@local.com',
@@ -96,6 +96,6 @@ class ListenForLdapBindFailureTest extends TestCase
         $this->assertTrue($result);
         $this->assertCount(2, $fake->attempted());
         $this->assertInstanceOf(User::class, Auth::user());
-        $this->assertEquals(['one', 'two'], array_Keys($fake->attempted()));
+        $this->assertEquals(['one', 'two'], array_keys($fake->attempted()));
     }
 }

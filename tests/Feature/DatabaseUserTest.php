@@ -2,12 +2,12 @@
 
 namespace LdapRecord\Laravel\Tests\Feature;
 
-use Mockery as m;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Eloquent\Model;
-use LdapRecord\Laravel\LdapUserRepository;
-use LdapRecord\Laravel\LdapUserAuthenticator;
+use Illuminate\Support\Facades\Hash;
 use LdapRecord\Laravel\Import\UserSynchronizer;
+use LdapRecord\Laravel\LdapUserAuthenticator;
+use LdapRecord\Laravel\LdapUserRepository;
+use Mockery as m;
 
 class DatabaseUserTest extends DatabaseTestCase
 {

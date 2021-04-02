@@ -14,7 +14,7 @@ trait DetectsSoftDeletes
      * @return bool
      */
     protected function isUsingSoftDeletes(Model $model)
-    { 
+    {
         return method_exists($model, 'trashed');
     }
 }

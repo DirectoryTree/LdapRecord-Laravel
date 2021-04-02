@@ -2,17 +2,17 @@
 
 namespace LdapRecord\Laravel\Tests\Feature;
 
-use Mockery as m;
 use Illuminate\Http\Request;
 use LdapRecord\Laravel\Auth\Rule;
-use LdapRecord\Laravel\LdapUserRepository;
-use LdapRecord\Models\ActiveDirectory\User;
+use LdapRecord\Laravel\Events\Auth\CompletedWithWindows;
 use LdapRecord\Laravel\Events\Import\Imported;
 use LdapRecord\Laravel\Events\Import\Importing;
 use LdapRecord\Laravel\Events\Import\Synchronized;
 use LdapRecord\Laravel\Events\Import\Synchronizing;
+use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Laravel\Middleware\WindowsAuthenticate;
-use LdapRecord\Laravel\Events\Auth\CompletedWithWindows;
+use LdapRecord\Models\ActiveDirectory\User;
+use Mockery as m;
 
 class WindowsAuthMiddlewareTest extends DatabaseTestCase
 {
@@ -375,7 +375,7 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
         ]));
 
         $this->assertTrue(auth()->check());
-        
+
         $middleware = new WindowsAuthenticate(app('auth'));
 
         $request = new Request;
@@ -397,7 +397,8 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
 
         $this->expectException(\InvalidArgumentException::class);
 
-        $middleware->handle($request, function () {});
+        $middleware->handle($request, function () {
+        });
     }
 }
 
