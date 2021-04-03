@@ -144,7 +144,7 @@ class WindowsAuthenticate
      *
      * @param \Illuminate\Http\Request $request
      * @param Closure                  $next
-     * @param string[]              ...$guards
+     * @param string[]                 ...$guards
      *
      * @return mixed
      */
@@ -366,7 +366,7 @@ class WindowsAuthenticate
     /**
      * Fires the saved event.
      *
-     * @param Model $user
+     * @param Model    $user
      * @param Eloquent $model
      *
      * @return void
