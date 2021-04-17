@@ -21,7 +21,7 @@ trait CreatesUserProvider
         switch ($guard) {
             case 'sanctum':
                 return $this->resolveAuthenticatedGuard(
-                    Arr::wrap(config('sanctum.guard'))
+                    Arr::wrap(config('sanctum.guard', 'web'))
                 );
             default:
                 return $guard;
