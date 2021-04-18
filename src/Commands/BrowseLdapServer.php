@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use InvalidArgumentException;
 use LdapRecord\Container;
 use LdapRecord\Models\Attributes\DistinguishedName;
+use LdapRecord\Models\Entry;
 use LdapRecord\Models\Model;
 
 class BrowseLdapServer extends Command
