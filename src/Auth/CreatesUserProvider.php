@@ -2,7 +2,6 @@
 
 namespace LdapRecord\Laravel\Auth;
 
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 
 trait CreatesUserProvider
@@ -14,30 +13,7 @@ trait CreatesUserProvider
      */
     protected function getCurrentAuthGuard()
     {
-        $guard = $this->resolveAuthenticatedGuard(
-            array_keys(config('auth.guards', []))
-        );
-
-        switch ($guard) {
-            case 'sanctum':
-                return $this->resolveAuthenticatedGuard(
-                    Arr::wrap(config('sanctum.guard', 'web'))
-                );
-            default:
-                return $guard;
-        }
-    }
-
-    /**
-     * Resolve the authenticated guard from the given array of guards.
-     *
-     * @param array $guards
-     *
-     * @return string|null
-     */
-    protected function resolveAuthenticatedGuard($guards = [])
-    {
-        foreach ($guards as $guard) {
+        foreach (config('auth.guards') as $guard => $config) {
             if (Auth::guard($guard)->check()) {
                 return $guard;
             }
