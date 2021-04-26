@@ -38,7 +38,7 @@ class LdapServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->publishes([
                 __DIR__.'/../config/ldap.php' => config_path('ldap.php'),
-            ]);
+            ], 'ldap-config');
         }
     }
 
