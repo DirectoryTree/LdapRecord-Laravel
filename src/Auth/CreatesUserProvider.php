@@ -29,6 +29,10 @@ trait CreatesUserProvider
      */
     protected function getCurrentAuthProvider($guard)
     {
+        if ($guard === 'sanctum') {
+            $guard = config('sanctum.guard', 'web');
+        }
+
         return Auth::createUserProvider(
             config("auth.guards.$guard.provider")
         );
