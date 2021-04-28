@@ -2,6 +2,7 @@
 
 namespace LdapRecord\Laravel\Auth;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 
 trait CreatesUserProvider
@@ -30,7 +31,9 @@ trait CreatesUserProvider
     protected function getCurrentAuthProvider($guard)
     {
         if ($guard === 'sanctum') {
-            $guard = config('sanctum.guard', 'web');
+            $guard = Arr::first(
+                Arr::wrap(config('sanctum.guard', 'web'))
+            );
         }
 
         return Auth::createUserProvider(
