@@ -233,13 +233,13 @@ class WindowsAuthenticate
     /**
      * Attempt retrieving and logging in the authenticated user.
      *
-     * @param array  $guards
-     * @param string $username
-     * @param string $domain
+     * @param array       $guards
+     * @param string      $username
+     * @param string|null $domain
      *
      * @return void
      */
-    protected function attempt($guards, $username, $domain)
+    protected function attempt($guards, $username, $domain = null)
     {
         foreach ($guards as $guard) {
             $provider = $this->auth->guard($guard)->getProvider();
@@ -295,11 +295,11 @@ class WindowsAuthenticate
      *
      * @param UserProvider $provider
      * @param string       $username
-     * @param string       $domain
+     * @param string|null  $domain
      *
      * @return \Illuminate\Contracts\Auth\Authenticatable|null
      */
-    protected function retrieveAuthenticatedUser(UserProvider $provider, $username, $domain)
+    protected function retrieveAuthenticatedUser(UserProvider $provider, $username, $domain = null)
     {
         $user = $this->getUserFromRepository($provider->getLdapUserRepository(), $username);
 
