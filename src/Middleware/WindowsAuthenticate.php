@@ -160,7 +160,7 @@ class WindowsAuthenticate
      *
      * @return void
      */
-    public static function extractDomainsUsing(Closure $callback)
+    public static function extractDomainUsing(Closure $callback)
     {
         static::$userDomainExtractor = $callback;
     }
@@ -172,7 +172,7 @@ class WindowsAuthenticate
      *
      * @return void
      */
-    public static function validateDomainsUsing($callback)
+    public static function validateDomainUsing($callback)
     {
         static::$userDomainValidator = $callback;
     }

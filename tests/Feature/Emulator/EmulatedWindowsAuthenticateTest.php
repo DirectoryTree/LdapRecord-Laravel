@@ -83,10 +83,10 @@ class EmulatedWindowsAuthenticateTest extends DatabaseTestCase
 
         WindowsAuthenticate::serverKey('REMOTE_USER');
         WindowsAuthenticate::username('userPrincipalName');
-        WindowsAuthenticate::extractDomainsUsing(function ($accountName) {
+        WindowsAuthenticate::extractDomainUsing(function ($accountName) {
             return $accountName;
         });
-        WindowsAuthenticate::validateDomainsUsing(function ($user, $username) {
+        WindowsAuthenticate::validateDomainUsing(function ($user, $username) {
             return $user->getFirstAttribute('userPrincipalName') === $username;
         });
 
