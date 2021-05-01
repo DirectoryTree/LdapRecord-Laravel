@@ -50,13 +50,59 @@ class EmulatedWindowsAuthenticateTest extends DatabaseTestCase
             'objectguid' => $this->faker->uuid,
         ]);
 
-        $middleware = new WindowsAuthenticate(app('auth'));
-
-        $request = tap(new Request, function ($request) use ($user) {
-            $request->server->set('AUTH_USER', 'LOCAL\\'.$user->getFirstAttribute('samaccountname'));
+        $request = tap(new Request, function ($request) {
+            $request->server->set('AUTH_USER', 'LOCAL\\jdoe');
         });
 
-        $middleware->handle($request, function () use ($user) {
+        app(WindowsAuthenticate::class)->handle($request, function () use ($user) {
+            $this->assertTrue(auth()->check());
+            $this->assertEquals($user->getConvertedGuid(), auth()->user()->guid);
+        });
+    }
+
+    public function test_kerberos_authenticated_user_is_signed_in()
+    {
+        $this->expectsEvents([
+            Importing::class,
+            Imported::class,
+            Synchronizing::class,
+            Synchronized::class,
+            Binding::class,
+            Bound::class,
+            Saved::class,
+            CompletedWithWindows::class,
+        ]);
+
+        DirectoryEmulator::setup();
+
+        $this->setupDatabaseUserProvider([
+            'database' => [
+                'model' => TestUserModelStub::class,
+            ],
+        ]);
+
+        WindowsAuthenticate::serverKey('REMOTE_USER');
+        WindowsAuthenticate::username('userPrincipalName');
+        WindowsAuthenticate::extractDomainsUsing(function ($accountName) {
+            return $accountName;
+        });
+        WindowsAuthenticate::validateDomainsUsing(function ($user, $username) {
+            return $user->getFirstAttribute('userPrincipalName') === $username;
+        });
+
+        $user = User::create([
+            'cn' => 'John',
+            'mail' => 'jdoe@email.com',
+            'samaccountname' => 'jdoe',
+            'userprincipalname' => 'jdoe@local.com',
+            'objectguid' => $this->faker->uuid,
+        ]);
+
+        $request = tap(new Request, function ($request) use ($user) {
+            $request->server->set('REMOTE_USER', $user->getFirstAttribute('userprincipalname'));
+        });
+
+        app(WindowsAuthenticate::class)->handle($request, function () use ($user) {
             $this->assertTrue(auth()->check());
             $this->assertEquals($user->getConvertedGuid(), auth()->user()->guid);
         });

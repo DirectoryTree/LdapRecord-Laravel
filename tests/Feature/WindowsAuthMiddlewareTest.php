@@ -18,19 +18,6 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
 {
     use CreatesTestUsers;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        // Reset all static middleware values.
-        WindowsAuthenticate::$guards = null;
-        WindowsAuthenticate::$serverKey = 'AUTH_USER';
-        WindowsAuthenticate::$username = 'samaccountname';
-        WindowsAuthenticate::$domainVerification = true;
-        WindowsAuthenticate::$logoutUnauthenticatedUsers = false;
-        WindowsAuthenticate::$rememberAuthenticatedUsers = false;
-    }
-
     public function test_request_continues_if_user_is_not_set_in_the_server_params()
     {
         $this->doesntExpectEvents([
@@ -41,11 +28,7 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
             CompletedWithWindows::class,
         ]);
 
-        $middleware = new WindowsAuthenticate(app('auth'));
-
-        $request = new Request;
-
-        $middleware->handle($request, function () {
+        app(WindowsAuthenticate::class)->handle(new Request, function () {
             $this->assertTrue(true);
         });
     }
@@ -66,11 +49,7 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
             'password' => 'secret',
         ]));
 
-        $middleware = new WindowsAuthenticate(app('auth'));
-
-        $request = new Request;
-
-        $middleware->handle($request, function () {
+        app(WindowsAuthenticate::class)->handle(new Request, function () {
             $this->assertTrue(true);
         });
     }
@@ -98,13 +77,11 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
 
         $auth->guard()->getProvider()->setLdapUserRepository($users);
 
-        $middleware = new WindowsAuthenticate($auth);
-
         $request = tap(new Request, function ($request) {
             $request->server->set('AUTH_USER', 'Local\SteveBauman');
         });
 
-        $middleware->handle($request, function () {
+        app(WindowsAuthenticate::class, ['auth' => $auth])->handle($request, function () {
             $this->assertTrue(true);
             $this->assertFalse(auth()->check());
         });
@@ -145,13 +122,11 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
 
         $guard->getProvider()->setLdapUserRepository($users);
 
-        $middleware = new WindowsAuthenticate($auth);
-
         $request = tap(new Request, function ($request) {
             $request->server->set('AUTH_USER', 'Local\SteveBauman');
         });
 
-        $middleware->handle($request, function () use ($user, $guard) {
+        app(WindowsAuthenticate::class, ['auth' => $auth])->handle($request, function () use ($user, $guard) {
             $model = $guard->user();
             $this->assertTrue($model->exists);
             $this->assertTrue($model->wasRecentlyCreated);
@@ -191,13 +166,11 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
         $guard = $auth->guard();
         $guard->getProvider()->setLdapUserRepository($users);
 
-        $middleware = new WindowsAuthenticate($auth);
-
         $request = tap(new Request, function ($request) {
             $request->server->set('AUTH_USER', 'Local\SteveBauman');
         });
 
-        $middleware->handle($request, function () use ($user, $guard) {
+        app(WindowsAuthenticate::class, ['auth' => $auth])->handle($request, function () use ($user, $guard) {
             $this->assertSame($guard->user(), $user);
         });
     }
@@ -223,13 +196,11 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
         $guard = $auth->guard();
         $guard->getProvider()->setLdapUserRepository($users);
 
-        $middleware = new WindowsAuthenticate($auth);
-
         $request = tap(new Request, function ($request) {
             $request->server->set('FOO', 'Local\SteveBauman');
         });
 
-        $middleware->handle($request, function () use ($user, $guard) {
+        app(WindowsAuthenticate::class, ['auth' => $auth])->handle($request, function () use ($user, $guard) {
             $this->assertSame($guard->user(), $user);
         });
     }
@@ -255,7 +226,7 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
         $guard = $auth->guard();
         $guard->getProvider()->setLdapUserRepository($users);
 
-        $middleware = new WindowsAuthenticate($auth);
+        $middleware = app(WindowsAuthenticate::class, ['auth' => $auth]);
 
         $request = tap(new Request, function ($request) {
             $request->server->set('AUTH_USER', 'Local\SteveBauman');
@@ -285,7 +256,7 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
         $guard = $auth->guard();
         $guard->getProvider()->setLdapUserRepository($users);
 
-        $middleware = new WindowsAuthenticate($auth);
+        $middleware = app(WindowsAuthenticate::class, ['auth' => $auth]);
 
         $request = tap(new Request, function ($request) {
             $request->server->set('AUTH_USER', 'SteveBauman');
@@ -317,7 +288,7 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
         $guard = $auth->guard();
         $guard->getProvider()->setLdapUserRepository($users);
 
-        $middleware = new WindowsAuthenticate($auth);
+        $middleware = app(WindowsAuthenticate::class, ['auth' => $auth]);
 
         $request = tap(new Request, function ($request) {
             $request->server->set('AUTH_USER', 'SteveBauman');
@@ -351,7 +322,7 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
 
         $guard->getProvider()->setLdapUserRepository($users);
 
-        $middleware = new WindowsAuthenticate($auth);
+        $middleware = app(WindowsAuthenticate::class, ['auth' => $auth]);
 
         $request = tap(new Request, function ($request) {
             $request->server->set('AUTH_USER', 'Local\SteveBauman');
@@ -376,7 +347,7 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
 
         $this->assertTrue(auth()->check());
 
-        $middleware = new WindowsAuthenticate(app('auth'));
+        $middleware = app(WindowsAuthenticate::class);
 
         $request = new Request;
 
@@ -389,7 +360,7 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
     {
         WindowsAuthenticate::guards('invalid');
 
-        $middleware = new WindowsAuthenticate(app('auth'));
+        $middleware = app(WindowsAuthenticate::class);
 
         $request = tap(new Request, function ($request) {
             $request->server->set('AUTH_USER', 'Local\SteveBauman');

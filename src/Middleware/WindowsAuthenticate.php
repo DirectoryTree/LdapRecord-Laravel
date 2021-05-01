@@ -59,6 +59,20 @@ class WindowsAuthenticate
     public static $rememberAuthenticatedUsers = false;
 
     /**
+     * The user domain extractor callback.
+     *
+     * @var Closure|null
+     */
+    public static $userDomainExtractor;
+
+    /**
+     * The user domain validator class/callback.
+     *
+     * @var Closure|string
+     */
+    public static $userDomainValidator = UserDomainValidator::class;
+
+    /**
      * The auth factory instance.
      *
      * @var Auth
@@ -140,6 +154,30 @@ class WindowsAuthenticate
     }
 
     /**
+     * Set the callback to extract domains from the users username.
+     *
+     * @param Closure $callback
+     *
+     * @return void
+     */
+    public static function extractDomainsUsing(Closure $callback)
+    {
+        static::$userDomainExtractor = $callback;
+    }
+
+    /**
+     * Register a class / callback that should be used to validate domains.
+     *
+     * @param Closure|string $callback
+     *
+     * @return void
+     */
+    public static function validateDomainsUsing($callback)
+    {
+        static::$userDomainValidator = $callback;
+    }
+
+    /**
      * Handle an incoming request.
      *
      * @param \Illuminate\Http\Request $request
@@ -167,8 +205,12 @@ class WindowsAuthenticate
      */
     protected function authenticate($request, array $guards)
     {
+        $account = call_user_func(
+            static::$userDomainExtractor, $this->account($request)
+        );
+
         [$username, $domain] = array_pad(
-            array_reverse(explode('\\', $this->account($request))), 2, null
+            Arr::wrap($account), 2, null
         );
 
         if (empty($guards)) {
@@ -185,6 +227,20 @@ class WindowsAuthenticate
             return;
         }
 
+        return $this->attempt($guards, $username, $domain);
+    }
+
+    /**
+     * Attempt retrieving and logging in the authenticated user.
+     *
+     * @param array  $guards
+     * @param string $username
+     * @param string $domain
+     *
+     * @return void
+     */
+    protected function attempt($guards, $username, $domain)
+    {
         foreach ($guards as $guard) {
             $provider = $this->auth->guard($guard)->getProvider();
 
@@ -192,11 +248,13 @@ class WindowsAuthenticate
                 continue;
             }
 
-            if ($user = $this->retrieveAuthenticatedUser($provider, $domain, $username)) {
-                $this->auth->shouldUse($guard);
-
-                return $this->auth->login($user, static::$rememberAuthenticatedUsers);
+            if (! $user = $this->retrieveAuthenticatedUser($provider, $username, $domain)) {
+                continue;
             }
+
+            $this->auth->shouldUse($guard);
+
+            return $this->auth->login($user, static::$rememberAuthenticatedUsers);
         }
     }
 
@@ -236,12 +294,12 @@ class WindowsAuthenticate
      * Returns the authenticatable user instance if found.
      *
      * @param UserProvider $provider
-     * @param string       $domain
      * @param string       $username
+     * @param string       $domain
      *
      * @return \Illuminate\Contracts\Auth\Authenticatable|null
      */
-    protected function retrieveAuthenticatedUser(UserProvider $provider, $domain, $username)
+    protected function retrieveAuthenticatedUser(UserProvider $provider, $username, $domain)
     {
         $user = $this->getUserFromRepository($provider->getLdapUserRepository(), $username);
 
@@ -249,7 +307,7 @@ class WindowsAuthenticate
             return;
         }
 
-        if (! $this->userIsApartOfDomain($user, $domain)) {
+        if (! $this->userIsApartOfDomain($user, $username, $domain)) {
             return;
         }
 
@@ -304,50 +362,23 @@ class WindowsAuthenticate
     /**
      * Determine if the located user is apart of the domain.
      *
-     * @param Model  $user
-     * @param string $domain
+     * @param Model       $user
+     * @param string      $username
+     * @param string|null $domain
      *
      * @return bool
      */
-    protected function userIsApartOfDomain(Model $user, $domain)
+    protected function userIsApartOfDomain(Model $user, $username, $domain = null)
     {
         if (! static::$domainVerification) {
             return true;
         }
 
-        // If an empty domain is given, we won't allow the user to authenticate as we will
-        // not be able to determine whether the user retrieved from the LDAP server is
-        // in-fact the user who has authenticated on our server via single sign on.
-        if (empty($domain)) {
-            return false;
-        }
+        $validator = static::$userDomainValidator;
 
-        // To start, we will explode the users distinguished name into relative distinguished
-        // names. This will allow us to identify and pull the domain components from it
-        // which may contain the single-sign-on users authenticated domain name.
-        $components = array_map(function ($rdn) {
-            return strtolower($rdn);
-        }, ldap_explode_dn($user->getDn(), $onlyValues = false));
-
-        // Now we will filter the users relative distinguished names and ensure we are
-        // searching through domain components only. We don't want other attributes
-        // included in this check, otherwise it could result in false positives.
-        $domainComponents = array_filter($components, function ($rdn) {
-            return strpos($rdn, 'dc') !== false;
-        });
-
-        // Here we will determine if the single sign on users domain is contained inside of
-        // one of the domain components. This verifies that the user we have located from
-        // the LDAP directory is in-fact the user who is signed in through single sign
-        // on. If we do not check this, a user from another domain may have the same
-        // sAMAccount name as another user on another domain, which we will avoid.
-        foreach ($domainComponents as $component) {
-            if (strpos($component, strtolower($domain)) !== false) {
-                return true;
-            }
-        }
-
-        return false;
+        return is_callable($validator)
+            ? $validator($user, $username, $domain)
+            : (new $validator)($user, $username, $domain);
     }
 
     /**
