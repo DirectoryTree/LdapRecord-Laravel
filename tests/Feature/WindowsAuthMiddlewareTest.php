@@ -10,6 +10,7 @@ use LdapRecord\Laravel\Events\Import\Importing;
 use LdapRecord\Laravel\Events\Import\Synchronized;
 use LdapRecord\Laravel\Events\Import\Synchronizing;
 use LdapRecord\Laravel\LdapUserRepository;
+use LdapRecord\Laravel\Middleware\UserDomainValidator;
 use LdapRecord\Laravel\Middleware\WindowsAuthenticate;
 use LdapRecord\Models\ActiveDirectory\User;
 use Mockery as m;
@@ -17,6 +18,21 @@ use Mockery as m;
 class WindowsAuthMiddlewareTest extends DatabaseTestCase
 {
     use CreatesTestUsers;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Reset all static properties.
+        WindowsAuthenticate::$guards = null;
+        WindowsAuthenticate::$serverKey = 'AUTH_USER';
+        WindowsAuthenticate::$username = 'samaccountname';
+        WindowsAuthenticate::$domainVerification = true;
+        WindowsAuthenticate::$logoutUnauthenticatedUsers = false;
+        WindowsAuthenticate::$rememberAuthenticatedUsers = false;
+        WindowsAuthenticate::$userDomainExtractor = null;
+        WindowsAuthenticate::$userDomainValidator = UserDomainValidator::class;
+    }
 
     public function test_request_continues_if_user_is_not_set_in_the_server_params()
     {

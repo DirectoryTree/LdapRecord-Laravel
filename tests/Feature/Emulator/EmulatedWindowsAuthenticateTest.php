@@ -12,6 +12,7 @@ use LdapRecord\Laravel\Events\Import\Importing;
 use LdapRecord\Laravel\Events\Import\Saved;
 use LdapRecord\Laravel\Events\Import\Synchronized;
 use LdapRecord\Laravel\Events\Import\Synchronizing;
+use LdapRecord\Laravel\Middleware\UserDomainValidator;
 use LdapRecord\Laravel\Middleware\WindowsAuthenticate;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Laravel\Tests\Feature\DatabaseTestCase;
@@ -21,6 +22,21 @@ use LdapRecord\Models\ActiveDirectory\User;
 class EmulatedWindowsAuthenticateTest extends DatabaseTestCase
 {
     use WithFaker;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Reset all static properties.
+        WindowsAuthenticate::$guards = null;
+        WindowsAuthenticate::$serverKey = 'AUTH_USER';
+        WindowsAuthenticate::$username = 'samaccountname';
+        WindowsAuthenticate::$domainVerification = true;
+        WindowsAuthenticate::$logoutUnauthenticatedUsers = false;
+        WindowsAuthenticate::$rememberAuthenticatedUsers = false;
+        WindowsAuthenticate::$userDomainExtractor = null;
+        WindowsAuthenticate::$userDomainValidator = UserDomainValidator::class;
+    }
 
     public function test_windows_authenticated_user_is_signed_in()
     {

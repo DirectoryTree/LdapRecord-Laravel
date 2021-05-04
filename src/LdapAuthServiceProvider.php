@@ -13,8 +13,6 @@ use LdapRecord\Laravel\Auth\NoDatabaseUserProvider;
 use LdapRecord\Laravel\Commands\ImportLdapUsers;
 use LdapRecord\Laravel\Events\LoggableEvent;
 use LdapRecord\Laravel\Import\UserSynchronizer;
-use LdapRecord\Laravel\Middleware\UserDomainValidator;
-use LdapRecord\Laravel\Middleware\WindowsAuthenticate;
 
 class LdapAuthServiceProvider extends ServiceProvider
 {
@@ -32,29 +30,6 @@ class LdapAuthServiceProvider extends ServiceProvider
         $this->registerAuthProvider();
         $this->registerEventListeners();
         $this->registerLoginControllerListeners();
-
-        $this->applyWindowsAuthenticationDefaults();
-    }
-
-    /**
-     * Apply the default settings to the Windows authentication middleware.
-     *
-     * @return void
-     */
-    protected function applyWindowsAuthenticationDefaults()
-    {
-        WindowsAuthenticate::$guards = null;
-        WindowsAuthenticate::$serverKey = 'AUTH_USER';
-        WindowsAuthenticate::$username = 'samaccountname';
-        WindowsAuthenticate::$domainVerification = true;
-        WindowsAuthenticate::$logoutUnauthenticatedUsers = false;
-        WindowsAuthenticate::$rememberAuthenticatedUsers = false;
-        WindowsAuthenticate::$userDomainValidator = UserDomainValidator::class;
-        WindowsAuthenticate::$userDomainExtractor = function ($account) {
-            return array_pad(
-                array_reverse(explode('\\', $account)), 2, null
-            );
-        };
     }
 
     /**
