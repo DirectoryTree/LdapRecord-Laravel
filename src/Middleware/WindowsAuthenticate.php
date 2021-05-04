@@ -205,9 +205,13 @@ class WindowsAuthenticate
      */
     protected function authenticate($request, array $guards)
     {
-        $account = call_user_func(
-            static::$userDomainExtractor, $this->account($request)
-        );
+        $extractor = static::$userDomainExtractor ?: function ($account) {
+            return array_pad(
+                array_reverse(explode('\\', $account)), 2, null
+            );
+        };
+
+        $account = $extractor($this->account($request));
 
         [$username, $domain] = array_pad(
             Arr::wrap($account), 2, null
@@ -301,24 +305,30 @@ class WindowsAuthenticate
      */
     protected function retrieveAuthenticatedUser(UserProvider $provider, $username, $domain = null)
     {
+        // First, we will attempt to retrieve the user from the LDAP server
+        // by their username. If we don't get any result, we can bail
+        // safely here and continue with the request lifecycle.
         $user = $this->getUserFromRepository($provider->getLdapUserRepository(), $username);
 
         if (! $user) {
             return;
         }
 
+        // Next, we will attempt to validate that the user we have retrieved from LDAP server query
+        // is in-fact the one who has been authenticated via SSO on our web server. This will
+        // prevent users with the same username from potentially signing in as eachother.
         if (! $this->userIsApartOfDomain($user, $username, $domain)) {
             return;
         }
 
-        // Here we will determine if the current provider in use uses database
-        // synchronization. We will execute the LDAP importer in such case,
-        // synchronizing the user and saving their database model.
+        // Then, we will determine if the current provider in-use uses database
+        // sync. If it does, we will execute the LDAP importer, which will
+        // locate and synchronize the users database model attributes.
         $model = $provider instanceof DatabaseUserProvider
             ? $provider->getLdapUserSynchronizer()->run($user)
             : null;
 
-        // Here we will use the LDAP user authenticator to validate that the single-sign-on
+        // Next, we will use the LDAP user authenticator to validate that the single-sign-on
         // user is allowed to sign into our application. For our callback, we will always
         // return true, since they have already authenticated against our web server.
         $allowedToAuthenticate = $provider->getLdapUserAuthenticator()
@@ -327,23 +337,42 @@ class WindowsAuthenticate
                 return true;
             }, $user);
 
+        // If the user doesn't pass the set-up LDAP authorization rules, we can
+        // bail here. Even though the user has successfully authenticated
+        // against the web server, they have been denied logging in.
         if (! $allowedToAuthenticate) {
             return;
         }
 
+        // Finally, we will finish saving the users database model (if applicable)
+        // and fire any required events. Once completed, we will return the
+        // users model to finish authenticating them into our application.
         if ($model) {
-            $model->save();
-
-            $this->fireSavedEvent($user, $model);
-
-            $model->wasRecentlyCreated
-                ? $this->fireImportedEvent($user, $model)
-                : null;
+            $this->finishModelSave($user, $model);
         }
 
         $this->fireAuthenticatedEvent($user, $model);
 
-        return $model ? $model : $user;
+        return $model ?: $user;
+    }
+
+    /**
+     * Finish saving the user's database model.
+     *
+     * @param Model    $user
+     * @param Eloquent $model
+     *
+     * @return void
+     */
+    protected function finishModelSave(Model $user, Eloquent $model)
+    {
+        $model->save();
+
+        $this->fireSavedEvent($user, $model);
+
+        $model->wasRecentlyCreated
+                ? $this->fireImportedEvent($user, $model)
+                : null;
     }
 
     /**
