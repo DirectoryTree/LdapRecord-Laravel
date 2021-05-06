@@ -28,7 +28,7 @@ class DiscoveredWithCredentials implements LoggableEvent
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getLogMessage()
     {

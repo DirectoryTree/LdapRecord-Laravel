@@ -29,7 +29,7 @@ class MakeLdapModel extends GeneratorCommand
     protected $type = 'LDAP Model';
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     protected function getStub()
     {

@@ -11,7 +11,7 @@ use LdapRecord\Models\Model as LdapModel;
 class PasswordHydrator extends Hydrator
 {
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function hydrate(LdapModel $object, EloquentModel $eloquent)
     {

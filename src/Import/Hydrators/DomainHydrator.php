@@ -8,7 +8,7 @@ use LdapRecord\Models\Model as LdapModel;
 class DomainHydrator extends Hydrator
 {
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function hydrate(LdapModel $object, EloquentModel $eloquent)
     {

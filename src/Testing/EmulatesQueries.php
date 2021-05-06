@@ -122,7 +122,7 @@ trait EmulatesQueries
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function clearFilters()
     {
@@ -149,7 +149,7 @@ trait EmulatesQueries
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function orFilter(Closure $closure)
     {
@@ -185,7 +185,7 @@ trait EmulatesQueries
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function addFilter($type, array $bindings)
     {
@@ -373,7 +373,7 @@ trait EmulatesQueries
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function findOrFail($dn, $columns = ['*'])
     {
@@ -387,7 +387,7 @@ trait EmulatesQueries
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function findByGuidOrFail($guid, $columns = ['*'])
     {
@@ -425,7 +425,7 @@ trait EmulatesQueries
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function insert($dn, array $attributes)
     {
@@ -434,7 +434,9 @@ trait EmulatesQueries
         }
 
         $model = $this->applyObjectAttributesToEloquent(
-            $this->newEloquentModel(), $dn, $attributes
+            $this->newEloquentModel(),
+            $dn,
+            $attributes
         );
 
         $model->save();
@@ -479,7 +481,7 @@ trait EmulatesQueries
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function updateAttributes($dn, array $attributes)
     {
@@ -578,7 +580,7 @@ trait EmulatesQueries
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function rename($dn, $rdn, $newParentDn, $deleteOldRdn = true)
     {
@@ -596,7 +598,7 @@ trait EmulatesQueries
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function delete($dn)
     {
@@ -608,7 +610,7 @@ trait EmulatesQueries
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function escape($value, $ignore = '', $flags = 0)
     {
@@ -616,7 +618,7 @@ trait EmulatesQueries
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function paginate($pageSize = 1000, $isCritical = false)
     {
@@ -624,7 +626,7 @@ trait EmulatesQueries
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function run($query)
     {

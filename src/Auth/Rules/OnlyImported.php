@@ -7,7 +7,7 @@ use LdapRecord\Laravel\Auth\Rule;
 class OnlyImported extends Rule
 {
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function isValid()
     {

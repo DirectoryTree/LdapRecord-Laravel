@@ -207,14 +207,18 @@ class WindowsAuthenticate
     {
         $extractor = static::$userDomainExtractor ?: function ($account) {
             return array_pad(
-                array_reverse(explode('\\', $account)), 2, null
+                array_reverse(explode('\\', $account)),
+                2,
+                null
             );
         };
 
         $account = $extractor($this->account($request));
 
         [$username, $domain] = array_pad(
-            Arr::wrap($account), 2, null
+            Arr::wrap($account),
+            2,
+            null
         );
 
         if (empty($guards)) {

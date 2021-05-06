@@ -124,7 +124,7 @@ class DatabaseUserProvider extends UserProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function retrieveById($identifier)
     {
@@ -132,7 +132,7 @@ class DatabaseUserProvider extends UserProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function retrieveByToken($identifier, $token)
     {
@@ -140,7 +140,7 @@ class DatabaseUserProvider extends UserProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function updateRememberToken(Authenticatable $user, $token)
     {
@@ -148,7 +148,7 @@ class DatabaseUserProvider extends UserProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function retrieveByCredentials(array $credentials)
     {
@@ -183,7 +183,7 @@ class DatabaseUserProvider extends UserProvider
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function validateCredentials(Authenticatable $user, array $credentials)
     {

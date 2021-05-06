@@ -34,7 +34,7 @@ class ImportFailed extends Event implements LoggableEvent
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getLogLevel()
     {
@@ -42,7 +42,7 @@ class ImportFailed extends Event implements LoggableEvent
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getLogMessage()
     {

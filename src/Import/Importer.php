@@ -273,7 +273,8 @@ class Importer
 
         if ($this->softDeleteMissing) {
             $this->softDeleteMissing(
-                $ldapRecord, $importer->createEloquentModel()
+                $ldapRecord,
+                $importer->createEloquentModel()
             );
         }
 
@@ -364,7 +365,8 @@ class Importer
         }
 
         return new Synchronizer(
-            $this->eloquent, ['sync_attributes' => $this->syncAttributes]
+            $this->eloquent,
+            ['sync_attributes' => $this->syncAttributes]
         );
     }
 

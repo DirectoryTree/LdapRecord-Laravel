@@ -69,7 +69,9 @@ class Synchronizer
     public function run(LdapModel $object, array $data = [])
     {
         return $this->synchronize(
-            $object, $this->createOrFindEloquentModel($object), $data
+            $object,
+            $this->createOrFindEloquentModel($object),
+            $data
         );
     }
 
@@ -174,7 +176,8 @@ class Synchronizer
         return $query->orWhere(function ($query) use ($scopes, $ldap) {
             foreach ($scopes as $databaseColumn => $ldapAttribute) {
                 [$operator, $value] = $this->getSyncScopeOperatorAndValue(
-                    $ldap, $ldapAttribute
+                    $ldap,
+                    $ldapAttribute
                 );
 
                 $query->where($databaseColumn, $operator, $value);

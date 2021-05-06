@@ -39,7 +39,7 @@ class Completed implements LoggableEvent
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getLogMessage()
     {

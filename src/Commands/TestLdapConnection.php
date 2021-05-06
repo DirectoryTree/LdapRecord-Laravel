@@ -104,7 +104,9 @@ class TestLdapConnection extends Command
             );
         } catch (Exception $e) {
             $message = sprintf(
-                '%s. Error Code: [%s]', $e->getMessage(), $e->getCode()
+                '%s. Error Code: [%s]',
+                $e->getMessage(),
+                $e->getCode()
             );
         }
 

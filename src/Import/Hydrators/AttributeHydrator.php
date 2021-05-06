@@ -9,7 +9,7 @@ use LdapRecord\Models\Model as LdapModel;
 class AttributeHydrator extends Hydrator
 {
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function hydrate(LdapModel $object, EloquentModel $eloquent)
     {
@@ -34,7 +34,9 @@ class AttributeHydrator extends Hydrator
     protected function getSyncAttributes()
     {
         return (array) Arr::get(
-            $this->config, 'sync_attributes', $default = ['name' => 'cn', 'email' => 'mail']
+            $this->config,
+            'sync_attributes',
+            $default = ['name' => 'cn', 'email' => 'mail']
         );
     }
 

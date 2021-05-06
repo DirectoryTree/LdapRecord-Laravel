@@ -28,7 +28,7 @@ class Started implements LoggableEvent
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getLogMessage()
     {

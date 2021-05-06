@@ -12,7 +12,7 @@ trait EmulatesModelQueries
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function newInstance($baseDn = null)
     {
@@ -22,7 +22,7 @@ trait EmulatesModelQueries
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function insertAttributes($dn, array $attributes)
     {
@@ -38,7 +38,7 @@ trait EmulatesModelQueries
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function update($dn, array $modifications)
     {
@@ -54,7 +54,7 @@ trait EmulatesModelQueries
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function updateAttributes($dn, array $attributes)
     {
@@ -70,7 +70,7 @@ trait EmulatesModelQueries
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function deleteAttributes($dn, array $attributes)
     {
@@ -98,7 +98,7 @@ trait EmulatesModelQueries
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     protected function process(array $results)
     {
@@ -113,7 +113,7 @@ trait EmulatesModelQueries
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     protected function addFilterToDatabaseQuery($query, $field, $operator, $value)
     {

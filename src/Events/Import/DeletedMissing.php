@@ -48,7 +48,7 @@ class DeletedMissing implements LoggableEvent
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getLogMessage()
     {

@@ -10,7 +10,7 @@ class Synchronizing extends Event implements LoggableEvent
     use Loggable;
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getLogMessage()
     {
