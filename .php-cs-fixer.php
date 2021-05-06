@@ -129,7 +129,7 @@ return (new PhpCsFixer\Config)
         'switch_case_semicolon_to_colon' => true,
         'switch_case_space' => true,
         'ternary_operator_spaces' => true,
-        'trailing_comma_in_multiline_array' => true,
+        'trailing_comma_in_multiline' => true,
         'trim_array_spaces' => true,
         'unary_operator_spaces' => true,
         'visibility_required' => [
