@@ -111,7 +111,7 @@ return (new PhpCsFixer\Config)
         'php_unit_method_casing' => [
             'case' => 'snake_case',
         ],
-        'psr4' => true,
+        'psr_autoloading' => true,
         'self_accessor' => true,
         'short_scalar_cast' => true,
         'simplified_null_return' => false,
