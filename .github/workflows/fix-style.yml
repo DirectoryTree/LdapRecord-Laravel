@@ -25,7 +25,7 @@ jobs:
               run: composer install --prefer-dist
 
             - name: Fix Style
-              run: ./vendor/bin/php-cs-fixer fix --diff --dry-run
+              run: ./vendor/bin/php-cs-fixer fix --diff --allow-risky=yes
 
             - name: Commit changes
               uses: stefanzweifel/git-auto-commit-action@v4
