@@ -2,9 +2,11 @@
 
 namespace LdapRecord\Laravel\Auth;
 
+use Closure;
 use Exception;
 use Illuminate\Contracts\Auth\UserProvider as LaravelUserProvider;
 use Illuminate\Validation\ValidationException;
+use LdapRecord\Laravel\LdapRecord;
 use LdapRecord\Laravel\LdapUserAuthenticator;
 use LdapRecord\Laravel\LdapUserRepository;
 
@@ -27,7 +29,7 @@ abstract class UserProvider implements LaravelUserProvider
     /**
      * The user resolver to use for finding the authenticating user.
      *
-     * @var \Closure
+     * @var Closure
      */
     protected $userResolver;
 
@@ -45,6 +47,20 @@ abstract class UserProvider implements LaravelUserProvider
         $this->userResolver = function ($credentials) {
             return $this->users->findByCredentials($credentials);
         };
+    }
+
+    /**
+     * Set the callback to resolve users by.
+     *
+     * @param Closure $callback
+     *
+     * @return $this
+     */
+    public function resolveUsersUsing(Closure $callback)
+    {
+        $this->userResolver = $callback;
+
+        return $this;
     }
 
     /**
@@ -68,15 +84,21 @@ abstract class UserProvider implements LaravelUserProvider
     /**
      * Handle exceptions during user resolution.
      *
-     * @param \Exception $e
+     * @param Exception $e
      *
      * @throws ValidationException
      */
-    protected function handleException($e)
+    protected function handleException(Exception $e)
     {
         if ($e instanceof ValidationException) {
             throw $e;
         }
+
+        if (! LdapRecord::failingQuietly()) {
+            throw $e;
+        }
+
+        report($e);
     }
 
     /**
