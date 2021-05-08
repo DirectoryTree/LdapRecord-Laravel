@@ -2,13 +2,16 @@
 
 namespace LdapRecord\Laravel\Tests\Feature;
 
+use Exception;
 use Illuminate\Http\Request;
+use InvalidArgumentException;
 use LdapRecord\Laravel\Auth\Rule;
 use LdapRecord\Laravel\Events\Auth\CompletedWithWindows;
 use LdapRecord\Laravel\Events\Import\Imported;
 use LdapRecord\Laravel\Events\Import\Importing;
 use LdapRecord\Laravel\Events\Import\Synchronized;
 use LdapRecord\Laravel\Events\Import\Synchronizing;
+use LdapRecord\Laravel\LdapRecord;
 use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Laravel\Middleware\UserDomainValidator;
 use LdapRecord\Laravel\Middleware\WindowsAuthenticate;
@@ -19,10 +22,8 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
 {
     use CreatesTestUsers;
 
-    protected function setUp(): void
+    protected function tearDown(): void
     {
-        parent::setUp();
-
         // Reset all static properties.
         WindowsAuthenticate::$guards = null;
         WindowsAuthenticate::$serverKey = 'AUTH_USER';
@@ -32,6 +33,10 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
         WindowsAuthenticate::$rememberAuthenticatedUsers = false;
         WindowsAuthenticate::$userDomainExtractor = null;
         WindowsAuthenticate::$userDomainValidator = UserDomainValidator::class;
+
+        LdapRecord::$failingQuietly = true;
+
+        parent::tearDown();
     }
 
     public function test_request_continues_if_user_is_not_set_in_the_server_params()
@@ -86,18 +91,19 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
             ],
         ]);
 
-        $users = m::mock(LdapUserRepository::class);
-        $users->shouldReceive('findBy')->once()->withArgs(['samaccountname', 'SteveBauman'])->andReturnNull();
+        LdapRecord::locateUsersUsing(function () {
+            $repository = m::mock(LdapUserRepository::class);
 
-        $auth = app('auth');
+            $repository->shouldReceive('findBy')->once()->withArgs(['samaccountname', 'SteveBauman'])->andReturnNull();
 
-        $auth->guard()->getProvider()->setLdapUserRepository($users);
+            return $repository;
+        });
 
         $request = tap(new Request, function ($request) {
             $request->server->set('AUTH_USER', 'Local\SteveBauman');
         });
 
-        app(WindowsAuthenticate::class, ['auth' => $auth])->handle($request, function () {
+        app(WindowsAuthenticate::class)->handle($request, function () {
             $this->assertTrue(true);
             $this->assertFalse(auth()->check());
         });
@@ -129,26 +135,27 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
 
         $user->setDn('cn=SteveBauman,ou=Users,dc=local,dc=com');
 
-        $users = m::mock(LdapUserRepository::class);
-        $users->shouldReceive('findBy')->once()->withArgs(['samaccountname', 'SteveBauman'])->andReturn($user);
+        LdapRecord::locateUsersUsing(function () use ($user) {
+            $repository = m::mock(LdapUserRepository::class);
 
-        $auth = app('auth');
+            $repository->shouldReceive('findBy')->once()->withArgs(['samaccountname', 'SteveBauman'])->andReturn($user);
 
-        $guard = $auth->guard();
-
-        $guard->getProvider()->setLdapUserRepository($users);
+            return $repository;
+        });
 
         $request = tap(new Request, function ($request) {
             $request->server->set('AUTH_USER', 'Local\SteveBauman');
         });
 
-        app(WindowsAuthenticate::class, ['auth' => $auth])->handle($request, function () use ($user, $guard) {
-            $model = $guard->user();
+        app(WindowsAuthenticate::class)->handle($request, function () use ($user) {
+            $model = auth()->user();
+
             $this->assertTrue($model->exists);
             $this->assertTrue($model->wasRecentlyCreated);
             $this->assertEquals($user->getConvertedGuid(), $model->guid);
             $this->assertEquals($user->getFirstAttribute('cn'), $model->name);
             $this->assertEquals($user->getFirstAttribute('mail'), $model->email);
+
             $this->assertSame(auth()->user(), $model);
             $this->assertNotEmpty(auth()->user()->getRememberToken());
         });
@@ -175,19 +182,20 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
 
         $user->setDn('cn=SteveBauman,ou=Users,dc=local,dc=com');
 
-        $users = m::mock(LdapUserRepository::class);
-        $users->shouldReceive('findBy')->once()->withArgs(['samaccountname', 'SteveBauman'])->andReturn($user);
+        LdapRecord::locateUsersUsing(function () use ($user) {
+            $repository = m::mock(LdapUserRepository::class);
 
-        $auth = app('auth');
-        $guard = $auth->guard();
-        $guard->getProvider()->setLdapUserRepository($users);
+            $repository->shouldReceive('findBy')->once()->withArgs(['samaccountname', 'SteveBauman'])->andReturn($user);
+
+            return $repository;
+        });
 
         $request = tap(new Request, function ($request) {
             $request->server->set('AUTH_USER', 'Local\SteveBauman');
         });
 
-        app(WindowsAuthenticate::class, ['auth' => $auth])->handle($request, function () use ($user, $guard) {
-            $this->assertSame($guard->user(), $user);
+        app(WindowsAuthenticate::class)->handle($request, function () use ($user) {
+            $this->assertSame(auth()->user(), $user);
         });
     }
 
@@ -205,19 +213,20 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
 
         $user->setDn('cn=SteveBauman,ou=Users,dc=local,dc=com');
 
-        $users = m::mock(LdapUserRepository::class);
-        $users->shouldReceive('findBy')->once()->withArgs(['samaccountname', 'SteveBauman'])->andReturn($user);
+        LdapRecord::locateUsersUsing(function () use ($user) {
+            $repository = m::mock(LdapUserRepository::class);
 
-        $auth = app('auth');
-        $guard = $auth->guard();
-        $guard->getProvider()->setLdapUserRepository($users);
+            $repository->shouldReceive('findBy')->once()->withArgs(['samaccountname', 'SteveBauman'])->andReturn($user);
+
+            return $repository;
+        });
 
         $request = tap(new Request, function ($request) {
             $request->server->set('FOO', 'Local\SteveBauman');
         });
 
-        app(WindowsAuthenticate::class, ['auth' => $auth])->handle($request, function () use ($user, $guard) {
-            $this->assertSame($guard->user(), $user);
+        app(WindowsAuthenticate::class)->handle($request, function () use ($user) {
+            $this->assertSame(auth()->user(), $user);
         });
     }
 
@@ -235,21 +244,20 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
 
         $user->setDn('cn=SteveBauman,ou=Users,dc=local,dc=com');
 
-        $users = m::mock(LdapUserRepository::class);
-        $users->shouldReceive('findBy')->once()->withArgs(['foo', 'SteveBauman'])->andReturn($user);
+        LdapRecord::locateUsersUsing(function () use ($user) {
+            $repository = m::mock(LdapUserRepository::class);
 
-        $auth = app('auth');
-        $guard = $auth->guard();
-        $guard->getProvider()->setLdapUserRepository($users);
+            $repository->shouldReceive('findBy')->once()->withArgs(['foo', 'SteveBauman'])->andReturn($user);
 
-        $middleware = app(WindowsAuthenticate::class, ['auth' => $auth]);
+            return $repository;
+        });
 
         $request = tap(new Request, function ($request) {
             $request->server->set('AUTH_USER', 'Local\SteveBauman');
         });
 
-        $middleware->handle($request, function () use ($user, $guard) {
-            $this->assertSame($guard->user(), $user);
+        app(WindowsAuthenticate::class)->handle($request, function () use ($user) {
+            $this->assertSame(auth()->user(), $user);
         });
     }
 
@@ -265,21 +273,20 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
 
         $user->setDn('cn=SteveBauman,ou=Users,dc=local,dc=com');
 
-        $users = m::mock(LdapUserRepository::class);
-        $users->shouldReceive('findBy')->once()->withArgs(['samaccountname', 'SteveBauman'])->andReturn($user);
+        LdapRecord::locateUsersUsing(function () use ($user) {
+            $repository = m::mock(LdapUserRepository::class);
 
-        $auth = app('auth');
-        $guard = $auth->guard();
-        $guard->getProvider()->setLdapUserRepository($users);
+            $repository->shouldReceive('findBy')->once()->withArgs(['samaccountname', 'SteveBauman'])->andReturn($user);
 
-        $middleware = app(WindowsAuthenticate::class, ['auth' => $auth]);
+            return $repository;
+        });
 
         $request = tap(new Request, function ($request) {
             $request->server->set('AUTH_USER', 'SteveBauman');
         });
 
-        $middleware->handle($request, function () use ($user, $guard) {
-            $this->assertNull($guard->user());
+        app(WindowsAuthenticate::class)->handle($request, function () {
+            $this->assertNull(auth()->user());
         });
     }
 
@@ -297,21 +304,20 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
 
         $user->setDn('cn=SteveBauman,ou=Users,dc=local,dc=com');
 
-        $users = m::mock(LdapUserRepository::class);
-        $users->shouldReceive('findBy')->once()->withArgs(['samaccountname', 'SteveBauman'])->andReturn($user);
+        LdapRecord::locateUsersUsing(function () use ($user) {
+            $repository = m::mock(LdapUserRepository::class);
 
-        $auth = app('auth');
-        $guard = $auth->guard();
-        $guard->getProvider()->setLdapUserRepository($users);
+            $repository->shouldReceive('findBy')->once()->withArgs(['samaccountname', 'SteveBauman'])->andReturn($user);
 
-        $middleware = app(WindowsAuthenticate::class, ['auth' => $auth]);
+            return $repository;
+        });
 
         $request = tap(new Request, function ($request) {
             $request->server->set('AUTH_USER', 'SteveBauman');
         });
 
-        $middleware->handle($request, function () use ($user, $guard) {
-            $this->assertSame($guard->user(), $user);
+        app(WindowsAuthenticate::class)->handle($request, function () use ($user) {
+            $this->assertSame(auth()->user(), $user);
         });
     }
 
@@ -329,24 +335,20 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
 
         $user->setDn('cn=SteveBauman,ou=Users,dc=local,dc=com');
 
-        $users = m::mock(LdapUserRepository::class);
-        $users->shouldReceive('findBy')->once()->withArgs(['samaccountname', 'SteveBauman'])->andReturn($user);
+        LdapRecord::locateUsersUsing(function () use ($user) {
+            $repository = m::mock(LdapUserRepository::class);
 
-        $auth = app('auth');
+            $repository->shouldReceive('findBy')->once()->withArgs(['samaccountname', 'SteveBauman'])->andReturn($user);
 
-        $guard = $auth->guard();
-
-        $guard->getProvider()->setLdapUserRepository($users);
-
-        $middleware = app(WindowsAuthenticate::class, ['auth' => $auth]);
+            return $repository;
+        });
 
         $request = tap(new Request, function ($request) {
             $request->server->set('AUTH_USER', 'Local\SteveBauman');
         });
 
-        $middleware->handle($request, function () use ($guard) {
-            $this->assertNull($guard->user());
-
+        app(WindowsAuthenticate::class)->handle($request, function () {
+            $this->assertNull(auth()->user());
             $this->assertTrue($_SERVER[WindowsAuthRuleStub::class]);
         });
     }
@@ -363,11 +365,7 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
 
         $this->assertTrue(auth()->check());
 
-        $middleware = app(WindowsAuthenticate::class);
-
-        $request = new Request;
-
-        $middleware->handle($request, function () {
+        app(WindowsAuthenticate::class)->handle(new Request, function () {
             $this->assertFalse(auth()->check());
         });
     }
@@ -376,15 +374,76 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
     {
         WindowsAuthenticate::guards('invalid');
 
-        $middleware = app(WindowsAuthenticate::class);
-
         $request = tap(new Request, function ($request) {
             $request->server->set('AUTH_USER', 'Local\SteveBauman');
         });
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
 
-        $middleware->handle($request, function () {
+        app(WindowsAuthenticate::class)->handle($request, function () {
+            // Do nothing.
+        });
+    }
+
+    public function test_exception_is_caught_when_resolving_users()
+    {
+        $this->setupPlainUserProvider();
+
+        $user = new User([
+            'cn' => 'SteveBauman',
+            'userprincipalname' => 'sbauman@local.com',
+            'objectguid' => 'bf9679e7-0de6-11d0-a285-00aa003049e2',
+        ]);
+
+        $user->setDn('cn=SteveBauman,ou=Users,dc=local,dc=com');
+
+        LdapRecord::locateUsersUsing(function () {
+            $repository = m::mock(LdapUserRepository::class);
+
+            $repository->shouldReceive('findBy')->once()->withArgs(['samaccountname', 'SteveBauman'])->andThrow(new Exception('Failed'));
+
+            return $repository;
+        });
+
+        $request = tap(new Request, function ($request) {
+            $request->server->set('AUTH_USER', 'SteveBauman');
+        });
+
+        app(WindowsAuthenticate::class)->handle($request, function () {
+            $this->assertNull(auth()->user());
+        });
+    }
+
+    public function test_exception_is_thrown_when_resolving_users_if_failing_loudly()
+    {
+        LdapRecord::failLoudly();
+
+        $this->setupPlainUserProvider();
+
+        $user = new User([
+            'cn' => 'SteveBauman',
+            'userprincipalname' => 'sbauman@local.com',
+            'objectguid' => 'bf9679e7-0de6-11d0-a285-00aa003049e2',
+        ]);
+
+        $user->setDn('cn=SteveBauman,ou=Users,dc=local,dc=com');
+
+        LdapRecord::locateUsersUsing(function () {
+            $users = m::mock(LdapUserRepository::class);
+
+            $users->shouldReceive('findBy')->once()->withArgs(['samaccountname', 'SteveBauman'])->andThrow(new Exception('Failed'));
+
+            return $users;
+        });
+
+        $request = tap(new Request, function ($request) {
+            $request->server->set('AUTH_USER', 'SteveBauman');
+        });
+
+        $this->expectExceptionMessage('Failed');
+
+        app(WindowsAuthenticate::class)->handle($request, function () {
+            // Do nothing.
         });
     }
 }

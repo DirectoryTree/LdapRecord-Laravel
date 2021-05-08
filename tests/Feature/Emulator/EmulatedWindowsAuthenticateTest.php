@@ -23,10 +23,8 @@ class EmulatedWindowsAuthenticateTest extends DatabaseTestCase
 {
     use WithFaker;
 
-    protected function setUp(): void
+    protected function tearDown(): void
     {
-        parent::setUp();
-
         // Reset all static properties.
         WindowsAuthenticate::$guards = null;
         WindowsAuthenticate::$serverKey = 'AUTH_USER';
@@ -36,6 +34,8 @@ class EmulatedWindowsAuthenticateTest extends DatabaseTestCase
         WindowsAuthenticate::$rememberAuthenticatedUsers = false;
         WindowsAuthenticate::$userDomainExtractor = null;
         WindowsAuthenticate::$userDomainValidator = UserDomainValidator::class;
+
+        parent::tearDown();
     }
 
     public function test_windows_authenticated_user_is_signed_in()

@@ -10,7 +10,7 @@ use LdapRecord\Laravel\Import\UserSynchronizer;
 use LdapRecord\Models\Model;
 use Mockery as m;
 
-class LdapUserSynchronizerTest extends DatabaseUserTest
+class LdapUserSynchronizerTest extends DatabaseUserProviderTest
 {
     use CreatesTestUsers;
 

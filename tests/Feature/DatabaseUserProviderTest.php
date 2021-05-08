@@ -2,16 +2,27 @@
 
 namespace LdapRecord\Laravel\Tests\Feature;
 
+use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
+use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use LdapRecord\Laravel\Import\UserSynchronizer;
+use LdapRecord\Laravel\LdapRecord;
 use LdapRecord\Laravel\LdapUserAuthenticator;
 use LdapRecord\Laravel\LdapUserRepository;
 use Mockery as m;
 
-class DatabaseUserTest extends DatabaseTestCase
+class DatabaseUserProviderTest extends DatabaseTestCase
 {
     use CreatesTestUsers;
+
+    protected function tearDown(): void
+    {
+        // Reset static properties.
+        LdapRecord::$failingQuietly = true;
+
+        parent::tearDown();
+    }
 
     public function test_importer_can_be_retrieved()
     {
@@ -132,5 +143,20 @@ class DatabaseUserTest extends DatabaseTestCase
         $model = $provider->getModel();
 
         $this->assertInstanceOf(Model::class, new $model);
+    }
+
+    public function test_failing_loudly_throws_exception_when_resolving_users()
+    {
+        LdapRecord::failLoudly();
+
+        $provider = m::mock(DatabaseUserProvider::class)->makePartial();
+
+        $provider->resolveUsersUsing(function () {
+            throw new Exception('Failed');
+        });
+
+        $this->expectExceptionMessage('Failed');
+
+        $provider->retrieveByCredentials([]);
     }
 }

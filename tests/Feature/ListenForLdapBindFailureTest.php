@@ -10,11 +10,6 @@ use LdapRecord\Testing\LdapFake;
 
 class ListenForLdapBindFailureTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
-    }
-
     protected function getEnvironmentSetup($app)
     {
         parent::getEnvironmentSetup($app);
