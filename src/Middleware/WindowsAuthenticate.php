@@ -3,6 +3,7 @@
 namespace LdapRecord\Laravel\Middleware;
 
 use Closure;
+use Exception;
 use Illuminate\Contracts\Auth\Factory as Auth;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Support\Arr;
@@ -11,6 +12,7 @@ use LdapRecord\Laravel\Auth\UserProvider;
 use LdapRecord\Laravel\Events\Auth\CompletedWithWindows;
 use LdapRecord\Laravel\Events\Import\Imported;
 use LdapRecord\Laravel\Events\Import\Saved;
+use LdapRecord\Laravel\LdapRecord;
 use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Models\Model;
 
@@ -389,7 +391,15 @@ class WindowsAuthenticate
      */
     protected function getUserFromRepository(LdapUserRepository $repository, $username)
     {
-        return $repository->findBy(static::$username, $username);
+        try {
+            return $repository->findBy(static::$username, $username);
+        } catch (Exception $e) {
+            if (! LdapRecord::failingQuietly()) {
+                throw $e;
+            }
+
+            report($e);
+        }
     }
 
     /**
