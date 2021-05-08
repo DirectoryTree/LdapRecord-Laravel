@@ -23,8 +23,8 @@ class LdapServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->registerLogging();
-        $this->registerConfiguration();
         $this->registerCommands();
+        $this->registerConfiguration();
         $this->registerLdapConnections();
     }
 
@@ -53,8 +53,8 @@ class LdapServiceProvider extends ServiceProvider
             MakeLdapRule::class,
             MakeLdapScope::class,
             MakeLdapModel::class,
-            TestLdapConnection::class,
             BrowseLdapServer::class,
+            TestLdapConnection::class,
         ]);
     }
 
