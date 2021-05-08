@@ -161,7 +161,7 @@ class LdapUserAuthenticator
      */
     protected function validator($user, $model = null)
     {
-        return new Validator($this->rules($user, $model));
+        return app(Validator::class, ['rules' => $this->rules($user, $model)]);
     }
 
     /**

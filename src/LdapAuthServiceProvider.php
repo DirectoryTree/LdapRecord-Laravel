@@ -110,16 +110,16 @@ class LdapAuthServiceProvider extends ServiceProvider
      */
     protected function makeDatabaseUserProvider(array $config)
     {
-        return new DatabaseUserProvider(
-            $this->makeLdapUserRepository($config),
-            $this->makeLdapUserAuthenticator($config),
-            $this->makeLdapUserSynchronizer($config['database']),
-            new EloquentUserProvider($this->app->make('hash'), $config['database']['model'])
-        );
+        return app(DatabaseUserProvider::class, [
+            'users' => $this->makeLdapUserRepository($config),
+            'auth' => $this->makeLdapUserAuthenticator($config),
+            'eloquent' => $this->makeEloquentUserProvider($config),
+            'synchronizer' => $this->makeLdapUserSynchronizer($config['database']),
+        ]);
     }
 
     /**
-     * Get a new plain LDAP user provider.
+     * Make a new plain LDAP user provider.
      *
      * @param array $config
      *
@@ -127,10 +127,25 @@ class LdapAuthServiceProvider extends ServiceProvider
      */
     protected function makePlainUserProvider(array $config)
     {
-        return new NoDatabaseUserProvider(
-            $this->makeLdapUserRepository($config),
-            $this->makeLdapUserAuthenticator($config)
-        );
+        return app(NoDatabaseUserProvider::class, [
+            'users' => $this->makeLdapUserRepository($config),
+            'auth' => $this->makeLdapUserAuthenticator($config),
+        ]);
+    }
+
+    /**
+     * Make a new Eloquent user provider.
+     *
+     * @param array $config
+     *
+     * @return EloquentUserProvider
+     */
+    protected function makeEloquentUserProvider($config)
+    {
+        return app(EloquentUserProvider::class, [
+            'hasher' => $this->app->make('hash'),
+            'model' => $config['database']['model'],
+        ]);
     }
 
     /**
@@ -142,7 +157,7 @@ class LdapAuthServiceProvider extends ServiceProvider
      */
     protected function makeLdapUserAuthenticator(array $config)
     {
-        return new LdapUserAuthenticator($config['rules'] ?? []);
+        return app(LdapUserAuthenticator::class, ['rules' => $config['rules'] ?? []]);
     }
 
     /**
@@ -154,7 +169,7 @@ class LdapAuthServiceProvider extends ServiceProvider
      */
     protected function makeLdapUserRepository(array $config)
     {
-        return new LdapUserRepository($config['model']);
+        return app(LdapUserRepository::class, ['model' => $config['model']]);
     }
 
     /**
@@ -166,6 +181,9 @@ class LdapAuthServiceProvider extends ServiceProvider
      */
     protected function makeLdapUserSynchronizer(array $config)
     {
-        return new UserSynchronizer($config['model'], $config);
+        return app(UserSynchronizer::class, [
+            'eloquentModel' => $config['model'],
+            'config' => $config,
+        ]);
     }
 }

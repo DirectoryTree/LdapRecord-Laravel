@@ -364,10 +364,10 @@ class Importer
             throw new ImportException('Sync attributes or a sync callback must be defined to import objects.');
         }
 
-        return new Synchronizer(
-            $this->eloquent,
-            ['sync_attributes' => $this->syncAttributes]
-        );
+        return app(Synchronizer::class, [
+            'eloquentModel' => $this->eloquent,
+            'config' => ['sync_attributes' => $this->syncAttributes],
+        ]);
     }
 
     /**

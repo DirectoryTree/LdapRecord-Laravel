@@ -97,7 +97,7 @@ class LdapServiceProvider extends ServiceProvider
     protected function registerConfiguredConnections()
     {
         foreach (config('ldap.connections', []) as $name => $config) {
-            $connection = new Connection($config);
+            $connection = $this->makeConnection($config);
 
             if (config('ldap.cache.enabled', false)) {
                 $this->registerLdapCache($connection);
@@ -117,7 +117,7 @@ class LdapServiceProvider extends ServiceProvider
         $connections = array_filter(explode(',', env('LDAP_CONNECTIONS')));
 
         foreach ($connections as $name) {
-            $connection = new Connection(
+            $connection = $this->makeConnection(
                 $this->makeConnectionConfigFromEnv($name)
             );
 
@@ -127,6 +127,18 @@ class LdapServiceProvider extends ServiceProvider
 
             Container::addConnection($connection, $name);
         }
+    }
+
+    /**
+     * Make a new LDAP connection.
+     *
+     * @param array $config
+     *
+     * @return Connection
+     */
+    protected function makeConnection($config)
+    {
+        return app(Connection::class, ['config' => $config]);
     }
 
     /**
