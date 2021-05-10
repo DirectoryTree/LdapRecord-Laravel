@@ -2,6 +2,8 @@
 
 namespace LdapRecord\Laravel;
 
+use LdapRecord\Laravel\Import\UserSynchronizer;
+
 class LdapRecord
 {
     /**
@@ -53,5 +55,17 @@ class LdapRecord
     public static function locateUsersUsing($class)
     {
         app()->bind(LdapUserRepository::class, $class);
+    }
+
+    /**
+     * Register a class that should be used for synchronizing LDAP users.
+     *
+     * @param string|\Closure $class
+     *
+     * @return void
+     */
+    public static function synchronizeUsersUsing($class)
+    {
+        app()->bind(UserSynchronizer::class, $class);
     }
 }
