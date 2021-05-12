@@ -7,7 +7,7 @@ use LdapRecord\Laravel\Import\UserSynchronizer;
 class LdapRecord
 {
     /**
-     * Whether LdapRecord should fail loudly during authentication.
+     * Whether LdapRecord will catch exceptions during authentication.
      *
      * @var bool
      */
