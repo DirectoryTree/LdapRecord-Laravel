@@ -198,7 +198,7 @@ trait EmulatesQueries
             $bindings['operator'] = '*';
         }
 
-        $this->query->{$relationMethod}('attributes', function ($query) use ($type, $bindings) {
+        $this->query->{$relationMethod}('attributes', function ($query) use ($bindings) {
             $this->addFilterToDatabaseQuery(
                 $query,
                 $this->normalizeAttributeName($bindings['field']),
@@ -268,52 +268,52 @@ trait EmulatesQueries
                 // Fallthrough.
             case '!=':
                 return $query->where('name', '=', $field)
-                    ->whereHas('values', function ($q) use ($operator, $value) {
+                    ->whereHas('values', function ($q) use ($value) {
                         $q->where('value', '!=', $value);
                     });
             case'>=':
                 return $query->where('name', '=', $field)
-                    ->whereHas('values', function ($q) use ($operator, $value) {
+                    ->whereHas('values', function ($q) use ($value) {
                         $q->where('value', '>=', $value);
                     });
             case'<=':
                 return $query->where('name', '=', $field)
-                    ->whereHas('values', function ($q) use ($operator, $value) {
+                    ->whereHas('values', function ($q) use ($value) {
                         $q->where('value', '<=', $value);
                     });
             case'~=':
                 return $query->where('name', '=', $field)
-                    ->whereHas('values', function ($q) use ($operator, $value) {
+                    ->whereHas('values', function ($q) use ($value) {
                         $q->where('value', 'like', "%$value%");
                     });
             case'starts_with':
                 return $query->where('name', '=', $field)
-                    ->whereHas('values', function ($q) use ($operator, $value) {
+                    ->whereHas('values', function ($q) use ($value) {
                         $q->where('value', 'like', "$value%");
                     });
             case'not_starts_with':
                 return $query->where('name', '=', $field)
-                    ->whereHas('values', function ($q) use ($operator, $value) {
+                    ->whereHas('values', function ($q) use ($value) {
                         $q->where('value', 'not like', "$value%");
                     });
             case'ends_with':
                 return $query->where('name', '=', $field)
-                    ->whereHas('values', function ($q) use ($operator, $value) {
+                    ->whereHas('values', function ($q) use ($value) {
                         $q->where('value', 'like', "%$value");
                     });
             case'not_ends_with':
                 return $query->where('name', '=', $field)
-                    ->whereHas('values', function ($q) use ($operator, $value) {
+                    ->whereHas('values', function ($q) use ($value) {
                         $q->where('value', 'not like', "%$value");
                     });
             case'contains':
                 return $query->where('name', '=', $field)
-                    ->whereHas('values', function ($q) use ($operator, $value) {
+                    ->whereHas('values', function ($q) use ($value) {
                         $q->where('value', 'like', "%$value%");
                     });
             case'not_contains':
                 return $query->where('name', '=', $field)
-                    ->whereHas('values', function ($q) use ($operator, $value) {
+                    ->whereHas('values', function ($q) use ($value) {
                         $q->where('value', 'not like', "%$value%");
                     });
         }

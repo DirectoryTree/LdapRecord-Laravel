@@ -232,7 +232,8 @@ class EmulatedModelQueryTest extends TestCase
     {
         TestModelStub::create(['cn' => ['John']]);
 
-        $model = new class extends Entry {
+        $model = new class extends Entry
+        {
             public static $objectClasses = ['three', 'four'];
         };
 
@@ -588,12 +589,14 @@ class EmulatedModelQueryTest extends TestCase
         DirectoryEmulator::setup('alpha');
         DirectoryEmulator::setup('bravo');
 
-        $alpha = new class extends Entry {
+        $alpha = new class extends Entry
+        {
             protected $connection = 'alpha';
             public static $objectClasses = ['one', 'two'];
         };
 
-        $bravo = new class extends Entry {
+        $bravo = new class extends Entry
+        {
             protected $connection = 'bravo';
             public static $objectClasses = ['one', 'two'];
         };
