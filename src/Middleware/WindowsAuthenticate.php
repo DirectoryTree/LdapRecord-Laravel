@@ -82,6 +82,13 @@ class WindowsAuthenticate
     protected $auth;
 
     /**
+     * The fallback callback to resolve users with.
+     *
+     * @var Closure|string|null
+     */
+    protected static $fallback;
+
+    /**
      * Constructor.
      *
      * @param Auth $auth
@@ -177,6 +184,18 @@ class WindowsAuthenticate
     public static function validateDomainUsing($callback)
     {
         static::$userDomainValidator = $callback;
+    }
+
+    /**
+     * Set the callback to resolve users by when retrieving the authenticated user fails.
+     *
+     * @param Closure|string|null $callback
+     *
+     * @return void
+     */
+    public static function fallback($callback = null)
+    {
+        static::$fallback = $callback;
     }
 
     /**
@@ -317,7 +336,7 @@ class WindowsAuthenticate
         $user = $this->getUserFromRepository($provider->getLdapUserRepository(), $username);
 
         if (! $user) {
-            return;
+            return $this->failedRetrievingUser($provider, $username, $domain);
         }
 
         // Next, we will attempt to validate that the user we have retrieved from LDAP server query
@@ -417,11 +436,29 @@ class WindowsAuthenticate
             return true;
         }
 
-        $validator = static::$userDomainValidator;
+        return with(static::$userDomainValidator, function ($callback) {
+            return is_string($callback) ? new $callback : $callback;
+        })($user, $username, $domain);
+    }
 
-        return is_callable($validator)
-            ? $validator($user, $username, $domain)
-            : (new $validator)($user, $username, $domain);
+    /**
+     * Handle failure of retrieving the authenticated user.
+     *
+     * @param UserProvider $provider
+     * @param string       $username
+     * @param string|null  $domain
+     *
+     * @return \Illuminate\Contracts\Auth\Authenticatable|null
+     */
+    protected function failedRetrievingUser(UserProvider $provider, $username, $domain = null)
+    {
+        if (! static::$fallback) {
+            return;
+        }
+
+        return with(static::$fallback, function ($callback) {
+            return is_string($callback) ? new $callback : $callback;
+        })($provider, $username, $domain);
     }
 
     /**

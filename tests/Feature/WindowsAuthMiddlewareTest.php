@@ -5,6 +5,7 @@ namespace LdapRecord\Laravel\Tests\Feature;
 use Exception;
 use Illuminate\Http\Request;
 use InvalidArgumentException;
+use LdapRecord\Laravel\Auth\NoDatabaseUserProvider;
 use LdapRecord\Laravel\Auth\Rule;
 use LdapRecord\Laravel\Events\Auth\CompletedWithWindows;
 use LdapRecord\Laravel\Events\Import\Imported;
@@ -33,6 +34,7 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
         WindowsAuthenticate::$rememberAuthenticatedUsers = false;
         WindowsAuthenticate::$userDomainExtractor = null;
         WindowsAuthenticate::$userDomainValidator = UserDomainValidator::class;
+        WindowsAuthenticate::fallback(null);
 
         LdapRecord::$failingQuietly = true;
 
@@ -444,6 +446,44 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
 
         app(WindowsAuthenticate::class)->handle($request, function () {
             // Do nothing.
+        });
+    }
+
+    public function test_fallback_is_used_when_failing_to_retrieve_user()
+    {
+        $this->setupPlainUserProvider();
+
+        $user = new User([
+            'cn' => 'SteveBauman',
+            'userprincipalname' => 'sbauman@local.com',
+            'objectguid' => 'bf9679e7-0de6-11d0-a285-00aa003049e2',
+        ]);
+
+        $user->setDn('cn=SteveBauman,ou=Users,dc=local,dc=com');
+
+        LdapRecord::locateUsersUsing(function () {
+            $users = m::mock(LdapUserRepository::class);
+
+            $users->shouldReceive('findBy')->once()->withArgs(['samaccountname', 'SteveBauman'])->andThrow(new Exception('Failed'));
+
+            return $users;
+        });
+
+        $request = tap(new Request, function ($request) {
+            $request->server->set('AUTH_USER', 'SteveBauman');
+        });
+
+        WindowsAuthenticate::fallback(function ($provider, $username, $domain) use ($user) {
+            $this->assertInstanceOf(NoDatabaseUserProvider::class, $provider);
+            $this->assertEquals('SteveBauman', $username);
+            $this->assertNull($domain);
+
+            return $user;
+        });
+
+        app(WindowsAuthenticate::class)->handle($request, function () use ($user) {
+            $this->assertTrue(auth()->check());
+            $this->assertEquals($user, auth()->user());
         });
     }
 }
