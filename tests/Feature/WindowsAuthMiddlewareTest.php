@@ -32,9 +32,9 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
         WindowsAuthenticate::$domainVerification = true;
         WindowsAuthenticate::$logoutUnauthenticatedUsers = false;
         WindowsAuthenticate::$rememberAuthenticatedUsers = false;
+        WindowsAuthenticate::$userResolverFallback = null;
         WindowsAuthenticate::$userDomainExtractor = null;
         WindowsAuthenticate::$userDomainValidator = UserDomainValidator::class;
-        WindowsAuthenticate::fallback(null);
 
         LdapRecord::$failingQuietly = true;
 

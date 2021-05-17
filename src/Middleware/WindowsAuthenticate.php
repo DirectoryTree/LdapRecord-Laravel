@@ -75,18 +75,18 @@ class WindowsAuthenticate
     public static $userDomainValidator = UserDomainValidator::class;
 
     /**
+     * The fallback callback to resolve users with.
+     *
+     * @var Closure|string|null
+     */
+    public static $userResolverFallback;
+
+    /**
      * The auth factory instance.
      *
      * @var Auth
      */
     protected $auth;
-
-    /**
-     * The fallback callback to resolve users with.
-     *
-     * @var Closure|string|null
-     */
-    protected static $fallback;
 
     /**
      * Constructor.
@@ -195,7 +195,7 @@ class WindowsAuthenticate
      */
     public static function fallback($callback = null)
     {
-        static::$fallback = $callback;
+        static::$userResolverFallback = $callback;
     }
 
     /**
@@ -452,11 +452,11 @@ class WindowsAuthenticate
      */
     protected function failedRetrievingUser(UserProvider $provider, $username, $domain = null)
     {
-        if (! static::$fallback) {
+        if (! static::$userResolverFallback) {
             return;
         }
 
-        return with(static::$fallback, function ($callback) {
+        return with(static::$userResolverFallback, function ($callback) {
             return is_string($callback) ? new $callback : $callback;
         })($provider, $username, $domain);
     }
