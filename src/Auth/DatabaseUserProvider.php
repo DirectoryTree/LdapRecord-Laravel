@@ -80,6 +80,16 @@ class DatabaseUserProvider extends UserProvider
     }
 
     /**
+     * Get the Eloquent user provider.
+     *
+     * @return EloquentUserProvider
+     */
+    public function eloquent()
+    {
+        return $this->eloquent;
+    }
+
+    /**
      * Get the LDAP user importer.
      *
      * @return UserSynchronizer
