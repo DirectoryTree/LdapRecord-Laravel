@@ -79,7 +79,7 @@ class LdapDatabaseManagerTest extends TestCase
 
         file_put_contents($file, '');
 
-        $manager->connection('default', ['database'=> $file]);
+        $manager->connection('default', ['database' => $file]);
 
         $this->assertFileExists($file);
 
