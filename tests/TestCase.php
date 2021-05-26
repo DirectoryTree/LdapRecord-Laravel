@@ -47,7 +47,7 @@ abstract class TestCase extends BaseTestCase
         // Database setup.
         $config->set('database.default', 'testbench');
         $config->set('database.connections.testbench', [
-            'driver'   => 'sqlite',
+            'driver' => 'sqlite',
             'database' => ':memory:',
         ]);
 
