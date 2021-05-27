@@ -77,9 +77,15 @@ trait EmulatesModelQueries
         if (! $model = $this->find($dn)) {
             return false;
         }
-
-        foreach ($attributes as $attribute) {
-            $model->{$attribute} = null;
+        
+        foreach ($attributes as $attribute => $value) {
+            if (empty($value)) {
+                $model->{$attribute} = null;
+            } elseif (Arr::exists($model->{$attribute} ?? [], $attribute)) {
+                $model->{$attribute} = array_values(
+                    array_diff($model->{$attribute}, (array) $value)
+                );
+            }
         }
 
         return $model->save();

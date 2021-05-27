@@ -109,6 +109,29 @@ class EmulatedModelQueryTest extends TestCase
         $this->assertNull(TestModelStub::find($model->getDn()));
     }
 
+    public function test_delete_attribute()
+    {
+        $model = tap(new TestModelStub, function ($model) {
+            $model->cn = 'John Doe';
+            $model->foo = 'bar';
+            $model->baz = 'set';
+            $model->zal = 'ze';
+            $model->save();
+        });
+
+        $model->deleteAttribute('foo');
+        $model->deleteAttribute(['baz', 'zal' => 'invalid']);
+
+        $this->assertNull($model->foo);
+        $this->assertNull($model->baz);
+        $this->assertEquals(['ze'], $model->zal);
+        $this->assertEquals('John Doe', $model->cn[0]);
+
+        $model->deleteAttribute(['baz', 'zal' => 'ze']);
+
+        $this->assertEquals([], $model->zal);
+    }
+
     public function test_delete_attributes()
     {
         $model = tap(new TestModelStub, function ($model) {
@@ -122,7 +145,7 @@ class EmulatedModelQueryTest extends TestCase
         $this->assertEquals(['bar'], $model->foo);
         $this->assertEquals(['set'], $model->baz);
 
-        $model->deleteAttributes($model->getDn(), ['foo', 'baz']);
+        $model->deleteAttributes($model->getDn(), ['foo' => [], 'baz' => []]);
 
         $model = TestModelStub::find($model->getDn());
         $this->assertNull($model->foo);
@@ -232,8 +255,7 @@ class EmulatedModelQueryTest extends TestCase
     {
         TestModelStub::create(['cn' => ['John']]);
 
-        $model = new class extends Entry
-        {
+        $model = new class extends Entry {
             public static $objectClasses = ['three', 'four'];
         };
 
@@ -589,14 +611,12 @@ class EmulatedModelQueryTest extends TestCase
         DirectoryEmulator::setup('alpha');
         DirectoryEmulator::setup('bravo');
 
-        $alpha = new class extends Entry
-        {
+        $alpha = new class extends Entry {
             protected $connection = 'alpha';
             public static $objectClasses = ['one', 'two'];
         };
 
-        $bravo = new class extends Entry
-        {
+        $bravo = new class extends Entry {
             protected $connection = 'bravo';
             public static $objectClasses = ['one', 'two'];
         };
