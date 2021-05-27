@@ -77,7 +77,7 @@ trait EmulatesModelQueries
         if (! $model = $this->find($dn)) {
             return false;
         }
-        
+
         foreach ($attributes as $attribute => $value) {
             if (empty($value)) {
                 $model->{$attribute} = null;
