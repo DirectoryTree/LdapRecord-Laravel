@@ -162,12 +162,23 @@ class DatabaseUserProvider extends UserProvider
      */
     public function retrieveByCredentials(array $credentials)
     {
-        // If an LDAP user is not located by their credentials and fallback
-        // is enabled, we will attempt to locate the local database user
-        // instead and perform validation on their password normally.
-        if (! $user = $this->fetchLdapUserByCredentials($credentials)) {
-            return isset($credentials['fallback'])
-                ? $this->retrieveByCredentialsUsingEloquent($credentials)
+        $this->fallback = isset($credentials['fallback']);
+
+        $fetch = function () use ($credentials) {
+            return $this->fetchLdapUserByCredentials($credentials);
+        };
+
+        // If fallback is enabled, we want to make sure we catch
+        // any exceptions that may occur so we do not interrupt
+        // the fallback process and exit authentication early.
+        $user = $this->fallback ? rescue($fetch) : value($fetch);
+
+        // If the user was unable to be located and fallback is
+        // enabled, we will attempt to fetch the database user
+        // and perform validation on their password normally.
+        if (! $user) {
+            return $this->fallback
+                ? $this->retrieveByCredentialsUsingEloquent($credentials['fallback'])
                 : null;
         }
 
@@ -187,9 +198,7 @@ class DatabaseUserProvider extends UserProvider
      */
     protected function retrieveByCredentialsUsingEloquent($credentials)
     {
-        $this->shouldFallback();
-
-        return $this->eloquent->retrieveByCredentials($credentials['fallback']);
+        return $this->eloquent->retrieveByCredentials($credentials);
     }
 
     /**
