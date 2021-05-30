@@ -109,6 +109,8 @@ trait ListensForLdapBindFailure
      */
     protected function handleLdapBindError($message, $code = null)
     {
+        logger()->error($message, compact('code'));
+
         ($callback = static::$bindErrorHandler)
             ? $callback($message, $code)
             : $this->throwLoginValidationException($message);
