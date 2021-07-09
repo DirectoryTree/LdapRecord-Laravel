@@ -160,22 +160,53 @@ class LdapServiceProvider extends ServiceProvider
     /**
      * Make a connection's configuration from the connection's environment name.
      *
-     * @param string $name
+     * @param string $connection
      *
      * @return array
      */
-    protected function makeConnectionConfigFromEnv($name)
+    protected function makeConnectionConfigFromEnv($connection)
     {
         return array_filter([
-            'hosts' => explode(',', env($this->makeEnvVariable('LDAP_{name}_HOSTS', $name))),
-            'username' => env($this->makeEnvVariable('LDAP_{name}_USERNAME', $name)),
-            'password' => env($this->makeEnvVariable('LDAP_{name}_PASSWORD', $name)),
-            'port' => env($this->makeEnvVariable('LDAP_{name}_PORT', $name), 389),
-            'base_dn' => env($this->makeEnvVariable('LDAP_{name}_BASE_DN', $name)),
-            'timeout' => env($this->makeEnvVariable('LDAP_{name}_TIMEOUT', $name), 5),
-            'use_ssl' => env($this->makeEnvVariable('LDAP_{name}_SSL', $name), false),
-            'use_tls' => env($this->makeEnvVariable('LDAP_{name}_TLS', $name), false),
+            'hosts' => explode(',', env($this->makeEnvVariable('LDAP_{name}_HOSTS', $connection))),
+            'username' => env($this->makeEnvVariable('LDAP_{name}_USERNAME', $connection)),
+            'password' => env($this->makeEnvVariable('LDAP_{name}_PASSWORD', $connection)),
+            'port' => env($this->makeEnvVariable('LDAP_{name}_PORT', $connection), 389),
+            'base_dn' => env($this->makeEnvVariable('LDAP_{name}_BASE_DN', $connection)),
+            'timeout' => env($this->makeEnvVariable('LDAP_{name}_TIMEOUT', $connection), 5),
+            'use_ssl' => env($this->makeEnvVariable('LDAP_{name}_SSL', $connection), false),
+            'use_tls' => env($this->makeEnvVariable('LDAP_{name}_TLS', $connection), false),
+            'options' => $this->makeCustomOptionsFromEnv($connection),
         ]);
+    }
+
+    /**
+     * Make a connection's custom config options array from the env.
+     *
+     * @param string $connection
+     *
+     * @return array
+     */
+    protected function makeCustomOptionsFromEnv($connection)
+    {
+        $constant = $this->makeEnvVariable("LDAP_{name}_OPT", $connection);
+        
+        return collect($_ENV)
+            // First, we will capture our entire applications ENV and
+            // fetch all variables that contain the constant name
+            // pattern that matches, includes the connection.
+            ->filter(function ($value, $key) use ($constant) {
+                return strpos($key, $constant) !== false;
+            })
+            // Finally, with the ENV variables that have been fetched for
+            // the connection, subsitute the connection's name to make
+            // the literal PHP constant the developer is expecting.
+            ->mapWithKeys(function ($value, $key) use ($connection) {
+                $replace = $this->makeEnvVariable('_{name}_', $connection);
+
+                $option = str_replace($replace, '_', $key);
+
+                return [constant($option) => $value];
+            })->toArray();
     }
 
     /**

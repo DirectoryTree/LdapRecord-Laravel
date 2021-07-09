@@ -15,6 +15,20 @@ class LdapServiceProviderTest extends TestCase
     {
         parent::getEnvironmentSetup($app);
 
+        $_ENV['LDAP_CONNECTIONS'] = 'alpha,bravo';
+        $_ENV['LDAP_ALPHA_HOSTS'] = '10.0.0.1,10.0.0.2';
+        $_ENV['LDAP_ALPHA_USERNAME'] = 'cn=user,dc=alpha,dc=com';
+        $_ENV['LDAP_ALPHA_PASSWORD'] = 'alpha-secret';
+        $_ENV['LDAP_ALPHA_BASE_DN'] = 'dc=alpha,dc=com';
+        $_ENV['LDAP_ALPHA_CACHE'] = 'true';
+
+        $_ENV['LDAP_BRAVO_HOSTS'] = '172.0.0.1,172.0.0.2';
+        $_ENV['LDAP_BRAVO_USERNAME'] = 'cn=user,dc=bravo,dc=com';
+        $_ENV['LDAP_BRAVO_PASSWORD'] = 'bravo-secret';
+        $_ENV['LDAP_BRAVO_BASE_DN'] = 'dc=bravo,dc=com';
+        $_ENV['LDAP_BRAVO_OPT_X_TLS_CACERTFILE'] = '/path';
+        $_ENV['LDAP_BRAVO_OPT_X_TLS_CERTFILE'] = '/path';
+
         $app['config']->set('ldap.logging', true);
         $app['config']->set('ldap.cache.enabled', true);
         $app['config']->set('ldap.cache.driver', 'array');
@@ -59,6 +73,18 @@ class LdapServiceProviderTest extends TestCase
             $this->assertEquals('bravo-secret', $config->get('password'));
 
             $this->assertNull($connection->getCache());
+        });
+    }
+
+    public function test_custom_connection_options_from_env_are_loaded_into_configuration()
+    {
+        tap(Container::getConnection('bravo'), function (Connection $connection) {
+            $config = $connection->getConfiguration();
+
+            $this->assertEquals([
+                LDAP_OPT_X_TLS_CACERTFILE => '/path',
+                LDAP_OPT_X_TLS_CERTFILE => '/path',
+            ], $config->get('options'));
         });
     }
 }
