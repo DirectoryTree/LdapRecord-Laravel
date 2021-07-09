@@ -65,7 +65,7 @@ class LdapServiceProvider extends ServiceProvider
      */
     protected function registerLogging()
     {
-        if (! config('ldap.logging', true)) {
+        if (! config('ldap.logging', env('LDAP_LOGGING', true))) {
             return;
         }
 
@@ -82,7 +82,7 @@ class LdapServiceProvider extends ServiceProvider
     protected function registerLdapConnections()
     {
         Container::setDefaultConnection(
-            config('ldap.default', env('LDAP_CONNECTION'))
+            config('ldap.default', env('LDAP_CONNECTION', 'default'))
         );
 
         $this->registerConfiguredConnections();
@@ -114,7 +114,9 @@ class LdapServiceProvider extends ServiceProvider
      */
     protected function registerEnvironmentConnections()
     {
-        $connections = array_filter(explode(',', env('LDAP_CONNECTIONS')));
+        $connections = array_filter(
+            array_map('trim', explode(',', env('LDAP_CONNECTIONS')))
+        );
 
         foreach ($connections as $name) {
             $connection = $this->makeConnection(
