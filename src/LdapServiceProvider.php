@@ -188,8 +188,8 @@ class LdapServiceProvider extends ServiceProvider
      */
     protected function makeCustomOptionsFromEnv($connection)
     {
-        $constant = $this->makeEnvVariable("LDAP_{name}_OPT", $connection);
-        
+        $constant = $this->makeEnvVariable('LDAP_{name}_OPT', $connection);
+
         return collect($_ENV)
             // First, we will capture our entire applications ENV and
             // fetch all variables that contain the constant name
