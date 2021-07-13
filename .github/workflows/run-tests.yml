@@ -29,7 +29,7 @@ jobs:
           - laravel: 5.8.*
             php: 8.0
 
-    name: {{ matrix.os }} - P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.dependency-version }}
+    name: ${{ matrix.os }} - P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.dependency-version }}
 
     steps:
       - name: Checkout code
