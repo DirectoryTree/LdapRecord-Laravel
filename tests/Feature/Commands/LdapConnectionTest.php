@@ -5,6 +5,7 @@ namespace LdapRecord\Laravel\Tests\Feature\Commands;
 use LdapRecord\Configuration\DomainConfiguration;
 use LdapRecord\Connection;
 use LdapRecord\Container;
+use LdapRecord\Events\DispatcherInterface;
 use LdapRecord\Laravel\Tests\TestCase;
 use Mockery as m;
 use Symfony\Component\Console\Helper\Table;
@@ -15,6 +16,8 @@ class LdapConnectionTest extends TestCase
     public function test_command_tests_ldap_connectivity()
     {
         $connection = m::mock(Connection::class);
+
+        $connection->shouldReceive('setDispatcher')->once()->with(DispatcherInterface::class)->andReturnNull();
 
         Container::addConnection($connection);
 
