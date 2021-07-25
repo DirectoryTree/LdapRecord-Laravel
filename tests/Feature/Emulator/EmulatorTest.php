@@ -3,9 +3,9 @@
 namespace LdapRecord\Laravel\Tests\Feature;
 
 use Illuminate\Database\Connection;
-use LdapRecord\Laravel\Tests\TestCase;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Laravel\Testing\LdapDatabaseManager;
+use LdapRecord\Laravel\Tests\TestCase;
 
 class EmulatorTest extends TestCase
 {
@@ -16,7 +16,7 @@ class EmulatorTest extends TestCase
         $app['config']->set('ldap.default', 'default');
         $app['config']->set('ldap.connections.default', [
             'base_dn' => 'dc=local,dc=com',
-            'use_tls' => true
+            'use_tls' => true,
         ]);
     }
 
@@ -29,7 +29,7 @@ class EmulatorTest extends TestCase
         $this->assertCount(1, $db->getConnections());
 
         $connection = $db->getConnections()['default'];
-        
+
         $this->assertInstanceOf(Connection::class, $connection);
         $this->assertEquals('sqlite', $connection->getConfig('driver'));
         $this->assertEquals(':memory:', $connection->getDatabaseName());
