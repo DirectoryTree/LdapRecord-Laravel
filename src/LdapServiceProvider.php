@@ -12,6 +12,7 @@ use LdapRecord\Laravel\Commands\MakeLdapModel;
 use LdapRecord\Laravel\Commands\MakeLdapRule;
 use LdapRecord\Laravel\Commands\MakeLdapScope;
 use LdapRecord\Laravel\Commands\TestLdapConnection;
+use LdapRecord\Laravel\Testing\LdapDatabaseManager;
 
 class LdapServiceProvider extends ServiceProvider
 {
@@ -26,6 +27,10 @@ class LdapServiceProvider extends ServiceProvider
         $this->registerCommands();
         $this->registerConfiguration();
         $this->registerLdapConnections();
+
+        if ($this->app->runningUnitTests()) {
+            $this->app->singleton(LdapDatabaseManager::class);
+        }
     }
 
     /**
