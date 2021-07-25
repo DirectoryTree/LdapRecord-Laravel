@@ -3,7 +3,6 @@
 namespace LdapRecord\Laravel\Testing;
 
 use LdapRecord\Testing\DirectoryFake;
-use LdapRecord\Testing\LdapFake;
 
 class DirectoryEmulator extends DirectoryFake
 {
@@ -35,7 +34,7 @@ class DirectoryEmulator extends DirectoryFake
      */
     public static function makeConnectionFake(array $config = [])
     {
-        return (new EmulatedConnectionFake($config, new LdapFake))->shouldBeConnected();
+        return EmulatedConnectionFake::make($config)->shouldBeConnected();
     }
 
     /**
