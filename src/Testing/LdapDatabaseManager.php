@@ -140,7 +140,7 @@ class LdapDatabaseManager
             } elseif (file_exists($dbFilePath = $connection->getDatabaseName())) {
                 unlink($dbFilePath);
             }
-    
+
             unset($this->connections[$name]);
         }
     }
