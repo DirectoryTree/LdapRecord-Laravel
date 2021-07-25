@@ -88,12 +88,10 @@ class LdapDatabaseManager
     {
         $name = $name ?? config('ldap.default', 'default');
 
-        if (! isset($this->connections[$name])) {
-            $this->connections[$name] = $this->makeConnection(
-                $this->makeDatabaseConnectionName($name),
-                Arr::get($config, 'database', ':memory:')
-            );
-        }
+        $this->connections[$name] = $this->makeConnection(
+            $this->makeDatabaseConnectionName($name),
+            Arr::get($config, 'database', ':memory:')
+        );
 
         return $this->connections[$name];
     }
@@ -133,15 +131,17 @@ class LdapDatabaseManager
     public function teardown()
     {
         foreach ($this->connections as $name => $connection) {
-            tap($connection->getSchemaBuilder(), function (Builder $builder) {
-                $builder->dropIfExists('ldap_object_attribute_values');
-                $builder->dropIfExists('ldap_object_attributes');
-                $builder->dropIfExists('ldap_objects');
-            });
-
-            if ($connection->getDatabaseName() !== ':memory:') {
-                unlink($connection->getDatabaseName());
+            if ($connection->getDatabaseName() === ':memory:') {
+                tap($connection->getSchemaBuilder(), function (Builder $builder) {
+                    $builder->dropIfExists('ldap_object_attribute_values');
+                    $builder->dropIfExists('ldap_object_attributes');
+                    $builder->dropIfExists('ldap_objects');
+                });
+            } elseif (file_exists($dbFilePath = $connection->getDatabaseName())) {
+                unlink($dbFilePath);
             }
+    
+            unset($this->connections[$name]);
         }
     }
 
