@@ -36,8 +36,9 @@ class LdapUserRepository
     /**
      * Get a user by the attribute and value.
      *
-     * @param  string                        $attribute
-     * @param  string                        $value
+     * @param string $attribute
+     * @param string $value
+     *
      * @return \LdapRecord\Models\Model|null
      */
     public function findBy($attribute, $value)
@@ -48,7 +49,8 @@ class LdapUserRepository
     /**
      * Get an LDAP user by their eloquent model.
      *
-     * @param  LdapAuthenticatable           $model
+     * @param LdapAuthenticatable $model
+     *
      * @return \LdapRecord\Models\Model|null
      */
     public function findByModel(LdapAuthenticatable $model)
@@ -59,7 +61,8 @@ class LdapUserRepository
     /**
      * Get a user by their object GUID.
      *
-     * @param  string                        $guid
+     * @param string $guid
+     *
      * @return \LdapRecord\Models\Model|null
      */
     public function findByGuid($guid)
@@ -70,7 +73,8 @@ class LdapUserRepository
     /**
      * Retrieve a user by the given credentials.
      *
-     * @param  array                         $credentials
+     * @param array $credentials
+     *
      * @return \LdapRecord\Models\Model|null
      */
     public function findByCredentials(array $credentials = [])
@@ -137,7 +141,8 @@ class LdapUserRepository
     /**
      * Get a new query builder for the model instance.
      *
-     * @param  \LdapRecord\Models\Model|null   $model
+     * @param \LdapRecord\Models\Model|null $model
+     *
      * @return \LdapRecord\Query\Model\Builder
      */
     protected function newModelQuery($model = null)

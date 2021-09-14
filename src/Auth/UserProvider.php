@@ -52,7 +52,8 @@ abstract class UserProvider implements LaravelUserProvider
     /**
      * Set the callback to resolve users by.
      *
-     * @param  Closure $callback
+     * @param Closure $callback
+     *
      * @return $this
      */
     public function resolveUsersUsing(Closure $callback)
@@ -65,7 +66,8 @@ abstract class UserProvider implements LaravelUserProvider
     /**
      * Attempt to retrieve the user by their credentials.
      *
-     * @param  array $credentials
+     * @param array $credentials
+     *
      * @return mixed
      *
      * @throws ValidationException

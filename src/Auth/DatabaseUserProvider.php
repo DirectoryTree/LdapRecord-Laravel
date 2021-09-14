@@ -69,8 +69,9 @@ class DatabaseUserProvider extends UserProvider
     /**
      * Dynamically pass missing methods to the Eloquent user provider.
      *
-     * @param  string $method
-     * @param  array  $parameters
+     * @param string $method
+     * @param array  $parameters
+     *
      * @return mixed
      */
     public function __call($method, $parameters)
@@ -121,7 +122,8 @@ class DatabaseUserProvider extends UserProvider
     /**
      * Set the callback to be used to resolve LDAP users.
      *
-     * @param  Closure $userResolver
+     * @param Closure $userResolver
+     *
      * @return $this
      */
     public function resolveUsersUsing(Closure $userResolver)
@@ -188,7 +190,8 @@ class DatabaseUserProvider extends UserProvider
     /**
      * Retrieve the user from their credentials using Eloquent.
      *
-     * @param  array                $credentials
+     * @param array $credentials
+     *
      * @return Authenticatable|null
      *
      * @throws \Exception

@@ -111,7 +111,8 @@ class WindowsAuthenticate
     /**
      * Define the server key to use for fetching user SSO information.
      *
-     * @param  string $key
+     * @param string $key
+     *
      * @return void
      */
     public static function serverKey($key)
@@ -122,7 +123,8 @@ class WindowsAuthenticate
     /**
      * Define the username attribute for locating users.
      *
-     * @param  string $attribute
+     * @param string $attribute
+     *
      * @return void
      */
     public static function username($attribute)
@@ -163,7 +165,8 @@ class WindowsAuthenticate
     /**
      * Set the callback to extract domains from the users username.
      *
-     * @param  Closure $callback
+     * @param Closure $callback
+     *
      * @return void
      */
     public static function extractDomainUsing(Closure $callback)
@@ -174,7 +177,8 @@ class WindowsAuthenticate
     /**
      * Register a class / callback that should be used to validate domains.
      *
-     * @param  Closure|string $callback
+     * @param Closure|string $callback
+     *
      * @return void
      */
     public static function validateDomainUsing($callback)
@@ -185,7 +189,8 @@ class WindowsAuthenticate
     /**
      * Set the callback to resolve users by when retrieving the authenticated user fails.
      *
-     * @param  Closure|string|null $callback
+     * @param Closure|string|null $callback
+     *
      * @return void
      */
     public static function fallback($callback = null)
@@ -196,9 +201,10 @@ class WindowsAuthenticate
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  Closure                  $next
-     * @param  string[]                 ...$guards
+     * @param \Illuminate\Http\Request $request
+     * @param Closure                  $next
+     * @param string[]                 ...$guards
+     *
      * @return mixed
      */
     public function handle($request, Closure $next, ...$guards)
@@ -211,8 +217,9 @@ class WindowsAuthenticate
     /**
      * Attempt to authenticate the LDAP user in the given guards.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  array                    $guards
+     * @param \Illuminate\Http\Request $request
+     * @param array                    $guards
+     *
      * @return void
      *
      * @throws \Illuminate\Auth\AuthenticationException
@@ -255,9 +262,10 @@ class WindowsAuthenticate
     /**
      * Attempt retrieving and logging in the authenticated user.
      *
-     * @param  array       $guards
-     * @param  string      $username
-     * @param  string|null $domain
+     * @param array       $guards
+     * @param string      $username
+     * @param string|null $domain
+     *
      * @return void
      */
     protected function attempt($guards, $username, $domain = null)
@@ -296,7 +304,8 @@ class WindowsAuthenticate
     /**
      * Determine if the user is authenticated in any of the given guards.
      *
-     * @param  array $guards
+     * @param array $guards
+     *
      * @return bool
      */
     protected function authenticated(array $guards)
@@ -313,9 +322,10 @@ class WindowsAuthenticate
     /**
      * Returns the authenticatable user instance if found.
      *
-     * @param  UserProvider                                    $provider
-     * @param  string                                          $username
-     * @param  string|null                                     $domain
+     * @param UserProvider $provider
+     * @param string       $username
+     * @param string|null  $domain
+     *
      * @return \Illuminate\Contracts\Auth\Authenticatable|null
      */
     protected function retrieveAuthenticatedUser(UserProvider $provider, $username, $domain = null)
@@ -374,8 +384,9 @@ class WindowsAuthenticate
     /**
      * Finish saving the user's database model.
      *
-     * @param  Model    $user
-     * @param  Eloquent $model
+     * @param Model    $user
+     * @param Eloquent $model
+     *
      * @return void
      */
     protected function finishModelSave(Model $user, Eloquent $model)
@@ -392,8 +403,9 @@ class WindowsAuthenticate
     /**
      * Get the user from the LDAP user repository by their username.
      *
-     * @param  LdapUserRepository $repository
-     * @param  string             $username
+     * @param LdapUserRepository $repository
+     * @param string             $username
+     *
      * @return Model|null
      */
     protected function getUserFromRepository(LdapUserRepository $repository, $username)
@@ -412,9 +424,10 @@ class WindowsAuthenticate
     /**
      * Determine if the located user is apart of the domain.
      *
-     * @param  Model       $user
-     * @param  string      $username
-     * @param  string|null $domain
+     * @param Model       $user
+     * @param string      $username
+     * @param string|null $domain
+     *
      * @return bool
      */
     protected function userIsApartOfDomain(Model $user, $username, $domain = null)
@@ -431,9 +444,10 @@ class WindowsAuthenticate
     /**
      * Handle failure of retrieving the authenticated user.
      *
-     * @param  UserProvider                                    $provider
-     * @param  string                                          $username
-     * @param  string|null                                     $domain
+     * @param UserProvider $provider
+     * @param string       $username
+     * @param string|null  $domain
+     *
      * @return \Illuminate\Contracts\Auth\Authenticatable|null
      */
     protected function failedRetrievingUser(UserProvider $provider, $username, $domain = null)
@@ -450,8 +464,9 @@ class WindowsAuthenticate
     /**
      * Fires the imported event.
      *
-     * @param  Model    $user
-     * @param  Eloquent $model
+     * @param Model    $user
+     * @param Eloquent $model
+     *
      * @return void
      */
     protected function fireImportedEvent(Model $user, Eloquent $model)
@@ -462,8 +477,9 @@ class WindowsAuthenticate
     /**
      * Fires the saved event.
      *
-     * @param  Model    $user
-     * @param  Eloquent $model
+     * @param Model    $user
+     * @param Eloquent $model
+     *
      * @return void
      */
     protected function fireSavedEvent(Model $user, Eloquent $model)
@@ -474,8 +490,9 @@ class WindowsAuthenticate
     /**
      * Fires the windows authentication event.
      *
-     * @param  Model      $user
-     * @param  mixed|null $model
+     * @param Model      $user
+     * @param mixed|null $model
+     *
      * @return void
      */
     protected function fireAuthenticatedEvent(Model $user, $model = null)
@@ -486,7 +503,8 @@ class WindowsAuthenticate
     /**
      * Retrieves the users SSO account name from our server.
      *
-     * @param  \Illuminate\Http\Request $request
+     * @param \Illuminate\Http\Request $request
+     *
      * @return string
      */
     protected function account($request)
