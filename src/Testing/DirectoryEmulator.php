@@ -9,8 +9,9 @@ class DirectoryEmulator extends DirectoryFake
     /**
      * Setup the fake connections.
      *
-     * @param  string|null            $name
-     * @param  array                  $config
+     * @param string|null $name
+     * @param array       $config
+     *
      * @return EmulatedConnectionFake
      *
      * @throws \LdapRecord\ContainerException
@@ -27,7 +28,8 @@ class DirectoryEmulator extends DirectoryFake
     /**
      * Make a fake connection.
      *
-     * @param  array                  $config
+     * @param array $config
+     *
      * @return EmulatedConnectionFake
      */
     public static function makeConnectionFake(array $config = [])

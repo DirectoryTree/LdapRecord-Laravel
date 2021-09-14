@@ -53,7 +53,8 @@ class LdapUserAuthenticator
     /**
      * Set the authenticating eloquent model.
      *
-     * @param  \Illuminate\Database\Eloquent\Model $model
+     * @param \Illuminate\Database\Eloquent\Model $model
+     *
      * @return $this
      */
     public function setEloquentModel($model)
@@ -66,8 +67,9 @@ class LdapUserAuthenticator
     /**
      * Attempt authenticating against the LDAP domain.
      *
-     * @param  Model  $user
-     * @param  string $password
+     * @param Model  $user
+     * @param string $password
+     *
      * @return bool
      */
     public function attempt(Model $user, $password)
@@ -106,9 +108,10 @@ class LdapUserAuthenticator
     /**
      * Attempt authentication using the given callback once.
      *
-     * @param  Closure     $callback
-     * @param  Model       $user
-     * @param  string|null $password
+     * @param Closure     $callback
+     * @param Model       $user
+     * @param string|null $password
+     *
      * @return bool
      */
     public function attemptOnceUsing(Closure $callback, Model $user, $password = null)
@@ -125,7 +128,8 @@ class LdapUserAuthenticator
     /**
      * Set the callback to use for authenticating users.
      *
-     * @param  Closure $authenticator
+     * @param Closure $authenticator
+     *
      * @return $this
      */
     public function authenticateUsing(Closure $authenticator)
@@ -138,7 +142,8 @@ class LdapUserAuthenticator
     /**
      * Validate the given user against the authentication rules.
      *
-     * @param  Model $user
+     * @param Model $user
+     *
      * @return bool
      */
     protected function validate(Model $user)
@@ -149,8 +154,9 @@ class LdapUserAuthenticator
     /**
      * Create a new user validator.
      *
-     * @param  \LdapRecord\Models\Model                 $user
-     * @param  \Illuminate\Database\Eloquent\Model|null $model
+     * @param \LdapRecord\Models\Model                 $user
+     * @param \Illuminate\Database\Eloquent\Model|null $model
+     *
      * @return Validator
      */
     protected function validator($user, $model = null)
@@ -161,8 +167,9 @@ class LdapUserAuthenticator
     /**
      * Get the authentication rules for the domain.
      *
-     * @param  \LdapRecord\Models\Model                 $user
-     * @param  \Illuminate\Database\Eloquent\Model|null $model
+     * @param \LdapRecord\Models\Model                 $user
+     * @param \Illuminate\Database\Eloquent\Model|null $model
+     *
      * @return \Illuminate\Support\Collection
      */
     protected function rules($user, $model = null)
@@ -175,7 +182,8 @@ class LdapUserAuthenticator
     /**
      * Fire the "attempting" event.
      *
-     * @param  Model $user
+     * @param Model $user
+     *
      * @return void
      */
     protected function attempting(Model $user)
@@ -186,7 +194,8 @@ class LdapUserAuthenticator
     /**
      * Fire the "passed" event.
      *
-     * @param  Model $user
+     * @param Model $user
+     *
      * @return void
      */
     protected function passed(Model $user)
@@ -197,7 +206,8 @@ class LdapUserAuthenticator
     /**
      * Fire the "trashed" event.
      *
-     * @param  Model $user
+     * @param Model $user
+     *
      * @return void
      */
     protected function trashed(Model $user)
@@ -208,7 +218,8 @@ class LdapUserAuthenticator
     /**
      * Fire the "failed" event.
      *
-     * @param  Model $user
+     * @param Model $user
+     *
      * @return void
      */
     protected function failed(Model $user)
@@ -219,7 +230,8 @@ class LdapUserAuthenticator
     /**
      * Fire the "rejected" event.
      *
-     * @param  Model $user
+     * @param Model $user
+     *
      * @return void
      */
     protected function rejected(Model $user)

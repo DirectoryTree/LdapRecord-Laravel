@@ -104,7 +104,8 @@ class LdapAuthServiceProvider extends ServiceProvider
     /**
      * Get a new database user provider.
      *
-     * @param  array                $config
+     * @param array $config
+     *
      * @return DatabaseUserProvider
      */
     protected function makeDatabaseUserProvider(array $config)
@@ -120,7 +121,8 @@ class LdapAuthServiceProvider extends ServiceProvider
     /**
      * Make a new plain LDAP user provider.
      *
-     * @param  array                  $config
+     * @param array $config
+     *
      * @return NoDatabaseUserProvider
      */
     protected function makePlainUserProvider(array $config)
@@ -134,7 +136,8 @@ class LdapAuthServiceProvider extends ServiceProvider
     /**
      * Make a new Eloquent user provider.
      *
-     * @param  array                $config
+     * @param array $config
+     *
      * @return EloquentUserProvider
      */
     protected function makeEloquentUserProvider($config)
@@ -148,7 +151,8 @@ class LdapAuthServiceProvider extends ServiceProvider
     /**
      * Make a new LDAP user authenticator.
      *
-     * @param  array                 $config
+     * @param array $config
+     *
      * @return LdapUserAuthenticator
      */
     protected function makeLdapUserAuthenticator(array $config)
@@ -159,7 +163,8 @@ class LdapAuthServiceProvider extends ServiceProvider
     /**
      * Make a new LDAP user repository.
      *
-     * @param  array              $config
+     * @param array $config
+     *
      * @return LdapUserRepository
      */
     protected function makeLdapUserRepository(array $config)
@@ -170,7 +175,8 @@ class LdapAuthServiceProvider extends ServiceProvider
     /**
      * Make a new LDAP user importer.
      *
-     * @param  array            $config
+     * @param array $config
+     *
      * @return UserSynchronizer
      */
     protected function makeLdapUserSynchronizer(array $config)

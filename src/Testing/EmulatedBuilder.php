@@ -15,7 +15,8 @@ class EmulatedBuilder extends Builder
     /**
      * Create a new Eloquent model builder.
      *
-     * @param  Model $model
+     * @param Model $model
+     *
      * @return mixed
      */
     public function model(Model $model)
@@ -30,7 +31,8 @@ class EmulatedBuilder extends Builder
     /**
      * Determine the query builder to use for the model.
      *
-     * @param  Model  $model
+     * @param Model $model
+     *
      * @return string
      */
     protected function determineBuilderFromModel(Model $model)
@@ -48,7 +50,8 @@ class EmulatedBuilder extends Builder
     /**
      * Process the database query results into an LDAP result set.
      *
-     * @param  array $results
+     * @param array $results
+     *
      * @return array
      */
     protected function process($results)
@@ -59,7 +62,8 @@ class EmulatedBuilder extends Builder
     /**
      * Merge  and transform the result.
      *
-     * @param  array $result
+     * @param array $result
+     *
      * @return array
      */
     protected function mergeAttributesAndTransformResult($result)
@@ -73,7 +77,8 @@ class EmulatedBuilder extends Builder
     /**
      * Retrieve extra attributes that should be merged with the result.
      *
-     * @param  array $result
+     * @param array $result
+     *
      * @return array
      */
     protected function retrieveExtraAttributes($result)

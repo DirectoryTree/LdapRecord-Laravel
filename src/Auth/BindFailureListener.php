@@ -11,7 +11,8 @@ class BindFailureListener
     /**
      * Register the bind failure listener for Laravel Jetstream.
      *
-     * @param  string $request
+     * @param string $request
+     *
      * @return void
      */
     public static function usingLaravelJetstream($request = 'Laravel\Fortify\Http\Requests\LoginRequest')
@@ -22,7 +23,8 @@ class BindFailureListener
     /**
      * Register the bind failure listener for Laravel UI.
      *
-     * @param  string $controller
+     * @param string $controller
+     *
      * @return void
      */
     public static function usingLaravelUi($controller = 'App\Http\Controllers\Auth\LoginController')
@@ -39,8 +41,9 @@ class BindFailureListener
     /**
      * Register the bind failure listener upon resolving the given class.
      *
-     * @param  string       $class
-     * @param  Closure|null $callback
+     * @param string       $class
+     * @param Closure|null $callback
+     *
      * @return void
      */
     protected static function whenResolving($class, Closure $callback = null)
