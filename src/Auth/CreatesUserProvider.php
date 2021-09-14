@@ -24,8 +24,7 @@ trait CreatesUserProvider
     /**
      * Get the guard's authentication user provider.
      *
-     * @param string $guard
-     *
+     * @param  string                                       $guard
      * @return \Illuminate\Contracts\Auth\UserProvider|null
      */
     protected function getCurrentAuthProvider($guard)

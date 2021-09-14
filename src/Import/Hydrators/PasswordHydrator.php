@@ -33,9 +33,8 @@ class PasswordHydrator extends Hydrator
     /**
      * Set the password on the users model.
      *
-     * @param EloquentModel $model
-     * @param string        $password
-     *
+     * @param  EloquentModel $model
+     * @param  string        $password
      * @return void
      */
     protected function setPassword(EloquentModel $model, $password)
@@ -56,9 +55,8 @@ class PasswordHydrator extends Hydrator
      * This checks if the model does not currently have a
      * password, or if the password fails a hash check.
      *
-     * @param EloquentModel $model
-     * @param string|null   $password
-     *
+     * @param  EloquentModel $model
+     * @param  string|null   $password
      * @return bool
      */
     protected function passwordNeedsUpdate(EloquentModel $model, $password = null)
@@ -95,8 +93,7 @@ class PasswordHydrator extends Hydrator
     /**
      * Get the current models hashed password.
      *
-     * @param EloquentModel $model
-     *
+     * @param  EloquentModel $model
      * @return string|null
      */
     protected function currentModelPassword(EloquentModel $model)

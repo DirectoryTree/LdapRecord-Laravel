@@ -65,8 +65,7 @@ class LdapDatabaseManager
     /**
      * Create the eloquent database model.
      *
-     * @param string|null $connection
-     *
+     * @param  string|null                         $connection
      * @return \Illuminate\Database\Eloquent\Model
      */
     public function createModel($connection = null)
@@ -79,9 +78,8 @@ class LdapDatabaseManager
     /**
      * Get the LDAP database connection.
      *
-     * @param string|null $name
-     * @param array       $config
-     *
+     * @param  string|null $name
+     * @param  array       $config
      * @return Connection
      */
     public function connection($name = null, $config = [])
@@ -99,9 +97,8 @@ class LdapDatabaseManager
     /**
      * Make the database connection.
      *
-     * @param string $name
-     * @param string $database
-     *
+     * @param  string     $name
+     * @param  string     $database
      * @return Connection
      */
     protected function makeConnection($name, $database)
@@ -158,8 +155,7 @@ class LdapDatabaseManager
     /**
      * Make the unique LDAP database connection name.
      *
-     * @param string $name
-     *
+     * @param  string $name
      * @return string
      */
     protected function makeDatabaseConnectionName($name)
@@ -170,8 +166,7 @@ class LdapDatabaseManager
     /**
      * Run the database migrations on the connection.
      *
-     * @param Connection $connection
-     *
+     * @param  Connection $connection
      * @return void
      */
     protected function migrate(Connection $connection)

@@ -74,8 +74,7 @@ trait EmulatesQueries
     /**
      * Set the underlying Eloquent query builder.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     *
+     * @param  \Illuminate\Database\Eloquent\Builder $query
      * @return $this
      */
     public function setEloquentQuery($query)
@@ -98,9 +97,8 @@ trait EmulatesQueries
     /**
      * Create a new nested query builder with the given state.
      *
-     * @param Closure|null $closure
-     * @param string       $state
-     *
+     * @param  Closure|null $closure
+     * @param  string       $state
      * @return Builder
      */
     public function newNestedInstance(Closure $closure = null, $state = 'and')
@@ -137,8 +135,7 @@ trait EmulatesQueries
     /**
      * Set the nested query state.
      *
-     * @param string $state
-     *
+     * @param  string $state
      * @return $this
      */
     public function setNestedQueryState($state)
@@ -163,8 +160,7 @@ trait EmulatesQueries
     /**
      * Find the Eloquent model by distinguished name.
      *
-     * @param string $dn
-     *
+     * @param  string          $dn
      * @return LdapObject|null
      */
     public function findEloquentModelByDn($dn)
@@ -175,8 +171,7 @@ trait EmulatesQueries
     /**
      * Find the Eloquent model by guid.
      *
-     * @param string $guid
-     *
+     * @param  string          $guid
      * @return LdapObject|null
      */
     public function findEloquentModelByGuid($guid)
@@ -213,9 +208,8 @@ trait EmulatesQueries
     /**
      * Determine the relationship method to use for the given bindings.
      *
-     * @param string $type
-     * @param array  $bindings
-     *
+     * @param  string $type
+     * @param  array  $bindings
      * @return string
      */
     protected function determineRelationMethod($type, array $bindings)
@@ -245,11 +239,10 @@ trait EmulatesQueries
     /**
      * Adds an LDAP "where" filter to the underlying Eloquent builder.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param string                                $field
-     * @param string                                $operator
-     * @param string|null                           $value
-     *
+     * @param  \Illuminate\Database\Eloquent\Builder $query
+     * @param  string                                $field
+     * @param  string                                $operator
+     * @param  string|null                           $value
      * @return \Illuminate\Database\Eloquent\Builder
      */
     protected function addFilterToDatabaseQuery($query, $field, $operator, $value)
@@ -322,9 +315,8 @@ trait EmulatesQueries
     /**
      * Determine if a certain field is used multiple times in a query.
      *
-     * @param string $type
-     * @param string $field
-     *
+     * @param  string $type
+     * @param  string $field
      * @return bool
      */
     protected function fieldIsUsedMultipleTimes($type, $field)
@@ -335,9 +327,8 @@ trait EmulatesQueries
     /**
      * Applies the batch modification to the given model.
      *
-     * @param \Illuminate\Database\Eloquent\Model $model
-     * @param array                               $modification
-     *
+     * @param  \Illuminate\Database\Eloquent\Model $model
+     * @param  array                               $modification
      * @return void
      */
     protected function applyBatchModificationToModel($model, array $modification)
@@ -403,8 +394,7 @@ trait EmulatesQueries
     /**
      * Get the database record as an array.
      *
-     * @param Model|array $database
-     *
+     * @param  Model|array $database
      * @return array
      */
     protected function getArrayableResult($database)
@@ -415,8 +405,7 @@ trait EmulatesQueries
     /**
      * Get the first record from a result.
      *
-     * @param Collection|array $result
-     *
+     * @param  Collection|array $result
      * @return mixed
      */
     protected function getFirstRecordFromResult($result)
@@ -457,10 +446,9 @@ trait EmulatesQueries
     /**
      * Apply the LDAP objects attributes to the Eloquent model.
      *
-     * @param LdapObject $model
-     * @param string     $dn
-     * @param array      $attributes
-     *
+     * @param  LdapObject $model
+     * @param  string     $dn
+     * @param  array      $attributes
      * @return LdapObject
      */
     protected function applyObjectAttributesToEloquent(LdapObject $model, $dn, $attributes)
@@ -507,8 +495,7 @@ trait EmulatesQueries
     /**
      * Normalize the attribute name.
      *
-     * @param string $field
-     *
+     * @param  string $field
      * @return string
      */
     protected function normalizeAttributeName($field)
@@ -519,9 +506,8 @@ trait EmulatesQueries
     /**
      * Pull and return the GUID value from the given attributes.
      *
-     * @param string|null $key
-     * @param array       $attributes
-     *
+     * @param  string|null $key
+     * @param  array       $attributes
      * @return string
      */
     protected function pullGuidFromAttributes($key, &$attributes)
@@ -552,8 +538,7 @@ trait EmulatesQueries
     /**
      * Determine the guid key from the given object attributes.
      *
-     * @param array $attributes
-     *
+     * @param  array       $attributes
      * @return string|null
      */
     protected function determineGuidKeyFromAttributes($attributes)
@@ -568,8 +553,7 @@ trait EmulatesQueries
     /**
      * Determine if the given attribute value is a GUID.
      *
-     * @param array|string $value
-     *
+     * @param  array|string $value
      * @return bool
      */
     protected function attributeValueIsGuid($value)
@@ -659,8 +643,7 @@ trait EmulatesQueries
     /**
      * Convert the eloquent collection into an array.
      *
-     * @param \Illuminate\Database\Eloquent\Collection $resource
-     *
+     * @param  \Illuminate\Database\Eloquent\Collection $resource
      * @return array
      */
     public function parse($resource)
@@ -671,8 +654,7 @@ trait EmulatesQueries
     /**
      * Transform the database attributes into a single array.
      *
-     * @param mixed $attributes
-     *
+     * @param  mixed $attributes
      * @return array
      */
     protected function transform($attributes)

@@ -23,8 +23,7 @@ trait ListensForLdapBindFailure
     /**
      * Set the bind error handler callback.
      *
-     * @param Closure $callback
-     *
+     * @param  Closure $callback
      * @return void
      */
     public static function setErrorHandler(Closure $callback)
@@ -71,9 +70,8 @@ trait ListensForLdapBindFailure
     /**
      * Generate a human validation error for LDAP bind failures.
      *
-     * @param string      $errorMessage
-     * @param string|null $diagnosticMessage
-     *
+     * @param  string      $errorMessage
+     * @param  string|null $diagnosticMessage
      * @return void
      *
      * @throws ValidationException
@@ -100,9 +98,8 @@ trait ListensForLdapBindFailure
     /**
      * Handle the LDAP bind error.
      *
-     * @param string      $message
-     * @param string|null $code
-     *
+     * @param  string      $message
+     * @param  string|null $code
      * @return void
      *
      * @throws ValidationException
@@ -143,9 +140,8 @@ trait ListensForLdapBindFailure
     /**
      * Determine if the LDAP error generated is caused by invalid credentials.
      *
-     * @param string $errorMessage
-     * @param string $diagnosticMessage
-     *
+     * @param  string $errorMessage
+     * @param  string $diagnosticMessage
      * @return bool
      */
     protected function causedByInvalidCredentials($errorMessage, $diagnosticMessage)

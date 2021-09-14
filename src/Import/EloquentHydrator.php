@@ -45,8 +45,7 @@ class EloquentHydrator
     /**
      * Extra data to pass to each hydrator.
      *
-     * @param array $data
-     *
+     * @param  array $data
      * @return $this
      */
     public function with(array $data = [])
@@ -59,9 +58,8 @@ class EloquentHydrator
     /**
      * Hydrate the database model with the LDAP user.
      *
-     * @param LdapModel     $user
-     * @param EloquentModel $database
-     *
+     * @param  LdapModel     $user
+     * @param  EloquentModel $database
      * @return void
      */
     public function hydrate(LdapModel $user, EloquentModel $database)

@@ -82,8 +82,7 @@ class BrowseLdapServer extends Command
     /**
      * Ask the developer for an operation to perform.
      *
-     * @param string $prompt
-     *
+     * @param  string $prompt
      * @return void
      */
     protected function askForOperation($prompt = 'Select operation')
@@ -105,8 +104,7 @@ class BrowseLdapServer extends Command
     /**
      * Perform the selected operation.
      *
-     * @param string $operation
-     *
+     * @param  string $operation
      * @return void
      *
      * @throws InvalidArgumentException
@@ -170,8 +168,7 @@ class BrowseLdapServer extends Command
     /**
      * Wrap attribute values in an array for tabular display.
      *
-     * @param array $values
-     *
+     * @param  array   $values
      * @return array[]
      */
     protected function wrapAttributeValuesInArray(array $values)

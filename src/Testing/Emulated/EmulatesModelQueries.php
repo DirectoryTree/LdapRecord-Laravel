@@ -94,8 +94,7 @@ trait EmulatesModelQueries
     /**
      * Parse the database query results.
      *
-     * @param \Illuminate\Database\Eloquent\Collection $resource
-     *
+     * @param  \Illuminate\Database\Eloquent\Collection $resource
      * @return array
      */
     public function parse($resource)

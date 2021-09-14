@@ -65,8 +65,7 @@ class LdapUserImporter extends Importer
     /**
      * Set the LDAP user repository to use for importing.
      *
-     * @param LdapUserRepository $repository
-     *
+     * @param  LdapUserRepository $repository
      * @return $this
      */
     public function setLdapUserRepository(LdapUserRepository $repository)
@@ -103,8 +102,7 @@ class LdapUserImporter extends Importer
     /**
      * Load the import's objects from the LDAP repository.
      *
-     * @param string|null $username
-     *
+     * @param  string|null                  $username
      * @return \LdapRecord\Query\Collection
      */
     public function loadObjectsFromRepository($username = null)
@@ -127,9 +125,8 @@ class LdapUserImporter extends Importer
     /**
      * Soft deletes the specified model if their LDAP account is disabled.
      *
-     * @param LdapRecord $object
-     * @param Eloquent   $eloquent
-     *
+     * @param  LdapRecord $object
+     * @param  Eloquent   $eloquent
      * @return void
      */
     protected function delete(LdapRecord $object, Eloquent $eloquent)
@@ -150,9 +147,8 @@ class LdapUserImporter extends Importer
     /**
      * Restores soft-deleted models if their LDAP account is enabled.
      *
-     * @param LdapRecord $object
-     * @param Eloquent   $eloquent
-     *
+     * @param  LdapRecord $object
+     * @param  Eloquent   $eloquent
      * @return void
      */
     protected function restore(LdapRecord $object, Eloquent $eloquent)
@@ -173,8 +169,7 @@ class LdapUserImporter extends Importer
     /**
      * Determine whether the user is enabled.
      *
-     * @param LdapRecord $object
-     *
+     * @param  LdapRecord $object
      * @return bool
      */
     protected function userIsEnabled(LdapRecord $object)
@@ -185,8 +180,7 @@ class LdapUserImporter extends Importer
     /**
      * Determines whether the user is disabled.
      *
-     * @param LdapRecord $object
-     *
+     * @param  LdapRecord $object
      * @return bool
      */
     protected function userIsDisabled(LdapRecord $object)
@@ -197,8 +191,7 @@ class LdapUserImporter extends Importer
     /**
      * Get the user account control integer from the user.
      *
-     * @param LdapRecord $object
-     *
+     * @param  LdapRecord $object
      * @return int|null
      */
     protected function getUserAccountControl(LdapRecord $object)
