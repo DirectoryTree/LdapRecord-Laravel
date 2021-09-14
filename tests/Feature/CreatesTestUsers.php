@@ -7,9 +7,8 @@ trait CreatesTestUsers
     /**
      * Create a new test user.
      *
-     * @param array       $attributes
-     * @param string|null $model
-     *
+     * @param  array                                                 $attributes
+     * @param  string|null                                           $model
      * @return TestUserModelStub|\Illuminate\Database\Eloquent\Model
      */
     protected function createTestUser(array $attributes = [], $model = null)

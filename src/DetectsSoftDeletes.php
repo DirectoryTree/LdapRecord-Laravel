@@ -9,8 +9,7 @@ trait DetectsSoftDeletes
     /**
      * Determine if the model is using soft-deletes.
      *
-     * @param Model $model
-     *
+     * @param  Model $model
      * @return bool
      */
     protected function isUsingSoftDeletes(Model $model)

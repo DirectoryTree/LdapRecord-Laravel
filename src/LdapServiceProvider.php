@@ -139,8 +139,7 @@ class LdapServiceProvider extends ServiceProvider
     /**
      * Make a new LDAP connection.
      *
-     * @param array $config
-     *
+     * @param  array      $config
      * @return Connection
      */
     protected function makeConnection($config)
@@ -151,8 +150,7 @@ class LdapServiceProvider extends ServiceProvider
     /**
      * Register the LDAP cache store on the given connection.
      *
-     * @param Connection $connection
-     *
+     * @param  Connection $connection
      * @return void
      */
     protected function registerLdapCache(Connection $connection)
@@ -167,8 +165,7 @@ class LdapServiceProvider extends ServiceProvider
     /**
      * Make a connection's configuration from the connection's environment name.
      *
-     * @param string $connection
-     *
+     * @param  string $connection
      * @return array
      */
     protected function makeConnectionConfigFromEnv($connection)
@@ -189,8 +186,7 @@ class LdapServiceProvider extends ServiceProvider
     /**
      * Make a connection's custom config options array from the env.
      *
-     * @param string $connection
-     *
+     * @param  string $connection
      * @return array
      */
     protected function makeCustomOptionsFromEnv($connection)
@@ -219,9 +215,8 @@ class LdapServiceProvider extends ServiceProvider
     /**
      * Substitute the env name template with the given connection name.
      *
-     * @param string $env
-     * @param string $name
-     *
+     * @param  string $env
+     * @param  string $name
      * @return string
      */
     protected function makeEnvVariable($env, $name)

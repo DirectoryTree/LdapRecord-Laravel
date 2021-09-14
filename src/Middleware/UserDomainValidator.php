@@ -10,10 +10,9 @@ class UserDomainValidator
     /**
      * Determine if the user passes domain validation.
      *
-     * @param Model       $user
-     * @param string      $username
-     * @param string|null $domain
-     *
+     * @param  Model       $user
+     * @param  string      $username
+     * @param  string|null $domain
      * @return bool
      */
     public function __invoke(Model $user, $username, $domain = null)
@@ -32,8 +31,7 @@ class UserDomainValidator
     /**
      * Get the domain components from the Distinguished Name.
      *
-     * @param string $dn
-     *
+     * @param  string $dn
      * @return array
      */
     protected function getDomainComponents($dn)
@@ -44,9 +42,8 @@ class UserDomainValidator
     /**
      * Determine if the domain exists in the given components.
      *
-     * @param string $domain
-     * @param array  $components
-     *
+     * @param  string $domain
+     * @param  array  $components
      * @return bool
      */
     protected function domainExistsInComponents($domain, array $components)

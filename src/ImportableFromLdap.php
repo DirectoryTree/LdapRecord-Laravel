@@ -27,8 +27,7 @@ trait ImportableFromLdap
     /**
      * Set the models LDAP domain.
      *
-     * @param string $domain
-     *
+     * @param  string $domain
      * @return void
      */
     public function setLdapDomain($domain)
@@ -59,8 +58,7 @@ trait ImportableFromLdap
     /**
      * Set the models LDAP GUID.
      *
-     * @param string $guid
-     *
+     * @param  string $guid
      * @return void
      */
     public function setLdapGuid($guid)
