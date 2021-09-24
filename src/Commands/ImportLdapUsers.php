@@ -117,7 +117,7 @@ class ImportLdapUsers extends Command
     }
 
     /**
-     * Begin chunked importing.
+     * Begin importing users into the database by chunk.
      *
      * @param int $perChunk
      *
