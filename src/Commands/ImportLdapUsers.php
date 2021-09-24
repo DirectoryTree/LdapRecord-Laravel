@@ -8,13 +8,13 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
 use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use LdapRecord\Laravel\Auth\UserProvider;
-use LdapRecord\Models\Collection;
 use LdapRecord\Laravel\DetectsSoftDeletes;
 use LdapRecord\Laravel\Events\Import\Completed;
 use LdapRecord\Laravel\Events\Import\DeletedMissing;
 use LdapRecord\Laravel\Events\Import\Imported;
 use LdapRecord\Laravel\Events\Import\ImportFailed;
 use LdapRecord\Laravel\Events\Import\Started;
+use LdapRecord\Models\Collection;
 use LdapRecord\Models\Model;
 use Symfony\Component\Console\Helper\ProgressBar;
 
@@ -64,14 +64,14 @@ class ImportLdapUsers extends Command
      * @param LdapUserImporter $importer
      * @param Repositry        $config
      *
-     * @throws \LdapRecord\Models\ModelNotFoundException
-     *
      * @return void
+     *
+     * @throws \LdapRecord\Models\ModelNotFoundException
      */
     public function handle(LdapUserImporter $importer, Repository $config)
     {
         $config->set('ldap.logging', $this->isLogging());
-        
+
         /** @var \LdapRecord\Laravel\Auth\DatabaseUserProvider $provider */
         $provider = Auth::createUserProvider($providerName = $this->argument('provider'));
 
@@ -88,7 +88,7 @@ class ImportLdapUsers extends Command
         $this->setImporter($importer);
 
         $this->applyImporterOptions($provider);
-        
+
         ($perChunk = $this->option('chunk'))
             ? $this->beginChunkedImport($perChunk)
             : $this->beginImport();
@@ -161,7 +161,7 @@ class ImportLdapUsers extends Command
         } else {
             $this->info("\n Okay, no users were imported / synchronized.");
         }
-        
+
         return $imported;
     }
 

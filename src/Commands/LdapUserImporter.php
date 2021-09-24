@@ -129,7 +129,7 @@ class LdapUserImporter extends Importer
      * Load the import's objects from the LDAP repository via chunking.
      *
      * @param Closure $callback
-     * @param int $perChunk
+     * @param int     $perChunk
      *
      * @return void
      */
