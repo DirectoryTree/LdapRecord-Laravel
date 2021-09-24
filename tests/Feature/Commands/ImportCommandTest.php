@@ -107,10 +107,10 @@ class ImportCommandTest extends DatabaseTestCase
 
         $repo = m::mock(LdapUserRepository::class, function ($repo) use ($users) {
             $query = m::mock(Builder::class);
-            
+
             $query->shouldReceive('chunk')->once()->with(10, m::on(function ($callback) use ($users) {
                 $callback($users);
-                
+
                 return true;
             }));
 
