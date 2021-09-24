@@ -140,9 +140,7 @@ class LdapUserImporter extends Importer
         );
 
         $query->chunk($perChunk, function ($objects) use ($callback) {
-            $this->objects = $objects;
-
-            $callback($objects);
+            $callback($this->objects = $objects);
         });
     }
 
