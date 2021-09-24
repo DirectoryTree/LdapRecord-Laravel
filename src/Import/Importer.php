@@ -4,6 +4,7 @@ namespace LdapRecord\Laravel\Import;
 
 use Closure;
 use Exception;
+use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use LdapRecord\Laravel\DetectsSoftDeletes;
 use LdapRecord\Laravel\Events\Import\Completed;
@@ -51,7 +52,7 @@ class Importer
     /**
      * The successfully imported LDAP object Eloquent models.
      *
-     * @var \Illuminate\Support\Collection|null
+     * @var Collection|null
      */
     protected $imported;
 
@@ -123,6 +124,16 @@ class Importer
         $this->eloquent = $eloquent;
 
         return $this;
+    }
+
+    /**
+     * Get the loaded objects to be imported.
+     *
+     * @return \LdapRecord\Query\Collection
+     */
+    public function getLdapObjects()
+    {
+        return $this->objects;
     }
 
     /**
@@ -236,14 +247,14 @@ class Importer
     /**
      * Execute the import.
      *
-     * @return \Illuminate\Support\Collection
+     * @return Collection
      *
      * @throws ImportException
      * @throws \LdapRecord\LdapRecordException
      */
     public function execute()
     {
-        $importer = $this->getSynchronizer();
+        $synchronizer = $this->getSynchronizer();
 
         if (! $this->model && ! $this->hasImportableObjects()) {
             throw new ImportException('No LdapRecord model or importable objects have been defined.');
@@ -267,14 +278,14 @@ class Importer
 
         event(new Started($this->objects));
 
-        $this->imported = $this->import($importer);
+        $this->imported = $this->import($synchronizer);
 
         event(new Completed($this->objects, $this->imported));
 
         if ($this->softDeleteMissing) {
             $this->softDeleteMissing(
                 $ldapRecord,
-                $importer->createEloquentModel()
+                $synchronizer->createEloquentModel()
             );
         }
 
@@ -286,11 +297,11 @@ class Importer
      *
      * @param Synchronizer $synchronizer
      *
-     * @return \Illuminate\Support\Collection
+     * @return Collection
      */
     protected function import(Synchronizer $synchronizer)
     {
-        return collect($this->objects->all())->map(
+        return Collection::make($this->objects->all())->map(
             $this->buildImportCallback($synchronizer)
         )->filter();
     }
@@ -450,7 +461,7 @@ class Importer
             ->whereNotNull($eloquent->getLdapGuidColumn())
             ->where($eloquent->getLdapDomainColumn(), '=', $domain)
             ->whereIn($eloquent->getLdapGuidColumn(), $toDelete->toArray())
-            ->update([$eloquent->getDeletedAtColumn() => $deletedAt = now()]);
+            ->update([$eloquent->getDeletedAtColumn() => now()]);
 
         if ($deleted > 0) {
             event(new DeletedMissing($ldap, $eloquent, $toDelete));

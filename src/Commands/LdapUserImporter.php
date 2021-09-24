@@ -2,6 +2,7 @@
 
 namespace LdapRecord\Laravel\Commands;
 
+use Closure;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Support\Facades\Event;
 use LdapRecord\Laravel\Events\Import\Deleted;
@@ -122,6 +123,27 @@ class LdapUserImporter extends Importer
         return $this->objects = ($user = $query->findByAnr($username))
             ? $users->add($user)
             : $users;
+    }
+
+    /**
+     * Load the import's objects from the LDAP repository via chunking.
+     *
+     * @param Closure $callback
+     * @param int $perChunk
+     *
+     * @return void
+     */
+    public function chunkObjectsFromRepository(Closure $callback, $perChunk = 500)
+    {
+        $query = $this->applyLdapQueryConstraints(
+            $this->repository->query()
+        );
+
+        $query->chunk($perChunk, function ($objects) use ($callback) {
+            $this->objects = $objects;
+
+            $callback($objects);
+        });
     }
 
     /**
