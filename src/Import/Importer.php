@@ -4,8 +4,8 @@ namespace LdapRecord\Laravel\Import;
 
 use Closure;
 use Exception;
-use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model as Eloquent;
+use Illuminate\Support\Collection;
 use LdapRecord\Laravel\DetectsSoftDeletes;
 use LdapRecord\Laravel\Events\Import\Completed;
 use LdapRecord\Laravel\Events\Import\DeletedMissing;
