@@ -78,6 +78,23 @@ class EmulatedQueryTest extends TestCase
         $this->assertEquals($attributes['objectclass'], $record['objectclass']);
     }
 
+    public function test_find_is_case_insensitive()
+    {
+        $query = Container::getConnection('default')->query();
+
+        $this->assertNull($query->find('foo'));
+
+        $dn = 'cn=John Doe,dc=local,dc=com';
+        $attributes = ['objectclass' => ['foo', 'bar']];
+
+        $query->insert($dn, $attributes);
+
+        $record = $query->find('cn=john doe,dc=local,dc=com');
+
+        $this->assertEquals($dn, $record['dn'][0]);
+        $this->assertEquals($attributes['objectclass'], $record['objectclass']);
+    }
+
     public function test_get()
     {
         $query = Container::getConnection('default')->query();
@@ -148,7 +165,22 @@ class EmulatedQueryTest extends TestCase
         $this->assertEquals('johndoe', $results[0]['samaccountname'][0]);
     }
 
-    public function test_where_with_alternate_casing()
+    public function test_where_values_are_case_insensitive()
+    {
+        $query = Container::getConnection('default')->query();
+
+        $attributes = ['objectclass' => ['bar', 'baz']];
+
+        $query->insert($john = 'cn=John Doe,dc=local,dc=com', array_merge($attributes, ['samaccountname' => ['johndoe']]));
+
+        $results = $query->where('samaccountname', '=', 'JOHNdoe')->get();
+
+        $this->assertCount(1, $results);
+        $this->assertEquals($john, $results[0]['dn'][0]);
+        $this->assertEquals('johndoe', $results[0]['samaccountname'][0]);
+    }
+
+    public function test_where_returns_same_results_with_alternate_attribute_casing()
     {
         $query = Container::getConnection('default')->query();
 

@@ -169,7 +169,7 @@ trait EmulatesQueries
      */
     public function findEloquentModelByDn($dn)
     {
-        return $this->newEloquentQuery()->where('dn', '=', $dn)->first();
+        return $this->newEloquentQuery()->where('dn', 'like', $dn)->first();
     }
 
     /**
@@ -260,16 +260,16 @@ trait EmulatesQueries
             case '!*':
                 return $query->where('name', '!=', $field);
             case '=':
-                return $query->where('name', $operator, $field)
-                    ->whereHas('values', function ($q) use ($operator, $value) {
-                        $q->where('value', $operator, $value);
+                return $query->where('name', '=', $field)
+                    ->whereHas('values', function ($q) use ($value) {
+                        $q->where('value', 'like', $value);
                     });
             case '!':
                 // Fallthrough.
             case '!=':
                 return $query->where('name', '=', $field)
                     ->whereHas('values', function ($q) use ($value) {
-                        $q->where('value', '!=', $value);
+                        $q->where('value', 'not like', $value);
                     });
             case'>=':
                 return $query->where('name', '=', $field)
