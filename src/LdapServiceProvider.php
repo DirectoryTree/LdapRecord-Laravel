@@ -120,7 +120,7 @@ class LdapServiceProvider extends ServiceProvider
     protected function registerEnvironmentConnections()
     {
         $connections = array_filter(
-            array_map('trim', explode(',', env('LDAP_CONNECTIONS')))
+            array_map('trim', explode(',', env('LDAP_CONNECTIONS', '')))
         );
 
         foreach ($connections as $name) {
