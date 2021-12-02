@@ -68,7 +68,7 @@ class PasswordHydrator extends Hydrator
         // If the application is running in console, we will assume the
         // import command is being run. In this case, we do not want
         // to overwrite a password that's already properly hashed.
-        if (app()->runningInConsole() && ! Hash::needsRehash($current)) {
+        if (app()->runningInConsole() && ! Hash::needsRehash((string) $current)) {
             return false;
         }
 
