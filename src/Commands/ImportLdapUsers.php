@@ -3,7 +3,7 @@
 namespace LdapRecord\Laravel\Commands;
 
 use Illuminate\Console\Command;
-Use Illuminate\Contracts\Config\Repository;
+use Illuminate\Contracts\Config\Repository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
 use LdapRecord\Laravel\Auth\DatabaseUserProvider;
