@@ -2,7 +2,7 @@
 
 namespace LdapRecord\Laravel\Commands;
 
-use Illuminate\Config\Repository;
+Use Illuminate\Contracts\Config\Repository;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
