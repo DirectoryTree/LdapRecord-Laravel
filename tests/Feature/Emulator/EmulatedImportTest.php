@@ -66,12 +66,14 @@ class EmulatedImportTest extends DatabaseTestCase
     {
         User::create(['cn' => $this->faker->name]);
 
-        $this->expectsEvents(ImportFailed::class);
+        Event::fake();
 
         $this->artisan('ldap:import', [
             'provider' => 'ldap-database',
             '--no-interaction',
         ])->assertExitCode(0);
+
+        Event::assertDispatched(ImportFailed::class);
     }
 
     public function test_disabled_users_are_soft_deleted_when_flag_is_set()
@@ -90,6 +92,7 @@ class EmulatedImportTest extends DatabaseTestCase
         ])->assertExitCode(0);
 
         $created = TestUserModelStub::withTrashed()->first();
+        
         $this->assertTrue($created->trashed());
     }
 

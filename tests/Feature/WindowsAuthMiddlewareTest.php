@@ -4,6 +4,7 @@ namespace LdapRecord\Laravel\Tests\Feature;
 
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Event;
 use InvalidArgumentException;
 use LdapRecord\Laravel\Auth\NoDatabaseUserProvider;
 use LdapRecord\Laravel\Auth\Rule;
@@ -115,13 +116,7 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
     {
         WindowsAuthenticate::rememberAuthenticatedUsers();
 
-        $this->expectsEvents([
-            Importing::class,
-            Imported::class,
-            Synchronizing::class,
-            Synchronized::class,
-            CompletedWithWindows::class,
-        ]);
+        Event::fake();
 
         $this->setupDatabaseUserProvider([
             'database' => [
@@ -161,18 +156,17 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
             $this->assertSame(auth()->user(), $model);
             $this->assertNotEmpty(auth()->user()->getRememberToken());
         });
+
+        Event::assertDispatched(Importing::class);
+        Event::assertDispatched(Imported::class);
+        Event::assertDispatched(Synchronizing::class);
+        Event::assertDispatched(Synchronized::class);
+        Event::assertDispatched(CompletedWithWindows::class);
     }
 
     public function test_authenticates_with_plain_user_provider()
     {
-        $this->expectsEvents([CompletedWithWindows::class]);
-
-        $this->doesntExpectEvents([
-            Importing::class,
-            Imported::class,
-            Synchronizing::class,
-            Synchronized::class,
-        ]);
+        Event::fake();
 
         $this->setupPlainUserProvider();
 
@@ -199,6 +193,13 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
         app(WindowsAuthenticate::class)->handle($request, function () use ($user) {
             $this->assertSame(auth()->user(), $user);
         });
+        
+        Event::assertDispatched(CompletedWithWindows::class);
+
+        Event::assertNotDispatched(Importing::class);
+        Event::assertNotDispatched(Imported::class);
+        Event::assertNotDispatched(Synchronizing::class);
+        Event::assertNotDispatched(Synchronized::class);
     }
 
     public function test_server_key_can_be_set()

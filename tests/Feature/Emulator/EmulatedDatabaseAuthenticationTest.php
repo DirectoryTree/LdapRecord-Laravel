@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
 use LdapRecord\Laravel\Auth\AuthenticatesWithLdap;
 use LdapRecord\Laravel\Auth\HasLdapUser;
@@ -30,17 +31,7 @@ class EmulatedDatabaseAuthenticationTest extends DatabaseTestCase
 
     public function test_database_sync_authentication_passes()
     {
-        $this->expectsEvents([
-            DiscoveredWithCredentials::class,
-            Importing::class,
-            Imported::class,
-            Saved::class,
-            Synchronizing::class,
-            Synchronized::class,
-            Binding::class,
-            Bound::class,
-            Completed::class,
-        ]);
+        Event::fake();
 
         $fake = DirectoryEmulator::setup();
 
@@ -70,20 +61,21 @@ class EmulatedDatabaseAuthenticationTest extends DatabaseTestCase
         $this->assertEquals($user->mail[0], $model->email);
         $this->assertEquals($user->getConvertedGuid(), $model->guid);
         $this->assertFalse(Auth::attempt(['mail' => 'invalid', 'password' => 'secret']));
+
+        Event::assertDispatched(DiscoveredWithCredentials::class);
+        Event::assertDispatched(Importing::class);
+        Event::assertDispatched(Imported::class);
+        Event::assertDispatched(Saved::class);
+        Event::assertDispatched(Synchronizing::class);
+        Event::assertDispatched(Synchronized::class);
+        Event::assertDispatched(Binding::class);
+        Event::assertDispatched(Bound::class);
+        Event::assertDispatched(Completed::class);
     }
 
     public function test_database_sync_authentication_fails()
     {
-        $this->expectsEvents([
-            Binding::class,
-            Importing::class,
-            Synchronizing::class,
-            Synchronized::class,
-            DiscoveredWithCredentials::class,
-        ])->doesntExpectEvents([
-            Bound::class,
-            Imported::class,
-        ]);
+        Event::fake();
 
         DirectoryEmulator::setup();
 
@@ -97,6 +89,15 @@ class EmulatedDatabaseAuthenticationTest extends DatabaseTestCase
         ]);
 
         $this->assertFalse(Auth::attempt(['mail' => $user->mail[0], 'password' => 'secret']));
+
+        Event::assertDispatched(Binding::class);
+        Event::assertDispatched(Importing::class);
+        Event::assertDispatched(Synchronizing::class);
+        Event::assertDispatched(Synchronized::class);
+        Event::assertDispatched(DiscoveredWithCredentials::class);
+
+        Event::assertNotDispatched(Bound::class);
+        Event::assertNotDispatched(Imported::class);
     }
 
     public function test_database_sync_fails_without_object_guid()
@@ -120,15 +121,7 @@ class EmulatedDatabaseAuthenticationTest extends DatabaseTestCase
 
     public function test_database_authentication_fallback_works_when_enabled_and_exception_is_thrown()
     {
-        $this->doesntExpectEvents([
-            Binding::class,
-            Bound::class,
-            DiscoveredWithCredentials::class,
-            Importing::class,
-            Imported::class,
-            Synchronizing::class,
-            Synchronized::class,
-        ]);
+        Event::fake();
 
         DirectoryEmulator::setup();
 
@@ -158,19 +151,19 @@ class EmulatedDatabaseAuthenticationTest extends DatabaseTestCase
                 'password' => 'secret',
             ],
         ]));
+
+        Event::assertNotDispatched(Binding::class);
+        Event::assertNotDispatched(Bound::class);
+        Event::assertNotDispatched(DiscoveredWithCredentials::class);
+        Event::assertNotDispatched(Importing::class);
+        Event::assertNotDispatched(Imported::class);
+        Event::assertNotDispatched(Synchronizing::class);
+        Event::assertNotDispatched(Synchronized::class);
     }
 
     public function test_database_authentication_fallback_works_when_enabled_and_null_is_returned()
     {
-        $this->doesntExpectEvents([
-            Binding::class,
-            Bound::class,
-            DiscoveredWithCredentials::class,
-            Importing::class,
-            Imported::class,
-            Synchronizing::class,
-            Synchronized::class,
-        ]);
+        Event::fake();
 
         DirectoryEmulator::setup();
 
@@ -200,6 +193,14 @@ class EmulatedDatabaseAuthenticationTest extends DatabaseTestCase
                 'password' => 'secret',
             ],
         ]));
+
+        Event::assertNotDispatched(Binding::class);
+        Event::assertNotDispatched(Bound::class);
+        Event::assertNotDispatched(DiscoveredWithCredentials::class);
+        Event::assertNotDispatched(Importing::class);
+        Event::assertNotDispatched(Imported::class);
+        Event::assertNotDispatched(Synchronizing::class);
+        Event::assertNotDispatched(Synchronized::class);
     }
 
     public function test_database_authentication_fallback_is_not_performed_when_fallback_credentials_are_not_defined()

@@ -4,6 +4,7 @@ namespace LdapRecord\Laravel\Tests\Feature\Emulator;
 
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Event;
 use LdapRecord\Laravel\Events\Auth\Binding;
 use LdapRecord\Laravel\Events\Auth\Bound;
 use LdapRecord\Laravel\Events\Auth\DiscoveredWithCredentials;
@@ -21,16 +22,7 @@ class EmulatedAuthenticationTest extends DatabaseTestCase
 
     public function test_plain_ldap_authentication_passes()
     {
-        $this->expectsEvents([
-            Binding::class,
-            Bound::class,
-            DiscoveredWithCredentials::class,
-        ])->doesntExpectEvents([
-            Importing::class,
-            Imported::class,
-            Synchronizing::class,
-            Synchronized::class,
-        ]);
+        Event::fake();
 
         $fake = DirectoryEmulator::setup();
 
@@ -54,20 +46,20 @@ class EmulatedAuthenticationTest extends DatabaseTestCase
         $this->assertTrue($user->is($model));
         $this->assertEquals($user->mail[0], $model->mail[0]);
         $this->assertEquals($user->getDn(), $model->getDn());
+        
+        Event::assertDispatched(Binding::class);
+        Event::assertDispatched(Bound::class);
+        Event::assertDispatched(DiscoveredWithCredentials::class);
+
+        Event::assertNotDispatched(Importing::class);
+        Event::assertNotDispatched(Imported::class);
+        Event::assertNotDispatched(Synchronizing::class);
+        Event::assertNotDispatched(Synchronized::class);
     }
 
     public function test_plain_ldap_authentication_fails()
     {
-        $this->expectsEvents([
-            Binding::class,
-            DiscoveredWithCredentials::class,
-        ])->doesntExpectEvents([
-            Bound::class,
-            Importing::class,
-            Imported::class,
-            Synchronizing::class,
-            Synchronized::class,
-        ]);
+        Event::fake();
 
         DirectoryEmulator::setup()->shouldBeConnected();
 
@@ -79,5 +71,14 @@ class EmulatedAuthenticationTest extends DatabaseTestCase
         ]);
 
         $this->assertFalse(Auth::attempt(['mail' => $user->mail[0], 'password' => 'secret']));
+
+        Event::assertDispatched(Binding::class);
+        Event::assertDispatched(DiscoveredWithCredentials::class);
+
+        Event::assertNotDispatched(Bound::class);
+        Event::assertNotDispatched(Importing::class);
+        Event::assertNotDispatched(Imported::class);
+        Event::assertNotDispatched(Synchronizing::class);
+        Event::assertNotDispatched(Synchronized::class);
     }
 }

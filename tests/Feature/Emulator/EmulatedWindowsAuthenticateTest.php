@@ -4,6 +4,7 @@ namespace LdapRecord\Laravel\Tests\Feature\Emulator;
 
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Event;
 use LdapRecord\Laravel\Events\Auth\Binding;
 use LdapRecord\Laravel\Events\Auth\Bound;
 use LdapRecord\Laravel\Events\Auth\CompletedWithWindows;
@@ -40,16 +41,7 @@ class EmulatedWindowsAuthenticateTest extends DatabaseTestCase
 
     public function test_windows_authenticated_user_is_signed_in()
     {
-        $this->expectsEvents([
-            Importing::class,
-            Imported::class,
-            Synchronizing::class,
-            Synchronized::class,
-            Binding::class,
-            Bound::class,
-            Saved::class,
-            CompletedWithWindows::class,
-        ]);
+        Event::fake();
 
         DirectoryEmulator::setup();
 
@@ -74,21 +66,21 @@ class EmulatedWindowsAuthenticateTest extends DatabaseTestCase
             $this->assertTrue(auth()->check());
             $this->assertEquals($user->getConvertedGuid(), auth()->user()->guid);
         });
+
+        Event::assertDispatched(Importing::class);
+        Event::assertDispatched(Imported::class);
+        Event::assertDispatched(Synchronizing::class);
+        Event::assertDispatched(Synchronized::class);
+        Event::assertDispatched(Binding::class);
+        Event::assertDispatched(Bound::class);
+        Event::assertDispatched(Saved::class);
+        Event::assertDispatched(CompletedWithWindows::class);
     }
 
     public function test_kerberos_authenticated_user_is_signed_in()
     {
-        $this->expectsEvents([
-            Importing::class,
-            Imported::class,
-            Synchronizing::class,
-            Synchronized::class,
-            Binding::class,
-            Bound::class,
-            Saved::class,
-            CompletedWithWindows::class,
-        ]);
-
+        Event::fake();
+                               
         DirectoryEmulator::setup();
 
         $this->setupDatabaseUserProvider([
@@ -122,5 +114,14 @@ class EmulatedWindowsAuthenticateTest extends DatabaseTestCase
             $this->assertTrue(auth()->check());
             $this->assertEquals($user->getConvertedGuid(), auth()->user()->guid);
         });
+
+        Event::assertDispatched(Importing::class);
+        Event::assertDispatched(Imported::class);
+        Event::assertDispatched(Synchronizing::class);
+        Event::assertDispatched(Synchronized::class);
+        Event::assertDispatched(Binding::class);
+        Event::assertDispatched(Bound::class);
+        Event::assertDispatched(Saved::class);
+        Event::assertDispatched(CompletedWithWindows::class);
     }
 }

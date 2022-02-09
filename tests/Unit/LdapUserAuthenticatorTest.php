@@ -3,6 +3,7 @@
 namespace LdapRecord\Laravel\Tests\Unit;
 
 use Illuminate\Database\Eloquent\Model as EloquentModel;
+use Illuminate\Support\Facades\Event;
 use LdapRecord\Auth\Guard;
 use LdapRecord\Connection;
 use LdapRecord\Laravel\Auth\Rule;
@@ -34,14 +35,13 @@ class LdapUserAuthenticatorTest extends TestCase
 
         $auth = new LdapUserAuthenticator;
 
-        $this->expectsEvents([
-            Binding::class,
-            Bound::class,
-        ])->doesntExpectEvents([
-            BindFailed::class,
-        ]);
+        Event::fake();
 
         $this->assertTrue($auth->attempt($model, 'password'));
+
+        Event::assertDispatched(Binding::class);
+        Event::assertDispatched(Bound::class);
+        Event::assertNotDispatched(BindFailed::class);
     }
 
     public function test_attempt_failed()
@@ -61,14 +61,13 @@ class LdapUserAuthenticatorTest extends TestCase
 
         $auth = new LdapUserAuthenticator;
 
-        $this->expectsEvents([
-            Binding::class,
-            BindFailed::class,
-        ])->doesntExpectEvents([
-            Bound::class,
-        ]);
+        Event::fake();
 
         $this->assertFalse($auth->attempt($model, 'password'));
+
+        Event::assertDispatched(Binding::class);
+        Event::assertDispatched(BindFailed::class);
+        Event::assertNotDispatched(Bound::class);
     }
 
     public function test_auth_fails_due_to_rules()
@@ -88,15 +87,14 @@ class LdapUserAuthenticatorTest extends TestCase
 
         $auth = new LdapUserAuthenticator([TestFailingLdapAuthRule::class]);
 
-        $this->expectsEvents([
-            Binding::class,
-            Rejected::class,
-        ])->doesntExpectEvents([
-            Bound::class,
-            BindFailed::class,
-        ]);
+        Event::fake();
 
         $this->assertFalse($auth->attempt($model, 'password'));
+
+        Event::assertDispatched(Binding::class);
+        Event::assertDispatched(Rejected::class);
+        Event::assertNotDispatched(Bound::class);
+        Event::assertNotDispatched(BindFailed::class);
     }
 
     public function test_eloquent_model_can_be_set()
@@ -118,15 +116,14 @@ class LdapUserAuthenticatorTest extends TestCase
 
         $auth->setEloquentModel(new TestLdapUserAuthenticatedModelStub);
 
-        $this->expectsEvents([
-            Binding::class,
-            Bound::class,
-        ])->doesntExpectEvents([
-            Rejected::class,
-            BindFailed::class,
-        ]);
+        Event::fake();
 
         $this->assertTrue($auth->attempt($model, 'password'));
+
+        Event::assertDispatched(Binding::class);
+        Event::assertDispatched(Bound::class);
+        Event::assertNotDispatched(Rejected::class);
+        Event::assertNotDispatched(BindFailed::class);
     }
 
     protected function getAuthenticatingModelMock($dn)
