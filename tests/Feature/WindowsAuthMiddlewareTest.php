@@ -50,7 +50,11 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
             $this->assertTrue(true);
         });
 
-        Event::assertNothingDispatched();
+        Event::assertNotDispatched(Importing::class);
+        Event::assertNotDispatched(Imported::class);
+        Event::assertNotDispatched(Synchronizing::class);
+        Event::assertNotDispatched(Synchronized::class);
+        Event::assertNotDispatched(CompletedWithWindows::class);
     }
 
     public function test_request_continues_if_user_is_already_logged_in()
