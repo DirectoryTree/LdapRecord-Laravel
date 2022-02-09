@@ -193,7 +193,7 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
         app(WindowsAuthenticate::class)->handle($request, function () use ($user) {
             $this->assertSame(auth()->user(), $user);
         });
-        
+
         Event::assertDispatched(CompletedWithWindows::class);
 
         Event::assertNotDispatched(Importing::class);

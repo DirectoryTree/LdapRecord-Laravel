@@ -46,7 +46,7 @@ class EmulatedAuthenticationTest extends DatabaseTestCase
         $this->assertTrue($user->is($model));
         $this->assertEquals($user->mail[0], $model->mail[0]);
         $this->assertEquals($user->getDn(), $model->getDn());
-        
+
         Event::assertDispatched(Binding::class);
         Event::assertDispatched(Bound::class);
         Event::assertDispatched(DiscoveredWithCredentials::class);
