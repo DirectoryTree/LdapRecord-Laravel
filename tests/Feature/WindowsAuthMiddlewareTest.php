@@ -44,28 +44,18 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
 
     public function test_request_continues_if_user_is_not_set_in_the_server_params()
     {
-        $this->doesntExpectEvents([
-            Importing::class,
-            Imported::class,
-            Synchronizing::class,
-            Synchronized::class,
-            CompletedWithWindows::class,
-        ]);
+        Event::fake();
 
         app(WindowsAuthenticate::class)->handle(new Request, function () {
             $this->assertTrue(true);
         });
+
+        Event::assertNothingDispatched();
     }
 
     public function test_request_continues_if_user_is_already_logged_in()
     {
-        $this->doesntExpectEvents([
-            Importing::class,
-            Imported::class,
-            Synchronizing::class,
-            Synchronized::class,
-            CompletedWithWindows::class,
-        ]);
+        Event::fake();
 
         auth()->login($this->createTestUser([
             'name' => 'Steve Bauman',
@@ -76,17 +66,17 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
         app(WindowsAuthenticate::class)->handle(new Request, function () {
             $this->assertTrue(true);
         });
+
+        Event::assertNotDispatched(Importing::class);
+        Event::assertNotDispatched(Imported::class);
+        Event::assertNotDispatched(Synchronizing::class);
+        Event::assertNotDispatched(Synchronized::class);
+        Event::assertNotDispatched(CompletedWithWindows::class);
     }
 
     public function test_request_continues_if_ldap_user_cannot_be_located()
     {
-        $this->doesntExpectEvents([
-            Importing::class,
-            Imported::class,
-            Synchronizing::class,
-            Synchronized::class,
-            CompletedWithWindows::class,
-        ]);
+        Event::fake();
 
         $this->setupDatabaseUserProvider([
             'database' => [
@@ -110,6 +100,12 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
             $this->assertTrue(true);
             $this->assertFalse(auth()->check());
         });
+
+        Event::assertNotDispatched(Importing::class);
+        Event::assertNotDispatched(Imported::class);
+        Event::assertNotDispatched(Synchronizing::class);
+        Event::assertNotDispatched(Synchronized::class);
+        Event::assertNotDispatched(CompletedWithWindows::class);
     }
 
     public function test_authenticates_with_database_user_provider()
