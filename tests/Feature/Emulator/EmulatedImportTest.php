@@ -92,7 +92,7 @@ class EmulatedImportTest extends DatabaseTestCase
         ])->assertExitCode(0);
 
         $created = TestUserModelStub::withTrashed()->first();
-        
+
         $this->assertTrue($created->trashed());
     }
 

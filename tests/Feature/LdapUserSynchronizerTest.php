@@ -2,13 +2,13 @@
 
 namespace LdapRecord\Laravel\Tests\Feature;
 
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
 use LdapRecord\Laravel\Events\Import\Importing;
 use LdapRecord\Laravel\Events\Import\Synchronized;
 use LdapRecord\Laravel\Events\Import\Synchronizing;
 use LdapRecord\Laravel\Import\UserSynchronizer;
 use LdapRecord\Models\Model;
-use Illuminate\Support\Facades\Event;
 use Mockery as m;
 
 class LdapUserSynchronizerTest extends DatabaseUserProviderTest
