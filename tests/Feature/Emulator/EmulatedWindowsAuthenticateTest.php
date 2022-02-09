@@ -80,7 +80,7 @@ class EmulatedWindowsAuthenticateTest extends DatabaseTestCase
     public function test_kerberos_authenticated_user_is_signed_in()
     {
         Event::fake();
-                               
+
         DirectoryEmulator::setup();
 
         $this->setupDatabaseUserProvider([
