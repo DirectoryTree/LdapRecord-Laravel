@@ -1,7 +1,12 @@
 {
     "name": "directorytree/ldaprecord-laravel",
     "description": "LDAP Authentication & Management for Laravel.",
-    "keywords": ["ldaprecord", "adldap2", "ldap", "laravel"],
+    "keywords": [
+        "ldaprecord",
+        "adldap2",
+        "ldap",
+        "laravel"
+    ],
     "license": "MIT",
     "type": "project",
     "require": {
@@ -9,16 +14,18 @@
         "ext-ldap": "*",
         "ramsey/uuid": "*",
         "directorytree/ldaprecord": "^2.4.4",
-        "illuminate/support": "^5.6|^6.0|^7.0|^8.0"
+        "illuminate/support": "^5.6|^6.0|^7.0|^8.0|^9.0"
     },
     "require-dev": {
-        "mockery/mockery": "~1.0",
-        "phpunit/phpunit": "~7.0|~8.0|~9.0",
-        "orchestra/testbench": "~3.7|~4.0|~5.0|~6.0",
+        "mockery/mockery": "^1.0",
+        "phpunit/phpunit": "^7.0|^8.0|^9.0",
+        "orchestra/testbench": "^3.7|^4.0|^5.0|^6.0|^7.0",
         "spatie/ray": "^1.28"
     },
     "archive": {
-        "exclude": ["/tests"]
+        "exclude": [
+            "/tests"
+        ]
     },
     "autoload": {
         "psr-4": {

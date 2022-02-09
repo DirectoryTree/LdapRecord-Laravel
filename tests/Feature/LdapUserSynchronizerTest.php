@@ -2,6 +2,7 @@
 
 namespace LdapRecord\Laravel\Tests\Feature;
 
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
 use LdapRecord\Laravel\Events\Import\Importing;
 use LdapRecord\Laravel\Events\Import\Synchronized;
@@ -35,13 +36,17 @@ class LdapUserSynchronizerTest extends DatabaseUserProviderTest
 
     public function test_new_ldap_user_has_guid_and_domain_set()
     {
-        $this->expectsEvents([Importing::class, Synchronizing::class, Synchronized::class]);
+        Event::fake();
 
         $ldapModel = $this->getMockLdapModel();
 
         $synchronizer = new UserSynchronizer(TestUserModelStub::class, ['sync_attributes' => []]);
 
         $model = $synchronizer->run($ldapModel);
+
+        Event::assertDispatched(Importing::class);
+        Event::assertDispatched(Synchronizing::class);
+        Event::assertDispatched(Synchronized::class);
 
         $this->assertInstanceOf(TestUserModelStub::class, $model);
         $this->assertEquals('guid', $model->getLdapGuid());
@@ -51,7 +56,7 @@ class LdapUserSynchronizerTest extends DatabaseUserProviderTest
 
     public function test_new_ldap_user_has_attributes_synchronized()
     {
-        $this->expectsEvents([Importing::class, Synchronizing::class, Synchronized::class]);
+        Event::fake();
 
         $ldapModel = $this->getMockLdapModel(['cn' => 'john', 'mail' => 'test@email.com']);
 
@@ -60,6 +65,11 @@ class LdapUserSynchronizerTest extends DatabaseUserProviderTest
         $synchronizer = new UserSynchronizer(TestUserModelStub::class, $attributesToSynchronize);
 
         $model = $synchronizer->run($ldapModel);
+
+        Event::assertDispatched(Importing::class);
+        Event::assertDispatched(Synchronizing::class);
+        Event::assertDispatched(Synchronized::class);
+
         $this->assertInstanceOf(TestUserModelStub::class, $model);
         $this->assertEquals('guid', $model->getLdapGuid());
         $this->assertEquals('default', $model->getLdapDomain());
@@ -70,7 +80,7 @@ class LdapUserSynchronizerTest extends DatabaseUserProviderTest
 
     public function test_new_ldap_user_has_attributes_synchronized_via_handler()
     {
-        $this->expectsEvents([Importing::class, Synchronizing::class, Synchronized::class]);
+        Event::fake();
 
         $ldapModel = $this->getMockLdapModel(['cn' => 'john', 'mail' => 'test@email.com']);
 
@@ -79,6 +89,11 @@ class LdapUserSynchronizerTest extends DatabaseUserProviderTest
         ]);
 
         $model = $synchronizer->run($ldapModel);
+
+        Event::assertDispatched(Importing::class);
+        Event::assertDispatched(Synchronizing::class);
+        Event::assertDispatched(Synchronized::class);
+
         $this->assertInstanceOf(TestUserModelStub::class, $model);
         $this->assertEquals('guid', $model->getLdapGuid());
         $this->assertEquals('default', $model->getLdapDomain());
@@ -91,7 +106,7 @@ class LdapUserSynchronizerTest extends DatabaseUserProviderTest
 
     public function test_ldap_sync_attributes_can_be_string()
     {
-        $this->expectsEvents([Importing::class, Synchronizing::class, Synchronized::class]);
+        Event::fake();
 
         $ldapModel = $this->getMockLdapModel(['cn' => 'john', 'mail' => 'test@email.com']);
 
@@ -100,6 +115,10 @@ class LdapUserSynchronizerTest extends DatabaseUserProviderTest
         ]);
 
         $model = $synchronizer->run($ldapModel);
+
+        Event::assertDispatched(Importing::class);
+        Event::assertDispatched(Synchronizing::class);
+        Event::assertDispatched(Synchronized::class);
 
         $this->assertInstanceOf(TestUserModelStub::class, $model);
         $this->assertEquals('guid', $model->getLdapGuid());
@@ -113,7 +132,7 @@ class LdapUserSynchronizerTest extends DatabaseUserProviderTest
 
     public function test_password_is_synchronized_when_enabled()
     {
-        $this->expectsEvents([Importing::class, Synchronizing::class, Synchronized::class]);
+        Event::fake();
 
         $ldapModel = $this->getMockLdapModel();
 
@@ -126,13 +145,17 @@ class LdapUserSynchronizerTest extends DatabaseUserProviderTest
 
         $model = $synchronizer->run($ldapModel, ['password' => $password]);
 
+        Event::assertDispatched(Importing::class);
+        Event::assertDispatched(Synchronizing::class);
+        Event::assertDispatched(Synchronized::class);
+
         $this->assertInstanceOf(TestUserModelStub::class, $model);
         $this->assertTrue(Hash::check($password, $model->password));
     }
 
     public function test_password_is_not_updated_when_sync_is_disabled_and_password_is_already_set()
     {
-        $this->expectsEvents([Synchronizing::class, Synchronized::class])->doesntExpectEvents([Importing::class]);
+        Event::fake();
 
         $ldapModel = $this->getMockLdapModel(['']);
 
@@ -151,7 +174,12 @@ class LdapUserSynchronizerTest extends DatabaseUserProviderTest
         $this->assertEquals('initial', $model->password);
 
         $imported = $synchronizer->run($ldapModel);
+
         $imported->save();
+
+        Event::assertNotDispatched(Importing::class);
+        Event::assertDispatched(Synchronizing::class);
+        Event::assertDispatched(Synchronized::class);
 
         $this->assertTrue($model->is($imported));
         $this->assertEquals('initial', $imported->password);
@@ -159,7 +187,7 @@ class LdapUserSynchronizerTest extends DatabaseUserProviderTest
 
     public function test_user_is_not_updated_when_the_same_hashed_password_already_exists()
     {
-        $this->expectsEvents([Synchronizing::class, Synchronized::class])->doesntExpectEvents([Importing::class]);
+        Event::fake();
 
         $ldapModel = $this->getMockLdapModel();
 
@@ -182,7 +210,12 @@ class LdapUserSynchronizerTest extends DatabaseUserProviderTest
         $this->assertEquals($hashedPassword, $model->password);
 
         $imported = $synchronizer->run($ldapModel, ['password' => 'secret']);
+
         $imported->save();
+
+        Event::assertNotDispatched(Importing::class);
+        Event::assertDispatched(Synchronizing::class);
+        Event::assertDispatched(Synchronized::class);
 
         $this->assertTrue($imported->is($model));
         $this->assertTrue(Hash::check('secret', $model->password));
