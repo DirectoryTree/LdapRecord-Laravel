@@ -81,6 +81,9 @@ class ListenForLdapBindFailureTest extends TestCase
                 ->with(['dc=local,dc=com', $expectedFilter, $expectedSelects, false, 1])
                 ->once()
                 ->andReturn($expectedQueryResult),
+
+            LdapFake::operation('parseResult')
+                ->once(),
         ])->shouldReturnError("Can't contact LDAP server");
 
         $result = Auth::attempt([
