@@ -18,7 +18,7 @@
 <h4 align="center">
     <a href="https://ldaprecord.com/docs/laravel/v2/">Documentation</a>
     <span> · </span>
-    <a href="https://github.com/DirectoryTree/LdapRecord-Lumen">Lumen Integration</a>
+    <a href="https://github.com/DirectoryTree/LdapRecord-Browser">Directory Browser</a>
     <span> · </span>
     <a href="https://github.com/DirectoryTree/LdapRecord-Laravel/discussions/new">Post a Question</a>
 </h4>
