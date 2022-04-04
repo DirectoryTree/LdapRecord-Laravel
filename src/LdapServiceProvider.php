@@ -92,7 +92,7 @@ class LdapServiceProvider extends ServiceProvider
         Container::setDefaultConnection(
             Config::get('ldap.default', 'default')
         );
-        
+
         $this->registerConfiguredConnections();
     }
 
