@@ -3,6 +3,7 @@
 namespace LdapRecord\Laravel;
 
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 use LdapRecord\Connection;
@@ -23,6 +24,8 @@ class LdapServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        $this->loadEnvironmentConnections();
+
         $this->registerLogging();
         $this->registerCommands();
         $this->registerConfiguration();
@@ -70,7 +73,7 @@ class LdapServiceProvider extends ServiceProvider
      */
     protected function registerLogging()
     {
-        if (! config('ldap.logging', env('LDAP_LOGGING', true))) {
+        if (! Config::get('ldap.logging', true)) {
             return;
         }
 
@@ -87,11 +90,10 @@ class LdapServiceProvider extends ServiceProvider
     protected function registerLdapConnections()
     {
         Container::setDefaultConnection(
-            config('ldap.default', env('LDAP_CONNECTION', 'default'))
+            Config::get('ldap.default', 'default')
         );
 
         $this->registerConfiguredConnections();
-        $this->registerEnvironmentConnections();
     }
 
     /**
@@ -101,10 +103,10 @@ class LdapServiceProvider extends ServiceProvider
      */
     protected function registerConfiguredConnections()
     {
-        foreach (config('ldap.connections', []) as $name => $config) {
+        foreach (Config::get('ldap.connections', []) as $name => $config) {
             $connection = $this->makeConnection($config);
 
-            if (config('ldap.cache.enabled', false)) {
+            if (Config::get('ldap.cache.enabled', false)) {
                 $this->registerLdapCache($connection);
             }
 
@@ -117,22 +119,23 @@ class LdapServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    protected function registerEnvironmentConnections()
+    protected function loadEnvironmentConnections()
     {
         $connections = array_filter(
             array_map('trim', explode(',', env('LDAP_CONNECTIONS', '')))
         );
 
+        if (empty($connections)) {
+            return;
+        }
+
+        Config::set('ldap.logging', env('LDAP_LOGGING', true));
+        Config::set('ldap.default', env('LDAP_CONNECTION', 'default'));
+        Config::set('ldap.cache.enabled', env('LDAP_CACHE', false));
+        Config::set('ldap.cache.driver', env('LDAP_CACHE_DRIVER', 'file'));
+
         foreach ($connections as $name) {
-            $connection = $this->makeConnection(
-                $this->makeConnectionConfigFromEnv($name)
-            );
-
-            if (env($this->makeEnvVariable('LDAP_{name}_CACHE', $name), false)) {
-                $this->registerLdapCache($connection);
-            }
-
-            Container::addConnection($connection, $name);
+            Config::set("ldap.connections.$name", $this->makeConnectionConfigFromEnv($name));
         }
     }
 
@@ -159,7 +162,7 @@ class LdapServiceProvider extends ServiceProvider
     {
         if (! is_null($cache = Cache::getFacadeRoot())) {
             $connection->setCache(
-                $cache->driver(config('ldap.cache.driver'))
+                $cache->driver(Config::get('ldap.cache.driver'))
             );
         }
     }

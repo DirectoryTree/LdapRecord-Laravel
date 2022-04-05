@@ -6,6 +6,7 @@ use Closure;
 use Exception;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Config;
 use LdapRecord\Laravel\DetectsSoftDeletes;
 use LdapRecord\Laravel\Events\Import\Completed;
 use LdapRecord\Laravel\Events\Import\DeletedMissing;
@@ -442,7 +443,7 @@ class Importer
             return;
         }
 
-        $domain = $ldap->getConnectionName() ?? config('ldap.default');
+        $domain = $ldap->getConnectionName() ?? Config::get('ldap.default');
 
         $existing = $eloquent->newQuery()
             ->whereNotNull($eloquent->getLdapGuidColumn())

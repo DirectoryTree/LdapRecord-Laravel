@@ -7,6 +7,7 @@ use Illuminate\Database\DatabaseManager;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Builder;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Str;
 
 class LdapDatabaseManager
@@ -86,7 +87,7 @@ class LdapDatabaseManager
      */
     public function connection($name = null, $config = [])
     {
-        $name = $name ?? config('ldap.default', 'default');
+        $name = $name ?? Config::get('ldap.default', 'default');
 
         $this->connections[$name] = $this->makeConnection(
             $this->makeDatabaseConnectionName($name),

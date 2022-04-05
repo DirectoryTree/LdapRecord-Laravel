@@ -2,6 +2,8 @@
 
 namespace LdapRecord\Laravel\Events;
 
+use Illuminate\Support\Facades\Config;
+
 trait Loggable
 {
     /**
@@ -21,6 +23,6 @@ trait Loggable
      */
     public function shouldLogEvent()
     {
-        return config('ldap.logging', false);
+        return Config::get('ldap.logging', false);
     }
 }
