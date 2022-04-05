@@ -108,4 +108,45 @@ class LdapServiceProviderTest extends TestCase
             ], $config->get('options'));
         });
     }
+    
+    public function test_env_config_is_loaded_and_cacheable()
+    {
+        $this->assertEquals([
+            'default' => 'default',
+            'connections' => [
+                'default' => [
+                    'hosts' => ['localhost'],
+                    'username' => 'user',
+                    'password' => 'secret',
+                    'base_dn' => 'dc=local,dc=com',
+                    'port' => 389,
+                ],
+                'alpha' => [
+                    'hosts' => ['10.0.0.1', '10.0.0.2'],
+                    'username' => 'cn=user,dc=alpha,dc=com',
+                    'password' => 'alpha-secret',
+                    'base_dn' => 'dc=alpha,dc=com',
+                    'port' => 389,
+                    'timeout' => 5,
+                ],
+                'bravo' => [
+                    'hosts' => ['172.0.0.1', '172.0.0.2'],
+                    'username' => 'cn=user,dc=bravo,dc=com',
+                    'password' => 'bravo-secret',
+                    'base_dn' => 'dc=bravo,dc=com',
+                    'port' => 389,
+                    'timeout' => 5,
+                    'options' => [
+                        24578 => '/path',
+                        24580 => '/path',
+                    ],
+                ],
+            ],
+            'logging' => true,
+            'cache' => [
+                'enabled' => true,
+                'driver' => 'array',
+            ]
+        ], app('config')->all()['ldap']);
+    }
 }
