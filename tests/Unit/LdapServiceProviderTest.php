@@ -108,7 +108,7 @@ class LdapServiceProviderTest extends TestCase
             ], $config->get('options'));
         });
     }
-    
+
     public function test_env_config_is_loaded_and_cacheable()
     {
         $this->assertEquals([
@@ -146,7 +146,7 @@ class LdapServiceProviderTest extends TestCase
             'cache' => [
                 'enabled' => true,
                 'driver' => 'array',
-            ]
+            ],
         ], app('config')->all()['ldap']);
     }
 }
