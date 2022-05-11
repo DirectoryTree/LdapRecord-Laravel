@@ -493,6 +493,21 @@ class EmulatedModelQueryTest extends TestCase
         $this->assertCount(2, TestModelStub::in('ou=Users,dc=local,dc=com')->get());
     }
 
+    public function test_find_many()
+    {
+        $testModel1 = TestModelStub::create(['cn' => 'John']);
+        $testModel2 = TestModelStub::create(['cn' => 'Jane']);
+
+        $results = TestModelStub::findMany([
+            $testModel1->getDn(),
+            $testModel2->getDn(),
+        ]);
+
+        $this->assertCount(2, $results);
+        $this->assertTrue($testModel1->is($results[0]));
+        $this->assertTrue($testModel2->is($results[1]));
+    }
+
     public function test_find_by_anr()
     {
         TestModelStub::create(['cn' => 'John']);
