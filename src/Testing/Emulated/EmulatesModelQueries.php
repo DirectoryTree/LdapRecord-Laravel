@@ -108,19 +108,32 @@ trait EmulatesModelQueries
      */
     protected function process(array $results)
     {
-        return $this->model->newCollection($results)->transform(function ($object) {
-            // Don't process result again if it has already been processed
-            if ($object instanceof $this->model) {
-                return $object;
-            }
-
-            return $this->model->newInstance()
-                ->setDn($object['dn'])
-                ->setRawAttributes(array_merge(
-                    $this->transform($object),
-                    [$object['guid_key'] => [$object['guid']]]
-                ));
+        return $this->model->newCollection($results)->transform(function ($result) {
+            return $this->resultToModelInstance($result);
         });
+    }
+
+    /**
+     * Transform the result into a model instance.
+     *
+     * @param array|\LdapRecord\Models\Model $object
+     *
+     * @return Model
+     */
+    protected function resultToModelInstance($result)
+    {
+        if ($result instanceof $this->model) {
+            return $result;
+        }
+
+        return $this->model->newInstance()
+            ->setDn($result['dn'])
+            ->setRawAttributes(
+                array_merge(
+                    $this->transform($result),
+                    [$result['guid_key'] => [$result['guid']]]
+                )
+            );
     }
 
     /**
