@@ -109,6 +109,11 @@ trait EmulatesModelQueries
     protected function process(array $results)
     {
         return $this->model->newCollection($results)->transform(function ($object) {
+            // Don't process result again if it has already been processed
+            if ($object instanceof $this->model) {
+                return $object;
+            }
+
             return $this->model->newInstance()
                 ->setDn($object['dn'])
                 ->setRawAttributes(array_merge(
