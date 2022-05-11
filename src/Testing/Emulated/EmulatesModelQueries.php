@@ -118,7 +118,7 @@ trait EmulatesModelQueries
      *
      * @param array|\LdapRecord\Models\Model $object
      *
-     * @return Model
+     * @return \LdapRecord\Models\Model
      */
     protected function resultToModelInstance($result)
     {
