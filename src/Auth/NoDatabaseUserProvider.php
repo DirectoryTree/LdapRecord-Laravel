@@ -16,7 +16,7 @@ class NoDatabaseUserProvider extends UserProvider
     }
 
     /**
-     *  @inheritdoc
+     * @inheritdoc
      */
     public function retrieveByToken($identifier, $token)
     {
