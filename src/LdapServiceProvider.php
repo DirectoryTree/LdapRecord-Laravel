@@ -9,6 +9,7 @@ use Illuminate\Support\ServiceProvider;
 use LdapRecord\Connection;
 use LdapRecord\Container;
 use LdapRecord\Laravel\Commands\BrowseLdapServer;
+use LdapRecord\Laravel\Commands\GetRootDseFromConnection;
 use LdapRecord\Laravel\Commands\MakeLdapModel;
 use LdapRecord\Laravel\Commands\MakeLdapRule;
 use LdapRecord\Laravel\Commands\MakeLdapScope;
@@ -63,6 +64,7 @@ class LdapServiceProvider extends ServiceProvider
             MakeLdapModel::class,
             BrowseLdapServer::class,
             TestLdapConnection::class,
+            GetRootDseFromConnection::class,
         ]);
     }
 

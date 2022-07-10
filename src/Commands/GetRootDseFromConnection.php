@@ -1,0 +1,75 @@
+<?php
+
+namespace LdapRecord\Laravel\Commands;
+
+use Illuminate\Support\Arr;
+use Illuminate\Console\Command;
+use LdapRecord\Container;
+use LdapRecord\Models\Entry;
+
+class GetRootDseFromConnection extends Command
+{
+    /**
+     * The signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'ldap:rootdse
+                            {connection? : The name of the LDAP connection to fetch the Root DSE record from.}
+                            {--attributes=}';
+
+    /**
+     * The description of the console command.
+     *
+     * @var string
+     */
+    protected $description = 'Test the configured application LDAP connections.';
+
+    /**
+     * Execute the console command.
+     *
+     * @return void
+     *
+     * @throws \LdapRecord\Models\ModelNotFoundException
+     *
+     * @return int
+     */
+    public function handle()
+    {
+        $connection = $this->argument('connection') ?? Container::getDefaultConnectionName();
+
+        $rootDse = Entry::getRootDse($connection);
+
+        if ($selected = $this->option('attributes')) {
+            $onlyAttributes = array_map('trim', explode(',', $selected));
+        }
+
+        $attributes = isset($onlyAttributes)
+            ? Arr::only($rootDse->getAttributes(), $onlyAttributes)
+            : $rootDse->getAttributes();
+
+        if (! empty($attributes)) {
+            foreach ($attributes as $attribute => $values) {
+                $this->line("<fg=yellow>$attribute:</>");
+                
+                array_map(function ($value) {
+                    $this->line("  $value");
+                }, $values);
+    
+                $this->line('');
+            }
+    
+            return 0;
+        }
+
+        if (isset($onlyAttributes)) {
+            $this->error(
+                sprintf('Attributes [%s] were not found in the Root DSE record.', implode(', ', $onlyAttributes))
+            );
+        } else {
+            $this->error('No attributes were returned from the Root DSE query.');
+        }
+
+        return -1;
+    }
+}
