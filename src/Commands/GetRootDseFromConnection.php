@@ -2,8 +2,8 @@
 
 namespace LdapRecord\Laravel\Commands;
 
-use Illuminate\Support\Arr;
 use Illuminate\Console\Command;
+use Illuminate\Support\Arr;
 use LdapRecord\Container;
 use LdapRecord\Models\Entry;
 
@@ -29,10 +29,9 @@ class GetRootDseFromConnection extends Command
      * Execute the console command.
      *
      * @return void
+     * @return int
      *
      * @throws \LdapRecord\Models\ModelNotFoundException
-     *
-     * @return int
      */
     public function handle()
     {
@@ -51,14 +50,14 @@ class GetRootDseFromConnection extends Command
         if (! empty($attributes)) {
             foreach ($attributes as $attribute => $values) {
                 $this->line("<fg=yellow>$attribute:</>");
-                
+
                 array_map(function ($value) {
                     $this->line("  $value");
                 }, $values);
-    
+
                 $this->line('');
             }
-    
+
             return 0;
         }
 
