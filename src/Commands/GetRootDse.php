@@ -7,7 +7,7 @@ use Illuminate\Console\Command;
 use LdapRecord\Container;
 use LdapRecord\Models\Entry;
 
-class GetRootDseFromConnection extends Command
+class GetRootDse extends Command
 {
     /**
      * The signature of the console command.
@@ -16,7 +16,7 @@ class GetRootDseFromConnection extends Command
      */
     protected $signature = 'ldap:rootdse
                             {connection? : The name of the LDAP connection to fetch the Root DSE record from.}
-                            {--attributes=}';
+                            {--attributes= : A comma separated list of Root DSE attributes to display.}';
 
     /**
      * The description of the console command.

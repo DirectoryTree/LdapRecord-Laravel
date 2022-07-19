@@ -9,7 +9,7 @@ use Illuminate\Support\ServiceProvider;
 use LdapRecord\Connection;
 use LdapRecord\Container;
 use LdapRecord\Laravel\Commands\BrowseLdapServer;
-use LdapRecord\Laravel\Commands\GetRootDseFromConnection;
+use LdapRecord\Laravel\Commands\GetRootDse;
 use LdapRecord\Laravel\Commands\MakeLdapModel;
 use LdapRecord\Laravel\Commands\MakeLdapRule;
 use LdapRecord\Laravel\Commands\MakeLdapScope;
@@ -59,12 +59,12 @@ class LdapServiceProvider extends ServiceProvider
     protected function registerCommands()
     {
         $this->commands([
+            GetRootDse::class,
             MakeLdapRule::class,
             MakeLdapScope::class,
             MakeLdapModel::class,
             BrowseLdapServer::class,
             TestLdapConnection::class,
-            GetRootDseFromConnection::class,
         ]);
     }
 
