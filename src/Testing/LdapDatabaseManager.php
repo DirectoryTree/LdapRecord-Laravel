@@ -186,8 +186,8 @@ class LdapDatabaseManager
                 $table->string('domain')->nullable();
                 $table->string('guid')->unique()->index();
                 $table->string('guid_key')->nullable();
-                $table->string('name');
-                $table->string('dn');
+                $table->string('name')->nullable();
+                $table->string('dn')->nullable();
                 $table->string('parent_dn')->nullable();
             });
         }
