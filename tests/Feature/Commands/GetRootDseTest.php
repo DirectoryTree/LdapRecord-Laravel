@@ -2,6 +2,7 @@
 
 namespace LdapRecord\Laravel\Tests\Feature\Commands;
 
+use Illuminate\Support\Facades\Artisan;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Laravel\Tests\Feature\DatabaseTestCase;
 use LdapRecord\Models\Entry;
@@ -13,6 +14,8 @@ class GetRootDseTest extends DatabaseTestCase
         parent::setUp();
 
         DirectoryEmulator::setup();
+
+        $this->withoutMockingConsoleOutput();
     }
 
     public function tearDown(): void
@@ -30,12 +33,16 @@ class GetRootDseTest extends DatabaseTestCase
             'baz' => 'zal',
         ]);
 
-        $this->artisan('ldap:rootdse')
-            ->expectsOutputToContain('foo')
-            ->expectsOutputToContain('bar')
-            ->expectsOutputToContain('baz')
-            ->expectsOutputToContain('zal')
-            ->assertSuccessful();
+        $code = $this->artisan('ldap:rootdse');
+
+        $this->assertEquals(0, $code);
+
+        $output = Artisan::output();
+
+        $this->assertStringContainsString('foo', $output);
+        $this->assertStringContainsString('bar', $output);
+        $this->assertStringContainsString('baz', $output);
+        $this->assertStringContainsString('zal', $output);
     }
 
     public function test_command_displays_only_requested_attributes()
@@ -47,14 +54,19 @@ class GetRootDseTest extends DatabaseTestCase
             'zee' => 'bur'
         ]);
 
-        $this->artisan('ldap:rootdse', ['--attributes' => 'foo,baz'])
-            ->expectsOutputToContain('foo')
-            ->expectsOutputToContain('bar')
-            ->expectsOutputToContain('baz')
-            ->expectsOutputToContain('zal')
-            ->doesntExpectOutputToContain('zee')
-            ->doesntExpectOutputToContain('bur')
-            ->assertSuccessful();
+        $code = $this->artisan('ldap:rootdse', ['--attributes' => 'foo,baz']);
+
+        $this->assertEquals(0, $code);
+
+        $output = Artisan::output();
+
+        $this->assertStringContainsString('foo', $output);
+        $this->assertStringContainsString('bar', $output);
+        $this->assertStringContainsString('baz', $output);
+        $this->assertStringContainsString('zal', $output);
+
+        $this->assertStringNotContainsString('zee', $output);
+        $this->assertStringNotContainsString('bur', $output);
     }
 
     public function test_command_displays_no_attributes_error_when_rootdse_is_empty_and_attributes_were_requested()
@@ -63,9 +75,13 @@ class GetRootDseTest extends DatabaseTestCase
             'objectclass' => ['*'],
         ]);
 
-        $this->artisan('ldap:rootdse', ['--attributes' => 'foo,bar'])
-            ->expectsOutputToContain('Attributes [foo, bar] were not found in the Root DSE record.')
-            ->assertFailed();
+        $code = $this->artisan('ldap:rootdse', ['--attributes' => 'foo,bar']);
+
+        $this->assertEquals(-1, $code);
+
+        $output = Artisan::output();
+
+        $this->assertStringContainsString('Attributes [foo, bar] were not found in the Root DSE record.', $output);
     }
 }
 
