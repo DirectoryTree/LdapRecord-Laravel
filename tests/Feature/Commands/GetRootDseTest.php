@@ -51,7 +51,7 @@ class GetRootDseTest extends DatabaseTestCase
             'objectclass' => ['*'],
             'foo' => 'bar',
             'baz' => 'zal',
-            'zee' => 'bur'
+            'zee' => 'bur',
         ]);
 
         $code = $this->artisan('ldap:rootdse', ['--attributes' => 'foo,baz']);
