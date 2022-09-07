@@ -60,7 +60,7 @@ class SanctumTest extends DatabaseTestCase
             'device_name' => 'browser',
         ])->assertJsonStructure(['token']);
 
-        $this->assertDatabaseHas(SanctumTestUserModelStub::class, [
+        $this->assertDatabaseHas('users', [
             'email' => $user->mail[0],
             'name' => $user->cn[0],
         ]);
@@ -83,7 +83,7 @@ class SanctumTest extends DatabaseTestCase
             'device_name' => 'browser',
         ])->assertJsonValidationErrors(['email' => 'The provided credentials are incorrect.']);
 
-        $this->assertDatabaseMissing(SanctumTestUserModelStub::class, [
+        $this->assertDatabaseMissing('users', [
             'email' => $user->mail[0],
             'name' => $user->cn[0],
         ]);
