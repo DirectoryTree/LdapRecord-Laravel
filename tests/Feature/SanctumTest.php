@@ -2,13 +2,13 @@
 
 namespace LdapRecord\Laravel\Tests\Feature;
 
+use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Validation\ValidationException;
 use Laravel\Sanctum\PersonalAccessToken;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Validation\ValidationException;
 use LdapRecord\Models\ActiveDirectory\User as LdapUser;
 
 class SanctumTest extends DatabaseTestCase
