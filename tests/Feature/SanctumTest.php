@@ -20,13 +20,15 @@ class SanctumTest extends DatabaseTestCase
     {
         parent::setUp();
 
-        $this->setupDatabaseUserProvider(['database' => [
-            'model' => SanctumTestUserModelStub::class,
-            'sync_attributes' => [
-                'name' => 'cn',
-                'email' => 'mail',
-            ],
-        ]]);
+        $this->setupDatabaseUserProvider([
+            'database' => [
+                'model' => SanctumTestUserModelStub::class,
+                'sync_attributes' => [
+                    'name' => 'cn',
+                    'email' => 'mail',
+                ],
+            ]
+        ]);
 
         Route::get('api/user', function (Request $request) {
             return $request->user();
