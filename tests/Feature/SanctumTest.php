@@ -43,7 +43,7 @@ class SanctumTest extends DatabaseTestCase
         });
     }
 
-    public function testLdapUserCanRequestSanctumToken()
+    public function test_ldap_user_can_request_sanctum_token()
     {
         $fake = DirectoryEmulator::setup();
 
@@ -68,7 +68,7 @@ class SanctumTest extends DatabaseTestCase
         $this->assertEquals(1, PersonalAccessToken::count());
     }
 
-    public function testLdapUserCanFailRequestingSanctumTokenWithInvalidPassword()
+    public function test_ldap_user_can_fail_requesting_sanctum_token_with_invalid_password()
     {
         DirectoryEmulator::setup();
 
@@ -91,7 +91,7 @@ class SanctumTest extends DatabaseTestCase
         $this->assertEquals(0, PersonalAccessToken::count());
     }
 
-    public function testLdapUserCanUseSanctumTokenForAuthentication()
+    public function test_ldap_user_can_use_sanctum_token_for_authentication()
     {
         $fake = DirectoryEmulator::setup();
 
