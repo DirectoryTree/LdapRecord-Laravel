@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\ValidationException;
-use Laravel\Sanctum\PersonalAccessToken;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Models\ActiveDirectory\User as LdapUser;
 
@@ -65,7 +64,7 @@ class SanctumTest extends DatabaseTestCase
             'name' => $user->cn[0],
         ]);
 
-        $this->assertDatabaseCount(PersonalAccessToken::class, 1);
+        $this->assertDatabaseCount('personal_access_tokens', 1);
     }
 
     public function testLdapUserCanFailRequestingSanctumTokenWithInvalidPassword()
@@ -88,7 +87,7 @@ class SanctumTest extends DatabaseTestCase
             'name' => $user->cn[0],
         ]);
 
-        $this->assertDatabaseCount(PersonalAccessToken::class, 0);
+        $this->assertDatabaseCount('personal_access_tokens', 0);
     }
 
     public function testLdapUserCanUseSanctumTokenForAuthentication()
