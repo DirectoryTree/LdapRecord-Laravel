@@ -27,7 +27,7 @@ class SanctumTest extends DatabaseTestCase
                     'name' => 'cn',
                     'email' => 'mail',
                 ],
-            ]
+            ],
         ]);
 
         Route::get('api/user', function (Request $request) {
