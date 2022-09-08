@@ -3,6 +3,7 @@
 namespace LdapRecord\Laravel\Tests;
 
 use Illuminate\Support\Facades\Hash;
+use Laravel\Sanctum\SanctumServiceProvider;
 use LdapRecord\Laravel\LdapAuthServiceProvider;
 use LdapRecord\Laravel\LdapServiceProvider;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
@@ -32,6 +33,7 @@ abstract class TestCase extends BaseTestCase
         return [
             LdapServiceProvider::class,
             LdapAuthServiceProvider::class,
+            SanctumServiceProvider::class,
         ];
     }
 
