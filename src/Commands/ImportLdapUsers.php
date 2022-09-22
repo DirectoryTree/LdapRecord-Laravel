@@ -27,15 +27,16 @@ class ImportLdapUsers extends Command
      *
      * @var string
      */
-    protected $signature = 'ldap:import {provider=ldap : The authentication provider to import.}
+    protected $signature = "ldap:import {provider=ldap : The authentication provider to import.}
             {user? : The specific user to import.}
-            {--f|filter= : The raw LDAP filter for limiting users imported.}
-            {--a|attributes= : Comma separated list of LDAP attributes to select. }
-            {--d|delete : Soft-delete the users model if their LDAP account is disabled.}
-            {--r|restore : Restores soft-deleted models if their LDAP account is enabled.}
-            {--c|chunk= : Use chunked based importing by specifying how many records per chunk.}
-            {--dm|delete-missing : Soft-delete all users that are missing from the import. }
-            {--no-log : Disables logging successful and unsuccessful imports.}';
+            {--f|filter= : A raw LDAP filter to apply to the LDAP query.}
+            {--s|scopes= : Comma seperated list of scopes to apply to the LDAP query.}
+            {--a|attributes= : Comma separated list of LDAP attributes to select.}
+            {--d|delete : Enable soft-deleting user models if their LDAP account is disabled.}
+            {--r|restore : Enable restoring soft-deleted user models if their LDAP account is enabled.}
+            {--c|chunk= : Enable chunked based importing by specifying how many records per chunk.}
+            {--dm|delete-missing : Enable soft-deleting all users that are missing from the import.}
+            {--no-log : Disable logging successful and unsuccessful imports.}";
 
     /**
      * The description of the console command.
@@ -249,6 +250,10 @@ class ImportLdapUsers extends Command
 
         if ($filter = $this->option('filter')) {
             $this->importer->setLdapRawFilter($filter);
+        }
+
+        if ($scopes = $this->option('scopes')) {
+            $this->importer->setLdapScopes(explode(',', $scopes));
         }
 
         if ($attributes = $this->option('attributes')) {
