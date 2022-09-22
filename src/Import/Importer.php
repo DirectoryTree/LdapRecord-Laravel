@@ -5,6 +5,7 @@ namespace LdapRecord\Laravel\Import;
 use Closure;
 use Exception;
 use Illuminate\Database\Eloquent\Model as Eloquent;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Config;
 use LdapRecord\Laravel\DetectsSoftDeletes;
@@ -84,6 +85,13 @@ class Importer
      * @var string|null
      */
     protected $filter;
+
+    /**
+     * The query scopes to apply to the query.
+     *
+     * @var array
+     */
+    protected $scopes = [];
 
     /**
      * Whether to trash Eloquent models that were missing from the import.
@@ -189,6 +197,20 @@ class Importer
     public function setLdapRawFilter($filter)
     {
         $this->filter = $filter;
+
+        return $this;
+    }
+
+    /**
+     * Apply LDAP scopes to the import query.
+     *
+     * @param array|string $scopes
+     *
+     * @return $this
+     */
+    public function setLdapScopes($scopes = [])
+    {
+        $this->scopes = Arr::wrap($scopes);
 
         return $this;
     }
@@ -383,7 +405,7 @@ class Importer
     }
 
     /**
-     * Apply the imports LDAP query constraints.
+     * Apply the import constraints to the query.
      *
      * @param LdapQuery $query
      *
@@ -391,12 +413,16 @@ class Importer
      */
     protected function applyLdapQueryConstraints(LdapQuery $query)
     {
+        if ($this->filter) {
+            $query->rawFilter($this->filter);
+        }
+
         if ($this->onlyAttributes) {
             $query->select($this->onlyAttributes);
         }
 
-        if ($this->filter) {
-            $query->rawFilter($this->filter);
+        foreach ($this->scopes as $scope) {
+            $query->withGlobalScope($scope, app($scope));
         }
 
         return $query;
