@@ -27,7 +27,7 @@ class ImportLdapUsers extends Command
      *
      * @var string
      */
-    protected $signature = "ldap:import {provider=ldap : The authentication provider to import.}
+    protected $signature = 'ldap:import {provider=ldap : The authentication provider to import.}
             {user? : The specific user to import.}
             {--f|filter= : A raw LDAP filter to apply to the LDAP query.}
             {--s|scopes= : Comma seperated list of scopes to apply to the LDAP query.}
@@ -36,7 +36,7 @@ class ImportLdapUsers extends Command
             {--r|restore : Enable restoring soft-deleted user models if their LDAP account is enabled.}
             {--c|chunk= : Enable chunked based importing by specifying how many records per chunk.}
             {--dm|delete-missing : Enable soft-deleting all users that are missing from the import.}
-            {--no-log : Disable logging successful and unsuccessful imports.}";
+            {--no-log : Disable logging successful and unsuccessful imports.}';
 
     /**
      * The description of the console command.
