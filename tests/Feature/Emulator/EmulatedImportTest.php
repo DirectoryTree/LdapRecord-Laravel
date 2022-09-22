@@ -320,7 +320,6 @@ class EmulatedImportTest extends DatabaseTestCase
         $this->setupDatabaseUserProvider([
             'database' => [
                 'model' => TestUserModelStub::class,
-                'sync_existing' => ['domain' => 'my-domain'],
             ],
         ]);
 
