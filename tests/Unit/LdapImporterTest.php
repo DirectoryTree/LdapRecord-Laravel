@@ -13,8 +13,8 @@ use LdapRecord\Laravel\LdapImportable;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Laravel\Tests\TestCase;
 use LdapRecord\Models\ActiveDirectory\Group as LdapGroup;
-use LdapRecord\Models\Scope;
 use LdapRecord\Models\Model as LdapModel;
+use LdapRecord\Models\Scope;
 use LdapRecord\Query\Model\Builder;
 
 class LdapImporterTest extends TestCase
