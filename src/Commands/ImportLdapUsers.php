@@ -16,7 +16,6 @@ use LdapRecord\Laravel\Events\Import\ImportFailed;
 use LdapRecord\Laravel\Events\Import\Started;
 use LdapRecord\Models\Collection;
 use LdapRecord\Models\Model;
-use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Symfony\Component\Console\Helper\ProgressBar;
 
 class ImportLdapUsers extends Command

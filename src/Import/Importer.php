@@ -4,8 +4,8 @@ namespace LdapRecord\Laravel\Import;
 
 use Closure;
 use Exception;
-use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Support\Facades\Config;
 use LdapRecord\Laravel\DetectsSoftDeletes;
 use LdapRecord\Laravel\Events\Import\Completed;
@@ -247,9 +247,9 @@ class Importer
 
     /**
      * Set the imported Eloquent models.
-     * 
-     * @param Collection $collection 
-     * 
+     *
+     * @param Collection $collection
+     *
      * @return void
      */
     protected function setImported(Collection $collection)
