@@ -19,11 +19,11 @@ class LdapUserImporter extends Importer
 {
     /**
      * The imported object GUIDs.
-     * 
+     *
      * @var bool
      */
     protected $chunking = false;
-    
+
     /**
      * The LDAP user repository to use for importing.
      *
@@ -85,12 +85,12 @@ class LdapUserImporter extends Importer
         return $this;
     }
 
-     /**
+    /**
      * Set the imported Eloquent models.
-     * 
-     * @param Collection $collection 
-     * 
-     * @return void 
+     *
+     * @param Collection $collection
+     *
+     * @return void
      */
     protected function setImported(Collection $collection)
     {
