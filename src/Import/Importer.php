@@ -318,9 +318,11 @@ class Importer
      */
     protected function import(Synchronizer $synchronizer)
     {
-        return Collection::make($this->objects->all())->map(
-            $this->buildImportCallback($synchronizer)
-        )->filter();
+        return Collection::make(
+            $this->objects->map(
+                $this->buildImportCallback($synchronizer)
+            )->filter()
+        );
     }
 
     /**
