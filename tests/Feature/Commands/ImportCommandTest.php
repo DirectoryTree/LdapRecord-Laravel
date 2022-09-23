@@ -114,6 +114,8 @@ class ImportCommandTest extends DatabaseTestCase
                 return true;
             }));
 
+            $repo->shouldReceive('createModel')->once()->andReturn(new TestImportUserModelStub);
+
             $repo->shouldReceive('query')->once()->andReturn($query);
         });
 
