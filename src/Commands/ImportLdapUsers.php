@@ -16,6 +16,7 @@ use LdapRecord\Laravel\Events\Import\ImportFailed;
 use LdapRecord\Laravel\Events\Import\Started;
 use LdapRecord\Models\Collection;
 use LdapRecord\Models\Model;
+use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Symfony\Component\Console\Helper\ProgressBar;
 
 class ImportLdapUsers extends Command
@@ -89,15 +90,22 @@ class ImportLdapUsers extends Command
 
         $this->applyImporterOptions($provider);
 
-        ($perChunk = $this->option('chunk'))
+        /** @var \Illuminate\Database\Connection */
+        $db = $provider->createModel()->getConnection();
+
+        $db->beginTransaction();
+
+        $totalImported = ($perChunk = $this->option('chunk'))
             ? $this->beginChunkedImport($perChunk)
             : $this->beginImport();
+
+        $db->commit();
     }
 
     /**
      * Begin importing users into the database.
      *
-     * @return void
+     * @return int
      */
     protected function beginImport()
     {
@@ -113,7 +121,7 @@ class ImportLdapUsers extends Command
 
         $this->confirmAndDisplayObjects($loaded);
 
-        $this->confirmAndExecuteImport();
+        return $this->confirmAndExecuteImport();
     }
 
     /**
@@ -121,7 +129,7 @@ class ImportLdapUsers extends Command
      *
      * @param int $perChunk
      *
-     * @return void
+     * @return int
      */
     protected function beginChunkedImport($perChunk)
     {
@@ -140,6 +148,8 @@ class ImportLdapUsers extends Command
         $total
             ? $this->info("\nCompleted chunked import. Successfully imported [{$total}] user(s).")
             : $this->info("\nCompleted chunked import. No users were imported.");
+
+        return $total;
     }
 
     /**

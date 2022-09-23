@@ -5,7 +5,7 @@ namespace LdapRecord\Laravel\Import;
 use Closure;
 use Exception;
 use Illuminate\Database\Eloquent\Model as Eloquent;
-use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Config;
 use LdapRecord\Laravel\DetectsSoftDeletes;
 use LdapRecord\Laravel\Events\Import\Completed;
@@ -246,6 +246,18 @@ class Importer
     }
 
     /**
+     * Set the imported Eloquent models.
+     * 
+     * @param Collection $collection 
+     * 
+     * @return void
+     */
+    protected function setImported(Collection $collection)
+    {
+        $this->imported = $collection;
+    }
+
+    /**
      * Execute the import.
      *
      * @return Collection
@@ -255,8 +267,6 @@ class Importer
      */
     public function execute()
     {
-        $synchronizer = $this->getSynchronizer();
-
         if (! $this->model && ! $this->hasImportableObjects()) {
             throw new ImportException('No LdapRecord model or importable objects have been defined.');
         }
@@ -272,14 +282,20 @@ class Importer
         // will load them here using the LDAP model
         // and apply any query constraints.
         if (! $this->objects) {
-            $this->objects = $this->applyLdapQueryConstraints(
-                $ldapRecord->newQuery()
-            )->paginate();
+            $this->setLdapObjects(
+                $this->applyLdapQueryConstraints(
+                    $ldapRecord->newQuery()
+                )->paginate()
+            );
         }
 
         event(new Started($this->objects));
 
-        $this->imported = $this->import($synchronizer);
+        $this->setImported(
+            $this->import(
+                $synchronizer = $this->getSynchronizer()
+            )
+        );
 
         event(new Completed($this->objects, $this->imported));
 

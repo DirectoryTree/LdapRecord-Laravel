@@ -3,6 +3,7 @@
 namespace LdapRecord\Laravel\Commands;
 
 use Closure;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Support\Facades\Event;
 use LdapRecord\Laravel\Events\Import\Deleted;
@@ -16,6 +17,13 @@ use LdapRecord\Models\Types\ActiveDirectory;
 
 class LdapUserImporter extends Importer
 {
+    /**
+     * The imported object GUIDs.
+     * 
+     * @var bool
+     */
+    protected $chunking = false;
+    
     /**
      * The LDAP user repository to use for importing.
      *
@@ -77,6 +85,28 @@ class LdapUserImporter extends Importer
         return $this;
     }
 
+     /**
+     * Set the imported Eloquent models.
+     * 
+     * @param Collection $collection 
+     * 
+     * @return void 
+     */
+    protected function setImported(Collection $collection)
+    {
+        if (! $this->chunking) {
+            return parent::setImported($collection);
+        }
+
+        $guids = $collection->only(
+            $this->repository->createModel()->getLdapGuidColumn()
+        );
+
+        $this->imported = $this->imported
+            ? $this->imported->merge($guids)
+            : $guids;
+    }
+
     /**
      * Enable restoring enabled users.
      *
@@ -135,6 +165,8 @@ class LdapUserImporter extends Importer
      */
     public function chunkObjectsFromRepository(Closure $callback, $perChunk = 500)
     {
+        $this->chunking = true;
+
         $query = $this->applyLdapQueryConstraints(
             $this->repository->query()
         );
@@ -142,6 +174,8 @@ class LdapUserImporter extends Importer
         $query->chunk($perChunk, function ($objects) use ($callback) {
             $callback($this->objects = $objects);
         });
+
+        $this->chunking = false;
     }
 
     /**
