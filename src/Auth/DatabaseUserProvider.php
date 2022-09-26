@@ -14,6 +14,7 @@ use LdapRecord\Laravel\LdapUserAuthenticator;
 use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Models\Model;
 
+/** @mixin EloquentUserProvider */
 class DatabaseUserProvider extends UserProvider
 {
     use ForwardsCalls;
