@@ -11,6 +11,9 @@ use LdapRecord\Laravel\Tests\Feature\DatabaseTestCase;
 use LdapRecord\Laravel\Tests\Feature\TestUserModelStub;
 use LdapRecord\Models\ActiveDirectory\User;
 use LdapRecord\Models\Attributes\AccountControl;
+use LdapRecord\Models\Model;
+use LdapRecord\Models\Scope;
+use LdapRecord\Query\Model\Builder;
 
 class EmulatedImportTest extends DatabaseTestCase
 {
@@ -310,5 +313,45 @@ class EmulatedImportTest extends DatabaseTestCase
         $database->refresh();
 
         $this->assertEquals($user->getConvertedGuid(), $database->guid);
+    }
+
+    public function test_scopes_can_be_applied_to_command()
+    {
+        $this->setupDatabaseUserProvider([
+            'database' => [
+                'model' => TestUserModelStub::class,
+            ],
+        ]);
+
+        DirectoryEmulator::setup();
+
+        User::create([
+            'cn' => 'Foo',
+            'mail' => $this->faker->email,
+            'objectguid' => $this->faker->uuid,
+        ]);
+
+        User::create([
+            'cn' => 'Bar',
+            'mail' => $this->faker->email,
+            'objectguid' => $this->faker->uuid,
+        ]);
+
+        $this->artisan('ldap:import', [
+            'provider' => 'ldap-database',
+            '--scopes' => TestImportUserModelScope::class,
+            '--no-interaction',
+        ])->assertExitCode(0);
+
+        $this->assertCount(1, $users = TestUserModelStub::get());
+        $this->assertEquals('Bar', $users->first()->name);
+    }
+}
+
+class TestImportUserModelScope implements Scope
+{
+    public function apply(Builder $query, Model $model)
+    {
+        return $query->where('cn', 'Bar');
     }
 }

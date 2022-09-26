@@ -13,6 +13,9 @@ use LdapRecord\Laravel\LdapImportable;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Laravel\Tests\TestCase;
 use LdapRecord\Models\ActiveDirectory\Group as LdapGroup;
+use LdapRecord\Models\Model as LdapModel;
+use LdapRecord\Models\Scope;
+use LdapRecord\Query\Model\Builder;
 
 class LdapImporterTest extends TestCase
 {
@@ -69,6 +72,37 @@ class LdapImporterTest extends TestCase
 
         $this->assertCount(1, $imported);
         $this->assertEquals($object->getFirstAttribute('cn'), $imported->first()->name);
+    }
+
+    public function test_scopes_can_be_applied_to_import_query()
+    {
+        LdapGroup::create([
+            'objectguid' => $this->faker->uuid,
+            'cn' => 'First Group',
+        ]);
+
+        LdapGroup::create([
+            'objectguid' => $this->faker->uuid,
+            'cn' => 'Second Group',
+        ]);
+
+        $imported = (new Importer)
+            ->setLdapModel(LdapGroup::class)
+            ->setSyncAttributes(['name' => 'cn'])
+            ->setLdapScopes(TestImporterScopeStub::class)
+            ->setEloquentModel(TestImporterGroupModelStub::class)
+            ->execute();
+
+        $this->assertCount(1, $imported);
+        $this->assertEquals('Second Group', $imported->first()->name);
+    }
+}
+
+class TestImporterScopeStub implements Scope
+{
+    public function apply(Builder $query, LdapModel $model)
+    {
+        return $query->where('cn', 'Second Group');
     }
 }
 
