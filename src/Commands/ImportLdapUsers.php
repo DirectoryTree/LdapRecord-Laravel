@@ -63,7 +63,7 @@ class ImportLdapUsers extends Command
      * Execute the console command.
      *
      * @param LdapUserImporter $importer
-     * @param Repositry        $config
+     * @param Repository        $config
      *
      * @return void
      *
