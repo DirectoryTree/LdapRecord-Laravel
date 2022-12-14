@@ -4,6 +4,7 @@ namespace LdapRecord\Laravel;
 
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 use LdapRecord\Connection;
@@ -14,6 +15,7 @@ use LdapRecord\Laravel\Commands\MakeLdapModel;
 use LdapRecord\Laravel\Commands\MakeLdapRule;
 use LdapRecord\Laravel\Commands\MakeLdapScope;
 use LdapRecord\Laravel\Commands\TestLdapConnection;
+use LdapRecord\Laravel\Events\LoggableEvent;
 use LdapRecord\Laravel\Testing\LdapDatabaseManager;
 
 class LdapServiceProvider extends ServiceProvider
@@ -30,6 +32,7 @@ class LdapServiceProvider extends ServiceProvider
         $this->registerLogging();
         $this->registerCommands();
         $this->registerConfiguration();
+        $this->registerEventListeners();
         $this->registerLdapConnections();
 
         if ($this->app->runningUnitTests()) {
@@ -114,6 +117,22 @@ class LdapServiceProvider extends ServiceProvider
 
             Container::addConnection($connection, $name);
         }
+    }
+
+    /**
+     * Registers the LDAP event listeners.
+     *
+     * @return void
+     */
+    protected function registerEventListeners()
+    {
+        Event::listen('LdapRecord\Laravel\Events\*', function ($eventName, array $events) {
+            collect($events)->filter(function ($event) {
+                return $event instanceof LoggableEvent && $event->shouldLogEvent();
+            })->each(function (LoggableEvent $event) {
+                Log::log($event->getLogLevel(), $event->getLogMessage());
+            });
+        });
     }
 
     /**

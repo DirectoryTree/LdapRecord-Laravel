@@ -4,14 +4,11 @@ namespace LdapRecord\Laravel;
 
 use Illuminate\Auth\EloquentUserProvider;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 use LdapRecord\Laravel\Auth\BindFailureListener;
 use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use LdapRecord\Laravel\Auth\NoDatabaseUserProvider;
 use LdapRecord\Laravel\Commands\ImportLdapUsers;
-use LdapRecord\Laravel\Events\LoggableEvent;
 use LdapRecord\Laravel\Import\UserSynchronizer;
 
 class LdapAuthServiceProvider extends ServiceProvider
@@ -28,7 +25,6 @@ class LdapAuthServiceProvider extends ServiceProvider
         $this->registerCommands();
         $this->registerMigrations();
         $this->registerAuthProvider();
-        $this->registerEventListeners();
         $this->registerLoginControllerListeners();
     }
 
@@ -71,22 +67,6 @@ class LdapAuthServiceProvider extends ServiceProvider
             return array_key_exists('database', $config)
                 ? $this->makeDatabaseUserProvider($config)
                 : $this->makePlainUserProvider($config);
-        });
-    }
-
-    /**
-     * Registers the LDAP event listeners.
-     *
-     * @return void
-     */
-    protected function registerEventListeners()
-    {
-        Event::listen('LdapRecord\Laravel\Events\*', function ($eventName, array $events) {
-            collect($events)->filter(function ($event) {
-                return $event instanceof LoggableEvent && $event->shouldLogEvent();
-            })->each(function (LoggableEvent $event) {
-                Log::log($event->getLogLevel(), $event->getLogMessage());
-            });
         });
     }
 
