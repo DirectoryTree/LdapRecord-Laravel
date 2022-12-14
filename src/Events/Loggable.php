@@ -9,7 +9,7 @@ trait Loggable
     /**
      * Get the level of log message (i.e. info, alert, critical).
      *
-     * @return mixed
+     * @return string
      */
     public function getLogLevel()
     {
