@@ -16,7 +16,7 @@ use LdapRecord\Models\Collection;
 use LdapRecord\Query\Model\Builder;
 use Mockery as m;
 
-class ImportCommandTest extends DatabaseTestCase
+class ImportLdapUsersTest extends DatabaseTestCase
 {
     public function test_command_exits_when_provider_does_not_exist()
     {

@@ -11,7 +11,7 @@ use Mockery as m;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\BufferedOutput;
 
-class LdapConnectionTest extends TestCase
+class TestLdapConnectionTest extends TestCase
 {
     public function test_command_tests_ldap_connectivity()
     {
