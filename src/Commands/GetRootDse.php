@@ -28,7 +28,6 @@ class GetRootDse extends Command
     /**
      * Execute the console command.
      *
-     * @return void
      * @return int
      *
      * @throws \LdapRecord\Models\ModelNotFoundException
