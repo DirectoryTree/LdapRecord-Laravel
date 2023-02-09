@@ -54,6 +54,8 @@ return [
 
     'logging' => env('LDAP_LOGGING', true),
 
+    'logging_channel' => env('LOG_CHANNEL', 'stack'),
+
     /*
     |--------------------------------------------------------------------------
     | LDAP Cache
