@@ -2,12 +2,12 @@
 
 namespace LdapRecord\Laravel\Tests\Unit;
 
-use Illuminate\Log\LogManager;
 use LdapRecord\Connection;
 use LdapRecord\Container;
 use LdapRecord\Laravel\LdapServiceProvider;
 use LdapRecord\Laravel\Tests\TestCase;
 use LdapRecord\Query\Cache;
+use Psr\Log\LoggerInterface;
 
 class LdapServiceProviderTest extends TestCase
 {
@@ -64,7 +64,7 @@ class LdapServiceProviderTest extends TestCase
 
     public function test_logger_is_set_on_container_when_enabled()
     {
-        $this->assertInstanceOf(LogManager::class, Container::getInstance()->getLogger());
+        $this->assertInstanceOf(LoggerInterface::class, Container::getInstance()->getLogger());
     }
 
     public function test_cache_is_set_on_connection_when_enabled()
@@ -143,6 +143,7 @@ class LdapServiceProviderTest extends TestCase
                 ],
             ],
             'logging' => true,
+            'logging_channel' => 'stack',
             'cache' => [
                 'enabled' => true,
                 'driver' => 'array',
