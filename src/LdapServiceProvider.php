@@ -82,9 +82,16 @@ class LdapServiceProvider extends ServiceProvider
             return;
         }
 
-        if (! is_null($logger = Log::getFacadeRoot())) {
-            Container::getInstance()->setLogger($logger);
+        /** @var \Illuminate\Log\LogManager|null $logger */
+        if (is_null($logger = Log::getFacadeRoot())) {
+            return;
         }
+
+        Container::getInstance()->setLogger(
+            ($channel = Config::get('ldap.logging_channel'))
+                ? $logger->channel($channel)
+                : $logger
+        );
     }
 
     /**
