@@ -9,6 +9,7 @@ use LdapRecord\Laravel\Tests\TestCase;
 use LdapRecord\Models\ActiveDirectory\Group;
 use LdapRecord\Models\ActiveDirectory\User;
 use LdapRecord\Models\Entry;
+use LdapRecord\Models\Relations\HasManyIn;
 use Ramsey\Uuid\Uuid;
 
 class EmulatedModelQueryTest extends TestCase
@@ -257,7 +258,7 @@ class EmulatedModelQueryTest extends TestCase
 
         $model = new class extends Entry
         {
-            public static $objectClasses = ['three', 'four'];
+            public static array $objectClasses = ['three', 'four'];
         };
 
         $this->assertCount(0, $model::get());
@@ -569,7 +570,7 @@ class EmulatedModelQueryTest extends TestCase
         (new TestModelStub(['cn' => 'Jen']))->inside('ou=Accounts,ou=Users,dc=local,dc=com')->save();
 
         $this->assertCount(2, TestModelStub::in('ou=Users,dc=local,dc=com')->get());
-        $this->assertCount(1, TestModelStub::listing()->in('ou=Users,dc=local,dc=com')->get());
+        $this->assertCount(1, TestModelStub::list()->in('ou=Users,dc=local,dc=com')->get());
         $this->assertCount(4, TestModelStub::in('dc=local,dc=com')->get());
     }
 
@@ -629,14 +630,14 @@ class EmulatedModelQueryTest extends TestCase
 
         $alpha = new class extends Entry
         {
-            protected $connection = 'alpha';
-            public static $objectClasses = ['one', 'two'];
+            protected ?string $connection = 'alpha';
+            public static array $objectClasses = ['one', 'two'];
         };
 
         $bravo = new class extends Entry
         {
-            protected $connection = 'bravo';
-            public static $objectClasses = ['one', 'two'];
+            protected ?string $connection = 'bravo';
+            public static array $objectClasses = ['one', 'two'];
         };
 
         $alphaUser = $alpha::create(['cn' => 'John']);
@@ -652,12 +653,12 @@ class EmulatedModelQueryTest extends TestCase
 
 class TestModelStub extends Entry
 {
-    public static $objectClasses = ['one', 'two'];
+    public static array $objectClasses = ['one', 'two'];
 }
 
 class TestHasManyInStub extends TestModelStub
 {
-    public function members()
+    public function members(): HasManyIn
     {
         return $this->hasManyIn(TestModelStub::class, 'members');
     }

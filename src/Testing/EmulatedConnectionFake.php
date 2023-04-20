@@ -38,7 +38,7 @@ class EmulatedConnectionFake extends ConnectionFake
      *
      * @throws \LdapRecord\Configuration\ConfigurationException
      */
-    public function query()
+    public function query(): EmulatedBuilder
     {
         return (new EmulatedBuilder($this))
             ->setBaseDn($this->configuration->get('base_dn'));

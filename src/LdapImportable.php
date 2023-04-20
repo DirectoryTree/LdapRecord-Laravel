@@ -6,47 +6,31 @@ interface LdapImportable
 {
     /**
      * Get the database column name for the LDAP domain.
-     *
-     * @return string
      */
-    public function getLdapDomainColumn();
+    public function getLdapDomainColumn(): string;
 
     /**
      * Get the models LDAP domain.
-     *
-     * @return string
      */
-    public function getLdapDomain();
+    public function getLdapDomain(): ?string;
 
     /**
      * Set the models LDAP domain.
-     *
-     * @param string $domain
-     *
-     * @return void
      */
-    public function setLdapDomain($domain);
+    public function setLdapDomain(?string $domain): void;
 
     /**
      * Get the database column name for the LDAP guid.
-     *
-     * @return string
      */
-    public function getLdapGuidColumn();
+    public function getLdapGuidColumn(): string;
 
     /**
      * Get the models LDAP GUID.
-     *
-     * @return string
      */
-    public function getLdapGuid();
+    public function getLdapGuid(): ?string;
 
     /**
      * Set the models LDAP GUID.
-     *
-     * @param string $guid
-     *
-     * @return void
      */
-    public function setLdapGuid($guid);
+    public function setLdapGuid(?string $guid): void;
 }

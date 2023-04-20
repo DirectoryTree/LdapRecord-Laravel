@@ -7,6 +7,7 @@ use LdapRecord\Models\Model;
 use LdapRecord\Models\Types\ActiveDirectory;
 use LdapRecord\Models\Types\OpenLDAP;
 use LdapRecord\Query\Builder;
+use LdapRecord\Query\Model\Builder as ModelBuilder;
 
 class EmulatedBuilder extends Builder
 {
@@ -19,7 +20,7 @@ class EmulatedBuilder extends Builder
      *
      * @return mixed
      */
-    public function model(Model $model)
+    public function model(Model $model): ModelBuilder
     {
         $builder = $this->determineBuilderFromModel($model);
 
@@ -54,7 +55,7 @@ class EmulatedBuilder extends Builder
      *
      * @return array
      */
-    protected function process($results)
+    protected function process($results): array
     {
         return array_map([$this, 'mergeAttributesAndTransformResult'], $results);
     }

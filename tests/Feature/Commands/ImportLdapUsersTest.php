@@ -40,8 +40,7 @@ class ImportLdapUsersTest extends DatabaseTestCase
 
         $repo = m::mock(LdapUserRepository::class, function ($repo) {
             $query = m::mock(Builder::class);
-            $query->shouldReceive('paginate')->once()->andReturnSelf();
-            $query->shouldReceive('count')->once()->andReturn(0);
+            $query->shouldReceive('paginate')->once()->andReturn(new Collection());
 
             $repo->shouldReceive('query')->once()->andReturn($query);
         });

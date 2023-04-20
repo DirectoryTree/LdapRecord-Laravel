@@ -4,6 +4,7 @@ namespace LdapRecord\Laravel\Testing\Emulated;
 
 use Illuminate\Support\Arr;
 use LdapRecord\Laravel\Testing\EmulatesQueries;
+use LdapRecord\Models\Collection;
 
 trait EmulatesModelQueries
 {
@@ -14,7 +15,7 @@ trait EmulatesModelQueries
     /**
      * @inheritdoc
      */
-    public function newInstance($baseDn = null)
+    public function newInstance(string $baseDn = null): static
     {
         return (new self($this->connection))
             ->setModel($this->model)
@@ -24,7 +25,7 @@ trait EmulatesModelQueries
     /**
      * @inheritdoc
      */
-    public function insertAttributes($dn, array $attributes)
+    public function insertAttributes(string $dn, array $attributes): bool
     {
         if (! $model = $this->find($dn)) {
             return false;
@@ -34,13 +35,15 @@ trait EmulatesModelQueries
             $model->{$name} = array_merge($model->{$name} ?? [], Arr::wrap($values));
         }
 
-        return $model->save();
+        $model->save();
+
+        return true;
     }
 
     /**
      * @inheritdoc
      */
-    public function update($dn, array $modifications)
+    public function update(string $dn, array $modifications): bool
     {
         if (! $model = $this->findEloquentModelByDn($dn)) {
             return false;
@@ -56,7 +59,7 @@ trait EmulatesModelQueries
     /**
      * @inheritdoc
      */
-    public function updateAttributes($dn, array $attributes)
+    public function updateAttributes(string $dn, array $attributes): bool
     {
         if (! $model = $this->find($dn)) {
             return false;
@@ -66,13 +69,15 @@ trait EmulatesModelQueries
             $model->{$name} = $values;
         }
 
-        return $model->save();
+        $model->save();
+
+        return true;
     }
 
     /**
      * @inheritdoc
      */
-    public function deleteAttributes($dn, array $attributes)
+    public function deleteAttributes(string $dn, array $attributes): bool
     {
         if (! $model = $this->find($dn)) {
             return false;
@@ -88,7 +93,9 @@ trait EmulatesModelQueries
             }
         }
 
-        return $model->save();
+        $model->save();
+
+        return true;
     }
 
     /**
@@ -98,7 +105,7 @@ trait EmulatesModelQueries
      *
      * @return array
      */
-    public function parse($resource)
+    public function parse(mixed $resource): array
     {
         return $resource->toArray();
     }
@@ -106,7 +113,7 @@ trait EmulatesModelQueries
     /**
      * @inheritdoc
      */
-    protected function process(array $results)
+    protected function process(array $results): Collection
     {
         return $this->model->newCollection($results)->transform(function ($result) {
             return $this->resultToModelInstance($result);
@@ -153,10 +160,8 @@ trait EmulatesModelQueries
 
     /**
      * Override the possibility of the underlying LDAP model being compatible with ANR.
-     *
-     * @return false
      */
-    protected function modelIsCompatibleWithAnr()
+    protected function modelIsCompatibleWithAnr(): bool
     {
         return true;
     }

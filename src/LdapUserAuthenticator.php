@@ -10,6 +10,7 @@ use LdapRecord\Laravel\Events\Auth\Bound;
 use LdapRecord\Laravel\Events\Auth\EloquentUserTrashed;
 use LdapRecord\Laravel\Events\Auth\Rejected;
 use LdapRecord\Models\Model;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 
 class LdapUserAuthenticator
 {
@@ -20,21 +21,19 @@ class LdapUserAuthenticator
      *
      * @var array
      */
-    protected $rules = [];
+    protected array $rules = [];
 
     /**
      * The eloquent user model.
-     *
-     * @var \Illuminate\Database\Eloquent\Model|null
      */
-    protected $eloquentModel;
+    protected ?Eloquent $eloquentModel = null;
 
     /**
      * The authenticator to use for validating the users password.
      *
      * @var Closure
      */
-    protected $authenticator;
+    protected Closure $authenticator;
 
     /**
      * Constructor.

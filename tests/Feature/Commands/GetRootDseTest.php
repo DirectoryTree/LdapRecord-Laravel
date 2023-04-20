@@ -87,8 +87,8 @@ class GetRootDseTest extends DatabaseTestCase
 
 class RootDse extends Entry
 {
-    public function getCreatableDn($name = null, $attribute = null)
+    public function getCreatableDn(?string $name = null, ?string $attribute = null): string
     {
-        return null;
+        return '';
     }
 }

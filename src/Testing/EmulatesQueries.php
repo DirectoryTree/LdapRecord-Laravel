@@ -10,6 +10,7 @@ use LdapRecord\Connection;
 use LdapRecord\Models\Attributes\DistinguishedName;
 use LdapRecord\Models\Attributes\Guid;
 use LdapRecord\Models\BatchModification;
+use LdapRecord\Models\Model as LdapRecord;
 use LdapRecord\Query\Collection;
 use LdapRecord\Query\Model\Builder;
 use Ramsey\Uuid\Uuid;
@@ -103,7 +104,7 @@ trait EmulatesQueries
      *
      * @return Builder
      */
-    public function newNestedInstance(Closure $closure = null, $state = 'and')
+    public function newNestedInstance(Closure $closure = null, string $state = 'and'): static
     {
         $query = $this->newInstance()->nested()->setNestedQueryState($state);
 
@@ -124,7 +125,7 @@ trait EmulatesQueries
     /**
      * @inheritdoc
      */
-    public function clearFilters()
+    public function clearFilters(): static
     {
         // When clear filters is called, we must clear the
         // current Eloquent query instance with it to
@@ -151,7 +152,7 @@ trait EmulatesQueries
     /**
      * @inheritdoc
      */
-    public function orFilter(Closure $closure)
+    public function orFilter(Closure $closure): static
     {
         $query = $this->newNestedInstance($closure, 'or');
 
@@ -187,7 +188,7 @@ trait EmulatesQueries
     /**
      * @inheritdoc
      */
-    public function addFilter($type, array $bindings)
+    public function addFilter($type, array $bindings): static
     {
         $relationMethod = $this->determineRelationMethod($type, $bindings);
 
@@ -375,10 +376,10 @@ trait EmulatesQueries
     /**
      * @inheritdoc
      */
-    public function findOrFail($dn, $columns = ['*'])
+    public function findOrFail($dn, $columns = ['*']): LdapRecord|array
     {
         if (! $database = $this->findEloquentModelByDn($dn)) {
-            return;
+            $this->throwNotFoundException($this->getUnescapedQuery(), $dn);
         }
 
         return $this->getFirstRecordFromResult(
@@ -389,10 +390,10 @@ trait EmulatesQueries
     /**
      * @inheritdoc
      */
-    public function findByGuidOrFail($guid, $columns = ['*'])
+    public function findByGuidOrFail(string $guid, array|string $columns = ['*']): LdapRecord
     {
         if (! $database = $this->findEloquentModelByGuid($guid)) {
-            return;
+            $this->throwNotFoundException($this->getUnescapedQuery(), $this->dn);
         }
 
         return $this->getFirstRecordFromResult(
@@ -427,7 +428,7 @@ trait EmulatesQueries
     /**
      * @inheritdoc
      */
-    public function insert($dn, array $attributes)
+    public function insert($dn, array $attributes): bool
     {
         if (! Arr::get($attributes, 'objectclass')) {
             throw new Exception('LDAP objects must have object classes to be created.');
@@ -483,7 +484,7 @@ trait EmulatesQueries
     /**
      * @inheritdoc
      */
-    public function updateAttributes($dn, array $attributes)
+    public function updateAttributes($dn, array $attributes): bool
     {
         if (! $model = $this->findEloquentModelByDn($dn)) {
             return false;
@@ -582,7 +583,7 @@ trait EmulatesQueries
     /**
      * @inheritdoc
      */
-    public function rename($dn, $rdn, $newParentDn, $deleteOldRdn = true)
+    public function rename($dn, $rdn, $newParentDn, $deleteOldRdn = true): bool
     {
         $database = $this->findEloquentModelByDn($dn);
 
@@ -600,7 +601,7 @@ trait EmulatesQueries
     /**
      * @inheritdoc
      */
-    public function delete($dn)
+    public function delete($dn): bool
     {
         if (! $database = $this->findEloquentModelByDn($dn)) {
             return false;
@@ -612,7 +613,7 @@ trait EmulatesQueries
     /**
      * @inheritdoc
      */
-    public function escape($value, $ignore = '', $flags = 0)
+    public function escape(mixed $value = null, string $ignore = '', int $flags = 0): UnescapedValue
     {
         return new UnescapedValue($value);
     }
@@ -620,7 +621,7 @@ trait EmulatesQueries
     /**
      * @inheritdoc
      */
-    public function paginate($pageSize = 1000, $isCritical = false)
+    public function paginate(int $pageSize = 1000, bool $isCritical = false): Collection|array
     {
         return $this->get();
     }
@@ -628,7 +629,7 @@ trait EmulatesQueries
     /**
      * @inheritdoc
      */
-    public function run($query)
+    public function run(string $filter): mixed
     {
         if ($this->limit > 0) {
             $this->query->limit($this->limit);
@@ -643,7 +644,7 @@ trait EmulatesQueries
                 // Emulate performing a single "read" operation.
                 $this->query->where('dn', '=', $this->dn);
                 break;
-            case 'listing':
+            case 'list':
                 // Emulate performing a directory "listing" operation.
                 $this->query->where('parent_dn', '=', $this->dn);
                 break;
@@ -663,7 +664,7 @@ trait EmulatesQueries
      *
      * @return array
      */
-    public function parse($resource)
+    public function parse(mixed $resource): array
     {
         return $resource->toArray();
     }

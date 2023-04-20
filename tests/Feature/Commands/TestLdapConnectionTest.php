@@ -17,7 +17,7 @@ class TestLdapConnectionTest extends TestCase
     {
         $connection = m::mock(Connection::class);
 
-        $connection->shouldReceive('setDispatcher')->once()->with(DispatcherInterface::class)->andReturnNull();
+        $connection->shouldReceive('setDispatcher')->once()->with(DispatcherInterface::class)->andReturn($connection);
 
         Container::addConnection($connection);
 

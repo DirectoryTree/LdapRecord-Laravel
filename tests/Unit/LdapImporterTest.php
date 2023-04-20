@@ -100,9 +100,9 @@ class LdapImporterTest extends TestCase
 
 class TestImporterScopeStub implements Scope
 {
-    public function apply(Builder $query, LdapModel $model)
+    public function apply(Builder $query, LdapModel $model): void
     {
-        return $query->where('cn', 'Second Group');
+        $query->where('cn', 'Second Group');
     }
 }
 

@@ -11,7 +11,7 @@ class LdapRecord
      *
      * @var bool
      */
-    public static $failingQuietly = true;
+    public static bool $failingQuietly = true;
 
     /**
      * Don't catch exceptions during authentication.

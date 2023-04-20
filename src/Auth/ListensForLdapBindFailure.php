@@ -39,7 +39,7 @@ trait ListensForLdapBindFailure
      */
     public function listenForLdapBindFailure()
     {
-        $dispatcher = Container::getInstance()->getEventDispatcher();
+        $dispatcher = Container::getDispatcher();
 
         $isOnLastHost = true;
 
