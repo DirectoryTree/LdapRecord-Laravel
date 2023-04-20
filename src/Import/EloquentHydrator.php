@@ -34,8 +34,6 @@ class EloquentHydrator
 
     /**
      * Constructor.
-     *
-     * @param array $config
      */
     public function __construct(array $config = [])
     {
@@ -45,7 +43,6 @@ class EloquentHydrator
     /**
      * Extra data to pass to each hydrator.
      *
-     * @param array $data
      *
      * @return $this
      */
@@ -59,8 +56,6 @@ class EloquentHydrator
     /**
      * Hydrate the database model with the LDAP user.
      *
-     * @param LdapModel     $user
-     * @param EloquentModel $database
      *
      * @return void
      */

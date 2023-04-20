@@ -8,8 +8,6 @@ class LdapRecord
 {
     /**
      * Whether LdapRecord will catch exceptions during authentication.
-     *
-     * @var bool
      */
     public static bool $failingQuietly = true;
 
@@ -36,8 +34,7 @@ class LdapRecord
     /**
      * Register a class that should be used for authenticating LDAP users.
      *
-     * @param string|\Closure $class
-     *
+     * @param  string|\Closure  $class
      * @return void
      */
     public static function authenticateUsersUsing($class)
@@ -48,8 +45,7 @@ class LdapRecord
     /**
      * Register a class that should be used for locating LDAP users.
      *
-     * @param string|\Closure $class
-     *
+     * @param  string|\Closure  $class
      * @return void
      */
     public static function locateUsersUsing($class)
@@ -60,8 +56,7 @@ class LdapRecord
     /**
      * Register a class that should be used for synchronizing LDAP users.
      *
-     * @param string|\Closure $class
-     *
+     * @param  string|\Closure  $class
      * @return void
      */
     public static function synchronizeUsersUsing($class)

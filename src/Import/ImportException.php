@@ -10,7 +10,6 @@ class ImportException extends LdapRecordException
     /**
      * Generate a new exception for a model that is missing a GUID.
      *
-     * @param Model $model
      *
      * @return static
      */

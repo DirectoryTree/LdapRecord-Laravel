@@ -19,8 +19,6 @@ class Started implements LoggableEvent
 
     /**
      * Constructor.
-     *
-     * @param $objects
      */
     public function __construct($objects)
     {

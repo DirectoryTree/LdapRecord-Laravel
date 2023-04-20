@@ -21,10 +21,6 @@ class ImportFailed extends Event implements LoggableEvent
 
     /**
      * Constructor.
-     *
-     * @param LdapModel $object
-     * @param Eloquent  $eloquent
-     * @param Exception $exception
      */
     public function __construct(LdapModel $object, Eloquent $eloquent, Exception $exception)
     {

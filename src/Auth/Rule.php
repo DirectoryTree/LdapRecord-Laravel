@@ -23,9 +23,6 @@ abstract class Rule
 
     /**
      * Constructor.
-     *
-     * @param LdapModel  $user
-     * @param Model|null $model
      */
     public function __construct(LdapModel $user, Model $model = null)
     {

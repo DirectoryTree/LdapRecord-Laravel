@@ -16,8 +16,7 @@ class EmulatedConnectionFake extends ConnectionFake
     /**
      * Get or set the name of the connection fake.
      *
-     * @param string|null $name
-     *
+     * @param  string|null  $name
      * @return $this|string
      */
     public function name($name = null)

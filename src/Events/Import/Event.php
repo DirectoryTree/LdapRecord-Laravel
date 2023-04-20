@@ -23,9 +23,6 @@ abstract class Event
 
     /**
      * Constructor.
-     *
-     * @param LdapModel     $object
-     * @param EloquentModel $eloquent
      */
     public function __construct(LdapModel $object, EloquentModel $eloquent)
     {

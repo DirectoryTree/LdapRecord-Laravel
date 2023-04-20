@@ -35,10 +35,6 @@ class DeletedMissing implements LoggableEvent
 
     /**
      * Constructor.
-     *
-     * @param LdapRecord $ldapModel
-     * @param Eloquent   $eloquentModel
-     * @param Collection $deleted
      */
     public function __construct(LdapRecord $ldapModel, Eloquent $eloquentModel, Collection $deleted)
     {

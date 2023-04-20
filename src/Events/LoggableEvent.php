@@ -13,8 +13,6 @@ interface LoggableEvent
 
     /**
      * Get the level of log message (i.e. info, alert, critical).
-     *
-     * @return mixed
      */
     public function getLogLevel();
 
