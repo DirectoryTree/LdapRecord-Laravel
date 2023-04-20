@@ -55,9 +55,7 @@ class TestLdapConnection extends Command
     /**
      * Perform a connectivity test on the given connection.
      *
-     * @param string     $name
-     * @param Connection $connection
-     *
+     * @param  string  $name
      * @return array
      */
     protected function performTest($name, Connection $connection)
@@ -80,7 +78,6 @@ class TestLdapConnection extends Command
     /**
      * Attempt establishing the connection.
      *
-     * @param Connection $connection
      *
      * @return string
      */
@@ -116,8 +113,7 @@ class TestLdapConnection extends Command
     /**
      * Get the elapsed time since a given starting point.
      *
-     * @param int $start
-     *
+     * @param  int  $start
      * @return float
      */
     protected function getElapsedTime($start)

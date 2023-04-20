@@ -13,8 +13,6 @@ class Validator
 
     /**
      * Constructor.
-     *
-     * @param iterable $rules
      */
     public function __construct(iterable $rules = [])
     {
@@ -53,8 +51,6 @@ class Validator
 
     /**
      * Adds a rule to the validator.
-     *
-     * @param Rule $rule
      */
     public function addRule(Rule $rule)
     {

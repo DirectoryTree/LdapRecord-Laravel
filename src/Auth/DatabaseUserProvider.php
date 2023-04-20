@@ -49,11 +49,6 @@ class DatabaseUserProvider extends UserProvider
 
     /**
      * Create a new LDAP user provider.
-     *
-     * @param LdapUserAuthenticator $auth
-     * @param LdapUserRepository    $users
-     * @param UserSynchronizer      $synchronizer
-     * @param EloquentUserProvider  $eloquent
      */
     public function __construct(
         LdapUserRepository $users,
@@ -70,10 +65,8 @@ class DatabaseUserProvider extends UserProvider
     /**
      * Dynamically pass missing methods to the Eloquent user provider.
      *
-     * @param string $method
-     * @param array  $parameters
-     *
-     * @return mixed
+     * @param  string  $method
+     * @param  array  $parameters
      */
     public function __call($method, $parameters)
     {
@@ -102,8 +95,6 @@ class DatabaseUserProvider extends UserProvider
 
     /**
      * Set the authenticating LDAP user.
-     *
-     * @param Model $user
      */
     public function setAuthenticatingUser(Model $user)
     {
@@ -123,7 +114,6 @@ class DatabaseUserProvider extends UserProvider
     /**
      * Set the callback to be used to resolve LDAP users.
      *
-     * @param Closure $userResolver
      *
      * @return $this
      */
@@ -191,8 +181,7 @@ class DatabaseUserProvider extends UserProvider
     /**
      * Retrieve the user from their credentials using Eloquent.
      *
-     * @param array $credentials
-     *
+     * @param  array  $credentials
      * @return Authenticatable|null
      *
      * @throws \Exception

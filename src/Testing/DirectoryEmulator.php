@@ -10,8 +10,6 @@ class DirectoryEmulator extends DirectoryFake
     /**
      * Setup the fake connections.
      *
-     * @param string|null $name
-     * @param array       $config
      *
      * @return EmulatedConnectionFake
      *
@@ -28,10 +26,6 @@ class DirectoryEmulator extends DirectoryFake
 
     /**
      * Make a fake connection.
-     *
-     * @param array $config
-     *
-     * @return EmulatedConnectionFake
      */
     public static function makeConnectionFake(array $config = []): EmulatedConnectionFake
     {
@@ -40,8 +34,6 @@ class DirectoryEmulator extends DirectoryFake
 
     /**
      * Tear down the fake directory.
-     *
-     * @return void
      */
     public static function tearDown(): void
     {

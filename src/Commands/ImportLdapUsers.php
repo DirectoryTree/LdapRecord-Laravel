@@ -62,8 +62,6 @@ class ImportLdapUsers extends Command
     /**
      * Execute the console command.
      *
-     * @param LdapUserImporter $importer
-     * @param Repository       $config
      *
      * @return void
      *
@@ -120,8 +118,7 @@ class ImportLdapUsers extends Command
     /**
      * Begin importing users into the database by chunk.
      *
-     * @param int $perChunk
-     *
+     * @param  int  $perChunk
      * @return void
      */
     protected function beginChunkedImport($perChunk)
@@ -205,7 +202,6 @@ class ImportLdapUsers extends Command
     /**
      * Displays the given users in a table.
      *
-     * @param Collection $objects
      *
      * @return void
      */
@@ -234,7 +230,6 @@ class ImportLdapUsers extends Command
     /**
      * Apply the import options to the importer.
      *
-     * @param DatabaseUserProvider $provider
      *
      * @return void
      */
@@ -276,7 +271,6 @@ class ImportLdapUsers extends Command
     /**
      * Set the importer to use.
      *
-     * @param LdapUserImporter $importer
      *
      * @return void
      */

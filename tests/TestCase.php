@@ -40,7 +40,7 @@ abstract class TestCase extends BaseTestCase
     /**
      * Define the environment setup.
      *
-     * @param \Illuminate\Foundation\Application $app
+     * @param  \Illuminate\Foundation\Application  $app
      */
     protected function getEnvironmentSetup($app)
     {

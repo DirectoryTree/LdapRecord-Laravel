@@ -101,9 +101,7 @@ trait EmulatesModelQueries
     /**
      * Parse the database query results.
      *
-     * @param \Illuminate\Database\Eloquent\Collection $resource
-     *
-     * @return array
+     * @param  \Illuminate\Database\Eloquent\Collection  $resource
      */
     public function parse(mixed $resource): array
     {
@@ -123,7 +121,6 @@ trait EmulatesModelQueries
     /**
      * Transform the result into a model instance.
      *
-     * @param array|\LdapRecord\Models\Model $object
      *
      * @return \LdapRecord\Models\Model
      */

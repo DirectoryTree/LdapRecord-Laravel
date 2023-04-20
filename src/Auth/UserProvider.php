@@ -35,9 +35,6 @@ abstract class UserProvider implements LaravelUserProvider
 
     /**
      * Constructor.
-     *
-     * @param LdapUserAuthenticator $auth
-     * @param LdapUserRepository    $users
      */
     public function __construct(LdapUserRepository $users, LdapUserAuthenticator $auth)
     {
@@ -52,7 +49,6 @@ abstract class UserProvider implements LaravelUserProvider
     /**
      * Set the callback to resolve users by.
      *
-     * @param Closure $callback
      *
      * @return $this
      */
@@ -66,9 +62,7 @@ abstract class UserProvider implements LaravelUserProvider
     /**
      * Attempt to retrieve the user by their credentials.
      *
-     * @param array $credentials
      *
-     * @return mixed
      *
      * @throws ValidationException
      */
@@ -84,7 +78,6 @@ abstract class UserProvider implements LaravelUserProvider
     /**
      * Handle exceptions during user resolution.
      *
-     * @param Exception $e
      *
      * @throws ValidationException
      */
@@ -103,8 +96,6 @@ abstract class UserProvider implements LaravelUserProvider
 
     /**
      * Set the LDAP user repository.
-     *
-     * @param LdapUserRepository $users
      */
     public function setLdapUserRepository(LdapUserRepository $users)
     {
@@ -133,8 +124,6 @@ abstract class UserProvider implements LaravelUserProvider
 
     /**
      * Set the LDAP user authenticator.
-     *
-     * @param LdapUserAuthenticator $auth
      */
     public function setLdapUserAuthenticator(LdapUserAuthenticator $auth)
     {

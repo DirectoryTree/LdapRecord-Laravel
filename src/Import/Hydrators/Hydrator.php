@@ -23,9 +23,6 @@ abstract class Hydrator
 
     /**
      * Constructor.
-     *
-     * @param array $config
-     * @param array $data
      */
     public function __construct(array $config = [], array $data = [])
     {
@@ -36,8 +33,6 @@ abstract class Hydrator
     /**
      * Create a new hydrator instance.
      *
-     * @param array $config
-     * @param array $data
      *
      * @return static
      */
@@ -49,8 +44,6 @@ abstract class Hydrator
     /**
      * Hydrate the database model with the LDAP user.
      *
-     * @param LdapModel     $object
-     * @param EloquentModel $eloquent
      *
      * @return void
      */

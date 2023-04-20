@@ -26,7 +26,6 @@ trait MultiDomainAuthentication
     /**
      * Get the LDAP domain from the request.
      *
-     * @param Request $request
      *
      * @return string|null
      */

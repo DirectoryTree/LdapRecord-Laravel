@@ -66,7 +66,6 @@ class LdapUserImporter extends Importer
     /**
      * Set the LDAP user repository to use for importing.
      *
-     * @param LdapUserRepository $repository
      *
      * @return $this
      */
@@ -104,8 +103,7 @@ class LdapUserImporter extends Importer
     /**
      * Load the import's objects from the LDAP repository.
      *
-     * @param string|null $username
-     *
+     * @param  string|null  $username
      * @return \LdapRecord\Query\Collection
      */
     public function loadObjectsFromRepository($username = null)
@@ -128,9 +126,7 @@ class LdapUserImporter extends Importer
     /**
      * Load the import's objects from the LDAP repository via chunking.
      *
-     * @param Closure $callback
-     * @param int     $perChunk
-     *
+     * @param  int  $perChunk
      * @return void
      */
     public function chunkObjectsFromRepository(Closure $callback, $perChunk = 500)
@@ -147,8 +143,6 @@ class LdapUserImporter extends Importer
     /**
      * Soft deletes the specified model if their LDAP account is disabled.
      *
-     * @param LdapRecord $object
-     * @param Eloquent   $eloquent
      *
      * @return void
      */
@@ -170,8 +164,6 @@ class LdapUserImporter extends Importer
     /**
      * Restores soft-deleted models if their LDAP account is enabled.
      *
-     * @param LdapRecord $object
-     * @param Eloquent   $eloquent
      *
      * @return void
      */
@@ -193,7 +185,6 @@ class LdapUserImporter extends Importer
     /**
      * Determine whether the user is enabled.
      *
-     * @param LdapRecord $object
      *
      * @return bool
      */
@@ -205,7 +196,6 @@ class LdapUserImporter extends Importer
     /**
      * Determines whether the user is disabled.
      *
-     * @param LdapRecord $object
      *
      * @return bool
      */
@@ -217,7 +207,6 @@ class LdapUserImporter extends Importer
     /**
      * Get the user account control integer from the user.
      *
-     * @param LdapRecord $object
      *
      * @return int|null
      */

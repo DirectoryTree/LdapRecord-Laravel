@@ -35,8 +35,7 @@ class Synchronizer
     /**
      * Constructor.
      *
-     * @param string $eloquentModel
-     * @param array  $config
+     * @param  string  $eloquentModel
      */
     public function __construct($eloquentModel, array $config)
     {
@@ -47,7 +46,6 @@ class Synchronizer
     /**
      * Set a callback to use for syncing attributes.
      *
-     * @param Closure $callback
      *
      * @return $this
      */
@@ -61,8 +59,6 @@ class Synchronizer
     /**
      * Import / synchronize the LDAP object with its database model.
      *
-     * @param LdapModel $object
-     * @param array     $data
      *
      * @return EloquentModel
      */
@@ -78,9 +74,6 @@ class Synchronizer
     /**
      * Synchronize the Eloquent database model with the LDAP model.
      *
-     * @param LdapModel     $object
-     * @param EloquentModel $eloquent
-     * @param array         $data
      *
      * @return EloquentModel
      */
@@ -104,7 +97,6 @@ class Synchronizer
     /**
      * Retrieves an eloquent model by their GUID.
      *
-     * @param LdapModel $ldap
      *
      * @return EloquentModel
      *
@@ -131,10 +123,7 @@ class Synchronizer
     /**
      * Hydrate the eloquent model with the LDAP object.
      *
-     * @param LdapModel     $ldap
-     * @param EloquentModel $model
-     * @param array         $data
-     *
+     * @param  EloquentModel  $model
      * @return void
      */
     protected function hydrate(LdapModel $ldap, $model, array $data = [])
@@ -160,9 +149,7 @@ class Synchronizer
     /**
      * Applies the configured 'sync existing' scopes to the database query.
      *
-     * @param LdapModel                             $ldap
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
     protected function applySyncScopesToQuery(LdapModel $ldap, $query)
@@ -188,9 +175,7 @@ class Synchronizer
     /**
      * Get the scope clause operator and value from the attribute configuration.
      *
-     * @param LdapModel    $ldap
-     * @param array|string $config
-     *
+     * @param  array|string  $config
      * @return array
      */
     protected function getSyncScopeOperatorAndValue(LdapModel $ldap, $config)
@@ -207,11 +192,8 @@ class Synchronizer
     /**
      * Get the sync scope option from the config array.
      *
-     * @param array|string $config
-     * @param string       $option
-     * @param mixed        $default
-     *
-     * @return mixed
+     * @param  array|string  $config
+     * @param  string  $option
      */
     protected function getSyncScopeOption($config, $option, $default)
     {
@@ -221,7 +203,6 @@ class Synchronizer
     /**
      * Creates a new query on the given model.
      *
-     * @param EloquentModel $model
      *
      * @return \Illuminate\Database\Eloquent\Builder
      */
@@ -241,8 +222,6 @@ class Synchronizer
 
     /**
      * Set the configuration for the importer to use.
-     *
-     * @param array $config
      */
     public function setConfig(array $config)
     {

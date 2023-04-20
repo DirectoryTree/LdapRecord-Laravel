@@ -28,9 +28,6 @@ class Completed implements LoggableEvent
 
     /**
      * Constructor.
-     *
-     * @param LdapCollection    $objects
-     * @param LaravelCollection $imported
      */
     public function __construct(LdapCollection $objects, LaravelCollection $imported)
     {

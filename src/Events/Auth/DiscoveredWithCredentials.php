@@ -19,8 +19,6 @@ class DiscoveredWithCredentials implements LoggableEvent
 
     /**
      * Constructor.
-     *
-     * @param Model $user
      */
     public function __construct(Model $user)
     {

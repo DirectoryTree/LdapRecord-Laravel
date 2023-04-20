@@ -3,6 +3,7 @@
 namespace LdapRecord\Laravel;
 
 use Closure;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 use LdapRecord\Laravel\Auth\Validator;
 use LdapRecord\Laravel\Events\Auth\BindFailed;
 use LdapRecord\Laravel\Events\Auth\Binding;
@@ -10,7 +11,6 @@ use LdapRecord\Laravel\Events\Auth\Bound;
 use LdapRecord\Laravel\Events\Auth\EloquentUserTrashed;
 use LdapRecord\Laravel\Events\Auth\Rejected;
 use LdapRecord\Models\Model;
-use Illuminate\Database\Eloquent\Model as Eloquent;
 
 class LdapUserAuthenticator
 {
@@ -18,8 +18,6 @@ class LdapUserAuthenticator
 
     /**
      * The LDAP authentication rules.
-     *
-     * @var array
      */
     protected array $rules = [];
 
@@ -30,15 +28,11 @@ class LdapUserAuthenticator
 
     /**
      * The authenticator to use for validating the users password.
-     *
-     * @var Closure
      */
     protected Closure $authenticator;
 
     /**
      * Constructor.
-     *
-     * @param array $rules
      */
     public function __construct(array $rules = [])
     {
@@ -52,8 +46,7 @@ class LdapUserAuthenticator
     /**
      * Set the authenticating eloquent model.
      *
-     * @param \Illuminate\Database\Eloquent\Model $model
-     *
+     * @param  \Illuminate\Database\Eloquent\Model  $model
      * @return $this
      */
     public function setEloquentModel($model)
@@ -66,9 +59,7 @@ class LdapUserAuthenticator
     /**
      * Attempt authenticating against the LDAP domain.
      *
-     * @param Model  $user
-     * @param string $password
-     *
+     * @param  string  $password
      * @return bool
      */
     public function attempt(Model $user, $password)
@@ -107,10 +98,7 @@ class LdapUserAuthenticator
     /**
      * Attempt authentication using the given callback once.
      *
-     * @param Closure     $callback
-     * @param Model       $user
-     * @param string|null $password
-     *
+     * @param  string|null  $password
      * @return bool
      */
     public function attemptOnceUsing(Closure $callback, Model $user, $password = null)
@@ -127,7 +115,6 @@ class LdapUserAuthenticator
     /**
      * Set the callback to use for authenticating users.
      *
-     * @param Closure $authenticator
      *
      * @return $this
      */
@@ -141,7 +128,6 @@ class LdapUserAuthenticator
     /**
      * Validate the given user against the authentication rules.
      *
-     * @param Model $user
      *
      * @return bool
      */
@@ -153,9 +139,8 @@ class LdapUserAuthenticator
     /**
      * Create a new user validator.
      *
-     * @param \LdapRecord\Models\Model                 $user
-     * @param \Illuminate\Database\Eloquent\Model|null $model
-     *
+     * @param  \LdapRecord\Models\Model  $user
+     * @param  \Illuminate\Database\Eloquent\Model|null  $model
      * @return Validator
      */
     protected function validator($user, $model = null)
@@ -166,9 +151,8 @@ class LdapUserAuthenticator
     /**
      * Get the authentication rules for the domain.
      *
-     * @param \LdapRecord\Models\Model                 $user
-     * @param \Illuminate\Database\Eloquent\Model|null $model
-     *
+     * @param  \LdapRecord\Models\Model  $user
+     * @param  \Illuminate\Database\Eloquent\Model|null  $model
      * @return \Illuminate\Support\Collection
      */
     protected function rules($user, $model = null)
@@ -181,7 +165,6 @@ class LdapUserAuthenticator
     /**
      * Fire the "attempting" event.
      *
-     * @param Model $user
      *
      * @return void
      */
@@ -193,7 +176,6 @@ class LdapUserAuthenticator
     /**
      * Fire the "passed" event.
      *
-     * @param Model $user
      *
      * @return void
      */
@@ -205,7 +187,6 @@ class LdapUserAuthenticator
     /**
      * Fire the "trashed" event.
      *
-     * @param Model $user
      *
      * @return void
      */
@@ -217,7 +198,6 @@ class LdapUserAuthenticator
     /**
      * Fire the "failed" event.
      *
-     * @param Model $user
      *
      * @return void
      */
@@ -229,7 +209,6 @@ class LdapUserAuthenticator
     /**
      * Fire the "rejected" event.
      *
-     * @param Model $user
      *
      * @return void
      */

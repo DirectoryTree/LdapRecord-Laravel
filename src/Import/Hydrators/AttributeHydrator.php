@@ -43,7 +43,6 @@ class AttributeHydrator extends Hydrator
     /**
      * Determines if the given handler value is a class that contains the 'handle' method.
      *
-     * @param mixed $handler
      *
      * @return bool
      */
