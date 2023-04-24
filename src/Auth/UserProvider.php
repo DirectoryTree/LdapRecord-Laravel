@@ -14,24 +14,18 @@ abstract class UserProvider implements LaravelUserProvider
 {
     /**
      * The LDAP user repository instance.
-     *
-     * @var LdapUserRepository
      */
-    protected $users;
+    protected LdapUserRepository $users;
 
     /**
      * The LDAP user authenticator instance.
-     *
-     * @var LdapUserAuthenticator
      */
-    protected $auth;
+    protected LdapUserAuthenticator $auth;
 
     /**
      * The user resolver to use for finding the authenticating user.
-     *
-     * @var Closure
      */
-    protected $userResolver;
+    protected Closure $userResolver;
 
     /**
      * Constructor.
@@ -49,10 +43,9 @@ abstract class UserProvider implements LaravelUserProvider
     /**
      * Set the callback to resolve users by.
      *
-     *
      * @return $this
      */
-    public function resolveUsersUsing(Closure $callback)
+    public function resolveUsersUsing(Closure $callback): static
     {
         $this->userResolver = $callback;
 

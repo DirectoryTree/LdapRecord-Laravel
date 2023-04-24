@@ -11,32 +11,28 @@ trait HasLdapUser
 
     /**
      * The currently authenticated users LDAP model.
-     *
-     * @var Model|null
      */
-    protected $ldapUserModel;
+    protected ?Model $ldapUserModel = null;
 
     /**
      * Get the currently authenticated LDAP users model.
-     *
-     * @return Model|null
      */
-    public function getLdapAttribute()
+    public function getLdapAttribute(): ?Model
     {
         if (! $this instanceof LdapAuthenticatable) {
-            return;
+            return null;
         }
 
         if (! $guard = $this->getCurrentAuthGuard()) {
-            return;
+            return null;
         }
 
         if (! $provider = $this->getCurrentAuthProvider($guard)) {
-            return;
+            return null;
         }
 
         if (! $provider instanceof UserProvider) {
-            return;
+            return null;
         }
 
         if (! isset($this->ldapUserModel)) {

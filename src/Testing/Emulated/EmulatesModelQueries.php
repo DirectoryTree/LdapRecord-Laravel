@@ -13,7 +13,7 @@ trait EmulatesModelQueries
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function newInstance(string $baseDn = null): static
     {
@@ -23,9 +23,9 @@ trait EmulatesModelQueries
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    public function insertAttributes(string $dn, array $attributes): bool
+    public function add(string $dn, array $attributes): bool
     {
         if (! $model = $this->find($dn)) {
             return false;
@@ -41,7 +41,7 @@ trait EmulatesModelQueries
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function update(string $dn, array $modifications): bool
     {
@@ -57,9 +57,9 @@ trait EmulatesModelQueries
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    public function updateAttributes(string $dn, array $attributes): bool
+    public function replace(string $dn, array $attributes): bool
     {
         if (! $model = $this->find($dn)) {
             return false;
@@ -75,9 +75,9 @@ trait EmulatesModelQueries
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    public function deleteAttributes(string $dn, array $attributes): bool
+    public function remove(string $dn, array $attributes): bool
     {
         if (! $model = $this->find($dn)) {
             return false;
@@ -109,7 +109,7 @@ trait EmulatesModelQueries
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function process(array $results): Collection
     {
@@ -141,7 +141,7 @@ trait EmulatesModelQueries
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function addFilterToDatabaseQuery($query, $field, $operator, $value)
     {

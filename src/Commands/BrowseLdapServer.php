@@ -8,13 +8,18 @@ use LdapRecord\Container;
 use LdapRecord\Models\Attributes\DistinguishedName;
 use LdapRecord\Models\Entry;
 use LdapRecord\Models\Model;
+use LdapRecord\Query\Model\Builder;
 
 class BrowseLdapServer extends Command
 {
     const OPERATION_INSPECT_OBJECT = 'inspect';
+
     const OPERATION_NAVIGATE_DOWN = 'down';
+
     const OPERATION_NAVIGATE_UP = 'up';
+
     const OPERATION_NAVIGATE_TO = 'to';
+
     const OPERATION_NAVIGATE_TO_ROOT = 'root';
 
     /**
@@ -26,29 +31,21 @@ class BrowseLdapServer extends Command
 
     /**
      * The LDAP connections base DN (root).
-     *
-     * @var string
      */
-    protected $baseDn;
+    protected ?string $baseDn = null;
 
     /**
      * The currently selected DN.
-     *
-     * @var string
      */
-    protected $selectedDn;
+    protected ?string $selectedDn = null;
 
     /**
      * The operations and their tasks.
-     *
-     * @var array
      */
-    protected $operations;
+    protected array $operations = [];
 
     /**
      * Constructor.
-     *
-     * @return void
      */
     public function __construct()
     {
@@ -59,10 +56,8 @@ class BrowseLdapServer extends Command
 
     /**
      * Execute the command.
-     *
-     * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         $connection = $this->argument('connection');
 
@@ -81,11 +76,8 @@ class BrowseLdapServer extends Command
 
     /**
      * Ask the developer for an operation to perform.
-     *
-     * @param  string  $prompt
-     * @return void
      */
-    protected function askForOperation($prompt = 'Select operation')
+    protected function askForOperation(string $prompt = 'Select operation'): void
     {
         $this->info("Viewing object [$this->selectedDn]");
 
@@ -104,32 +96,29 @@ class BrowseLdapServer extends Command
     /**
      * Perform the selected operation.
      *
-     * @param  string  $operation
-     * @return void
-     *
      * @throws InvalidArgumentException
      */
-    protected function performOperation($operation)
+    protected function performOperation(string $operation): void
     {
         throw_if(
             ! array_key_exists($operation, $this->operations),
             new InvalidArgumentException("Operation [$operation] does not exist.")
         );
 
-        return $this->operations[$operation]();
+        $this->operations[$operation]();
     }
 
     /**
      * Display the nested objects.
-     *
-     * @return void
      */
-    protected function displayNestedObjects()
+    protected function displayNestedObjects(): void
     {
         $dns = $this->getSelectedNestedDns();
 
         if (empty($dns)) {
-            return $this->askForOperation('This object contains no nested objects. Select operation');
+            $this->askForOperation('This object contains no nested objects. Select operation');
+
+            return;
         }
 
         $dns[static::OPERATION_NAVIGATE_UP] = $this->getAvailableOperations()[static::OPERATION_NAVIGATE_UP];
@@ -146,7 +135,7 @@ class BrowseLdapServer extends Command
     /**
      * Display the currently selected objects attributes.
      */
-    protected function displayAttributes()
+    protected function displayAttributes(): void
     {
         $object = $this->newLdapQuery()->find($this->selectedDn);
 
@@ -166,10 +155,9 @@ class BrowseLdapServer extends Command
     /**
      * Wrap attribute values in an array for tabular display.
      *
-     *
      * @return array[]
      */
-    protected function wrapAttributeValuesInArray(array $values)
+    protected function wrapAttributeValuesInArray(array $values): array
     {
         return array_map(function ($value) {
             return [$value];
@@ -177,11 +165,9 @@ class BrowseLdapServer extends Command
     }
 
     /**
-     * Get a listing of the nested object DNs inside of the currently selected DN.
-     *
-     * @return array
+     * Get a listing of the nested object DNs inside the currently selected DN.
      */
-    protected function getSelectedNestedDns()
+    protected function getSelectedNestedDns(): array
     {
         return $this->newLdapQuery()
             ->in($this->selectedDn)
@@ -196,10 +182,8 @@ class BrowseLdapServer extends Command
 
     /**
      * Get the operations tasks.
-     *
-     * @return array
      */
-    protected function getOperationTasks()
+    protected function getOperationTasks(): array
     {
         return [
             static::OPERATION_INSPECT_OBJECT => function () {
@@ -232,10 +216,8 @@ class BrowseLdapServer extends Command
 
     /**
      * Get the available command operations.
-     *
-     * @return array
      */
-    protected function getAvailableOperations()
+    protected function getAvailableOperations(): array
     {
         return [
             static::OPERATION_INSPECT_OBJECT => 'View the selected objects attributes',
@@ -248,10 +230,8 @@ class BrowseLdapServer extends Command
 
     /**
      * Create a new LDAP query on the connection.
-     *
-     * @return \LdapRecord\Query\Model\Builder
      */
-    protected function newLdapQuery()
+    protected function newLdapQuery(): Builder
     {
         return Entry::on($this->argument('connection'));
     }

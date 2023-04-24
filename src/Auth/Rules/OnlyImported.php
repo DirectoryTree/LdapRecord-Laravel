@@ -7,9 +7,9 @@ use LdapRecord\Laravel\Auth\Rule;
 class OnlyImported extends Rule
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    public function isValid()
+    public function isValid(): bool
     {
         return $this->model && $this->model->exists;
     }

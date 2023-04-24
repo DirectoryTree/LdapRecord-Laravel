@@ -8,7 +8,7 @@ use LdapRecord\Laravel\Events\Auth\Completed;
 class NoDatabaseUserProvider extends UserProvider
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function retrieveById($identifier)
     {
@@ -16,7 +16,7 @@ class NoDatabaseUserProvider extends UserProvider
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function retrieveByToken($identifier, $token)
     {
@@ -25,7 +25,7 @@ class NoDatabaseUserProvider extends UserProvider
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function updateRememberToken(Authenticatable $user, $token)
     {
@@ -33,7 +33,7 @@ class NoDatabaseUserProvider extends UserProvider
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function retrieveByCredentials(array $credentials)
     {
@@ -41,7 +41,7 @@ class NoDatabaseUserProvider extends UserProvider
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function validateCredentials(Authenticatable $user, array $credentials)
     {

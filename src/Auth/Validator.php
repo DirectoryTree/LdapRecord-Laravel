@@ -6,10 +6,8 @@ class Validator
 {
     /**
      * The validation rules.
-     *
-     * @var array
      */
-    protected $rules = [];
+    protected array $rules = [];
 
     /**
      * Constructor.
@@ -22,13 +20,9 @@ class Validator
     }
 
     /**
-     * Checks if each rule passes validation.
-     *
-     * If all rules pass, authentication is granted.
-     *
-     * @return bool
+     * Determine if all rules pass validation.
      */
-    public function passes()
+    public function passes(): bool
     {
         foreach ($this->rules as $rule) {
             if (! $rule->isValid()) {
@@ -41,10 +35,8 @@ class Validator
 
     /**
      * Checks if a rule fails validation.
-     *
-     * @return bool
      */
-    public function fails()
+    public function fails(): bool
     {
         return ! $this->passes();
     }
@@ -52,7 +44,7 @@ class Validator
     /**
      * Adds a rule to the validator.
      */
-    public function addRule(Rule $rule)
+    public function addRule(Rule $rule): void
     {
         $this->rules[] = $rule;
     }
@@ -60,9 +52,9 @@ class Validator
     /**
      * Get the rules on the validator.
      *
-     * @return array
+     * @return Rule[]
      */
-    public function getRules()
+    public function getRules(): array
     {
         return $this->rules;
     }

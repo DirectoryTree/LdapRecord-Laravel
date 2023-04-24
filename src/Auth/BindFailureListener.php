@@ -10,22 +10,16 @@ class BindFailureListener
 
     /**
      * Register the bind failure listener for Laravel Jetstream.
-     *
-     * @param  string  $request
-     * @return void
      */
-    public static function usingLaravelJetstream($request = 'Laravel\Fortify\Http\Requests\LoginRequest')
+    public static function usingLaravelJetstream(string $request = 'Laravel\Fortify\Http\Requests\LoginRequest'): void
     {
         static::whenResolving($request);
     }
 
     /**
      * Register the bind failure listener for Laravel UI.
-     *
-     * @param  string  $controller
-     * @return void
      */
-    public static function usingLaravelUi($controller = 'App\Http\Controllers\Auth\LoginController')
+    public static function usingLaravelUi(string $controller = 'App\Http\Controllers\Auth\LoginController'): void
     {
         static::whenResolving($controller, function ($controller) {
             $traits = class_uses_recursive($controller);
@@ -38,11 +32,8 @@ class BindFailureListener
 
     /**
      * Register the bind failure listener upon resolving the given class.
-     *
-     * @param  string  $class
-     * @return void
      */
-    protected static function whenResolving($class, Closure $callback = null)
+    protected static function whenResolving(string $class, Closure $callback = null): void
     {
         if (! class_exists($class)) {
             return;

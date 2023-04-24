@@ -9,17 +9,13 @@ abstract class Rule
 {
     /**
      * The LDAP user.
-     *
-     * @var LdapModel
      */
-    protected $user;
+    protected LdapModel $user;
 
     /**
      * The Eloquent model.
-     *
-     * @var Model|null
      */
-    protected $model;
+    protected ?Model $model;
 
     /**
      * Constructor.
@@ -32,8 +28,6 @@ abstract class Rule
 
     /**
      * Check if the rule passes validation.
-     *
-     * @return bool
      */
-    abstract public function isValid();
+    abstract public function isValid(): bool;
 }
