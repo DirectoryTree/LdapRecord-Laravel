@@ -142,7 +142,7 @@ class TestLdapUserAuthenticatedModelStub extends EloquentModel
 
 class TestLdapAuthRuleWithEloquentModel extends Rule
 {
-    public function isValid()
+    public function isValid(): bool
     {
         return isset($this->model);
     }
@@ -150,7 +150,7 @@ class TestLdapAuthRuleWithEloquentModel extends Rule
 
 class TestFailingLdapAuthRule extends Rule
 {
-    public function isValid()
+    public function isValid(): bool
     {
         return false;
     }

@@ -57,7 +57,7 @@ class TestRuleModelStub extends Model
 
 class TestPassingRule extends Rule
 {
-    public function isValid()
+    public function isValid(): bool
     {
         return true;
     }
@@ -65,7 +65,7 @@ class TestPassingRule extends Rule
 
 class TestFailingRule extends Rule
 {
-    public function isValid()
+    public function isValid(): bool
     {
         return false;
     }

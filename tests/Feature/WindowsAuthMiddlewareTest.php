@@ -491,7 +491,7 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
 
 class WindowsAuthRuleStub extends Rule
 {
-    public function isValid()
+    public function isValid(): bool
     {
         $_SERVER[self::class] = true;
 
