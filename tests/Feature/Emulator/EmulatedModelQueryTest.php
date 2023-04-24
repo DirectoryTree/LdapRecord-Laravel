@@ -589,7 +589,7 @@ class EmulatedModelQueryTest extends TestCase
         $group = Group::create(['cn' => 'Accounting']);
         $user = User::create(['cn' => 'John', 'memberof' => [$group->getDn()]]);
 
-         $user->groups()->attach($group);
+        $user->groups()->attach($group);
 
         $this->assertEquals($user->getDn(), $group->getFirstAttribute('member'));
 
