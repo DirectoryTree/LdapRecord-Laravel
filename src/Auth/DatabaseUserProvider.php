@@ -107,7 +107,7 @@ class DatabaseUserProvider extends UserProvider
     /**
      * {@inheritdoc}
      */
-    public function retrieveById($identifier)
+    public function retrieveById($identifier): ?Authenticatable
     {
         return $this->eloquent->retrieveById($identifier);
     }
@@ -115,7 +115,7 @@ class DatabaseUserProvider extends UserProvider
     /**
      * {@inheritdoc}
      */
-    public function retrieveByToken($identifier, $token)
+    public function retrieveByToken($identifier, $token): ?Authenticatable
     {
         return $this->eloquent->retrieveByToken($identifier, $token);
     }
@@ -123,7 +123,7 @@ class DatabaseUserProvider extends UserProvider
     /**
      * {@inheritdoc}
      */
-    public function updateRememberToken(Authenticatable $user, $token)
+    public function updateRememberToken(Authenticatable $user, $token): void
     {
         $this->eloquent->updateRememberToken($user, $token);
     }
@@ -131,7 +131,7 @@ class DatabaseUserProvider extends UserProvider
     /**
      * {@inheritdoc}
      */
-    public function retrieveByCredentials(array $credentials)
+    public function retrieveByCredentials(array $credentials): ?Authenticatable
     {
         $this->fallback = isset($credentials['fallback']);
 
@@ -171,7 +171,7 @@ class DatabaseUserProvider extends UserProvider
     /**
      * {@inheritdoc}
      */
-    public function validateCredentials(Authenticatable $user, array $credentials)
+    public function validateCredentials(Authenticatable $user, array $credentials): bool
     {
         // If an LDAP user has not been located, fallback is enabled, and
         // the given Eloquent model exists, we will attempt to validate

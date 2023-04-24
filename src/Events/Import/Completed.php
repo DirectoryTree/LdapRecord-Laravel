@@ -36,9 +36,9 @@ class Completed implements LoggableEvent
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    public function getLogMessage()
+    public function getLogMessage(): string
     {
         $imported = $this->imported->filter(function (Model $eloquent) {
             return $eloquent->wasRecentlyCreated;

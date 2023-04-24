@@ -9,17 +9,13 @@ abstract class Hydrator
 {
     /**
      * The attributes to hydrate.
-     *
-     * @var array
      */
-    protected $config = [];
+    protected array $config = [];
 
     /**
      * Extra data for the hydration process.
-     *
-     * @var array
      */
-    protected $data = [];
+    protected array $data = [];
 
     /**
      * Constructor.
@@ -32,20 +28,14 @@ abstract class Hydrator
 
     /**
      * Create a new hydrator instance.
-     *
-     *
-     * @return static
      */
-    public static function with(array $config = [], array $data = [])
+    public static function with(array $config = [], array $data = []): static
     {
         return new static($config, $data);
     }
 
     /**
      * Hydrate the database model with the LDAP user.
-     *
-     *
-     * @return void
      */
-    abstract public function hydrate(LdapModel $object, EloquentModel $eloquent);
+    abstract public function hydrate(LdapModel $object, EloquentModel $eloquent): void;
 }

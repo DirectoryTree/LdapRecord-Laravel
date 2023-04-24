@@ -44,9 +44,9 @@ class DeletedMissing implements LoggableEvent
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    public function getLogMessage()
+    public function getLogMessage(): string
     {
         $guids = $this->deleted->values()->implode(', ');
 

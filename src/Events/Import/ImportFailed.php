@@ -30,17 +30,17 @@ class ImportFailed extends Event implements LoggableEvent
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    public function getLogLevel()
+    public function getLogLevel(): string
     {
         return 'error';
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    public function getLogMessage()
+    public function getLogMessage(): string
     {
         return "Failed importing object [{$this->object->getName()}]. {$this->exception->getMessage()}";
     }

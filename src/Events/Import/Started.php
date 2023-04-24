@@ -26,9 +26,9 @@ class Started implements LoggableEvent
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    public function getLogMessage()
+    public function getLogMessage(): string
     {
         return "Starting import of [{$this->objects->count()}] LDAP objects.";
     }

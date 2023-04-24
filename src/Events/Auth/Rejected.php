@@ -10,9 +10,9 @@ class Rejected extends Event implements LoggableEvent
     use Loggable;
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    public function getLogMessage()
+    public function getLogMessage(): string
     {
         return "User [{$this->object->getName()}] has failed validation. They have been denied authentication.";
     }

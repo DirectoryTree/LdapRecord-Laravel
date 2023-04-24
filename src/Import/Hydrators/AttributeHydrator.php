@@ -9,9 +9,9 @@ use LdapRecord\Models\Model as LdapModel;
 class AttributeHydrator extends Hydrator
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    public function hydrate(LdapModel $object, EloquentModel $eloquent)
+    public function hydrate(LdapModel $object, EloquentModel $eloquent): void
     {
         foreach ($this->getSyncAttributes() as $eloquentField => $ldapField) {
             if ($this->isAttributeHandler($ldapField)) {
@@ -28,10 +28,8 @@ class AttributeHydrator extends Hydrator
 
     /**
      * Get the database sync attributes.
-     *
-     * @return array
      */
-    protected function getSyncAttributes()
+    protected function getSyncAttributes(): array
     {
         return (array) Arr::get(
             $this->config,
@@ -42,11 +40,8 @@ class AttributeHydrator extends Hydrator
 
     /**
      * Determines if the given handler value is a class that contains the 'handle' method.
-     *
-     *
-     * @return bool
      */
-    protected function isAttributeHandler($handler)
+    protected function isAttributeHandler($handler): bool
     {
         return is_string($handler) && class_exists($handler) && method_exists($handler, 'handle');
     }
