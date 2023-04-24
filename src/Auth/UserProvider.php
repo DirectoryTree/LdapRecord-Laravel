@@ -55,8 +55,6 @@ abstract class UserProvider implements LaravelUserProvider
     /**
      * Attempt to retrieve the user by their credentials.
      *
-     *
-     *
      * @throws ValidationException
      */
     protected function fetchLdapUserByCredentials(array $credentials)
@@ -70,7 +68,6 @@ abstract class UserProvider implements LaravelUserProvider
 
     /**
      * Handle exceptions during user resolution.
-     *
      *
      * @throws ValidationException
      */

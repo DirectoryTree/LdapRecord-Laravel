@@ -28,11 +28,9 @@ class GetRootDse extends Command
     /**
      * Execute the console command.
      *
-     * @return int
-     *
      * @throws \LdapRecord\Models\ModelNotFoundException
      */
-    public function handle()
+    public function handle(): int
     {
         $connection = $this->argument('connection') ?? Container::getDefaultConnectionName();
 
@@ -57,7 +55,7 @@ class GetRootDse extends Command
                 $this->line('');
             }
 
-            return 0;
+            return static::SUCCESS;
         }
 
         if (isset($onlyAttributes)) {
@@ -68,6 +66,6 @@ class GetRootDse extends Command
             $this->error('No attributes were returned from the Root DSE query.');
         }
 
-        return -1;
+        return static::FAILURE;
     }
 }

@@ -10,7 +10,6 @@ class DirectoryEmulator extends DirectoryFake
     /**
      * Setup the fake connections.
      *
-     *
      * @return EmulatedConnectionFake
      *
      * @throws \LdapRecord\ContainerException

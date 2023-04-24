@@ -27,11 +27,9 @@ class TestLdapConnection extends Command
     /**
      * Execute the console command.
      *
-     * @return void
-     *
      * @throws \LdapRecord\ContainerException
      */
-    public function handle()
+    public function handle(): int
     {
         if ($connection = $this->argument('connection')) {
             $connections = [$connection => Container::getConnection($connection)];
@@ -40,7 +38,9 @@ class TestLdapConnection extends Command
         }
 
         if (empty($connections)) {
-            return $this->error('No LDAP connections have been defined.');
+            $this->error('No LDAP connections have been defined.');
+
+            return static::FAILURE;
         }
 
         $tested = [];
@@ -50,6 +50,8 @@ class TestLdapConnection extends Command
         }
 
         $this->table(['Connection', 'Successful', 'Username', 'Message', 'Response Time'], $tested);
+
+        return static::SUCCESS;
     }
 
     /**
@@ -77,7 +79,6 @@ class TestLdapConnection extends Command
 
     /**
      * Attempt establishing the connection.
-     *
      *
      * @return string
      */

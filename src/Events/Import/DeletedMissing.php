@@ -14,24 +14,18 @@ class DeletedMissing implements LoggableEvent
 
     /**
      * The LdapRecord model used to import.
-     *
-     * @var LdapRecord
      */
-    public $ldapModel;
+    public LdapRecord $ldapModel;
 
     /**
      * The Eloquent model used to import.
-     *
-     * @var Eloquent
      */
-    public $eloquentModel;
+    public Eloquent $eloquentModel;
 
     /**
      * The Object GUIDs that have been deleted.
-     *
-     * @var Collection
      */
-    public $deleted;
+    public Collection $deleted;
 
     /**
      * Constructor.

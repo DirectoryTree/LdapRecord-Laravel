@@ -18,24 +18,18 @@ class LdapUserImporter extends Importer
 {
     /**
      * The LDAP user repository to use for importing.
-     *
-     * @var LdapUserRepository
      */
-    protected $repository;
+    protected LdapUserRepository $repository;
 
     /**
      * Whether to restore soft-deleted database models if the object is enabled.
-     *
-     * @var bool
      */
-    protected $restoreEnabledUsers = false;
+    protected bool $restoreEnabledUsers = false;
 
     /**
      * Whether to soft-delete the database model if the object is disabled.
-     *
-     * @var bool
      */
-    protected $trashDisabledUsers = false;
+    protected bool $trashDisabledUsers = false;
 
     /**
      * Constructor.
@@ -65,7 +59,6 @@ class LdapUserImporter extends Importer
 
     /**
      * Set the LDAP user repository to use for importing.
-     *
      *
      * @return $this
      */
@@ -143,7 +136,6 @@ class LdapUserImporter extends Importer
     /**
      * Soft deletes the specified model if their LDAP account is disabled.
      *
-     *
      * @return void
      */
     protected function delete(LdapRecord $object, Eloquent $eloquent)
@@ -163,7 +155,6 @@ class LdapUserImporter extends Importer
 
     /**
      * Restores soft-deleted models if their LDAP account is enabled.
-     *
      *
      * @return void
      */
@@ -185,7 +176,6 @@ class LdapUserImporter extends Importer
     /**
      * Determine whether the user is enabled.
      *
-     *
      * @return bool
      */
     protected function userIsEnabled(LdapRecord $object)
@@ -196,7 +186,6 @@ class LdapUserImporter extends Importer
     /**
      * Determines whether the user is disabled.
      *
-     *
      * @return bool
      */
     protected function userIsDisabled(LdapRecord $object)
@@ -206,7 +195,6 @@ class LdapUserImporter extends Importer
 
     /**
      * Get the user account control integer from the user.
-     *
      *
      * @return int|null
      */

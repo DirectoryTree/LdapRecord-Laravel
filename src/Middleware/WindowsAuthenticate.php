@@ -4,6 +4,7 @@ namespace LdapRecord\Laravel\Middleware;
 
 use Closure;
 use Exception;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Factory as Auth;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Support\Arr;
@@ -20,73 +21,53 @@ class WindowsAuthenticate
 {
     /**
      * The guards to use for SSO authentication.
-     *
-     * @var null|array
      */
-    public static $guards;
+    public static ?array $guards = null;
 
     /**
      * The server key to use for fetching user SSO information.
-     *
-     * @var string
      */
-    public static $serverKey = 'AUTH_USER';
+    public static string $serverKey = 'AUTH_USER';
 
     /**
      * The username attribute to use for locating users.
-     *
-     * @var string
      */
-    public static $username = 'samaccountname';
+    public static string $username = 'samaccountname';
 
     /**
      * Whether domain verification is enabled.
-     *
-     * @var bool
      */
-    public static $domainVerification = true;
+    public static bool $domainVerification = true;
 
     /**
      * Whether unauthenticated SSO users are logged out.
-     *
-     * @var bool
      */
-    public static $logoutUnauthenticatedUsers = false;
+    public static bool $logoutUnauthenticatedUsers = false;
 
     /**
      * Whether authenticated SSO users are remembered upon login.
-     *
-     * @var bool
      */
-    public static $rememberAuthenticatedUsers = false;
+    public static bool $rememberAuthenticatedUsers = false;
 
     /**
      * The user domain extractor callback.
-     *
-     * @var Closure|null
      */
-    public static $userDomainExtractor;
+    public static ?Closure $userDomainExtractor = null;
 
     /**
      * The user domain validator class/callback.
-     *
-     * @var Closure|string
      */
-    public static $userDomainValidator = UserDomainValidator::class;
+    public static Closure|string $userDomainValidator = UserDomainValidator::class;
 
     /**
      * The fallback callback to resolve users with.
-     *
-     * @var Closure|string|null
      */
-    public static $userResolverFallback;
+    public static Closure|string|null $userResolverFallback = null;
 
     /**
      * The auth factory instance.
-     *
-     * @var Auth
      */
-    protected $auth;
+    protected Auth $auth;
 
     /**
      * Constructor.
@@ -101,7 +82,7 @@ class WindowsAuthenticate
      *
      * @param  string|array  $guards
      */
-    public static function guards($guards)
+    public static function guards($guards): void
     {
         static::$guards = Arr::wrap($guards);
     }
@@ -110,9 +91,8 @@ class WindowsAuthenticate
      * Define the server key to use for fetching user SSO information.
      *
      * @param  string  $key
-     * @return void
      */
-    public static function serverKey($key)
+    public static function serverKey($key): void
     {
         static::$serverKey = $key;
     }
@@ -121,50 +101,40 @@ class WindowsAuthenticate
      * Define the username attribute for locating users.
      *
      * @param  string  $attribute
-     * @return void
      */
-    public static function username($attribute)
+    public static function username($attribute): void
     {
         static::$username = $attribute;
     }
 
     /**
      * Bypass domain verification when logging in users.
-     *
-     * @return void
      */
-    public static function bypassDomainVerification()
+    public static function bypassDomainVerification(): void
     {
         static::$domainVerification = false;
     }
 
     /**
      * Force logout unauthenticated SSO users.
-     *
-     * @return void
      */
-    public static function logoutUnauthenticatedUsers()
+    public static function logoutUnauthenticatedUsers(): void
     {
         static::$logoutUnauthenticatedUsers = true;
     }
 
     /**
      * Remember authenticated SSO users permanently.
-     *
-     * @return void
      */
-    public static function rememberAuthenticatedUsers()
+    public static function rememberAuthenticatedUsers(): void
     {
         static::$rememberAuthenticatedUsers = true;
     }
 
     /**
      * Set the callback to extract domains from the users username.
-     *
-     *
-     * @return void
      */
-    public static function extractDomainUsing(Closure $callback)
+    public static function extractDomainUsing(Closure $callback): void
     {
         static::$userDomainExtractor = $callback;
     }
@@ -173,9 +143,8 @@ class WindowsAuthenticate
      * Register a class / callback that should be used to validate domains.
      *
      * @param  Closure|string  $callback
-     * @return void
      */
-    public static function validateDomainUsing($callback)
+    public static function validateDomainUsing($callback): void
     {
         static::$userDomainValidator = $callback;
     }
@@ -184,9 +153,8 @@ class WindowsAuthenticate
      * Set the callback to resolve users by when retrieving the authenticated user fails.
      *
      * @param  Closure|string|null  $callback
-     * @return void
      */
-    public static function fallback($callback = null)
+    public static function fallback($callback = null): void
     {
         static::$userResolverFallback = $callback;
     }
@@ -253,9 +221,8 @@ class WindowsAuthenticate
      * @param  array  $guards
      * @param  string  $username
      * @param  string|null  $domain
-     * @return void
      */
-    protected function attempt($guards, $username, $domain = null)
+    protected function attempt($guards, $username, $domain = null): void
     {
         foreach ($guards as $guard) {
             $provider = $this->auth->guard($guard)->getProvider();
@@ -270,14 +237,16 @@ class WindowsAuthenticate
 
             $this->auth->shouldUse($guard);
 
-            return $this->auth->login($user, static::$rememberAuthenticatedUsers);
+            $this->auth->login($user, static::$rememberAuthenticatedUsers);
+
+            return;
         }
     }
 
     /**
      * Logout of all the given authenticated guards.
      */
-    protected function logout($guards)
+    protected function logout($guards): void
     {
         foreach ($guards as $guard) {
             if ($this->auth->guard($guard)->check()) {
@@ -288,11 +257,8 @@ class WindowsAuthenticate
 
     /**
      * Determine if the user is authenticated in any of the given guards.
-     *
-     *
-     * @return bool
      */
-    protected function authenticated(array $guards)
+    protected function authenticated(array $guards): bool
     {
         foreach ($guards as $guard) {
             if ($this->auth->guard($guard)->check()) {
@@ -308,9 +274,8 @@ class WindowsAuthenticate
      *
      * @param  string  $username
      * @param  string|null  $domain
-     * @return \Illuminate\Contracts\Auth\Authenticatable|null
      */
-    protected function retrieveAuthenticatedUser(UserProvider $provider, $username, $domain = null)
+    protected function retrieveAuthenticatedUser(UserProvider $provider, $username, $domain = null): ?Authenticatable
     {
         // First, we will attempt to retrieve the user from the LDAP server
         // by their username. If we don't get any result, we can bail
@@ -325,7 +290,7 @@ class WindowsAuthenticate
         // is in-fact the one who has been authenticated via SSO on our web server. This will
         // prevent users with the same username from potentially signing in as eachother.
         if (! $this->userIsApartOfDomain($user, $username, $domain)) {
-            return;
+            return null;
         }
 
         // Then, we will determine if the current provider in-use uses database
@@ -348,7 +313,7 @@ class WindowsAuthenticate
         // bail here. Even though the user has successfully authenticated
         // against the web server, they have been denied logging in.
         if (! $allowedToAuthenticate) {
-            return;
+            return null;
         }
 
         // Finally, we will finish saving the users database model (if applicable)
@@ -365,11 +330,8 @@ class WindowsAuthenticate
 
     /**
      * Finish saving the user's database model.
-     *
-     *
-     * @return void
      */
-    protected function finishModelSave(Model $user, Eloquent $model)
+    protected function finishModelSave(Model $user, Eloquent $model): void
     {
         $model->save();
 
@@ -384,9 +346,8 @@ class WindowsAuthenticate
      * Get the user from the LDAP user repository by their username.
      *
      * @param  string  $username
-     * @return Model|null
      */
-    protected function getUserFromRepository(LdapUserRepository $repository, $username)
+    protected function getUserFromRepository(LdapUserRepository $repository, $username): ?Model
     {
         try {
             return $repository->findBy(static::$username, $username);
@@ -396,6 +357,8 @@ class WindowsAuthenticate
             }
 
             report($e);
+
+            return null;
         }
     }
 
@@ -404,9 +367,8 @@ class WindowsAuthenticate
      *
      * @param  string  $username
      * @param  string|null  $domain
-     * @return bool
      */
-    protected function userIsApartOfDomain(Model $user, $username, $domain = null)
+    protected function userIsApartOfDomain(Model $user, $username, $domain = null): bool
     {
         if (! static::$domainVerification) {
             return true;
@@ -422,12 +384,11 @@ class WindowsAuthenticate
      *
      * @param  string  $username
      * @param  string|null  $domain
-     * @return \Illuminate\Contracts\Auth\Authenticatable|null
      */
-    protected function failedRetrievingUser(UserProvider $provider, $username, $domain = null)
+    protected function failedRetrievingUser(UserProvider $provider, $username, $domain = null): ?Authenticatable
     {
         if (! static::$userResolverFallback) {
-            return;
+            return null;
         }
 
         return with(static::$userResolverFallback, function ($callback) {
@@ -437,22 +398,16 @@ class WindowsAuthenticate
 
     /**
      * Fires the imported event.
-     *
-     *
-     * @return void
      */
-    protected function fireImportedEvent(Model $user, Eloquent $model)
+    protected function fireImportedEvent(Model $user, Eloquent $model): void
     {
         event(new Imported($user, $model));
     }
 
     /**
      * Fires the saved event.
-     *
-     *
-     * @return void
      */
-    protected function fireSavedEvent(Model $user, Eloquent $model)
+    protected function fireSavedEvent(Model $user, Eloquent $model): void
     {
         event(new Saved($user, $model));
     }
@@ -461,9 +416,8 @@ class WindowsAuthenticate
      * Fires the windows authentication event.
      *
      * @param  mixed|null  $model
-     * @return void
      */
-    protected function fireAuthenticatedEvent(Model $user, $model = null)
+    protected function fireAuthenticatedEvent(Model $user, $model = null): void
     {
         event(new CompletedWithWindows($user, $model));
     }
@@ -472,9 +426,8 @@ class WindowsAuthenticate
      * Retrieves the users SSO account name from our server.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return string
      */
-    protected function account($request)
+    protected function account($request): string
     {
         return utf8_encode($request->server(static::$serverKey));
     }

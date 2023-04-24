@@ -5,6 +5,7 @@ namespace LdapRecord\Laravel\Testing\Emulated;
 use Illuminate\Support\Arr;
 use LdapRecord\Laravel\Testing\EmulatesQueries;
 use LdapRecord\Models\Collection;
+use LdapRecord\Models\Model;
 
 trait EmulatesModelQueries
 {
@@ -120,11 +121,8 @@ trait EmulatesModelQueries
 
     /**
      * Transform the result into a model instance.
-     *
-     *
-     * @return \LdapRecord\Models\Model
      */
-    protected function resultToModelInstance($result)
+    protected function resultToModelInstance($result): Model
     {
         if ($result instanceof $this->model) {
             return $result;
@@ -143,16 +141,18 @@ trait EmulatesModelQueries
     /**
      * {@inheritdoc}
      */
-    protected function addFilterToDatabaseQuery($query, $field, $operator, $value)
+    protected function addFilterToDatabaseQuery($query, $field, $operator, $value): void
     {
         if ($field === 'anr') {
-            return $query->whereIn('name', $this->model->getAnrAttributes())
+            $query->whereIn('name', $this->model->getAnrAttributes())
                 ->whereHas('values', function ($query) use ($value) {
                     $query->where('value', 'like', "%$value%");
                 });
+
+            return;
         }
 
-        return $this->baseAddFilterToDatabaseQuery($query, $field, $operator, $value);
+        $this->baseAddFilterToDatabaseQuery($query, $field, $operator, $value);
     }
 
     /**

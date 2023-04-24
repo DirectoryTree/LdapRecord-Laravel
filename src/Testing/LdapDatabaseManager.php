@@ -14,24 +14,20 @@ class LdapDatabaseManager
 {
     /**
      * The eloquent model to utilize.
-     *
-     * @var string
      */
-    protected static $model = LdapObject::class;
+    protected static string $model = LdapObject::class;
 
     /**
      * The underlying database manager instance.
-     *
-     * @var DatabaseManager
      */
-    protected $db;
+    protected DatabaseManager $db;
 
     /**
      * The resolved LDAP database connections.
      *
      * @var Connection[]
      */
-    protected $connections = [];
+    protected array $connections = [];
 
     /**
      * Set the Eloquent model to use.
@@ -164,7 +160,6 @@ class LdapDatabaseManager
 
     /**
      * Run the database migrations on the connection.
-     *
      *
      * @return void
      */

@@ -14,10 +14,8 @@ class ImportFailed extends Event implements LoggableEvent
 
     /**
      * The exception that was thrown during import.
-     *
-     * @var Exception
      */
-    public $exception;
+    public Exception $exception;
 
     /**
      * Constructor.

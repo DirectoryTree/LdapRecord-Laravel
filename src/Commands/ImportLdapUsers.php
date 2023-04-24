@@ -47,21 +47,16 @@ class ImportLdapUsers extends Command
 
     /**
      * The LDAP user import instance.
-     *
-     * @var LdapUserImporter
      */
-    protected $importer;
+    protected LdapUserImporter $importer;
 
     /**
      * The import progress bar indicator.
-     *
-     * @var ProgressBar|null
      */
-    protected $progress;
+    protected ?ProgressBar $progress;
 
     /**
      * Execute the console command.
-     *
      *
      * @return void
      *
@@ -202,7 +197,6 @@ class ImportLdapUsers extends Command
     /**
      * Displays the given users in a table.
      *
-     *
      * @return void
      */
     protected function confirmAndDisplayObjects(Collection $objects)
@@ -229,7 +223,6 @@ class ImportLdapUsers extends Command
 
     /**
      * Apply the import options to the importer.
-     *
      *
      * @return void
      */
@@ -270,7 +263,6 @@ class ImportLdapUsers extends Command
 
     /**
      * Set the importer to use.
-     *
      *
      * @return void
      */

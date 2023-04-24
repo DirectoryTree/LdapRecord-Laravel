@@ -4,6 +4,7 @@ namespace LdapRecord\Laravel\Testing;
 
 use Closure;
 use Exception;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use LdapRecord\Connection;
@@ -19,24 +20,18 @@ trait EmulatesQueries
 {
     /**
      * The LDAP attributes to include in results due to a 'select' statement.
-     *
-     * @var array
      */
-    protected $only = [];
+    protected array $only = [];
 
     /**
      * The underlying database query.
-     *
-     * @var \Illuminate\Database\Eloquent\Builder
      */
-    protected $query;
+    protected EloquentBuilder $query;
 
     /**
      * The nested query state.
-     *
-     * @var string|null
      */
-    protected $nestedState;
+    protected ?string $nestedState;
 
     /**
      * Constructor.
@@ -50,20 +45,16 @@ trait EmulatesQueries
 
     /**
      * Create a new Eloquent query from the configured model.
-     *
-     * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function newEloquentQuery()
+    public function newEloquentQuery(): EloquentBuilder
     {
         return $this->newEloquentModel()->newQuery();
     }
 
     /**
      * Create a new instance of the configured model.
-     *
-     * @return LdapObject
      */
-    public function newEloquentModel()
+    public function newEloquentModel(): LdapObject
     {
         return app(LdapDatabaseManager::class)->createModel(
             $this->getConnection()->name()
@@ -72,11 +63,8 @@ trait EmulatesQueries
 
     /**
      * Set the underlying Eloquent query builder.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return $this
      */
-    public function setEloquentQuery($query)
+    public function setEloquentQuery(EloquentBuilder $query): static
     {
         $this->query = $query;
 
@@ -85,17 +73,14 @@ trait EmulatesQueries
 
     /**
      * Get the underlying Eloquent query builder.
-     *
-     * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function getEloquentQuery()
+    public function getEloquentQuery(): EloquentBuilder
     {
         return $this->query;
     }
 
     /**
      * Create a new nested query builder with the given state.
-     *
      *
      * @return Builder
      */
@@ -118,7 +103,7 @@ trait EmulatesQueries
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function clearFilters(): static
     {
@@ -136,7 +121,7 @@ trait EmulatesQueries
      * @param  string  $state
      * @return $this
      */
-    public function setNestedQueryState($state)
+    public function setNestedQueryState($state): static
     {
         $this->nestedState = $state;
 
@@ -144,7 +129,7 @@ trait EmulatesQueries
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function orFilter(Closure $closure): static
     {
@@ -159,9 +144,8 @@ trait EmulatesQueries
      * Find the Eloquent model by distinguished name.
      *
      * @param  string  $dn
-     * @return LdapObject|null
      */
-    public function findEloquentModelByDn($dn)
+    public function findEloquentModelByDn($dn): ?LdapObject
     {
         return $this->newEloquentQuery()->where('dn', 'like', $dn)->first();
     }
@@ -170,15 +154,14 @@ trait EmulatesQueries
      * Find the Eloquent model by guid.
      *
      * @param  string  $guid
-     * @return LdapObject|null
      */
-    public function findEloquentModelByGuid($guid)
+    public function findEloquentModelByGuid($guid): ?LdapObject
     {
         return $this->newEloquentQuery()->where('guid', '=', $guid)->first();
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function addFilter($type, array $bindings): static
     {
@@ -207,9 +190,8 @@ trait EmulatesQueries
      * Determine the relationship method to use for the given bindings.
      *
      * @param  string  $type
-     * @return string
      */
-    protected function determineRelationMethod($type, array $bindings)
+    protected function determineRelationMethod($type, array $bindings): string
     {
         $method = $bindings['operator'] == '!*' ? 'whereDoesntHave' : 'whereHas';
 
@@ -236,77 +218,73 @@ trait EmulatesQueries
     /**
      * Adds an LDAP "where" filter to the underlying Eloquent builder.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  EloquentBuilder  $query
      * @param  string  $field
      * @param  string  $operator
      * @param  string|null  $value
-     * @return \Illuminate\Database\Eloquent\Builder
      */
-    protected function addFilterToDatabaseQuery($query, $field, $operator, $value)
+    protected function addFilterToDatabaseQuery($query, $field, $operator, $value): void
     {
-        switch ($operator) {
-            case '*':
-                return $query->where('name', '=', $field);
-            case '!*':
-                return $query->where('name', '!=', $field);
-            case '=':
-                return $query->where('name', '=', $field)
-                    ->whereHas('values', function ($q) use ($value) {
-                        $q->where('value', 'like', $value);
-                    });
-            case '!':
-                // Fallthrough.
-            case '!=':
-                return $query->where('name', '=', $field)
-                    ->whereHas('values', function ($q) use ($value) {
-                        $q->where('value', 'not like', $value);
-                    });
-            case'>=':
-                return $query->where('name', '=', $field)
-                    ->whereHas('values', function ($q) use ($value) {
-                        $q->where('value', '>=', $value);
-                    });
-            case'<=':
-                return $query->where('name', '=', $field)
-                    ->whereHas('values', function ($q) use ($value) {
-                        $q->where('value', '<=', $value);
-                    });
-            case'~=':
-                return $query->where('name', '=', $field)
-                    ->whereHas('values', function ($q) use ($value) {
-                        $q->where('value', 'like', "%$value%");
-                    });
-            case'starts_with':
-                return $query->where('name', '=', $field)
-                    ->whereHas('values', function ($q) use ($value) {
-                        $q->where('value', 'like', "$value%");
-                    });
-            case'not_starts_with':
-                return $query->where('name', '=', $field)
-                    ->whereHas('values', function ($q) use ($value) {
-                        $q->where('value', 'not like', "$value%");
-                    });
-            case'ends_with':
-                return $query->where('name', '=', $field)
-                    ->whereHas('values', function ($q) use ($value) {
-                        $q->where('value', 'like', "%$value");
-                    });
-            case'not_ends_with':
-                return $query->where('name', '=', $field)
-                    ->whereHas('values', function ($q) use ($value) {
-                        $q->where('value', 'not like', "%$value");
-                    });
-            case'contains':
-                return $query->where('name', '=', $field)
-                    ->whereHas('values', function ($q) use ($value) {
-                        $q->where('value', 'like', "%$value%");
-                    });
-            case'not_contains':
-                return $query->where('name', '=', $field)
-                    ->whereHas('values', function ($q) use ($value) {
-                        $q->where('value', 'not like', "%$value%");
-                    });
-        }
+        match ($operator) {
+            '*' => $query->where('name', '=', $field),
+
+            '!*' => $query->where('name', '!=', $field),
+
+            '=' => $query->where('name', '=', $field)
+                ->whereHas('values', function ($q) use ($value) {
+                    $q->where('value', 'like', $value);
+                }),
+
+            '!', '!=' => $query->where('name', '=', $field)
+                ->whereHas('values', function ($q) use ($value) {
+                    $q->where('value', 'not like', $value);
+                }),
+
+            '>=' => $query->where('name', '=', $field)
+                ->whereHas('values', function ($q) use ($value) {
+                    $q->where('value', '>=', $value);
+                }),
+
+            '<=' => $query->where('name', '=', $field)
+                ->whereHas('values', function ($q) use ($value) {
+                    $q->where('value', '<=', $value);
+                }),
+
+            '~=' => $query->where('name', '=', $field)
+                ->whereHas('values', function ($q) use ($value) {
+                    $q->where('value', 'like', "%$value%");
+                }),
+
+            'starts_with' => $query->where('name', '=', $field)
+                ->whereHas('values', function ($q) use ($value) {
+                    $q->where('value', 'like', "$value%");
+                }),
+
+            'not_starts_with' => $query->where('name', '=', $field)
+                ->whereHas('values', function ($q) use ($value) {
+                    $q->where('value', 'not like', "$value%");
+                }),
+
+            'ends_with' => $query->where('name', '=', $field)
+                ->whereHas('values', function ($q) use ($value) {
+                    $q->where('value', 'like', "%$value");
+                }),
+
+            'not_ends_with' => $query->where('name', '=', $field)
+                ->whereHas('values', function ($q) use ($value) {
+                    $q->where('value', 'not like', "%$value");
+                }),
+
+            'contains' => $query->where('name', '=', $field)
+                ->whereHas('values', function ($q) use ($value) {
+                    $q->where('value', 'like', "%$value%");
+                }),
+
+            'not_contains' => $query->where('name', '=', $field)
+                ->whereHas('values', function ($q) use ($value) {
+                    $q->where('value', 'not like', "%$value%");
+                }),
+        };
     }
 
     /**
@@ -314,9 +292,8 @@ trait EmulatesQueries
      *
      * @param  string  $type
      * @param  string  $field
-     * @return bool
      */
-    protected function fieldIsUsedMultipleTimes($type, $field)
+    protected function fieldIsUsedMultipleTimes($type, $field): bool
     {
         return collect($this->filters[$type])->where('field', '=', $field)->isNotEmpty();
     }
@@ -325,9 +302,8 @@ trait EmulatesQueries
      * Applies the batch modification to the given model.
      *
      * @param  \Illuminate\Database\Eloquent\Model  $model
-     * @return void
      */
-    protected function applyBatchModificationToModel($model, array $modification)
+    protected function applyBatchModificationToModel($model, array $modification): void
     {
         $name = $modification[BatchModification::KEY_ATTRIB];
         $type = $modification[BatchModification::KEY_MODTYPE];
@@ -360,7 +336,7 @@ trait EmulatesQueries
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function findOrFail($dn, $columns = ['*']): LdapRecord|array
     {
@@ -374,7 +350,7 @@ trait EmulatesQueries
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function findByGuidOrFail(string $guid, array|string $columns = ['*']): LdapRecord
     {
@@ -393,7 +369,7 @@ trait EmulatesQueries
      * @param  Model|array  $database
      * @return array
      */
-    protected function getArrayableResult($database)
+    protected function getArrayableResult($database): Model|array
     {
         return $database instanceof Model ? $database->toArray() : $database;
     }
@@ -409,7 +385,7 @@ trait EmulatesQueries
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function insert($dn, array $attributes): bool
     {
@@ -443,9 +419,8 @@ trait EmulatesQueries
      *
      * @param  string  $dn
      * @param  array  $attributes
-     * @return LdapObject
      */
-    protected function applyObjectAttributesToEloquent(LdapObject $model, $dn, $attributes)
+    protected function applyObjectAttributesToEloquent(LdapObject $model, $dn, $attributes): LdapObject
     {
         $dn = new DistinguishedName($dn);
 
@@ -463,7 +438,7 @@ trait EmulatesQueries
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function updateAttributes($dn, array $attributes): bool
     {
@@ -490,9 +465,8 @@ trait EmulatesQueries
      * Normalize the attribute name.
      *
      * @param  string  $field
-     * @return string
      */
-    protected function normalizeAttributeName($field)
+    protected function normalizeAttributeName($field): string
     {
         return strtolower($field);
     }
@@ -502,16 +476,15 @@ trait EmulatesQueries
      *
      * @param  string|null  $key
      * @param  array  $attributes
-     * @return string
      */
-    protected function pullGuidFromAttributes($key, &$attributes)
+    protected function pullGuidFromAttributes($key, &$attributes): ?string
     {
         if (! $key) {
-            return;
+            return null;
         }
 
         if (! Arr::has($attributes, $key)) {
-            return;
+            return null;
         }
 
         return Arr::first(
@@ -521,10 +494,8 @@ trait EmulatesQueries
 
     /**
      * Attempt to determine the GUID attribute key.
-     *
-     * @return string|null
      */
-    protected function determineGuidKey()
+    protected function determineGuidKey(): ?string
     {
         return property_exists($this, 'model') ? $this->model->getGuidKey() : null;
     }
@@ -533,24 +504,24 @@ trait EmulatesQueries
      * Determine the guid key from the given object attributes.
      *
      * @param  array  $attributes
-     * @return string|null
      */
-    protected function determineGuidKeyFromAttributes($attributes)
+    protected function determineGuidKeyFromAttributes($attributes): ?string
     {
         foreach ($attributes as $attribute => $values) {
             if (Guid::isValid($this->attributeValueIsGuid($values))) {
                 return $attribute;
             }
         }
+
+        return null;
     }
 
     /**
      * Determine if the given attribute value is a GUID.
      *
      * @param  array|string  $value
-     * @return bool
      */
-    protected function attributeValueIsGuid($value)
+    protected function attributeValueIsGuid($value): bool
     {
         return Guid::isValid(
             is_array($value) ? reset($value) : $value
@@ -558,7 +529,7 @@ trait EmulatesQueries
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function rename($dn, $rdn, $newParentDn, $deleteOldRdn = true): bool
     {
@@ -576,7 +547,7 @@ trait EmulatesQueries
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function delete($dn): bool
     {
@@ -588,7 +559,7 @@ trait EmulatesQueries
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function escape(mixed $value = null, string $ignore = '', int $flags = 0): UnescapedValue
     {
@@ -596,7 +567,7 @@ trait EmulatesQueries
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function paginate(int $pageSize = 1000, bool $isCritical = false): Collection|array
     {
@@ -604,7 +575,7 @@ trait EmulatesQueries
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function run(string $filter): mixed
     {
@@ -646,11 +617,8 @@ trait EmulatesQueries
 
     /**
      * Transform the database attributes into a single array.
-     *
-     *
-     * @return array
      */
-    protected function transform($attributes)
+    protected function transform($attributes): array
     {
         return collect(Arr::pull($attributes, 'attributes'))->mapWithKeys(function ($attribute) {
             return [$attribute['name'] => collect($attribute['values'])->map->value->toArray()];

@@ -2,15 +2,16 @@
 
 namespace LdapRecord\Laravel\Tests\Feature;
 
+use Illuminate\Database\Eloquent\Model;
+
 trait CreatesTestUsers
 {
     /**
      * Create a new test user.
      *
-     * @param  string|null  $model
-     * @return TestUserModelStub|\Illuminate\Database\Eloquent\Model
+     * @return TestUserModelStub|Model
      */
-    protected function createTestUser(array $attributes = [], $model = null)
+    protected function createTestUser(array $attributes = [], string $model = null): Model
     {
         $model = $model ?? TestUserModelStub::class;
 

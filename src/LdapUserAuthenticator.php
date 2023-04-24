@@ -115,7 +115,6 @@ class LdapUserAuthenticator
     /**
      * Set the callback to use for authenticating users.
      *
-     *
      * @return $this
      */
     public function authenticateUsing(Closure $authenticator)
@@ -127,7 +126,6 @@ class LdapUserAuthenticator
 
     /**
      * Validate the given user against the authentication rules.
-     *
      *
      * @return bool
      */
@@ -165,7 +163,6 @@ class LdapUserAuthenticator
     /**
      * Fire the "attempting" event.
      *
-     *
      * @return void
      */
     protected function attempting(Model $user)
@@ -175,7 +172,6 @@ class LdapUserAuthenticator
 
     /**
      * Fire the "passed" event.
-     *
      *
      * @return void
      */
@@ -187,7 +183,6 @@ class LdapUserAuthenticator
     /**
      * Fire the "trashed" event.
      *
-     *
      * @return void
      */
     protected function trashed(Model $user)
@@ -198,7 +193,6 @@ class LdapUserAuthenticator
     /**
      * Fire the "failed" event.
      *
-     *
      * @return void
      */
     protected function failed(Model $user)
@@ -208,7 +202,6 @@ class LdapUserAuthenticator
 
     /**
      * Fire the "rejected" event.
-     *
      *
      * @return void
      */

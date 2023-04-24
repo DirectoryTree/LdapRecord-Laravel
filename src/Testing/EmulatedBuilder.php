@@ -16,7 +16,6 @@ class EmulatedBuilder extends Builder
     /**
      * Create a new Eloquent model builder.
      *
-     *
      * @return mixed
      */
     public function model(Model $model): ModelBuilder
@@ -30,11 +29,8 @@ class EmulatedBuilder extends Builder
 
     /**
      * Determine the query builder to use for the model.
-     *
-     *
-     * @return string
      */
-    protected function determineBuilderFromModel(Model $model)
+    protected function determineBuilderFromModel(Model $model): string
     {
         switch (true) {
             case $model instanceof ActiveDirectory:
@@ -60,9 +56,8 @@ class EmulatedBuilder extends Builder
      * Merge  and transform the result.
      *
      * @param  array  $result
-     * @return array
      */
-    protected function mergeAttributesAndTransformResult($result)
+    protected function mergeAttributesAndTransformResult($result): array
     {
         return array_merge(
             $this->transform($result),
@@ -74,9 +69,8 @@ class EmulatedBuilder extends Builder
      * Retrieve extra attributes that should be merged with the result.
      *
      * @param  array  $result
-     * @return array
      */
-    protected function retrieveExtraAttributes($result)
+    protected function retrieveExtraAttributes($result): array
     {
         $attributes = array_filter(['dn', $result['guid_key'] ?? null]);
 

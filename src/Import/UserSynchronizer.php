@@ -6,10 +6,8 @@ class UserSynchronizer extends Synchronizer
 {
     /**
      * Get the class name of the hydrator to use.
-     *
-     * @return string
      */
-    protected function hydrator()
+    protected function hydrator(): string
     {
         return EloquentUserHydrator::class;
     }

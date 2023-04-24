@@ -11,17 +11,13 @@ class LdapUserRepository
 {
     /**
      * The name of the LdapRecord user model.
-     *
-     * @var string
      */
-    protected $model;
+    protected string $model;
 
     /**
      * The credential array keys to bypass.
-     *
-     * @var array
      */
-    protected $bypassCredentialKeys = ['password', 'fallback'];
+    protected array $bypassCredentialKeys = ['password', 'fallback'];
 
     /**
      * Constructor.
@@ -48,7 +44,6 @@ class LdapUserRepository
     /**
      * Get an LDAP user by their eloquent model.
      *
-     *
      * @return \LdapRecord\Models\Model|null
      */
     public function findByModel(LdapAuthenticatable $model)
@@ -69,7 +64,6 @@ class LdapUserRepository
 
     /**
      * Retrieve a user by the given credentials.
-     *
      *
      * @return \LdapRecord\Models\Model|null
      */

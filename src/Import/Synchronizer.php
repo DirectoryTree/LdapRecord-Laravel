@@ -15,17 +15,13 @@ class Synchronizer
 {
     /**
      * The Eloquent model to use for importing.
-     *
-     * @var string
      */
-    protected $eloquentModel;
+    protected string $eloquentModel;
 
     /**
      * The import configuration.
-     *
-     * @var array
      */
-    protected $config;
+    protected array $config;
 
     /**
      * @var callable
@@ -46,7 +42,6 @@ class Synchronizer
     /**
      * Set a callback to use for syncing attributes.
      *
-     *
      * @return $this
      */
     public function syncUsing(Closure $callback)
@@ -58,7 +53,6 @@ class Synchronizer
 
     /**
      * Import / synchronize the LDAP object with its database model.
-     *
      *
      * @return EloquentModel
      */
@@ -73,7 +67,6 @@ class Synchronizer
 
     /**
      * Synchronize the Eloquent database model with the LDAP model.
-     *
      *
      * @return EloquentModel
      */
@@ -96,7 +89,6 @@ class Synchronizer
 
     /**
      * Retrieves an eloquent model by their GUID.
-     *
      *
      * @return EloquentModel
      *
@@ -202,7 +194,6 @@ class Synchronizer
 
     /**
      * Creates a new query on the given model.
-     *
      *
      * @return \Illuminate\Database\Eloquent\Builder
      */

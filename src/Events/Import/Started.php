@@ -12,10 +12,8 @@ class Started implements LoggableEvent
 
     /**
      * The LDAP objects being imported.
-     *
-     * @var Collection
      */
-    public $objects;
+    public Collection $objects;
 
     /**
      * Constructor.

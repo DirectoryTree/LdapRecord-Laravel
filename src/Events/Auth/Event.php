@@ -9,17 +9,13 @@ abstract class Event
 {
     /**
      * The LDAP user object.
-     *
-     * @var LdapModel
      */
-    public $object;
+    public LdapModel $object;
 
     /**
      * The LDAP users authenticatable Eloquent model.
-     *
-     * @var EloquentModel|null
      */
-    public $eloquent;
+    public ?EloquentModel $eloquent;
 
     /**
      * Constructor.

@@ -91,7 +91,6 @@ class PasswordHydrator extends Hydrator
     /**
      * Get the current models hashed password.
      *
-     *
      * @return string|null
      */
     protected function currentModelPassword(EloquentModel $model)
