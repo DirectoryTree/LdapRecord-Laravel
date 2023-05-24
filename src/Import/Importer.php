@@ -86,10 +86,8 @@ class Importer
 
     /**
      * Set the LdapRecord model to use for importing.
-     *
-     * @param  string  $model
      */
-    public function setLdapModel($model): static
+    public function setLdapModel(string $model): static
     {
         $this->model = $model;
 
@@ -98,10 +96,8 @@ class Importer
 
     /**
      * Set the Eloquent model to import LDAP objects into.
-     *
-     * @param  string  $eloquent
      */
-    public function setEloquentModel($eloquent): static
+    public function setEloquentModel(string $eloquent): static
     {
         $this->eloquent = $eloquent;
 
@@ -120,10 +116,8 @@ class Importer
 
     /**
      * Set the objects to import.
-     *
-     * @param  LdapRecordCollection  $objects
      */
-    public function setLdapObjects($objects): static
+    public function setLdapObjects(LdapRecordCollection $objects): static
     {
         $this->objects = $objects;
 
@@ -142,10 +136,8 @@ class Importer
 
     /**
      * Limit the LDAP query to return only the given attributes.
-     *
-     * @param  string|array  $attributes
      */
-    public function setLdapRequestAttributes($attributes): static
+    public function setLdapRequestAttributes(array|string $attributes): static
     {
         $this->onlyAttributes = $attributes;
 
@@ -154,10 +146,8 @@ class Importer
 
     /**
      * Apply a raw LDAP filter to the import query.
-     *
-     * @param  string  $filter
      */
-    public function setLdapRawFilter($filter): static
+    public function setLdapRawFilter(string $filter): static
     {
         $this->filter = $filter;
 
@@ -166,10 +156,8 @@ class Importer
 
     /**
      * Apply LDAP scopes to the import query.
-     *
-     * @param  array|string  $scopes
      */
-    public function setLdapScopes($scopes = []): static
+    public function setLdapScopes(array|string $scopes = []): static
     {
         $this->scopes = Arr::wrap($scopes);
 

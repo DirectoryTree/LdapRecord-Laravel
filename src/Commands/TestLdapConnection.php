@@ -56,10 +56,8 @@ class TestLdapConnection extends Command
 
     /**
      * Perform a connectivity test on the given connection.
-     *
-     * @param  string  $name
      */
-    protected function performTest($name, Connection $connection): array
+    protected function performTest(string $name, Connection $connection): array
     {
         $this->info("Testing LDAP connection [$name]...");
 
@@ -110,10 +108,8 @@ class TestLdapConnection extends Command
 
     /**
      * Get the elapsed time since a given starting point.
-     *
-     * @param  int  $start
      */
-    protected function getElapsedTime($start): int|float
+    protected function getElapsedTime(int $start): int|float
     {
         return round((microtime(true) - $start) * 1000, 2);
     }

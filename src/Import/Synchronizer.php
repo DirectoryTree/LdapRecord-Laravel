@@ -3,6 +3,7 @@
 namespace LdapRecord\Laravel\Import;
 
 use Closure;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Support\Arr;
 use LdapRecord\Laravel\Events\Import\Importing;
@@ -30,10 +31,8 @@ class Synchronizer
 
     /**
      * Constructor.
-     *
-     * @param  string  $eloquentModel
      */
-    public function __construct($eloquentModel, array $config)
+    public function __construct(string $eloquentModel, array $config)
     {
         $this->eloquentModel = $eloquentModel;
         $this->config = $config;
@@ -41,10 +40,8 @@ class Synchronizer
 
     /**
      * Set a callback to use for syncing attributes.
-     *
-     * @return $this
      */
-    public function syncUsing(Closure $callback)
+    public function syncUsing(Closure $callback): static
     {
         $this->syncUsingCallback = $callback;
 
@@ -53,10 +50,8 @@ class Synchronizer
 
     /**
      * Import / synchronize the LDAP object with its database model.
-     *
-     * @return EloquentModel
      */
-    public function run(LdapModel $object, array $data = [])
+    public function run(LdapModel $object, array $data = []): EloquentModel
     {
         return $this->synchronize(
             $object,
@@ -67,10 +62,8 @@ class Synchronizer
 
     /**
      * Synchronize the Eloquent database model with the LDAP model.
-     *
-     * @return EloquentModel
      */
-    public function synchronize(LdapModel $object, EloquentModel $eloquent, array $data = [])
+    public function synchronize(LdapModel $object, EloquentModel $eloquent, array $data = []): EloquentModel
     {
         if (! $eloquent->exists) {
             event(new Importing($object, $eloquent));
@@ -90,11 +83,9 @@ class Synchronizer
     /**
      * Retrieves an eloquent model by their GUID.
      *
-     * @return EloquentModel
-     *
      * @throws LdapRecordException
      */
-    public function createOrFindEloquentModel(LdapModel $ldap)
+    public function createOrFindEloquentModel(LdapModel $ldap): EloquentModel
     {
         // We cannot import an LDAP object without a valid GUID
         // identifier. Doing so would cause overwrites of the
@@ -114,11 +105,8 @@ class Synchronizer
 
     /**
      * Hydrate the eloquent model with the LDAP object.
-     *
-     * @param  EloquentModel  $model
-     * @return void
      */
-    protected function hydrate(LdapModel $ldap, $model, array $data = [])
+    protected function hydrate(LdapModel $ldap, EloquentModel $model, array $data = []): void
     {
         /** @var EloquentHydrator $hydrator */
         $hydrator = transform($this->hydrator(), function ($hydrator) {
@@ -130,21 +118,16 @@ class Synchronizer
 
     /**
      * Get the class name of the hydrator to use.
-     *
-     * @return string
      */
-    protected function hydrator()
+    protected function hydrator(): string
     {
         return EloquentHydrator::class;
     }
 
     /**
      * Applies the configured 'sync existing' scopes to the database query.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
      */
-    protected function applySyncScopesToQuery(LdapModel $ldap, $query)
+    protected function applySyncScopesToQuery(LdapModel $ldap, Builder $query): Builder
     {
         $scopes = Arr::get($this->config, 'sync_existing', false);
 
@@ -166,11 +149,8 @@ class Synchronizer
 
     /**
      * Get the scope clause operator and value from the attribute configuration.
-     *
-     * @param  array|string  $config
-     * @return array
      */
-    protected function getSyncScopeOperatorAndValue(LdapModel $ldap, $config)
+    protected function getSyncScopeOperatorAndValue(LdapModel $ldap, array|string $config): array
     {
         $attribute = $this->getSyncScopeOption($config, 'attribute', $config);
 
@@ -183,21 +163,16 @@ class Synchronizer
 
     /**
      * Get the sync scope option from the config array.
-     *
-     * @param  array|string  $config
-     * @param  string  $option
      */
-    protected function getSyncScopeOption($config, $option, $default)
+    protected function getSyncScopeOption(array|string $config, string $option, $default)
     {
         return is_array($config) ? $config[$option] : $default;
     }
 
     /**
      * Creates a new query on the given model.
-     *
-     * @return \Illuminate\Database\Eloquent\Builder
      */
-    protected function newEloquentQuery(EloquentModel $model)
+    protected function newEloquentQuery(EloquentModel $model): Builder
     {
         $query = $model->newQuery();
 
@@ -214,37 +189,31 @@ class Synchronizer
     /**
      * Set the configuration for the importer to use.
      */
-    public function setConfig(array $config)
+    public function setConfig(array $config): void
     {
         $this->config = $config;
     }
 
     /**
      * Get the importer configuration.
-     *
-     * @return array
      */
-    public function getConfig()
+    public function getConfig(): array
     {
         return $this->config;
     }
 
     /**
      * Get the name of the eloquent model.
-     *
-     * @return string
      */
-    public function getEloquentModel()
+    public function getEloquentModel(): string
     {
         return $this->eloquentModel;
     }
 
     /**
      * Get a new domain database model.
-     *
-     * @return EloquentModel
      */
-    public function createEloquentModel()
+    public function createEloquentModel(): EloquentModel
     {
         $class = '\\'.ltrim($this->eloquentModel, '\\');
 

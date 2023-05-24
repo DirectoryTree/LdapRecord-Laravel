@@ -42,8 +42,6 @@ abstract class UserProvider implements LaravelUserProvider
 
     /**
      * Set the callback to resolve users by.
-     *
-     * @return $this
      */
     public function resolveUsersUsing(Closure $callback): static
     {
@@ -71,7 +69,7 @@ abstract class UserProvider implements LaravelUserProvider
      *
      * @throws ValidationException
      */
-    protected function handleException(Exception $e)
+    protected function handleException(Exception $e): void
     {
         if ($e instanceof ValidationException) {
             throw $e;
@@ -87,27 +85,23 @@ abstract class UserProvider implements LaravelUserProvider
     /**
      * Set the LDAP user repository.
      */
-    public function setLdapUserRepository(LdapUserRepository $users)
+    public function setLdapUserRepository(LdapUserRepository $users): void
     {
         $this->users = $users;
     }
 
     /**
      * Get the LDAP user repository.
-     *
-     * @return LdapUserRepository
      */
-    public function getLdapUserRepository()
+    public function getLdapUserRepository(): LdapUserRepository
     {
         return $this->users;
     }
 
     /**
      * Get the the LDAP user authenticator.
-     *
-     * @return LdapUserAuthenticator
      */
-    public function getLdapUserAuthenticator()
+    public function getLdapUserAuthenticator(): LdapUserAuthenticator
     {
         return $this->auth;
     }
@@ -115,7 +109,7 @@ abstract class UserProvider implements LaravelUserProvider
     /**
      * Set the LDAP user authenticator.
      */
-    public function setLdapUserAuthenticator(LdapUserAuthenticator $auth)
+    public function setLdapUserAuthenticator(LdapUserAuthenticator $auth): void
     {
         $this->auth = $auth;
     }

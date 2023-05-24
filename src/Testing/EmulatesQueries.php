@@ -117,11 +117,8 @@ trait EmulatesQueries
 
     /**
      * Set the nested query state.
-     *
-     * @param  string  $state
-     * @return $this
      */
-    public function setNestedQueryState($state): static
+    public function setNestedQueryState(string $state): static
     {
         $this->nestedState = $state;
 
@@ -142,20 +139,16 @@ trait EmulatesQueries
 
     /**
      * Find the Eloquent model by distinguished name.
-     *
-     * @param  string  $dn
      */
-    public function findEloquentModelByDn($dn): ?LdapObject
+    public function findEloquentModelByDn(string $dn): ?LdapObject
     {
         return $this->newEloquentQuery()->where('dn', 'like', $dn)->first();
     }
 
     /**
      * Find the Eloquent model by guid.
-     *
-     * @param  string  $guid
      */
-    public function findEloquentModelByGuid($guid): ?LdapObject
+    public function findEloquentModelByGuid(string $guid): ?LdapObject
     {
         return $this->newEloquentQuery()->where('guid', '=', $guid)->first();
     }
@@ -188,10 +181,8 @@ trait EmulatesQueries
 
     /**
      * Determine the relationship method to use for the given bindings.
-     *
-     * @param  string  $type
      */
-    protected function determineRelationMethod($type, array $bindings): string
+    protected function determineRelationMethod(string $type, array $bindings): string
     {
         $method = $bindings['operator'] == '!*' ? 'whereDoesntHave' : 'whereHas';
 
@@ -217,13 +208,8 @@ trait EmulatesQueries
 
     /**
      * Adds an LDAP "where" filter to the underlying Eloquent builder.
-     *
-     * @param  EloquentBuilder  $query
-     * @param  string  $field
-     * @param  string  $operator
-     * @param  string|null  $value
      */
-    protected function addFilterToDatabaseQuery($query, $field, $operator, $value): void
+    protected function addFilterToDatabaseQuery(EloquentBuilder $query, string $field, string $operator, ?string $value): void
     {
         match ($operator) {
             '*' => $query->where('name', '=', $field),
@@ -289,21 +275,16 @@ trait EmulatesQueries
 
     /**
      * Determine if a certain field is used multiple times in a query.
-     *
-     * @param  string  $type
-     * @param  string  $field
      */
-    protected function fieldIsUsedMultipleTimes($type, $field): bool
+    protected function fieldIsUsedMultipleTimes(string $type, string $field): bool
     {
         return collect($this->filters[$type])->where('field', '=', $field)->isNotEmpty();
     }
 
     /**
      * Applies the batch modification to the given model.
-     *
-     * @param  \Illuminate\Database\Eloquent\Model  $model
      */
-    protected function applyBatchModificationToModel($model, array $modification): void
+    protected function applyBatchModificationToModel(Model $model, array $modification): void
     {
         $name = $modification[BatchModification::KEY_ATTRIB];
         $type = $modification[BatchModification::KEY_MODTYPE];
@@ -366,20 +347,17 @@ trait EmulatesQueries
     /**
      * Get the database record as an array.
      *
-     * @param  Model|array  $database
      * @return array
      */
-    protected function getArrayableResult($database): Model|array
+    protected function getArrayableResult(Model|array $database): Model|array
     {
         return $database instanceof Model ? $database->toArray() : $database;
     }
 
     /**
      * Get the first record from a result.
-     *
-     * @param  Collection|array  $result
      */
-    protected function getFirstRecordFromResult($result)
+    protected function getFirstRecordFromResult(Collection|array $result)
     {
         return $result instanceof Collection ? $result->first() : reset($result);
     }
@@ -416,11 +394,8 @@ trait EmulatesQueries
 
     /**
      * Apply the LDAP objects attributes to the Eloquent model.
-     *
-     * @param  string  $dn
-     * @param  array  $attributes
      */
-    protected function applyObjectAttributesToEloquent(LdapObject $model, $dn, $attributes): LdapObject
+    protected function applyObjectAttributesToEloquent(LdapObject $model, string $dn, array $attributes): LdapObject
     {
         $dn = new DistinguishedName($dn);
 
@@ -463,21 +438,16 @@ trait EmulatesQueries
 
     /**
      * Normalize the attribute name.
-     *
-     * @param  string  $field
      */
-    protected function normalizeAttributeName($field): string
+    protected function normalizeAttributeName(string $field): string
     {
         return strtolower($field);
     }
 
     /**
      * Pull and return the GUID value from the given attributes.
-     *
-     * @param  string|null  $key
-     * @param  array  $attributes
      */
-    protected function pullGuidFromAttributes($key, &$attributes): ?string
+    protected function pullGuidFromAttributes(?string $key, array &$attributes): ?string
     {
         if (! $key) {
             return null;
@@ -502,10 +472,8 @@ trait EmulatesQueries
 
     /**
      * Determine the guid key from the given object attributes.
-     *
-     * @param  array  $attributes
      */
-    protected function determineGuidKeyFromAttributes($attributes): ?string
+    protected function determineGuidKeyFromAttributes(array $attributes): ?string
     {
         foreach ($attributes as $attribute => $values) {
             if (Guid::isValid($this->attributeValueIsGuid($values))) {
@@ -518,10 +486,8 @@ trait EmulatesQueries
 
     /**
      * Determine if the given attribute value is a GUID.
-     *
-     * @param  array|string  $value
      */
-    protected function attributeValueIsGuid($value): bool
+    protected function attributeValueIsGuid(array|string $value): bool
     {
         return Guid::isValid(
             is_array($value) ? reset($value) : $value

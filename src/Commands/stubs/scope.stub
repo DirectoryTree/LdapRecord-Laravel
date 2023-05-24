@@ -13,6 +13,6 @@ class DummyClass implements Scope
      */
     public function apply(Builder $query, Model $model): void
     {
-        //
+        // ...
     }
 }

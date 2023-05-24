@@ -13,6 +13,7 @@ use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Models\Attributes\AccountControl;
 use LdapRecord\Models\Model as LdapRecord;
 use LdapRecord\Models\Types\ActiveDirectory;
+use LdapRecord\Query\Collection;
 
 class LdapUserImporter extends Importer
 {
@@ -59,10 +60,8 @@ class LdapUserImporter extends Importer
 
     /**
      * Set the LDAP user repository to use for importing.
-     *
-     * @return $this
      */
-    public function setLdapUserRepository(LdapUserRepository $repository)
+    public function setLdapUserRepository(LdapUserRepository $repository): static
     {
         $this->repository = $repository;
 
@@ -71,10 +70,8 @@ class LdapUserImporter extends Importer
 
     /**
      * Enable restoring enabled users.
-     *
-     * @return $this
      */
-    public function restoreEnabledUsers()
+    public function restoreEnabledUsers(): static
     {
         $this->restoreEnabledUsers = true;
 
@@ -83,10 +80,8 @@ class LdapUserImporter extends Importer
 
     /**
      * Enable trashing disabled users.
-     *
-     * @return $this
      */
-    public function trashDisabledUsers()
+    public function trashDisabledUsers(): static
     {
         $this->trashDisabledUsers = true;
 
@@ -95,11 +90,8 @@ class LdapUserImporter extends Importer
 
     /**
      * Load the import's objects from the LDAP repository.
-     *
-     * @param  string|null  $username
-     * @return \LdapRecord\Query\Collection
      */
-    public function loadObjectsFromRepository($username = null)
+    public function loadObjectsFromRepository(string $username = null): Collection
     {
         $query = $this->applyLdapQueryConstraints(
             $this->repository->query()
@@ -118,11 +110,8 @@ class LdapUserImporter extends Importer
 
     /**
      * Load the import's objects from the LDAP repository via chunking.
-     *
-     * @param  int  $perChunk
-     * @return void
      */
-    public function chunkObjectsFromRepository(Closure $callback, $perChunk = 500)
+    public function chunkObjectsFromRepository(Closure $callback, int $perChunk = 500): void
     {
         $query = $this->applyLdapQueryConstraints(
             $this->repository->query()
@@ -135,10 +124,8 @@ class LdapUserImporter extends Importer
 
     /**
      * Soft deletes the specified model if their LDAP account is disabled.
-     *
-     * @return void
      */
-    protected function delete(LdapRecord $object, Eloquent $eloquent)
+    protected function delete(LdapRecord $object, Eloquent $eloquent): void
     {
         if ($eloquent->trashed()) {
             return;
@@ -155,10 +142,8 @@ class LdapUserImporter extends Importer
 
     /**
      * Restores soft-deleted models if their LDAP account is enabled.
-     *
-     * @return void
      */
-    protected function restore(LdapRecord $object, Eloquent $eloquent)
+    protected function restore(LdapRecord $object, Eloquent $eloquent): void
     {
         if (! $eloquent->trashed()) {
             return;
@@ -175,30 +160,24 @@ class LdapUserImporter extends Importer
 
     /**
      * Determine whether the user is enabled.
-     *
-     * @return bool
      */
-    protected function userIsEnabled(LdapRecord $object)
+    protected function userIsEnabled(LdapRecord $object): bool
     {
         return $this->getUserAccountControl($object) === null ? false : ! $this->userIsDisabled($object);
     }
 
     /**
      * Determines whether the user is disabled.
-     *
-     * @return bool
      */
-    protected function userIsDisabled(LdapRecord $object)
+    protected function userIsDisabled(LdapRecord $object): bool
     {
         return ($this->getUserAccountControl($object) & AccountControl::ACCOUNTDISABLE) === AccountControl::ACCOUNTDISABLE;
     }
 
     /**
      * Get the user account control integer from the user.
-     *
-     * @return int|null
      */
-    protected function getUserAccountControl(LdapRecord $object)
+    protected function getUserAccountControl(LdapRecord $object): ?int
     {
         return $object->getFirstAttribute('userAccountControl');
     }

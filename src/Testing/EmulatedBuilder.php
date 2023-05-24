@@ -44,20 +44,16 @@ class EmulatedBuilder extends Builder
 
     /**
      * Process the database query results into an LDAP result set.
-     *
-     * @param  array  $results
      */
-    protected function process($results): array
+    protected function process(array $results): array
     {
         return array_map([$this, 'mergeAttributesAndTransformResult'], $results);
     }
 
     /**
      * Merge  and transform the result.
-     *
-     * @param  array  $result
      */
-    protected function mergeAttributesAndTransformResult($result): array
+    protected function mergeAttributesAndTransformResult(array $result): array
     {
         return array_merge(
             $this->transform($result),
@@ -67,10 +63,8 @@ class EmulatedBuilder extends Builder
 
     /**
      * Retrieve extra attributes that should be merged with the result.
-     *
-     * @param  array  $result
      */
-    protected function retrieveExtraAttributes($result): array
+    protected function retrieveExtraAttributes(array $result): array
     {
         $attributes = array_filter(['dn', $result['guid_key'] ?? null]);
 

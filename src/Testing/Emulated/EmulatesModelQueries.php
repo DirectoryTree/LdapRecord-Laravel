@@ -2,6 +2,7 @@
 
 namespace LdapRecord\Laravel\Testing\Emulated;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use LdapRecord\Laravel\Testing\EmulatesQueries;
 use LdapRecord\Models\Collection;
@@ -141,7 +142,7 @@ trait EmulatesModelQueries
     /**
      * {@inheritdoc}
      */
-    protected function addFilterToDatabaseQuery($query, $field, $operator, $value): void
+    protected function addFilterToDatabaseQuery(Builder $query, string $field, string $operator, ?string $value): void
     {
         if ($field === 'anr') {
             $query->whereIn('name', $this->model->getAnrAttributes())

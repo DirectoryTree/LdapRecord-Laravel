@@ -3,6 +3,7 @@
 namespace LdapRecord\Laravel\Testing;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class LdapObjectAttribute extends Model
 {
@@ -31,10 +32,8 @@ class LdapObjectAttribute extends Model
 
     /**
      * The "boot" method of the model.
-     *
-     * @return void
      */
-    protected static function boot()
+    protected static function boot(): void
     {
         parent::boot();
 
@@ -46,10 +45,8 @@ class LdapObjectAttribute extends Model
 
     /**
      * The hasMany values relation.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function values()
+    public function values(): HasMany
     {
         return $this->hasMany(LdapObjectAttributeValue::class);
     }

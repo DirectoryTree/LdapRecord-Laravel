@@ -3,6 +3,7 @@
 namespace LdapRecord\Laravel\Tests\Feature;
 
 use Exception;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use InvalidArgumentException;
@@ -18,6 +19,7 @@ use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Laravel\Middleware\UserDomainValidator;
 use LdapRecord\Laravel\Middleware\WindowsAuthenticate;
 use LdapRecord\Models\ActiveDirectory\User;
+use LdapRecord\Models\Model;
 use Mockery as m;
 
 class WindowsAuthMiddlewareTest extends DatabaseTestCase
@@ -489,9 +491,9 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
     }
 }
 
-class WindowsAuthRuleStub extends Rule
+class WindowsAuthRuleStub implements Rule
 {
-    public function isValid(): bool
+    public function passes(Model $user, Eloquent $model = null): bool
     {
         $_SERVER[self::class] = true;
 

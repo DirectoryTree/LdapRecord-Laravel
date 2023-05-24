@@ -58,11 +58,9 @@ class ImportLdapUsers extends Command
     /**
      * Execute the console command.
      *
-     * @return void
-     *
      * @throws \LdapRecord\Models\ModelNotFoundException
      */
-    public function handle(LdapUserImporter $importer, Repository $config)
+    public function handle(LdapUserImporter $importer, Repository $config): void
     {
         $config->set('ldap.logging', $this->isLogging());
 
@@ -70,11 +68,17 @@ class ImportLdapUsers extends Command
         $provider = Auth::createUserProvider($providerName = $this->argument('provider'));
 
         if (is_null($provider)) {
-            return $this->error("Provider [{$providerName}] does not exist.");
+            $this->error("Provider [{$providerName}] does not exist.");
+
+            return;
         } elseif (! $provider instanceof UserProvider) {
-            return $this->error("Provider [{$providerName}] is not configured for LDAP authentication.");
+            $this->error("Provider [{$providerName}] is not configured for LDAP authentication.");
+
+            return;
         } elseif (! $provider instanceof DatabaseUserProvider) {
-            return $this->error("Provider [{$providerName}] is not configured for database synchronization.");
+            $this->error("Provider [{$providerName}] is not configured for database synchronization.");
+
+            return;
         }
 
         $this->registerEventListeners();
@@ -90,15 +94,15 @@ class ImportLdapUsers extends Command
 
     /**
      * Begin importing users into the database.
-     *
-     * @return void
      */
-    protected function beginImport()
+    protected function beginImport(): void
     {
         $loaded = $this->importer->loadObjectsFromRepository($this->argument('user'));
 
         if ($loaded->count() === 0) {
-            return $this->info('There were no users found to import.');
+            $this->info('There were no users found to import.');
+
+            return;
         } elseif ($loaded->count() === 1) {
             $this->info("Found user [{$loaded->first()->getRdn()}].");
         } else {
@@ -112,11 +116,8 @@ class ImportLdapUsers extends Command
 
     /**
      * Begin importing users into the database by chunk.
-     *
-     * @param  int  $perChunk
-     * @return void
      */
-    protected function beginChunkedImport($perChunk)
+    protected function beginChunkedImport(int $perChunk): void
     {
         $total = 0;
 
@@ -137,10 +138,8 @@ class ImportLdapUsers extends Command
 
     /**
      * Confirm and execute the import.
-     *
-     * @return int
      */
-    protected function confirmAndExecuteImport()
+    protected function confirmAndExecuteImport(): int
     {
         $imported = 0;
 
@@ -160,10 +159,8 @@ class ImportLdapUsers extends Command
 
     /**
      * Register the import event callbacks for the command.
-     *
-     * @return void
      */
-    protected function registerEventListeners()
+    protected function registerEventListeners(): void
     {
         Event::listen(Started::class, function (Started $event) {
             $this->progress = $this->output->createProgressBar($event->objects->count());
@@ -196,10 +193,8 @@ class ImportLdapUsers extends Command
 
     /**
      * Displays the given users in a table.
-     *
-     * @return void
      */
-    protected function confirmAndDisplayObjects(Collection $objects)
+    protected function confirmAndDisplayObjects(Collection $objects): void
     {
         if (! $this->input->isInteractive()) {
             return;
@@ -223,10 +218,8 @@ class ImportLdapUsers extends Command
 
     /**
      * Apply the import options to the importer.
-     *
-     * @return void
      */
-    protected function applyImporterOptions(DatabaseUserProvider $provider)
+    protected function applyImporterOptions(DatabaseUserProvider $provider): void
     {
         $this->importer->setLdapUserRepository(
             $provider->getLdapUserRepository()
@@ -263,50 +256,40 @@ class ImportLdapUsers extends Command
 
     /**
      * Set the importer to use.
-     *
-     * @return void
      */
-    protected function setImporter(LdapUserImporter $importer)
+    protected function setImporter(LdapUserImporter $importer): void
     {
         $this->importer = $importer;
     }
 
     /**
      * Determine if logging is enabled.
-     *
-     * @return bool
      */
-    protected function isLogging()
+    protected function isLogging(): bool
     {
         return ! $this->option('no-log');
     }
 
     /**
      * Determine if soft-deleting disabled user accounts is enabled.
-     *
-     * @return bool
      */
-    protected function isDeleting()
+    protected function isDeleting(): bool
     {
         return $this->option('delete') == 'true';
     }
 
     /**
      * Determine if soft-deleting all missing users is enabled.
-     *
-     * @return bool
      */
-    protected function isDeletingMissing()
+    protected function isDeletingMissing(): bool
     {
         return $this->option('delete-missing') == 'true' && is_null($this->argument('user'));
     }
 
     /**
      * Determine if restoring re-enabled users is enabled.
-     *
-     * @return bool
      */
-    protected function isRestoring()
+    protected function isRestoring(): bool
     {
         return $this->option('restore') == 'true';
     }

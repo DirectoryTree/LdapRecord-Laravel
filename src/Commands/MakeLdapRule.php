@@ -31,7 +31,7 @@ class MakeLdapRule extends GeneratorCommand
     /**
      * {@inheritdoc}
      */
-    protected function getStub()
+    protected function getStub(): string
     {
         return __DIR__.'/stubs/rule.stub';
     }
@@ -40,19 +40,16 @@ class MakeLdapRule extends GeneratorCommand
      * Get the default namespace for the class.
      *
      * @param  string  $rootNamespace
-     * @return string
      */
-    protected function getDefaultNamespace($rootNamespace)
+    protected function getDefaultNamespace($rootNamespace): string
     {
         return $rootNamespace.'\Ldap\Rules';
     }
 
     /**
      * Get the console command arguments.
-     *
-     * @return array
      */
-    protected function getArguments()
+    protected function getArguments(): array
     {
         return [
             ['name', InputArgument::REQUIRED, 'The name of the rule'],

@@ -9,12 +9,8 @@ class UserDomainValidator
 {
     /**
      * Determine if the user passes domain validation.
-     *
-     * @param  string  $username
-     * @param  string|null  $domain
-     * @return bool
      */
-    public function __invoke(Model $user, $username, $domain = null)
+    public function __invoke(Model $user, string $username, string $domain = null): bool
     {
         if (empty($domain)) {
             return false;
@@ -29,22 +25,16 @@ class UserDomainValidator
 
     /**
      * Get the domain components from the Distinguished Name.
-     *
-     * @param  string  $dn
-     * @return array
      */
-    protected function getDomainComponents($dn)
+    protected function getDomainComponents(string $dn): array
     {
         return DistinguishedName::build($dn)->components('dc');
     }
 
     /**
      * Determine if the domain exists in the given components.
-     *
-     * @param  string  $domain
-     * @return bool
      */
-    protected function domainExistsInComponents($domain, array $components)
+    protected function domainExistsInComponents(string $domain, array $components): bool
     {
         return collect($components)->map(function ($component) {
             [,$value] = $component;

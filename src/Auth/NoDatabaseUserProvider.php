@@ -4,13 +4,14 @@ namespace LdapRecord\Laravel\Auth;
 
 use Illuminate\Contracts\Auth\Authenticatable;
 use LdapRecord\Laravel\Events\Auth\Completed;
+use LdapRecord\Models\Model;
 
 class NoDatabaseUserProvider extends UserProvider
 {
     /**
      * {@inheritdoc}
      */
-    public function retrieveById($identifier)
+    public function retrieveById($identifier): ?Model
     {
         return $this->users->findByGuid($identifier);
     }
@@ -18,7 +19,7 @@ class NoDatabaseUserProvider extends UserProvider
     /**
      * {@inheritdoc}
      */
-    public function retrieveByToken($identifier, $token)
+    public function retrieveByToken($identifier, $token): void
     {
         // We can't retrieve LDAP users via remember
         // token, as we have nowhere to store them.
@@ -27,7 +28,7 @@ class NoDatabaseUserProvider extends UserProvider
     /**
      * {@inheritdoc}
      */
-    public function updateRememberToken(Authenticatable $user, $token)
+    public function updateRememberToken(Authenticatable $user, $token): void
     {
         // LDAP users cannot contain remember tokens.
     }
@@ -35,7 +36,7 @@ class NoDatabaseUserProvider extends UserProvider
     /**
      * {@inheritdoc}
      */
-    public function retrieveByCredentials(array $credentials)
+    public function retrieveByCredentials(array $credentials): ?Model
     {
         return $this->fetchLdapUserByCredentials($credentials);
     }
@@ -43,10 +44,10 @@ class NoDatabaseUserProvider extends UserProvider
     /**
      * {@inheritdoc}
      */
-    public function validateCredentials(Authenticatable $user, array $credentials)
+    public function validateCredentials(Authenticatable $user, array $credentials): bool
     {
         if (! $this->auth->attempt($user, $credentials['password'])) {
-            return;
+            return false;
         }
 
         event(new Completed($user));
