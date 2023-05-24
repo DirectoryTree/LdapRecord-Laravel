@@ -112,17 +112,17 @@ class LdapUserRepository
     {
         foreach ($this->scopes as $identifier => $scope) {
             match (true) {
-                is_string($scope) => (
+                is_string($scope) =>
                     $query->withGlobalScope($scope, app($scope))
-                ),
+                ,
 
-                is_callable($scope) => (
+                is_callable($scope) =>
                     $query->withGlobalScope($identifier, $scope)
-                ),
+                ,
 
-                is_object($scope) => (
+                is_object($scope) =>
                     $query->withGlobalScope(get_class($scope), $scope)
-                ),
+                ,
             };
         }
     }
