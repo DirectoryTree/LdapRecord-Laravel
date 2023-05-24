@@ -29,7 +29,7 @@ class MakeLdapScope extends GeneratorCommand
     protected $type = 'LDAP Scope';
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function getStub()
     {
