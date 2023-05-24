@@ -6,6 +6,8 @@ use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Str;
 use LdapRecord\Laravel\Auth\LdapAuthenticatable;
 use LdapRecord\Laravel\Events\Auth\DiscoveredWithCredentials;
+use LdapRecord\Models\Model;
+use LdapRecord\Query\Model\Builder;
 
 class LdapUserRepository
 {
@@ -15,6 +17,11 @@ class LdapUserRepository
     protected string $model;
 
     /**
+     * The scopes to apply to the model query.
+     */
+    protected array $scopes = [];
+
+    /**
      * The credential array keys to bypass.
      */
     protected array $bypassCredentialKeys = ['password', 'fallback'];
@@ -22,55 +29,45 @@ class LdapUserRepository
     /**
      * Constructor.
      *
-     * @param  string  $model
+     * @param  class-string  $model
      */
-    public function __construct($model)
+    public function __construct(string $model, array $scopes = [])
     {
         $this->model = $model;
+        $this->scopes = $scopes;
     }
 
     /**
      * Get a user by the attribute and value.
-     *
-     * @param  string  $attribute
-     * @param  string  $value
-     * @return \LdapRecord\Models\Model|null
      */
-    public function findBy($attribute, $value)
+    public function findBy(string $attribute, mixed $value): ?Model
     {
         return $this->query()->findBy($attribute, $value);
     }
 
     /**
      * Get an LDAP user by their eloquent model.
-     *
-     * @return \LdapRecord\Models\Model|null
      */
-    public function findByModel(LdapAuthenticatable $model)
+    public function findByModel(LdapAuthenticatable $model): ?Model
     {
         return $this->findByGuid($model->getLdapGuid());
     }
 
     /**
      * Get a user by their object GUID.
-     *
-     * @param  string  $guid
-     * @return \LdapRecord\Models\Model|null
      */
-    public function findByGuid($guid)
+    public function findByGuid(string $guid): ?Model
     {
         return $this->query()->findByGuid($guid);
     }
 
     /**
      * Retrieve a user by the given credentials.
-     *
-     * @return \LdapRecord\Models\Model|null
      */
-    public function findByCredentials(array $credentials = [])
+    public function findByCredentials(array $credentials = []): ?Model
     {
         if (empty($credentials)) {
-            return;
+            return null;
         }
 
         $query = $this->query();
@@ -88,7 +85,7 @@ class LdapUserRepository
         }
 
         if (is_null($user = $query->first())) {
-            return;
+            return null;
         }
 
         event(new DiscoveredWithCredentials($user));
@@ -98,20 +95,42 @@ class LdapUserRepository
 
     /**
      * Get a new model query.
-     *
-     * @return \LdapRecord\Query\Model\Builder
      */
-    public function query()
+    public function query(): Builder
     {
-        return $this->newModelQuery();
+        $this->applyScopes(
+            $query = $this->newModelQuery()
+        );
+
+        return $query;
+    }
+
+    /**
+     * Apply the configured scopes to the query.
+     */
+    protected function applyScopes(Builder $query): void
+    {
+        foreach ($this->scopes as $identifier => $scope) {
+            match (true) {
+                is_string($scope) => (
+                    $query->withGlobalScope($scope, app($scope))
+                ),
+
+                is_callable($scope) => (
+                    $query->withGlobalScope($identifier, $scope)
+                ),
+
+                is_object($scope) => (
+                    $query->withGlobalScope(get_class($scope), $scope)
+                ),
+            };
+        }
     }
 
     /**
      * Create a new instance of the LdapRecord model.
-     *
-     * @return \LdapRecord\Models\Model
      */
-    public function createModel()
+    public function createModel(): Model
     {
         $class = '\\'.ltrim($this->model, '\\');
 
@@ -121,20 +140,17 @@ class LdapUserRepository
     /**
      * Gets the name of the LdapRecord user model.
      *
-     * @return string
+     * @return class-string
      */
-    public function getModel()
+    public function getModel(): string
     {
         return $this->model;
     }
 
     /**
      * Get a new query builder for the model instance.
-     *
-     * @param  \LdapRecord\Models\Model|null  $model
-     * @return \LdapRecord\Query\Model\Builder
      */
-    protected function newModelQuery($model = null)
+    protected function newModelQuery(Model $model = null): Builder
     {
         $model = is_null($model) ? $this->createModel() : $model;
 
