@@ -2,15 +2,17 @@
 
 namespace LdapRecord\Laravel\Auth\Rules;
 
+use Illuminate\Database\Eloquent\Model as Eloquent;
 use LdapRecord\Laravel\Auth\Rule;
+use LdapRecord\Models\Model as LdapRecord;
 
-class OnlyImported extends Rule
+class OnlyImported implements Rule
 {
     /**
      * {@inheritdoc}
      */
-    public function isValid(): bool
+    public function passes(LdapRecord $user, Eloquent $model = null): bool
     {
-        return $this->model && $this->model->exists;
+        return $model?->exists;
     }
 }

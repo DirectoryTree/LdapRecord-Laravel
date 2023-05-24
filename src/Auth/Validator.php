@@ -2,10 +2,15 @@
 
 namespace LdapRecord\Laravel\Auth;
 
+use Illuminate\Database\Eloquent\Model as Eloquent;
+use LdapRecord\Models\Model as LdapRecord;
+
 class Validator
 {
     /**
      * The validation rules.
+     *
+     * @var \LdapRecord\Laravel\Auth\Rule[]
      */
     protected array $rules = [];
 
@@ -22,23 +27,15 @@ class Validator
     /**
      * Determine if all rules pass validation.
      */
-    public function passes(): bool
+    public function passes(LdapRecord $user, Eloquent $model = null): bool
     {
         foreach ($this->rules as $rule) {
-            if (! $rule->isValid()) {
+            if (! $rule->passes($user, $model)) {
                 return false;
             }
         }
 
         return true;
-    }
-
-    /**
-     * Checks if a rule fails validation.
-     */
-    public function fails(): bool
-    {
-        return ! $this->passes();
     }
 
     /**

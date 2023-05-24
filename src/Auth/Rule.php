@@ -2,32 +2,13 @@
 
 namespace LdapRecord\Laravel\Auth;
 
-use Illuminate\Database\Eloquent\Model;
-use LdapRecord\Models\Model as LdapModel;
+use Illuminate\Database\Eloquent\Model as Eloquent;
+use LdapRecord\Models\Model as LdapRecord;
 
-abstract class Rule
+interface Rule
 {
     /**
-     * The LDAP user.
+     * Determine if the rule passes validation.
      */
-    protected LdapModel $user;
-
-    /**
-     * The Eloquent model.
-     */
-    protected ?Model $model;
-
-    /**
-     * Constructor.
-     */
-    public function __construct(LdapModel $user, Model $model = null)
-    {
-        $this->user = $user;
-        $this->model = $model;
-    }
-
-    /**
-     * Check if the rule passes validation.
-     */
-    abstract public function isValid(): bool;
+    public function passes(LdapRecord $user, Eloquent $model = null): bool;
 }
