@@ -106,6 +106,16 @@ class LdapUserRepository
     }
 
     /**
+     * Set the scopes to apply on the query.
+     */
+    public function setScopes(array $scopes): static
+    {
+        $this->scopes = $scopes;
+
+        return $this;
+    }
+
+    /**
      * Apply the configured scopes to the query.
      */
     protected function applyScopes(Builder $query): void
