@@ -34,7 +34,7 @@ class TestLdapConnection extends Command
         if ($connection = $this->argument('connection')) {
             $connections = [$connection => Container::getConnection($connection)];
         } else {
-            $connections = Container::getInstance()->all();
+            $connections = Container::getInstance()->getConnections();
         }
 
         if (empty($connections)) {
