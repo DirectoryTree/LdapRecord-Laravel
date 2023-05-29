@@ -81,8 +81,6 @@ trait EmulatesQueries
 
     /**
      * Create a new nested query builder with the given state.
-     *
-     * @return Builder
      */
     public function newNestedInstance(Closure $closure = null, string $state = 'and'): static
     {
@@ -346,8 +344,6 @@ trait EmulatesQueries
 
     /**
      * Get the database record as an array.
-     *
-     * @return array
      */
     protected function getArrayableResult(Model|array $database): Model|array
     {

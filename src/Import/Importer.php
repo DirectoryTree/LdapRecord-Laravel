@@ -106,8 +106,6 @@ class Importer
 
     /**
      * Get the loaded objects to be imported.
-     *
-     * @return LdapRecordCollection
      */
     public function getLdapObjects(): ?LdapRecordCollection
     {
@@ -156,6 +154,8 @@ class Importer
 
     /**
      * Apply LDAP scopes to the import query.
+     *
+     * @param  class-string|class-string[]  $scopes
      */
     public function setLdapScopes(array|string $scopes = []): static
     {
@@ -206,8 +206,6 @@ class Importer
 
     /**
      * Execute the import.
-     *
-     * @return Collection
      *
      * @throws ImportException
      * @throws \LdapRecord\LdapRecordException

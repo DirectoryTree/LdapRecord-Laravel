@@ -8,8 +8,6 @@ trait CreatesTestUsers
 {
     /**
      * Create a new test user.
-     *
-     * @return TestUserModelStub|Model
      */
     protected function createTestUser(array $attributes = [], string $model = null): Model
     {
