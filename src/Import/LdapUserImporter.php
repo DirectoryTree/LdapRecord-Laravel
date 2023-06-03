@@ -1,6 +1,6 @@
 <?php
 
-namespace LdapRecord\Laravel\Commands;
+namespace LdapRecord\Laravel\Import;
 
 use Closure;
 use Illuminate\Database\Eloquent\Model as Eloquent;
@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Event;
 use LdapRecord\Laravel\Events\Import\Deleted;
 use LdapRecord\Laravel\Events\Import\Restored;
 use LdapRecord\Laravel\Events\Import\Saved;
-use LdapRecord\Laravel\Import\Importer;
 use LdapRecord\Laravel\LdapUserRepository;
 use LdapRecord\Models\Attributes\AccountControl;
 use LdapRecord\Models\Model as LdapRecord;
