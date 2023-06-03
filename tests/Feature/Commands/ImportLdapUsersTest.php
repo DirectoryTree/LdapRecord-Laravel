@@ -2,6 +2,7 @@
 
 namespace LdapRecord\Laravel\Tests\Feature\Commands;
 
+use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\Auth;
@@ -18,11 +19,18 @@ use Mockery as m;
 
 class ImportLdapUsersTest extends DatabaseTestCase
 {
+    public function test_command_exits_when_chunk_and_delete_missing_options_are_used()
+    {
+        $this->artisan('ldap:import', ['--chunk' => 1000, '--delete-missing' => true])
+            ->expectsOutput("The 'chunk' and 'delete-missing' options cannot be used together.")
+            ->assertExitCode(Command::INVALID);
+    }
+
     public function test_command_exits_when_provider_does_not_exist()
     {
         $this->artisan('ldap:import', ['provider' => 'invalid'])
             ->expectsOutput('Provider [invalid] does not exist.')
-            ->assertExitCode(0);
+            ->assertExitCode(Command::FAILURE);
     }
 
     public function test_command_exits_when_plain_provider_is_used()
@@ -31,7 +39,7 @@ class ImportLdapUsersTest extends DatabaseTestCase
 
         $this->artisan('ldap:import', ['provider' => 'ldap-plain'])
             ->expectsOutput('Provider [ldap-plain] is not configured for database synchronization.')
-            ->assertExitCode(0);
+            ->assertExitCode(Command::INVALID);
     }
 
     public function test_message_is_shown_when_no_users_are_found_for_importing()
@@ -51,7 +59,7 @@ class ImportLdapUsersTest extends DatabaseTestCase
 
         $this->artisan('ldap:import', ['provider' => 'ldap-database'])
             ->expectsOutput('There were no users found to import.')
-            ->assertExitCode(0);
+            ->assertExitCode(Command::SUCCESS);
     }
 
     public function test_users_are_imported_into_the_database()
@@ -82,7 +90,7 @@ class ImportLdapUsersTest extends DatabaseTestCase
         Auth::shouldReceive('createUserProvider')->once()->withArgs(['ldap-database'])->andReturn($provider);
 
         $this->artisan('ldap:import', ['provider' => 'ldap-database', '--no-interaction'])
-            ->assertExitCode(0);
+            ->assertExitCode(Command::SUCCESS);
 
         $this->assertDatabaseHas('users', [
             'domain' => 'default',
@@ -125,7 +133,7 @@ class ImportLdapUsersTest extends DatabaseTestCase
         Auth::shouldReceive('createUserProvider')->once()->withArgs(['ldap-database'])->andReturn($provider);
 
         $this->artisan('ldap:import', ['provider' => 'ldap-database', '--no-interaction', '--chunk' => 10])
-            ->assertExitCode(0);
+            ->assertExitCode(Command::SUCCESS);
 
         $this->assertDatabaseHas('users', [
             'domain' => 'default',

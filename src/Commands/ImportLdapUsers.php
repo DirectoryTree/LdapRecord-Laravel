@@ -14,6 +14,7 @@ use LdapRecord\Laravel\Events\Import\DeletedMissing;
 use LdapRecord\Laravel\Events\Import\Imported;
 use LdapRecord\Laravel\Events\Import\ImportFailed;
 use LdapRecord\Laravel\Events\Import\Started;
+use LdapRecord\Laravel\Import\LdapUserImporter;
 use LdapRecord\Models\Collection;
 use LdapRecord\Models\Model;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -60,8 +61,14 @@ class ImportLdapUsers extends Command
      *
      * @throws \LdapRecord\Models\ModelNotFoundException
      */
-    public function handle(LdapUserImporter $importer, Repository $config): void
+    public function handle(LdapUserImporter $importer, Repository $config): int
     {
+        if ($this->option('chunk') && $this->option('delete-missing')) {
+            $this->error("The 'chunk' and 'delete-missing' options cannot be used together.");
+
+            return static::INVALID;
+        }
+
         $config->set('ldap.logging.enabled', $this->isLogging());
 
         /** @var \LdapRecord\Laravel\Auth\DatabaseUserProvider $provider */
@@ -70,15 +77,15 @@ class ImportLdapUsers extends Command
         if (is_null($provider)) {
             $this->error("Provider [{$providerName}] does not exist.");
 
-            return;
+            return static::FAILURE;
         } elseif (! $provider instanceof UserProvider) {
             $this->error("Provider [{$providerName}] is not configured for LDAP authentication.");
 
-            return;
+            return static::INVALID;
         } elseif (! $provider instanceof DatabaseUserProvider) {
             $this->error("Provider [{$providerName}] is not configured for database synchronization.");
 
-            return;
+            return static::INVALID;
         }
 
         $this->registerEventListeners();
@@ -90,6 +97,8 @@ class ImportLdapUsers extends Command
         ($perChunk = $this->option('chunk'))
             ? $this->beginChunkedImport($perChunk)
             : $this->beginImport();
+
+        return static::SUCCESS;
     }
 
     /**
