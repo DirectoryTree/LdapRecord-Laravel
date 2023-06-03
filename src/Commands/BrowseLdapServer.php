@@ -57,7 +57,7 @@ class BrowseLdapServer extends Command
     /**
      * Execute the command.
      */
-    public function handle(): void
+    public function handle(): int
     {
         $connection = $this->argument('connection');
 
@@ -72,6 +72,8 @@ class BrowseLdapServer extends Command
         $this->selectedDn = $this->baseDn;
 
         $this->askForOperation();
+
+        return static::SUCCESS;
     }
 
     /**
