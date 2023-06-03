@@ -40,7 +40,7 @@ class TestLdapConnection extends Command
         if (empty($connections)) {
             $this->error('No LDAP connections have been defined.');
 
-            return static::FAILURE;
+            return static::INVALID;
         }
 
         $tested = [];
