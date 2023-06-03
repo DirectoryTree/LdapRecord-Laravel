@@ -4,6 +4,7 @@ namespace LdapRecord\Laravel\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Config\Repository;
+use Illuminate\Database\Connection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
 use LdapRecord\Laravel\Auth\DatabaseUserProvider;
@@ -30,13 +31,14 @@ class ImportLdapUsers extends Command
      */
     protected $signature = 'ldap:import {provider=ldap : The authentication provider to import.}
             {user? : The specific user to import.}
-            {--f|filter= : A raw LDAP filter to apply to the LDAP query.}
-            {--s|scopes= : Comma seperated list of scopes to apply to the LDAP query.}
-            {--a|attributes= : Comma separated list of LDAP attributes to select.}
-            {--d|delete : Enable soft-deleting user models if their LDAP account is disabled.}
-            {--r|restore : Enable restoring soft-deleted user models if their LDAP account is enabled.}
-            {--c|chunk= : Enable chunked based importing by specifying how many records per chunk.}
-            {--dm|delete-missing : Enable soft-deleting all users that are missing from the import.}
+            {--filter= : A raw LDAP filter to apply to the LDAP query.}
+            {--scopes= : Comma seperated list of scopes to apply to the LDAP query.}
+            {--attributes= : Comma separated list of LDAP attributes to select.}
+            {--delete : Enable soft-deleting user models if their LDAP account is disabled.}
+            {--restore : Enable restoring soft-deleted user models if their LDAP account is enabled.}
+            {--chunk= : Enable chunked based importing by specifying how many records per chunk.}
+            {--delete-missing : Enable soft-deleting all users that are missing from the import.}
+            {--min-users : Enable requiring a of minimum number of LDAP users that must be returned to synchronize.}
             {--no-log : Disable logging successful and unsuccessful imports.}';
 
     /**
@@ -94,9 +96,13 @@ class ImportLdapUsers extends Command
 
         $this->applyImporterOptions($provider);
 
-        ($perChunk = $this->option('chunk'))
-            ? $this->beginChunkedImport($perChunk)
-            : $this->beginImport();
+        if ($perChunk = $this->option('chunk')) {
+            $db = $provider->createModel()->getConnection();
+
+            $this->beginChunkedImport($db, $perChunk);
+        } else {
+            $this->beginImport();
+        }
 
         return static::SUCCESS;
     }
@@ -112,7 +118,15 @@ class ImportLdapUsers extends Command
             $this->info('There were no users found to import.');
 
             return;
-        } elseif ($loaded->count() === 1) {
+        }
+
+        if (($total = $loaded->count()) < ($min = $this->option('min-users'))) {
+            $this->warn("Unable to complete import. A minimum of [$min] users has been set, while only [$total] were returned.");
+
+            return;
+        }
+
+        if ($loaded->count() === 1) {
             $this->info("Found user [{$loaded->first()->getRdn()}].");
         } else {
             $this->info("Found [{$loaded->count()}] user(s).");
@@ -126,8 +140,10 @@ class ImportLdapUsers extends Command
     /**
      * Begin importing users into the database by chunk.
      */
-    protected function beginChunkedImport(int $perChunk): void
+    protected function beginChunkedImport(Connection $db, int $perChunk): void
     {
+        $db->beginTransaction();
+
         $total = 0;
 
         $this->importer->chunkObjectsFromRepository(function (Collection $objects) use (&$total) {
@@ -139,6 +155,16 @@ class ImportLdapUsers extends Command
 
             $total = $total + $imported;
         }, $perChunk);
+
+        if ($total < ($min = $this->option('min-users'))) {
+            $this->warn("Unable to complete import. A minimum of [$min] users has been set, while only [$total] were returned.");
+
+            $db->rollBack();
+
+            return;
+        }
+
+        $db->commit();
 
         $total
             ? $this->info("\nCompleted chunked import. Successfully imported [{$total}] user(s).")

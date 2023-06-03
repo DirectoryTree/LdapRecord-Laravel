@@ -100,6 +100,43 @@ class ImportLdapUsersTest extends DatabaseTestCase
         ]);
     }
 
+    public function test_users_are_not_imported_into_the_database_when_min_users_is_not_reached()
+    {
+        $users = new Collection([
+            new LdapUser([
+                'cn' => 'Steve Bauman',
+                'mail' => 'sbauman@test.com',
+                'objectguid' => 'bf9679e7-0de6-11d0-a285-00aa003049e2',
+            ]),
+        ]);
+
+        $repo = m::mock(LdapUserRepository::class, function ($repo) use ($users) {
+            $query = m::mock(Builder::class);
+            $query->shouldReceive('paginate')->once()->andReturn($users);
+
+            $repo->shouldReceive('query')->once()->andReturn($query);
+        });
+
+        $synchronizer = $this->createLdapUserSynchronizer(TestImportUserModelStub::class, [
+            'sync_attributes' => ['name' => 'cn', 'email' => 'mail'],
+        ]);
+
+        $provider = $this->createDatabaseUserProvider($repo, $this->createLdapUserAuthenticator(), $synchronizer);
+
+        Auth::shouldReceive('createUserProvider')->once()->withArgs(['ldap-database'])->andReturn($provider);
+
+        $this->artisan('ldap:import', ['provider' => 'ldap-database', '--no-interaction', '--min-users' => 2])
+            ->expectsOutput('Unable to complete import. A minimum of [2] users has been set, while only [1] were returned.')
+            ->assertExitCode(Command::SUCCESS);
+
+        $this->assertDatabaseMissing('users', [
+            'domain' => 'default',
+            'name' => 'Steve Bauman',
+            'email' => 'sbauman@test.com',
+            'guid' => 'bf9679e7-0de6-11d0-a285-00aa003049e2',
+        ]);
+    }
+
     public function test_users_are_imported_into_the_database_via_chunk()
     {
         $users = new Collection([
@@ -136,6 +173,50 @@ class ImportLdapUsersTest extends DatabaseTestCase
             ->assertExitCode(Command::SUCCESS);
 
         $this->assertDatabaseHas('users', [
+            'domain' => 'default',
+            'name' => 'Steve Bauman',
+            'email' => 'sbauman@test.com',
+            'guid' => 'bf9679e7-0de6-11d0-a285-00aa003049e2',
+        ]);
+    }
+
+    public function test_users_are_not_imported_into_the_database_via_chunk_when_min_users_is_not_reached()
+    {
+        $users = new Collection([
+            new LdapUser([
+                'cn' => 'Steve Bauman',
+                'mail' => 'sbauman@test.com',
+                'objectguid' => 'bf9679e7-0de6-11d0-a285-00aa003049e2',
+            ]),
+        ]);
+
+        Log::shouldReceive('log')->times(6);
+
+        $repo = m::mock(LdapUserRepository::class, function ($repo) use ($users) {
+            $query = m::mock(Builder::class);
+
+            $query->shouldReceive('chunk')->once()->with(10, m::on(function ($callback) use ($users) {
+                $callback($users);
+
+                return true;
+            }));
+
+            $repo->shouldReceive('query')->once()->andReturn($query);
+        });
+
+        $synchronizer = $this->createLdapUserSynchronizer(TestImportUserModelStub::class, [
+            'sync_attributes' => ['name' => 'cn', 'email' => 'mail'],
+        ]);
+
+        $provider = $this->createDatabaseUserProvider($repo, $this->createLdapUserAuthenticator(), $synchronizer);
+
+        Auth::shouldReceive('createUserProvider')->once()->withArgs(['ldap-database'])->andReturn($provider);
+
+        $this->artisan('ldap:import', ['provider' => 'ldap-database', '--no-interaction', '--chunk' => 10, '--min-users' => 2])
+            ->expectsOutput('Unable to complete import. A minimum of [2] users has been set, while only [1] were returned.')
+            ->assertExitCode(Command::SUCCESS);
+
+        $this->assertDatabaseMissing('users', [
             'domain' => 'default',
             'name' => 'Steve Bauman',
             'email' => 'sbauman@test.com',
