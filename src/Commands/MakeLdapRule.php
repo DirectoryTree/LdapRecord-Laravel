@@ -12,7 +12,7 @@ class MakeLdapRule extends GeneratorCommand
      *
      * @var string
      */
-    protected $name = 'make:ldap-rule';
+    protected $name = 'ldap:make:rule';
 
     /**
      * The console command description.

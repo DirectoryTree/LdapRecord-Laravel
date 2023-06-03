@@ -12,7 +12,7 @@ class MakeLdapModel extends GeneratorCommand
      *
      * @var string
      */
-    protected $name = 'make:ldap-model';
+    protected $name = 'ldap:make:model';
 
     /**
      * The console command description.

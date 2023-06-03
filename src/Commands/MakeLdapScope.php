@@ -12,7 +12,7 @@ class MakeLdapScope extends GeneratorCommand
      *
      * @var string
      */
-    protected $name = 'make:ldap-scope';
+    protected $name = 'ldap:make:scope';
 
     /**
      * The console command description.
