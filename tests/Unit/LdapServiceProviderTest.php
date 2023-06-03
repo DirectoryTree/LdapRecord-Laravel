@@ -142,8 +142,10 @@ class LdapServiceProviderTest extends TestCase
                     ],
                 ],
             ],
-            'logging' => true,
-            'logging_channel' => 'stack',
+            'logging' => [
+                'enabled' => true,
+                'channel' => 'stack',
+            ],
             'cache' => [
                 'enabled' => true,
                 'driver' => 'array',

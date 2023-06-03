@@ -70,7 +70,7 @@ class LdapServiceProvider extends ServiceProvider
      */
     protected function registerLogging(): void
     {
-        if (! Config::get('ldap.logging', false)) {
+        if (! Config::get('ldap.logging.enabled', false)) {
             return;
         }
 
@@ -80,7 +80,7 @@ class LdapServiceProvider extends ServiceProvider
         }
 
         Container::getInstance()->setLogger(
-            ($channel = Config::get('ldap.logging_channel'))
+            ($channel = Config::get('ldap.logging.channel'))
                 ? $logger->channel($channel)
                 : $logger
         );
@@ -141,8 +141,8 @@ class LdapServiceProvider extends ServiceProvider
             return;
         }
 
-        Config::set('ldap.logging', env('LDAP_LOGGING', false));
         Config::set('ldap.default', env('LDAP_CONNECTION', 'default'));
+        Config::set('ldap.logging.enabled', env('LDAP_LOGGING', false));
         Config::set('ldap.cache.enabled', env('LDAP_CACHE', false));
         Config::set('ldap.cache.driver', env('LDAP_CACHE_DRIVER', 'file'));
 

@@ -62,7 +62,7 @@ class ImportLdapUsers extends Command
      */
     public function handle(LdapUserImporter $importer, Repository $config): void
     {
-        $config->set('ldap.logging', $this->isLogging());
+        $config->set('ldap.logging.enabled', $this->isLogging());
 
         /** @var \LdapRecord\Laravel\Auth\DatabaseUserProvider $provider */
         $provider = Auth::createUserProvider($providerName = $this->argument('provider'));

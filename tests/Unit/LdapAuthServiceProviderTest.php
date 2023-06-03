@@ -11,7 +11,7 @@ class LdapAuthServiceProviderTest extends TestCase
     {
         parent::getEnvironmentSetup($app);
 
-        $app['config']->set('ldap.logging', true);
+        $app['config']->set('ldap.logging.enabled', true);
     }
 
     public function test_migrations_are_publishable()

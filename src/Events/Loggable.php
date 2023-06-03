@@ -19,6 +19,6 @@ trait Loggable
      */
     public function shouldLogEvent(): bool
     {
-        return Config::get('ldap.logging', false);
+        return Config::get('ldap.logging.enabled', false);
     }
 }
