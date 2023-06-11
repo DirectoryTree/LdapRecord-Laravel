@@ -6,22 +6,16 @@ interface LoggableEvent
 {
     /**
      * Get the message to log.
-     *
-     * @return string
      */
-    public function getLogMessage();
+    public function getLogMessage(): string;
 
     /**
      * Get the level of log message (i.e. info, alert, critical).
-     *
-     * @return mixed
      */
-    public function getLogLevel();
+    public function getLogLevel(): string;
 
     /**
      * Determine if event should be logged.
-     *
-     * @return bool
      */
-    public function shouldLogEvent();
+    public function shouldLogEvent(): bool;
 }

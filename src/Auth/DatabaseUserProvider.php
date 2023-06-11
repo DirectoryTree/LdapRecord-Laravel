@@ -21,39 +21,26 @@ class DatabaseUserProvider extends UserProvider
 
     /**
      * The LDAP user synchronizer instance.
-     *
-     * @var UserSynchronizer
      */
-    protected $synchronizer;
+    protected UserSynchronizer $synchronizer;
 
     /**
      * The eloquent user provider.
-     *
-     * @var EloquentUserProvider
      */
-    protected $eloquent;
+    protected EloquentUserProvider $eloquent;
 
     /**
      * The authenticating LDAP user.
-     *
-     * @var Model|null
      */
-    protected $user;
+    protected ?Model $user = null;
 
     /**
      * Whether falling back to Eloquent auth is being used.
-     *
-     * @var bool
      */
-    protected $fallback = false;
+    protected bool $fallback = false;
 
     /**
      * Create a new LDAP user provider.
-     *
-     * @param LdapUserAuthenticator $auth
-     * @param LdapUserRepository    $users
-     * @param UserSynchronizer      $synchronizer
-     * @param EloquentUserProvider  $eloquent
      */
     public function __construct(
         LdapUserRepository $users,
@@ -69,99 +56,82 @@ class DatabaseUserProvider extends UserProvider
 
     /**
      * Dynamically pass missing methods to the Eloquent user provider.
-     *
-     * @param string $method
-     * @param array  $parameters
-     *
-     * @return mixed
      */
-    public function __call($method, $parameters)
+    public function __call(string $method, array $parameters): mixed
     {
         return $this->forwardCallTo($this->eloquent, $method, $parameters);
     }
 
     /**
      * Get the Eloquent user provider.
-     *
-     * @return EloquentUserProvider
      */
-    public function eloquent()
+    public function eloquent(): EloquentUserProvider
     {
         return $this->eloquent;
     }
 
     /**
      * Get the LDAP user importer.
-     *
-     * @return UserSynchronizer
      */
-    public function getLdapUserSynchronizer()
+    public function getLdapUserSynchronizer(): UserSynchronizer
     {
         return $this->synchronizer;
     }
 
     /**
      * Set the authenticating LDAP user.
-     *
-     * @param Model $user
      */
-    public function setAuthenticatingUser(Model $user)
+    public function setAuthenticatingUser(Model $user): void
     {
         $this->user = $user;
     }
 
     /**
      * Fallback to Eloquent authentication after failing to locate an LDAP user.
-     *
-     * @return void
      */
-    public function shouldFallback()
+    public function shouldFallback(): void
     {
         $this->fallback = true;
     }
 
     /**
      * Set the callback to be used to resolve LDAP users.
-     *
-     * @param Closure $userResolver
-     *
-     * @return $this
      */
-    public function resolveUsersUsing(Closure $userResolver)
+    public function resolveUsersUsing(Closure $callback): static
     {
-        $this->userResolver = $userResolver;
+        $this->userResolver = $callback;
 
         return $this;
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    public function retrieveById($identifier)
+    public function retrieveById($identifier): ?Authenticatable
     {
         return $this->eloquent->retrieveById($identifier);
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    public function retrieveByToken($identifier, $token)
+    public function retrieveByToken($identifier, $token): ?Authenticatable
     {
         return $this->eloquent->retrieveByToken($identifier, $token);
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    public function updateRememberToken(Authenticatable $user, $token)
+    public function updateRememberToken(Authenticatable $user, $token): void
     {
         $this->eloquent->updateRememberToken($user, $token);
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    public function retrieveByCredentials(array $credentials)
+    public function retrieveByCredentials(array $credentials): ?Authenticatable
     {
         $this->fallback = isset($credentials['fallback']);
 
@@ -191,21 +161,17 @@ class DatabaseUserProvider extends UserProvider
     /**
      * Retrieve the user from their credentials using Eloquent.
      *
-     * @param array $credentials
-     *
-     * @return Authenticatable|null
-     *
      * @throws \Exception
      */
-    protected function retrieveByCredentialsUsingEloquent($credentials)
+    protected function retrieveByCredentialsUsingEloquent(array $credentials): ?Authenticatable
     {
         return $this->eloquent->retrieveByCredentials($credentials);
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    public function validateCredentials(Authenticatable $user, array $credentials)
+    public function validateCredentials(Authenticatable $user, array $credentials): bool
     {
         // If an LDAP user has not been located, fallback is enabled, and
         // the given Eloquent model exists, we will attempt to validate

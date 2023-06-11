@@ -12,15 +12,11 @@ class DiscoveredWithCredentials implements LoggableEvent
 
     /**
      * The discovered LDAP user before authentication.
-     *
-     * @var Model
      */
-    public $user;
+    public Model $user;
 
     /**
      * Constructor.
-     *
-     * @param Model $user
      */
     public function __construct(Model $user)
     {
@@ -28,9 +24,9 @@ class DiscoveredWithCredentials implements LoggableEvent
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    public function getLogMessage()
+    public function getLogMessage(): string
     {
         return "User [{$this->user->getName()}] has been successfully discovered for authentication.";
     }

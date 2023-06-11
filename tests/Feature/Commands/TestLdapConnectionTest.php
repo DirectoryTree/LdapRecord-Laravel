@@ -13,11 +13,16 @@ use Symfony\Component\Console\Output\BufferedOutput;
 
 class TestLdapConnectionTest extends TestCase
 {
-    public function test_command_tests_ldap_connectivity()
+    /**
+     * @testWith
+     * [{"connection": "default"}]
+     * [[]]
+     */
+    public function test_command_tests_ldap_connectivity($params)
     {
         $connection = m::mock(Connection::class);
 
-        $connection->shouldReceive('setDispatcher')->once()->with(DispatcherInterface::class)->andReturnNull();
+        $connection->shouldReceive('setDispatcher')->once()->with(DispatcherInterface::class)->andReturn($connection);
 
         Container::addConnection($connection);
 
@@ -25,7 +30,7 @@ class TestLdapConnectionTest extends TestCase
         $connection->shouldReceive('isConnected')->once()->andReturnTrue();
         $connection->shouldReceive('getConfiguration')->once()->andReturn(new DomainConfiguration(['username' => 'user']));
 
-        $pendingCommand = $this->artisan('ldap:test', ['connection' => 'default']);
+        $pendingCommand = $this->artisan('ldap:test', $params);
 
         $table = (new Table($output = new BufferedOutput))
             ->setHeaders(['Connection', 'Successful', 'Username', 'Message', 'Response Time'])

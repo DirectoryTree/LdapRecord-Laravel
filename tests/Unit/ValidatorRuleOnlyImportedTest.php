@@ -12,11 +12,11 @@ class ValidatorRuleOnlyImportedTest extends TestCase
     public function test_only_imported()
     {
         $this->assertFalse(
-            (new OnlyImported(new Entry, new TestNonExistingOnlyImportedRuleModelStub))->isValid()
+            (new OnlyImported())->passes(new Entry, new TestNonExistingOnlyImportedRuleModelStub)
         );
 
         $this->assertTrue(
-            (new OnlyImported(new Entry, new TestExistingOnlyImportedRuleModelStub))->isValid()
+            (new OnlyImported())->passes(new Entry, new TestExistingOnlyImportedRuleModelStub)
         );
     }
 }

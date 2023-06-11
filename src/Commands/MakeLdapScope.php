@@ -12,7 +12,7 @@ class MakeLdapScope extends GeneratorCommand
      *
      * @var string
      */
-    protected $name = 'make:ldap-scope';
+    protected $name = 'ldap:make:scope';
 
     /**
      * The console command description.
@@ -29,9 +29,9 @@ class MakeLdapScope extends GeneratorCommand
     protected $type = 'LDAP Scope';
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    protected function getStub()
+    protected function getStub(): string
     {
         return __DIR__.'/stubs/scope.stub';
     }
@@ -39,21 +39,17 @@ class MakeLdapScope extends GeneratorCommand
     /**
      * Get the default namespace for the class.
      *
-     * @param string $rootNamespace
-     *
-     * @return string
+     * @param  string  $rootNamespace
      */
-    protected function getDefaultNamespace($rootNamespace)
+    protected function getDefaultNamespace($rootNamespace): string
     {
         return $rootNamespace.'\Ldap\Scopes';
     }
 
     /**
      * Get the console command arguments.
-     *
-     * @return array
      */
-    protected function getArguments()
+    protected function getArguments(): array
     {
         return [
             ['name', InputArgument::REQUIRED, 'The name of the scope'],

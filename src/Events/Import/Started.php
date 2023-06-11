@@ -12,15 +12,11 @@ class Started implements LoggableEvent
 
     /**
      * The LDAP objects being imported.
-     *
-     * @var Collection
      */
-    public $objects;
+    public Collection $objects;
 
     /**
      * Constructor.
-     *
-     * @param $objects
      */
     public function __construct($objects)
     {
@@ -28,9 +24,9 @@ class Started implements LoggableEvent
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    public function getLogMessage()
+    public function getLogMessage(): string
     {
         return "Starting import of [{$this->objects->count()}] LDAP objects.";
     }

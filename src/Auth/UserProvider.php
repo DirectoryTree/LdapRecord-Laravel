@@ -9,35 +9,27 @@ use Illuminate\Validation\ValidationException;
 use LdapRecord\Laravel\LdapRecord;
 use LdapRecord\Laravel\LdapUserAuthenticator;
 use LdapRecord\Laravel\LdapUserRepository;
+use LdapRecord\Models\Model;
 
 abstract class UserProvider implements LaravelUserProvider
 {
     /**
      * The LDAP user repository instance.
-     *
-     * @var LdapUserRepository
      */
-    protected $users;
+    protected LdapUserRepository $users;
 
     /**
      * The LDAP user authenticator instance.
-     *
-     * @var LdapUserAuthenticator
      */
-    protected $auth;
+    protected LdapUserAuthenticator $auth;
 
     /**
      * The user resolver to use for finding the authenticating user.
-     *
-     * @var Closure
      */
-    protected $userResolver;
+    protected Closure $userResolver;
 
     /**
      * Constructor.
-     *
-     * @param LdapUserAuthenticator $auth
-     * @param LdapUserRepository    $users
      */
     public function __construct(LdapUserRepository $users, LdapUserAuthenticator $auth)
     {
@@ -51,12 +43,8 @@ abstract class UserProvider implements LaravelUserProvider
 
     /**
      * Set the callback to resolve users by.
-     *
-     * @param Closure $callback
-     *
-     * @return $this
      */
-    public function resolveUsersUsing(Closure $callback)
+    public function resolveUsersUsing(Closure $callback): static
     {
         $this->userResolver = $callback;
 
@@ -66,13 +54,9 @@ abstract class UserProvider implements LaravelUserProvider
     /**
      * Attempt to retrieve the user by their credentials.
      *
-     * @param array $credentials
-     *
-     * @return mixed
-     *
      * @throws ValidationException
      */
-    protected function fetchLdapUserByCredentials(array $credentials)
+    protected function fetchLdapUserByCredentials(array $credentials): ?Model
     {
         try {
             return call_user_func($this->userResolver, $credentials);
@@ -84,11 +68,9 @@ abstract class UserProvider implements LaravelUserProvider
     /**
      * Handle exceptions during user resolution.
      *
-     * @param Exception $e
-     *
      * @throws ValidationException
      */
-    protected function handleException(Exception $e)
+    protected function handleException(Exception $e): void
     {
         if ($e instanceof ValidationException) {
             throw $e;
@@ -103,40 +85,32 @@ abstract class UserProvider implements LaravelUserProvider
 
     /**
      * Set the LDAP user repository.
-     *
-     * @param LdapUserRepository $users
      */
-    public function setLdapUserRepository(LdapUserRepository $users)
+    public function setLdapUserRepository(LdapUserRepository $users): void
     {
         $this->users = $users;
     }
 
     /**
      * Get the LDAP user repository.
-     *
-     * @return LdapUserRepository
      */
-    public function getLdapUserRepository()
+    public function getLdapUserRepository(): LdapUserRepository
     {
         return $this->users;
     }
 
     /**
-     * Get the the LDAP user authenticator.
-     *
-     * @return LdapUserAuthenticator
+     * Get the LDAP user authenticator.
      */
-    public function getLdapUserAuthenticator()
+    public function getLdapUserAuthenticator(): LdapUserAuthenticator
     {
         return $this->auth;
     }
 
     /**
      * Set the LDAP user authenticator.
-     *
-     * @param LdapUserAuthenticator $auth
      */
-    public function setLdapUserAuthenticator(LdapUserAuthenticator $auth)
+    public function setLdapUserAuthenticator(LdapUserAuthenticator $auth): void
     {
         $this->auth = $auth;
     }

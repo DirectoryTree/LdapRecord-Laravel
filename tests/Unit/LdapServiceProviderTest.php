@@ -69,7 +69,7 @@ class LdapServiceProviderTest extends TestCase
 
     public function test_cache_is_set_on_connection_when_enabled()
     {
-        $this->assertInstanceOf(Cache::class, Container::getInstance()->get('default')->getCache());
+        $this->assertInstanceOf(Cache::class, Container::getInstance()->getConnection('default')->getCache());
     }
 
     public function test_connections_from_environment_variables_are_setup()
@@ -142,8 +142,10 @@ class LdapServiceProviderTest extends TestCase
                     ],
                 ],
             ],
-            'logging' => true,
-            'logging_channel' => 'stack',
+            'logging' => [
+                'enabled' => true,
+                'channel' => 'stack',
+            ],
             'cache' => [
                 'enabled' => true,
                 'driver' => 'array',

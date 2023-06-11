@@ -12,7 +12,7 @@ class MakeLdapModel extends GeneratorCommand
      *
      * @var string
      */
-    protected $name = 'make:ldap-model';
+    protected $name = 'ldap:make:model';
 
     /**
      * The console command description.
@@ -29,9 +29,9 @@ class MakeLdapModel extends GeneratorCommand
     protected $type = 'LDAP Model';
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    protected function getStub()
+    protected function getStub(): string
     {
         return __DIR__.'/stubs/model.stub';
     }
@@ -39,21 +39,17 @@ class MakeLdapModel extends GeneratorCommand
     /**
      * Get the default namespace for the class.
      *
-     * @param string $rootNamespace
-     *
-     * @return string
+     * @param  string  $rootNamespace
      */
-    protected function getDefaultNamespace($rootNamespace)
+    protected function getDefaultNamespace($rootNamespace): string
     {
         return $rootNamespace.'\Ldap';
     }
 
     /**
      * Get the console command arguments.
-     *
-     * @return array
      */
-    protected function getArguments()
+    protected function getArguments(): array
     {
         return [
             ['name', InputArgument::REQUIRED, 'The name of the model'],

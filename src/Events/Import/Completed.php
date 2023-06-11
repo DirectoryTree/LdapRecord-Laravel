@@ -14,23 +14,16 @@ class Completed implements LoggableEvent
 
     /**
      * The LDAP objects imported.
-     *
-     * @var LdapCollection
      */
-    public $objects;
+    public LdapCollection $objects;
 
     /**
      * The Eloquent models of the LDAP objects imported.
-     *
-     * @var LaravelCollection
      */
-    public $imported;
+    public LaravelCollection $imported;
 
     /**
      * Constructor.
-     *
-     * @param LdapCollection    $objects
-     * @param LaravelCollection $imported
      */
     public function __construct(LdapCollection $objects, LaravelCollection $imported)
     {
@@ -39,9 +32,9 @@ class Completed implements LoggableEvent
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    public function getLogMessage()
+    public function getLogMessage(): string
     {
         $imported = $this->imported->filter(function (Model $eloquent) {
             return $eloquent->wasRecentlyCreated;

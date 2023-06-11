@@ -37,6 +37,10 @@ return [
             'timeout' => env('LDAP_TIMEOUT', 5),
             'use_ssl' => env('LDAP_SSL', false),
             'use_tls' => env('LDAP_TLS', false),
+            'use_sasl' => env('LDAP_SASL', false),
+            'sasl_options' => [
+                // 'mech' => 'GSSAPI',
+            ],
         ],
 
     ],
@@ -52,9 +56,10 @@ return [
     |
     */
 
-    'logging' => env('LDAP_LOGGING', true),
-
-    'logging_channel' => env('LOG_CHANNEL', 'stack'),
+    'logging' => [
+        'enabled' => env('LDAP_LOGGING', true),
+        'channel' => env('LOG_CHANNEL', 'stack'),
+    ],
 
     /*
     |--------------------------------------------------------------------------

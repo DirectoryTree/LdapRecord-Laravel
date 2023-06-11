@@ -10,9 +10,9 @@ class Imported extends Event implements LoggableEvent
     use Loggable;
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    public function getLogMessage()
+    public function getLogMessage(): string
     {
         return "Object with name [{$this->object->getName()}] has been successfully imported.";
     }

@@ -2,6 +2,7 @@
 
 namespace LdapRecord\Laravel\Tests\Feature\Commands;
 
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Laravel\Tests\Feature\DatabaseTestCase;
@@ -77,7 +78,7 @@ class GetRootDseTest extends DatabaseTestCase
 
         $code = $this->artisan('ldap:rootdse', ['--attributes' => 'foo,bar']);
 
-        $this->assertEquals(-1, $code);
+        $this->assertEquals(Command::FAILURE, $code);
 
         $output = Artisan::output();
 
@@ -87,8 +88,8 @@ class GetRootDseTest extends DatabaseTestCase
 
 class RootDse extends Entry
 {
-    public function getCreatableDn($name = null, $attribute = null)
+    public function getCreatableDn(?string $name = null, ?string $attribute = null): string
     {
-        return null;
+        return '';
     }
 }

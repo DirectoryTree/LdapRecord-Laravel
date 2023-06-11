@@ -85,7 +85,7 @@ class EmulatedImportTest extends DatabaseTestCase
             'cn' => $this->faker->name,
             'mail' => $this->faker->email,
             'objectguid' => $this->faker->uuid,
-            'userAccountControl' => (new AccountControl)->accountIsDisabled(),
+            'userAccountControl' => (new AccountControl)->setAccountIsDisabled(),
         ]);
 
         $this->artisan('ldap:import', [
@@ -105,7 +105,7 @@ class EmulatedImportTest extends DatabaseTestCase
             'cn' => $this->faker->name,
             'mail' => $this->faker->email,
             'objectguid' => $this->faker->uuid,
-            'userAccountControl' => (new AccountControl)->accountIsNormal(),
+            'userAccountControl' => (new AccountControl)->setAccountIsNormal(),
         ]);
 
         $database = TestUserModelStub::create([
@@ -350,8 +350,8 @@ class EmulatedImportTest extends DatabaseTestCase
 
 class TestImportUserModelScope implements Scope
 {
-    public function apply(Builder $query, Model $model)
+    public function apply(Builder $query, Model $model): void
     {
-        return $query->where('cn', 'Bar');
+        $query->where('cn', 'Bar');
     }
 }

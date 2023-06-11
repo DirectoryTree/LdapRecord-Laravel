@@ -9,23 +9,16 @@ abstract class Event
 {
     /**
      * The LDAP object.
-     *
-     * @var LdapModel
      */
-    public $object;
+    public LdapModel $object;
 
     /**
      * The Eloquent model belonging to the LDAP object.
-     *
-     * @var EloquentModel
      */
-    public $eloquent;
+    public EloquentModel $eloquent;
 
     /**
      * Constructor.
-     *
-     * @param LdapModel     $object
-     * @param EloquentModel $eloquent
      */
     public function __construct(LdapModel $object, EloquentModel $eloquent)
     {

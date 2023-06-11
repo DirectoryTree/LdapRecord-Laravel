@@ -8,12 +8,8 @@ trait DetectsSoftDeletes
 {
     /**
      * Determine if the model is using soft-deletes.
-     *
-     * @param Model $model
-     *
-     * @return bool
      */
-    protected function isUsingSoftDeletes(Model $model)
+    protected function isUsingSoftDeletes(Model $model): bool
     {
         return method_exists($model, 'trashed');
     }

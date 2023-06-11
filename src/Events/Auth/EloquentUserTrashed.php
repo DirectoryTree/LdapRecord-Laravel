@@ -10,9 +10,9 @@ class EloquentUserTrashed extends Event implements LoggableEvent
     use Loggable;
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    public function getLogMessage()
+    public function getLogMessage(): string
     {
         return "User [{$this->object->getName()}] was denied authentication because their model is soft-deleted.";
     }

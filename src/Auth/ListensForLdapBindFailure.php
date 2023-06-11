@@ -15,35 +15,27 @@ trait ListensForLdapBindFailure
 
     /**
      * The bind error handler callback.
-     *
-     * @var Closure|null
      */
-    protected static $bindErrorHandler;
+    protected static ?Closure $bindErrorHandler = null;
 
     /**
      * Set the bind error handler callback.
-     *
-     * @param Closure $callback
-     *
-     * @return void
      */
-    public static function setErrorHandler(Closure $callback)
+    public static function setErrorHandler(Closure $callback): void
     {
         static::$bindErrorHandler = $callback;
     }
 
     /**
-     * Setup a listener for an LDAP bind failure.
-     *
-     * @return void
+     * Set up a listener for an LDAP bind failure.
      */
-    public function listenForLdapBindFailure()
+    public function listenForLdapBindFailure(): void
     {
-        $dispatcher = Container::getInstance()->getEventDispatcher();
+        $dispatcher = Container::getDispatcher();
 
         $isOnLastHost = true;
 
-        // We will setup an event listener on the connecting event to determine if there are
+        // We will set up an event listener on the connecting event to determine if there are
         // multiple LDAP hosts in use. If there are, we will make sure to wait until the
         // last LDAP host is attempted before throwing the login validation exception.
         $dispatcher->listen(Connecting::class, function (Connecting $event) use (&$isOnLastHost) {
@@ -71,18 +63,15 @@ trait ListensForLdapBindFailure
     /**
      * Generate a human validation error for LDAP bind failures.
      *
-     * @param string      $errorMessage
-     * @param string|null $diagnosticMessage
-     *
-     * @return void
-     *
      * @throws ValidationException
      */
-    protected function ldapBindFailed($errorMessage, $diagnosticMessage = null)
+    protected function ldapBindFailed(string $errorMessage, string $diagnosticMessage = null): void
     {
         switch (true) {
             case $this->causedByLostConnection($errorMessage):
-                return $this->handleLdapBindError($errorMessage);
+                $this->handleLdapBindError($errorMessage);
+
+                return;
             case $this->causedByInvalidCredentials($errorMessage, $diagnosticMessage):
                 // We'll bypass any invalid LDAP credential errors and let
                 // the login controller handle it. This is so proper
@@ -91,7 +80,7 @@ trait ListensForLdapBindFailure
             default:
                 foreach ($this->ldapDiagnosticCodeErrorMap() as $code => $message) {
                     if ($this->errorContainsMessage($diagnosticMessage, (string) $code)) {
-                        return $this->handleLdapBindError($message, $code);
+                        $this->handleLdapBindError($message, $code);
                     }
                 }
         }
@@ -100,14 +89,9 @@ trait ListensForLdapBindFailure
     /**
      * Handle the LDAP bind error.
      *
-     * @param string      $message
-     * @param string|null $code
-     *
-     * @return void
-     *
      * @throws ValidationException
      */
-    protected function handleLdapBindError($message, $code = null)
+    protected function handleLdapBindError(string $message, string $code = null): void
     {
         logger()->error($message, compact('code'));
 
@@ -119,11 +103,9 @@ trait ListensForLdapBindFailure
     /**
      * Throw a login validation exception.
      *
-     * @param string $message
-     *
      * @throws ValidationException
      */
-    protected function throwLoginValidationException($message)
+    protected function throwLoginValidationException(string $message): void
     {
         $username = 'email';
 
@@ -142,13 +124,8 @@ trait ListensForLdapBindFailure
 
     /**
      * Determine if the LDAP error generated is caused by invalid credentials.
-     *
-     * @param string $errorMessage
-     * @param string $diagnosticMessage
-     *
-     * @return bool
      */
-    protected function causedByInvalidCredentials($errorMessage, $diagnosticMessage)
+    protected function causedByInvalidCredentials(string $errorMessage, string $diagnosticMessage): bool
     {
         return $this->errorContainsMessage($errorMessage, 'Invalid credentials')
             && $this->errorContainsMessage($diagnosticMessage, '52e');
@@ -156,10 +133,8 @@ trait ListensForLdapBindFailure
 
     /**
      * The LDAP diagnostic code error map.
-     *
-     * @return array
      */
-    protected function ldapDiagnosticCodeErrorMap()
+    protected function ldapDiagnosticCodeErrorMap(): array
     {
         return [
             '525' => trans('ldap::errors.user_not_found'),

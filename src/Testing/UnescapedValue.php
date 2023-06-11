@@ -7,19 +7,19 @@ use LdapRecord\Models\Attributes\EscapedValue;
 class UnescapedValue extends EscapedValue
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    public function __toString()
+    public function __toString(): string
     {
-        return (string) $this->get();
+        return $this->get();
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    public function get()
+    public function get(): string
     {
         // Don't escape values.
-        return $this->value;
+        return (string) $this->value;
     }
 }

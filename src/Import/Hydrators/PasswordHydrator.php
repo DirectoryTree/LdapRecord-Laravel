@@ -11,9 +11,9 @@ use LdapRecord\Models\Model as LdapModel;
 class PasswordHydrator extends Hydrator
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    public function hydrate(LdapModel $object, EloquentModel $eloquent)
+    public function hydrate(LdapModel $object, EloquentModel $eloquent): void
     {
         if (! $this->hasPasswordColumn()) {
             return;
@@ -32,13 +32,8 @@ class PasswordHydrator extends Hydrator
 
     /**
      * Set the password on the users model.
-     *
-     * @param EloquentModel $model
-     * @param string        $password
-     *
-     * @return void
      */
-    protected function setPassword(EloquentModel $model, $password)
+    protected function setPassword(EloquentModel $model, string $password): void
     {
         // If the model has a mutator for the password field, we
         // can assume hashing passwords is taken care of.
@@ -55,13 +50,8 @@ class PasswordHydrator extends Hydrator
      *
      * This checks if the model does not currently have a
      * password, or if the password fails a hash check.
-     *
-     * @param EloquentModel $model
-     * @param string|null   $password
-     *
-     * @return bool
      */
-    protected function passwordNeedsUpdate(EloquentModel $model, $password = null)
+    protected function passwordNeedsUpdate(EloquentModel $model, string $password = null): bool
     {
         $current = $this->currentModelPassword($model);
 
@@ -84,32 +74,24 @@ class PasswordHydrator extends Hydrator
 
     /**
      * Determines if the developer has configured a password column.
-     *
-     * @return bool
      */
-    protected function hasPasswordColumn()
+    protected function hasPasswordColumn(): bool
     {
         return $this->passwordColumn() !== false;
     }
 
     /**
      * Get the current models hashed password.
-     *
-     * @param EloquentModel $model
-     *
-     * @return string|null
      */
-    protected function currentModelPassword(EloquentModel $model)
+    protected function currentModelPassword(EloquentModel $model): ?string
     {
         return $model->getAttribute($this->passwordColumn());
     }
 
     /**
      * Get the password from the current data.
-     *
-     * @return string|null
      */
-    protected function password()
+    protected function password(): ?string
     {
         return Arr::get($this->data, 'password');
     }
@@ -119,17 +101,15 @@ class PasswordHydrator extends Hydrator
      *
      * @return string|false
      */
-    protected function passwordColumn()
+    protected function passwordColumn(): bool|string
     {
         return Arr::get($this->config, 'password_column', 'password');
     }
 
     /**
      * Determine whether password sync is enabled.
-     *
-     * @return bool
      */
-    protected function isSyncingPasswords()
+    protected function isSyncingPasswords(): bool
     {
         return Arr::get($this->config, 'sync_passwords', false);
     }

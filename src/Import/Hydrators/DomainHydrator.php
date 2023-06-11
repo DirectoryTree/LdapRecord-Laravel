@@ -9,9 +9,9 @@ use LdapRecord\Models\Model as LdapModel;
 class DomainHydrator extends Hydrator
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    public function hydrate(LdapModel $object, EloquentModel $eloquent)
+    public function hydrate(LdapModel $object, EloquentModel $eloquent): void
     {
         $eloquent->setLdapDomain($object->getConnectionName() ?? Config::get('ldap.default'));
     }

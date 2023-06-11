@@ -22,10 +22,8 @@ class LdapServiceProvider extends ServiceProvider
 {
     /**
      * Run service provider boot operations.
-     *
-     * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         $this->loadEnvironmentConnections();
 
@@ -42,10 +40,8 @@ class LdapServiceProvider extends ServiceProvider
 
     /**
      * Register the publishable LDAP configuration file.
-     *
-     * @return void
      */
-    protected function registerConfiguration()
+    protected function registerConfiguration(): void
     {
         if ($this->app->runningInConsole()) {
             $this->publishes([
@@ -56,10 +52,8 @@ class LdapServiceProvider extends ServiceProvider
 
     /**
      * Register the LDAP artisan commands.
-     *
-     * @return void
      */
-    protected function registerCommands()
+    protected function registerCommands(): void
     {
         $this->commands([
             GetRootDse::class,
@@ -73,12 +67,10 @@ class LdapServiceProvider extends ServiceProvider
 
     /**
      * Register the LDAP operation logger.
-     *
-     * @return void
      */
-    protected function registerLogging()
+    protected function registerLogging(): void
     {
-        if (! Config::get('ldap.logging', false)) {
+        if (! Config::get('ldap.logging.enabled', false)) {
             return;
         }
 
@@ -88,7 +80,7 @@ class LdapServiceProvider extends ServiceProvider
         }
 
         Container::getInstance()->setLogger(
-            ($channel = Config::get('ldap.logging_channel'))
+            ($channel = Config::get('ldap.logging.channel'))
                 ? $logger->channel($channel)
                 : $logger
         );
@@ -96,10 +88,8 @@ class LdapServiceProvider extends ServiceProvider
 
     /**
      * Register the application's LDAP connections.
-     *
-     * @return void
      */
-    protected function registerLdapConnections()
+    protected function registerLdapConnections(): void
     {
         Container::setDefaultConnection(
             Config::get('ldap.default', 'default')
@@ -110,10 +100,8 @@ class LdapServiceProvider extends ServiceProvider
 
     /**
      * Register the connections that exist in the configuration file.
-     *
-     * @return void
      */
-    protected function registerConfiguredConnections()
+    protected function registerConfiguredConnections(): void
     {
         foreach (Config::get('ldap.connections', []) as $name => $config) {
             $connection = $this->makeConnection($config);
@@ -128,10 +116,8 @@ class LdapServiceProvider extends ServiceProvider
 
     /**
      * Registers the LDAP event listeners.
-     *
-     * @return void
      */
-    protected function registerEventListeners()
+    protected function registerEventListeners(): void
     {
         Event::listen('LdapRecord\Laravel\Events\*', function ($eventName, array $events) {
             collect($events)->filter(function ($event) {
@@ -144,10 +130,8 @@ class LdapServiceProvider extends ServiceProvider
 
     /**
      * Register the connections that exist in the environment file.
-     *
-     * @return void
      */
-    protected function loadEnvironmentConnections()
+    protected function loadEnvironmentConnections(): void
     {
         $connections = array_filter(
             array_map('trim', explode(',', env('LDAP_CONNECTIONS', '')))
@@ -157,8 +141,8 @@ class LdapServiceProvider extends ServiceProvider
             return;
         }
 
-        Config::set('ldap.logging', env('LDAP_LOGGING', false));
         Config::set('ldap.default', env('LDAP_CONNECTION', 'default'));
+        Config::set('ldap.logging.enabled', env('LDAP_LOGGING', false));
         Config::set('ldap.cache.enabled', env('LDAP_CACHE', false));
         Config::set('ldap.cache.driver', env('LDAP_CACHE_DRIVER', 'file'));
 
@@ -169,24 +153,16 @@ class LdapServiceProvider extends ServiceProvider
 
     /**
      * Make a new LDAP connection.
-     *
-     * @param array $config
-     *
-     * @return Connection
      */
-    protected function makeConnection($config)
+    protected function makeConnection(array $config): Connection
     {
         return app(Connection::class, ['config' => $config]);
     }
 
     /**
      * Register the LDAP cache store on the given connection.
-     *
-     * @param Connection $connection
-     *
-     * @return void
      */
-    protected function registerLdapCache(Connection $connection)
+    protected function registerLdapCache(Connection $connection): void
     {
         if (! is_null($cache = Cache::getFacadeRoot())) {
             $connection->setCache(
@@ -197,12 +173,8 @@ class LdapServiceProvider extends ServiceProvider
 
     /**
      * Make a connection's configuration from the connection's environment name.
-     *
-     * @param string $connection
-     *
-     * @return array
      */
-    protected function makeConnectionConfigFromEnv($connection)
+    protected function makeConnectionConfigFromEnv(string $connection): array
     {
         return array_filter([
             'hosts' => explode(',', env($this->makeEnvVariable('LDAP_{name}_HOSTS', $connection))),
@@ -219,12 +191,8 @@ class LdapServiceProvider extends ServiceProvider
 
     /**
      * Make a connection's custom config options array from the env.
-     *
-     * @param string $connection
-     *
-     * @return array
      */
-    protected function makeCustomOptionsFromEnv($connection)
+    protected function makeCustomOptionsFromEnv(string $connection): array
     {
         $constant = $this->makeEnvVariable('LDAP_{name}_OPT', $connection);
 
@@ -249,13 +217,8 @@ class LdapServiceProvider extends ServiceProvider
 
     /**
      * Substitute the env name template with the given connection name.
-     *
-     * @param string $env
-     * @param string $name
-     *
-     * @return string
      */
-    protected function makeEnvVariable($env, $name)
+    protected function makeEnvVariable(string $env, string $name): string
     {
         return str_replace('{name}', strtoupper($name), $env);
     }

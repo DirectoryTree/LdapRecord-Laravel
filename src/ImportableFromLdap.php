@@ -6,64 +6,48 @@ trait ImportableFromLdap
 {
     /**
      * Get the database column name of the domain.
-     *
-     * @return string
      */
-    public function getLdapDomainColumn()
+    public function getLdapDomainColumn(): string
     {
         return 'domain';
     }
 
     /**
      * Get the models LDAP domain.
-     *
-     * @return string
      */
-    public function getLdapDomain()
+    public function getLdapDomain(): ?string
     {
         return $this->{$this->getLdapDomainColumn()};
     }
 
     /**
      * Set the models LDAP domain.
-     *
-     * @param string $domain
-     *
-     * @return void
      */
-    public function setLdapDomain($domain)
+    public function setLdapDomain(?string $domain): void
     {
         $this->{$this->getLdapDomainColumn()} = $domain;
     }
 
     /**
      * Get the models LDAP GUID database column name.
-     *
-     * @return string
      */
-    public function getLdapGuidColumn()
+    public function getLdapGuidColumn(): string
     {
         return 'guid';
     }
 
     /**
      * Get the models LDAP GUID.
-     *
-     * @return string
      */
-    public function getLdapGuid()
+    public function getLdapGuid(): ?string
     {
         return $this->{$this->getLdapGuidColumn()};
     }
 
     /**
      * Set the models LDAP GUID.
-     *
-     * @param string $guid
-     *
-     * @return void
      */
-    public function setLdapGuid($guid)
+    public function setLdapGuid(?string $guid): void
     {
         $this->{$this->getLdapGuidColumn()} = $guid;
     }

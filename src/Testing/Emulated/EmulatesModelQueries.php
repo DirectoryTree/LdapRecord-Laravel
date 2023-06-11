@@ -2,8 +2,11 @@
 
 namespace LdapRecord\Laravel\Testing\Emulated;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use LdapRecord\Laravel\Testing\EmulatesQueries;
+use LdapRecord\Models\Collection;
+use LdapRecord\Models\Model;
 
 trait EmulatesModelQueries
 {
@@ -12,9 +15,9 @@ trait EmulatesModelQueries
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    public function newInstance($baseDn = null)
+    public function newInstance(string $baseDn = null): static
     {
         return (new self($this->connection))
             ->setModel($this->model)
@@ -22,9 +25,9 @@ trait EmulatesModelQueries
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    public function insertAttributes($dn, array $attributes)
+    public function add(string $dn, array $attributes): bool
     {
         if (! $model = $this->find($dn)) {
             return false;
@@ -34,13 +37,15 @@ trait EmulatesModelQueries
             $model->{$name} = array_merge($model->{$name} ?? [], Arr::wrap($values));
         }
 
-        return $model->save();
+        $model->save();
+
+        return true;
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    public function update($dn, array $modifications)
+    public function update(string $dn, array $modifications): bool
     {
         if (! $model = $this->findEloquentModelByDn($dn)) {
             return false;
@@ -54,9 +59,9 @@ trait EmulatesModelQueries
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    public function updateAttributes($dn, array $attributes)
+    public function replace(string $dn, array $attributes): bool
     {
         if (! $model = $this->find($dn)) {
             return false;
@@ -66,13 +71,15 @@ trait EmulatesModelQueries
             $model->{$name} = $values;
         }
 
-        return $model->save();
+        $model->save();
+
+        return true;
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    public function deleteAttributes($dn, array $attributes)
+    public function remove(string $dn, array $attributes): bool
     {
         if (! $model = $this->find($dn)) {
             return false;
@@ -88,25 +95,25 @@ trait EmulatesModelQueries
             }
         }
 
-        return $model->save();
+        $model->save();
+
+        return true;
     }
 
     /**
      * Parse the database query results.
      *
-     * @param \Illuminate\Database\Eloquent\Collection $resource
-     *
-     * @return array
+     * @param  \Illuminate\Database\Eloquent\Collection  $resource
      */
-    public function parse($resource)
+    public function parse(mixed $resource): array
     {
         return $resource->toArray();
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    protected function process(array $results)
+    protected function process(array $results): Collection
     {
         return $this->model->newCollection($results)->transform(function ($result) {
             return $this->resultToModelInstance($result);
@@ -115,12 +122,8 @@ trait EmulatesModelQueries
 
     /**
      * Transform the result into a model instance.
-     *
-     * @param array|\LdapRecord\Models\Model $object
-     *
-     * @return \LdapRecord\Models\Model
      */
-    protected function resultToModelInstance($result)
+    protected function resultToModelInstance($result): Model
     {
         if ($result instanceof $this->model) {
             return $result;
@@ -137,26 +140,26 @@ trait EmulatesModelQueries
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    protected function addFilterToDatabaseQuery($query, $field, $operator, $value)
+    protected function addFilterToDatabaseQuery(Builder $query, string $field, string $operator, ?string $value): void
     {
         if ($field === 'anr') {
-            return $query->whereIn('name', $this->model->getAnrAttributes())
+            $query->whereIn('name', $this->model->getAnrAttributes())
                 ->whereHas('values', function ($query) use ($value) {
                     $query->where('value', 'like', "%$value%");
                 });
+
+            return;
         }
 
-        return $this->baseAddFilterToDatabaseQuery($query, $field, $operator, $value);
+        $this->baseAddFilterToDatabaseQuery($query, $field, $operator, $value);
     }
 
     /**
      * Override the possibility of the underlying LDAP model being compatible with ANR.
-     *
-     * @return false
      */
-    protected function modelIsCompatibleWithAnr()
+    protected function modelIsCompatibleWithAnr(): bool
     {
         return true;
     }

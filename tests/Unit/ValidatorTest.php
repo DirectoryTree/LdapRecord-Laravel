@@ -3,10 +3,12 @@
 namespace LdapRecord\Laravel\Tests\Unit;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 use LdapRecord\Laravel\Auth\Rule;
 use LdapRecord\Laravel\Auth\Validator;
 use LdapRecord\Laravel\Tests\TestCase;
 use LdapRecord\Models\Entry;
+use LdapRecord\Models\Model as LdapRecord;
 
 class ValidatorTest extends TestCase
 {
@@ -17,7 +19,7 @@ class ValidatorTest extends TestCase
 
     public function test_rules_can_be_added()
     {
-        $rule = new TestPassingRule(new Entry, new TestRuleModelStub);
+        $rule = new TestPassingRule();
         $validator = new Validator([$rule]);
 
         $this->assertCount(1, $validator->getRules());
@@ -26,27 +28,27 @@ class ValidatorTest extends TestCase
 
     public function test_passing_validation_rule()
     {
-        $rule = new TestPassingRule(new Entry, new TestRuleModelStub);
-        $this->assertTrue((new Validator([$rule]))->passes());
+        $rule = new TestPassingRule();
+        $this->assertTrue((new Validator([$rule]))->passes(new Entry, new TestRuleModelStub));
     }
 
     public function test_failing_validation_rule()
     {
-        $rule = new TestFailingRule(new Entry, new TestRuleModelStub);
-        $this->assertFalse((new Validator([$rule]))->passes());
+        $rule = new TestFailingRule();
+        $this->assertFalse((new Validator([$rule]))->passes(new Entry, new TestRuleModelStub));
     }
 
     public function test_all_rules_are_validated()
     {
-        $rule = new TestPassingRule(new Entry, new TestRuleModelStub);
+        $rule = new TestPassingRule();
 
         $validator = new Validator([$rule]);
 
-        $this->assertTrue($validator->passes());
+        $this->assertTrue($validator->passes(new Entry, new TestRuleModelStub));
 
-        $validator->addRule(new TestFailingRule(new Entry, new TestRuleModelStub));
+        $validator->addRule(new TestFailingRule());
 
-        $this->assertFalse($validator->passes());
+        $this->assertFalse($validator->passes(new Entry, new TestRuleModelStub));
     }
 }
 
@@ -55,17 +57,17 @@ class TestRuleModelStub extends Model
     //
 }
 
-class TestPassingRule extends Rule
+class TestPassingRule implements Rule
 {
-    public function isValid()
+    public function passes(LdapRecord $user, Eloquent $model = null): bool
     {
         return true;
     }
 }
 
-class TestFailingRule extends Rule
+class TestFailingRule implements Rule
 {
-    public function isValid()
+    public function passes(LdapRecord $user, Eloquent $model = null): bool
     {
         return false;
     }

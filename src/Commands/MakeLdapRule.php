@@ -12,7 +12,7 @@ class MakeLdapRule extends GeneratorCommand
      *
      * @var string
      */
-    protected $name = 'make:ldap-rule';
+    protected $name = 'ldap:make:rule';
 
     /**
      * The console command description.
@@ -29,9 +29,9 @@ class MakeLdapRule extends GeneratorCommand
     protected $type = 'LDAP Rule';
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    protected function getStub()
+    protected function getStub(): string
     {
         return __DIR__.'/stubs/rule.stub';
     }
@@ -39,21 +39,17 @@ class MakeLdapRule extends GeneratorCommand
     /**
      * Get the default namespace for the class.
      *
-     * @param string $rootNamespace
-     *
-     * @return string
+     * @param  string  $rootNamespace
      */
-    protected function getDefaultNamespace($rootNamespace)
+    protected function getDefaultNamespace($rootNamespace): string
     {
         return $rootNamespace.'\Ldap\Rules';
     }
 
     /**
      * Get the console command arguments.
-     *
-     * @return array
      */
-    protected function getArguments()
+    protected function getArguments(): array
     {
         return [
             ['name', InputArgument::REQUIRED, 'The name of the rule'],

@@ -6,10 +6,8 @@ class EloquentUserHydrator extends EloquentHydrator
 {
     /**
      * The hydrators to use when importing.
-     *
-     * @var array
      */
-    protected $hydrators = [
+    protected array $hydrators = [
         Hydrators\GuidHydrator::class,
         Hydrators\DomainHydrator::class,
         Hydrators\PasswordHydrator::class,

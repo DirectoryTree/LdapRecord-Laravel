@@ -14,17 +14,11 @@ class ImportFailed extends Event implements LoggableEvent
 
     /**
      * The exception that was thrown during import.
-     *
-     * @var Exception
      */
-    public $exception;
+    public Exception $exception;
 
     /**
      * Constructor.
-     *
-     * @param LdapModel $object
-     * @param Eloquent  $eloquent
-     * @param Exception $exception
      */
     public function __construct(LdapModel $object, Eloquent $eloquent, Exception $exception)
     {
@@ -34,17 +28,17 @@ class ImportFailed extends Event implements LoggableEvent
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    public function getLogLevel()
+    public function getLogLevel(): string
     {
         return 'error';
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    public function getLogMessage()
+    public function getLogMessage(): string
     {
         return "Failed importing object [{$this->object->getName()}]. {$this->exception->getMessage()}";
     }

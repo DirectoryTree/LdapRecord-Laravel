@@ -3,6 +3,8 @@
 namespace LdapRecord\Laravel;
 
 use Closure;
+use Illuminate\Database\Eloquent\Model as Eloquent;
+use Illuminate\Support\Collection;
 use LdapRecord\Laravel\Auth\Validator;
 use LdapRecord\Laravel\Events\Auth\BindFailed;
 use LdapRecord\Laravel\Events\Auth\Binding;
@@ -18,28 +20,22 @@ class LdapUserAuthenticator
     /**
      * The LDAP authentication rules.
      *
-     * @var array
+     * @var \LdapRecord\Laravel\Auth\Rule[]
      */
-    protected $rules = [];
+    protected array $rules = [];
+
+    /**
+     * The authenticator to use for validating the user's password.
+     */
+    protected Closure $authenticator;
 
     /**
      * The eloquent user model.
-     *
-     * @var \Illuminate\Database\Eloquent\Model|null
      */
-    protected $eloquentModel;
-
-    /**
-     * The authenticator to use for validating the users password.
-     *
-     * @var Closure
-     */
-    protected $authenticator;
+    protected ?Eloquent $eloquentModel = null;
 
     /**
      * Constructor.
-     *
-     * @param array $rules
      */
     public function __construct(array $rules = [])
     {
@@ -52,12 +48,8 @@ class LdapUserAuthenticator
 
     /**
      * Set the authenticating eloquent model.
-     *
-     * @param \Illuminate\Database\Eloquent\Model $model
-     *
-     * @return $this
      */
-    public function setEloquentModel($model)
+    public function setEloquentModel(Eloquent $model = null): static
     {
         $this->eloquentModel = $model;
 
@@ -66,13 +58,8 @@ class LdapUserAuthenticator
 
     /**
      * Attempt authenticating against the LDAP domain.
-     *
-     * @param Model  $user
-     * @param string $password
-     *
-     * @return bool
      */
-    public function attempt(Model $user, $password)
+    public function attempt(Model $user, string $password = null): bool
     {
         $this->attempting($user);
 
@@ -107,14 +94,8 @@ class LdapUserAuthenticator
 
     /**
      * Attempt authentication using the given callback once.
-     *
-     * @param Closure     $callback
-     * @param Model       $user
-     * @param string|null $password
-     *
-     * @return bool
      */
-    public function attemptOnceUsing(Closure $callback, Model $user, $password = null)
+    public function attemptOnceUsing(Closure $callback, Model $user, ?string $password = null): bool
     {
         $authenticator = $this->authenticator;
 
@@ -127,12 +108,8 @@ class LdapUserAuthenticator
 
     /**
      * Set the callback to use for authenticating users.
-     *
-     * @param Closure $authenticator
-     *
-     * @return $this
      */
-    public function authenticateUsing(Closure $authenticator)
+    public function authenticateUsing(Closure $authenticator): static
     {
         $this->authenticator = $authenticator;
 
@@ -141,110 +118,72 @@ class LdapUserAuthenticator
 
     /**
      * Validate the given user against the authentication rules.
-     *
-     * @param Model $user
-     *
-     * @return bool
      */
-    protected function validate(Model $user)
+    protected function validate(Model $user): bool
     {
-        return $this->validator($user, $this->eloquentModel)->passes();
+        return $this->validator()->passes($user, $this->eloquentModel);
     }
 
     /**
      * Create a new user validator.
-     *
-     * @param \LdapRecord\Models\Model                 $user
-     * @param \Illuminate\Database\Eloquent\Model|null $model
-     *
-     * @return Validator
      */
-    protected function validator($user, $model = null)
+    protected function validator(): Validator
     {
-        return app(Validator::class, ['rules' => $this->rules($user, $model)]);
+        return app(Validator::class, ['rules' => $this->rules()]);
     }
 
     /**
      * Get the authentication rules for the domain.
-     *
-     * @param \LdapRecord\Models\Model                 $user
-     * @param \Illuminate\Database\Eloquent\Model|null $model
-     *
-     * @return \Illuminate\Support\Collection
      */
-    protected function rules($user, $model = null)
+    protected function rules(): Collection
     {
-        return collect($this->rules)->map(function ($rule) use ($user, $model) {
-            return new $rule($user, $model);
-        })->values();
+        return collect($this->rules)->map(fn ($rule) => app($rule))->values();
     }
 
     /**
      * Fire the "attempting" event.
-     *
-     * @param Model $user
-     *
-     * @return void
      */
-    protected function attempting(Model $user)
+    protected function attempting(Model $user): void
     {
         event(new Binding($user, $this->eloquentModel));
     }
 
     /**
      * Fire the "passed" event.
-     *
-     * @param Model $user
-     *
-     * @return void
      */
-    protected function passed(Model $user)
+    protected function passed(Model $user): void
     {
         event(new Bound($user, $this->eloquentModel));
     }
 
     /**
      * Fire the "trashed" event.
-     *
-     * @param Model $user
-     *
-     * @return void
      */
-    protected function trashed(Model $user)
+    protected function trashed(Model $user): void
     {
         event(new EloquentUserTrashed($user, $this->eloquentModel));
     }
 
     /**
      * Fire the "failed" event.
-     *
-     * @param Model $user
-     *
-     * @return void
      */
-    protected function failed(Model $user)
+    protected function failed(Model $user): void
     {
         event(new BindFailed($user, $this->eloquentModel));
     }
 
     /**
      * Fire the "rejected" event.
-     *
-     * @param Model $user
-     *
-     * @return void
      */
-    protected function rejected(Model $user)
+    protected function rejected(Model $user): void
     {
         event(new Rejected($user, $this->eloquentModel));
     }
 
     /**
      * Determine if the database model is trashed.
-     *
-     * @return bool
      */
-    protected function databaseModelIsTrashed()
+    protected function databaseModelIsTrashed(): bool
     {
         return isset($this->eloquentModel)
             && $this->isUsingSoftDeletes($this->eloquentModel)

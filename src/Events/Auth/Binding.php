@@ -10,9 +10,9 @@ class Binding extends Event implements LoggableEvent
     use Loggable;
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    public function getLogMessage()
+    public function getLogMessage(): string
     {
         return "User [{$this->object->getName()}] is authenticating.";
     }

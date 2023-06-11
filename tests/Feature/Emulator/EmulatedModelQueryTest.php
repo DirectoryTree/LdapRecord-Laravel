@@ -9,6 +9,7 @@ use LdapRecord\Laravel\Tests\TestCase;
 use LdapRecord\Models\ActiveDirectory\Group;
 use LdapRecord\Models\ActiveDirectory\User;
 use LdapRecord\Models\Entry;
+use LdapRecord\Models\Relations\HasManyIn;
 use Ramsey\Uuid\Uuid;
 
 class EmulatedModelQueryTest extends TestCase
@@ -80,7 +81,7 @@ class EmulatedModelQueryTest extends TestCase
         $model = TestModelStub::create(['cn' => 'John']);
         $this->assertNull($model->sn);
 
-        $model->insertAttributes($model->getDn(), ['sn' => 'Doe']);
+        $model->add($model->getDn(), ['sn' => 'Doe']);
 
         $this->assertEquals('Doe', $model->fresh()->sn[0]);
     }
@@ -111,6 +112,7 @@ class EmulatedModelQueryTest extends TestCase
 
     public function test_delete_attribute()
     {
+        /** @var TestModelStub $model */
         $model = tap(new TestModelStub, function ($model) {
             $model->cn = 'John Doe';
             $model->foo = 'bar';
@@ -119,15 +121,15 @@ class EmulatedModelQueryTest extends TestCase
             $model->save();
         });
 
-        $model->deleteAttribute('foo');
-        $model->deleteAttribute(['baz', 'zal' => 'invalid']);
+        $model->removeAttribute('foo');
+        $model->removeAttributes(['baz', 'zal' => 'invalid']);
 
         $this->assertNull($model->foo);
         $this->assertNull($model->baz);
         $this->assertEquals(['ze'], $model->zal);
         $this->assertEquals('John Doe', $model->cn[0]);
 
-        $model->deleteAttribute(['baz', 'zal' => 'ze']);
+        $model->removeAttributes(['baz', 'zal' => 'ze']);
 
         $this->assertEquals([], $model->zal);
     }
@@ -145,7 +147,7 @@ class EmulatedModelQueryTest extends TestCase
         $this->assertEquals(['bar'], $model->foo);
         $this->assertEquals(['set'], $model->baz);
 
-        $model->deleteAttributes($model->getDn(), ['foo' => [], 'baz' => []]);
+        $model->remove($model->getDn(), ['foo' => [], 'baz' => []]);
 
         $model = TestModelStub::find($model->getDn());
         $this->assertNull($model->foo);
@@ -201,7 +203,8 @@ class EmulatedModelQueryTest extends TestCase
         $model = TestModelStub::create(['cn' => 'John', 'sn' => 'Doe']);
         $this->assertEquals('Doe', $model->sn[0]);
 
-        $model->updateAttributes($model->getDn(), ['sn' => []]);
+        $model->replace($model->getDn(), ['sn' => []]);
+
         $this->assertNull($model->fresh()->sn);
     }
 
@@ -257,7 +260,7 @@ class EmulatedModelQueryTest extends TestCase
 
         $model = new class extends Entry
         {
-            public static $objectClasses = ['three', 'four'];
+            public static array $objectClasses = ['three', 'four'];
         };
 
         $this->assertCount(0, $model::get());
@@ -345,8 +348,8 @@ class EmulatedModelQueryTest extends TestCase
         $this->assertCount(0, TestModelStub::whereStartsWith('cn', 'teve')->get());
 
         $models = TestModelStub::whereStartsWith('cn', 'J')
-                    ->whereStartsWith('cn', 'Ja')
-                    ->get();
+            ->whereStartsWith('cn', 'Ja')
+            ->get();
 
         $this->assertCount(1, $models);
     }
@@ -373,8 +376,8 @@ class EmulatedModelQueryTest extends TestCase
         $this->assertCount(0, TestModelStub::whereEndsWith('cn', 'oh')->get());
 
         $models = TestModelStub::whereEndsWith('cn', 'n')
-                    ->whereEndsWith('cn', 'hn')
-                    ->get();
+            ->whereEndsWith('cn', 'hn')
+            ->get();
 
         $this->assertCount(1, $models);
     }
@@ -569,7 +572,7 @@ class EmulatedModelQueryTest extends TestCase
         (new TestModelStub(['cn' => 'Jen']))->inside('ou=Accounts,ou=Users,dc=local,dc=com')->save();
 
         $this->assertCount(2, TestModelStub::in('ou=Users,dc=local,dc=com')->get());
-        $this->assertCount(1, TestModelStub::listing()->in('ou=Users,dc=local,dc=com')->get());
+        $this->assertCount(1, TestModelStub::list()->in('ou=Users,dc=local,dc=com')->get());
         $this->assertCount(4, TestModelStub::in('dc=local,dc=com')->get());
     }
 
@@ -586,7 +589,8 @@ class EmulatedModelQueryTest extends TestCase
         $group = Group::create(['cn' => 'Accounting']);
         $user = User::create(['cn' => 'John', 'memberof' => [$group->getDn()]]);
 
-        $this->assertSame($group, $user->groups()->attach($group));
+        $user->groups()->attach($group);
+
         $this->assertEquals($user->getDn(), $group->getFirstAttribute('member'));
 
         $this->assertTrue($user->is($group->members()->first()));
@@ -601,7 +605,8 @@ class EmulatedModelQueryTest extends TestCase
         $manager = User::create(['cn' => 'John']);
         $user = User::create(['cn' => 'Jane']);
 
-        $this->assertSame($manager, $user->manager()->attach($manager));
+        $user->manager()->attach($manager);
+
         $this->assertEquals($manager->getDn(), $user->getFirstAttribute('manager'));
         $this->assertTrue($manager->is($user->manager()->first()));
         $this->assertTrue($user->manager()->exists($manager));
@@ -629,14 +634,16 @@ class EmulatedModelQueryTest extends TestCase
 
         $alpha = new class extends Entry
         {
-            protected $connection = 'alpha';
-            public static $objectClasses = ['one', 'two'];
+            protected ?string $connection = 'alpha';
+
+            public static array $objectClasses = ['one', 'two'];
         };
 
         $bravo = new class extends Entry
         {
-            protected $connection = 'bravo';
-            public static $objectClasses = ['one', 'two'];
+            protected ?string $connection = 'bravo';
+
+            public static array $objectClasses = ['one', 'two'];
         };
 
         $alphaUser = $alpha::create(['cn' => 'John']);
@@ -652,12 +659,12 @@ class EmulatedModelQueryTest extends TestCase
 
 class TestModelStub extends Entry
 {
-    public static $objectClasses = ['one', 'two'];
+    public static array $objectClasses = ['one', 'two'];
 }
 
 class TestHasManyInStub extends TestModelStub
 {
-    public function members()
+    public function members(): HasManyIn
     {
         return $this->hasManyIn(TestModelStub::class, 'members');
     }

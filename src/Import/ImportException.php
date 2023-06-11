@@ -9,12 +9,8 @@ class ImportException extends LdapRecordException
 {
     /**
      * Generate a new exception for a model that is missing a GUID.
-     *
-     * @param Model $model
-     *
-     * @return static
      */
-    public static function missingGuid(Model $model)
+    public static function missingGuid(Model $model): static
     {
         return new static(
             sprintf(

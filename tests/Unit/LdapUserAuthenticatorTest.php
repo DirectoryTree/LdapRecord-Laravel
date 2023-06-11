@@ -2,6 +2,7 @@
 
 namespace LdapRecord\Laravel\Tests\Unit;
 
+use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Support\Facades\Event;
 use LdapRecord\Auth\Guard;
@@ -14,6 +15,7 @@ use LdapRecord\Laravel\Events\Auth\Rejected;
 use LdapRecord\Laravel\LdapUserAuthenticator;
 use LdapRecord\Laravel\Tests\TestCase;
 use LdapRecord\Models\Model;
+use LdapRecord\Models\Model as LdapRecord;
 use Mockery as m;
 
 class LdapUserAuthenticatorTest extends TestCase
@@ -140,17 +142,17 @@ class TestLdapUserAuthenticatedModelStub extends EloquentModel
     //
 }
 
-class TestLdapAuthRuleWithEloquentModel extends Rule
+class TestLdapAuthRuleWithEloquentModel implements Rule
 {
-    public function isValid()
+    public function passes(LdapRecord $user, Eloquent $model = null): bool
     {
-        return isset($this->model);
+        return ! is_null($model);
     }
 }
 
-class TestFailingLdapAuthRule extends Rule
+class TestFailingLdapAuthRule implements Rule
 {
-    public function isValid()
+    public function passes(LdapRecord $user, Eloquent $model = null): bool
     {
         return false;
     }

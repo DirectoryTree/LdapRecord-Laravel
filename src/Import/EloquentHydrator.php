@@ -9,24 +9,18 @@ class EloquentHydrator
 {
     /**
      * The configuration to pass to each hydrator.
-     *
-     * @var array
      */
-    protected $config = [];
+    protected array $config = [];
 
     /**
      * Extra data to pass to each hydrator.
-     *
-     * @var array
      */
-    protected $data = [];
+    protected array $data = [];
 
     /**
      * The hydrators to use when importing.
-     *
-     * @var array
      */
-    protected $hydrators = [
+    protected array $hydrators = [
         Hydrators\GuidHydrator::class,
         Hydrators\DomainHydrator::class,
         Hydrators\AttributeHydrator::class,
@@ -34,8 +28,6 @@ class EloquentHydrator
 
     /**
      * Constructor.
-     *
-     * @param array $config
      */
     public function __construct(array $config = [])
     {
@@ -44,12 +36,8 @@ class EloquentHydrator
 
     /**
      * Extra data to pass to each hydrator.
-     *
-     * @param array $data
-     *
-     * @return $this
      */
-    public function with(array $data = [])
+    public function with(array $data = []): static
     {
         $this->data = $data;
 
@@ -58,13 +46,8 @@ class EloquentHydrator
 
     /**
      * Hydrate the database model with the LDAP user.
-     *
-     * @param LdapModel     $user
-     * @param EloquentModel $database
-     *
-     * @return void
      */
-    public function hydrate(LdapModel $user, EloquentModel $database)
+    public function hydrate(LdapModel $user, EloquentModel $database): void
     {
         foreach ($this->hydrators as $hydrator) {
             $hydrator::with($this->config, $this->data)->hydrate($user, $database);

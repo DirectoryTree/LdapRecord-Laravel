@@ -27,20 +27,20 @@ class TestLdapConnection extends Command
     /**
      * Execute the console command.
      *
-     * @return void
-     *
      * @throws \LdapRecord\ContainerException
      */
-    public function handle()
+    public function handle(): int
     {
         if ($connection = $this->argument('connection')) {
             $connections = [$connection => Container::getConnection($connection)];
         } else {
-            $connections = Container::getInstance()->all();
+            $connections = Container::getInstance()->getConnections();
         }
 
         if (empty($connections)) {
-            return $this->error('No LDAP connections have been defined.');
+            $this->error('No LDAP connections have been defined.');
+
+            return static::INVALID;
         }
 
         $tested = [];
@@ -50,17 +50,14 @@ class TestLdapConnection extends Command
         }
 
         $this->table(['Connection', 'Successful', 'Username', 'Message', 'Response Time'], $tested);
+
+        return static::SUCCESS;
     }
 
     /**
      * Perform a connectivity test on the given connection.
-     *
-     * @param string     $name
-     * @param Connection $connection
-     *
-     * @return array
      */
-    protected function performTest($name, Connection $connection)
+    protected function performTest(string $name, Connection $connection): array
     {
         $this->info("Testing LDAP connection [$name]...");
 
@@ -79,12 +76,8 @@ class TestLdapConnection extends Command
 
     /**
      * Attempt establishing the connection.
-     *
-     * @param Connection $connection
-     *
-     * @return string
      */
-    protected function attempt(Connection $connection)
+    protected function attempt(Connection $connection): string
     {
         try {
             $connection->connect();
@@ -115,12 +108,8 @@ class TestLdapConnection extends Command
 
     /**
      * Get the elapsed time since a given starting point.
-     *
-     * @param int $start
-     *
-     * @return float
      */
-    protected function getElapsedTime($start)
+    protected function getElapsedTime(int $start): int|float
     {
         return round((microtime(true) - $start) * 1000, 2);
     }
