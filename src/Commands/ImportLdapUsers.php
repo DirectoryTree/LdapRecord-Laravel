@@ -142,9 +142,11 @@ class ImportLdapUsers extends Command
      */
     protected function beginChunkedImport(Connection $db, int $perChunk): void
     {
-        $db->beginTransaction();
-
         $total = 0;
+
+        if ($min = $this->option('min-users')) {
+            $db->beginTransaction();
+        }
 
         $this->importer->chunkObjectsFromRepository(function (Collection $objects) use (&$total) {
             $this->info("\nChunking... Found [{$objects->count()}] user(s).");
@@ -156,7 +158,7 @@ class ImportLdapUsers extends Command
             $total = $total + $imported;
         }, $perChunk);
 
-        if ($total < ($min = $this->option('min-users'))) {
+        if ($min && $total < $min) {
             $this->warn("Unable to complete import. A minimum of [$min] users has been set, while only [$total] were returned.");
 
             $db->rollBack();
@@ -164,7 +166,9 @@ class ImportLdapUsers extends Command
             return;
         }
 
-        $db->commit();
+        if ($min) {
+            $db->commit();
+        }
 
         $total
             ? $this->info("\nCompleted chunked import. Successfully imported [{$total}] user(s).")
