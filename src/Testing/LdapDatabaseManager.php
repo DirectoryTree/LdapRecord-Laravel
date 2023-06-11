@@ -14,11 +14,6 @@ use Illuminate\Support\Str;
 class LdapDatabaseManager
 {
     /**
-     * The eloquent model to utilize.
-     */
-    protected static string $model = LdapObject::class;
-
-    /**
      * The underlying database manager instance.
      */
     protected DatabaseManager $db;
@@ -29,6 +24,11 @@ class LdapDatabaseManager
      * @var Connection[]
      */
     protected array $connections = [];
+
+    /**
+     * The eloquent model to utilize.
+     */
+    protected static string $model = LdapObject::class;
 
     /**
      * Set the Eloquent model to use.
@@ -122,7 +122,7 @@ class LdapDatabaseManager
     }
 
     /**
-     * Return all of the created connections.
+     * Return the created connections.
      */
     public function getConnections(): array
     {

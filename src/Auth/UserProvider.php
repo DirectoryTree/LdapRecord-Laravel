@@ -9,6 +9,7 @@ use Illuminate\Validation\ValidationException;
 use LdapRecord\Laravel\LdapRecord;
 use LdapRecord\Laravel\LdapUserAuthenticator;
 use LdapRecord\Laravel\LdapUserRepository;
+use LdapRecord\Models\Model;
 
 abstract class UserProvider implements LaravelUserProvider
 {
@@ -55,7 +56,7 @@ abstract class UserProvider implements LaravelUserProvider
      *
      * @throws ValidationException
      */
-    protected function fetchLdapUserByCredentials(array $credentials)
+    protected function fetchLdapUserByCredentials(array $credentials): ?Model
     {
         try {
             return call_user_func($this->userResolver, $credentials);
@@ -99,7 +100,7 @@ abstract class UserProvider implements LaravelUserProvider
     }
 
     /**
-     * Get the the LDAP user authenticator.
+     * Get the LDAP user authenticator.
      */
     public function getLdapUserAuthenticator(): LdapUserAuthenticator
     {

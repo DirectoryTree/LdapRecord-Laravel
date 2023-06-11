@@ -19,19 +19,19 @@ use Ramsey\Uuid\Uuid;
 trait EmulatesQueries
 {
     /**
-     * The LDAP attributes to include in results due to a 'select' statement.
-     */
-    protected array $only = [];
-
-    /**
      * The underlying database query.
      */
     protected EloquentBuilder $query;
 
     /**
+     * The LDAP attributes to include in results due to a 'select' statement.
+     */
+    protected array $only = [];
+
+    /**
      * The nested query state.
      */
-    protected ?string $nestedState;
+    protected ?string $nestedState = null;
 
     /**
      * Constructor.

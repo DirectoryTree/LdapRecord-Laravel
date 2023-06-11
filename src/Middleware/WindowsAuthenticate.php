@@ -22,6 +22,11 @@ use LdapRecord\Models\Model;
 class WindowsAuthenticate
 {
     /**
+     * The auth factory instance.
+     */
+    protected Auth $auth;
+
+    /**
      * The guards to use for SSO authentication.
      */
     public static ?array $guards = null;
@@ -65,11 +70,6 @@ class WindowsAuthenticate
      * The fallback callback to resolve users with.
      */
     public static Closure|string|null $userResolverFallback = null;
-
-    /**
-     * The auth factory instance.
-     */
-    protected Auth $auth;
 
     /**
      * Constructor.

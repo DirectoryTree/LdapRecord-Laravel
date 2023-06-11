@@ -25,14 +25,14 @@ class LdapUserAuthenticator
     protected array $rules = [];
 
     /**
+     * The authenticator to use for validating the user's password.
+     */
+    protected Closure $authenticator;
+
+    /**
      * The eloquent user model.
      */
     protected ?Eloquent $eloquentModel = null;
-
-    /**
-     * The authenticator to use for validating the users password.
-     */
-    protected Closure $authenticator;
 
     /**
      * Constructor.

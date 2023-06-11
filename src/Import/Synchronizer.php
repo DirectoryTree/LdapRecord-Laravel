@@ -25,9 +25,9 @@ class Synchronizer
     protected array $config;
 
     /**
-     * @var callable
+     * The callback to use for synchronization.
      */
-    protected $syncUsingCallback;
+    protected ?Closure $syncUsingCallback = null;
 
     /**
      * Constructor.
@@ -49,7 +49,7 @@ class Synchronizer
     }
 
     /**
-     * Import / synchronize the LDAP object with its database model.
+     * Import/synchronize the LDAP object with its database model.
      */
     public function run(LdapModel $object, array $data = []): EloquentModel
     {
@@ -118,6 +118,8 @@ class Synchronizer
 
     /**
      * Get the class name of the hydrator to use.
+     *
+     * @return class-string
      */
     protected function hydrator(): string
     {
@@ -164,7 +166,7 @@ class Synchronizer
     /**
      * Get the sync scope option from the config array.
      */
-    protected function getSyncScopeOption(array|string $config, string $option, $default)
+    protected function getSyncScopeOption(array|string $config, string $option, string $default = null): string
     {
         return is_array($config) ? $config[$option] : $default;
     }
