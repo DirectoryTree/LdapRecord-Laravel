@@ -13,7 +13,6 @@ use LdapRecord\Models\Attributes\Guid;
 use LdapRecord\Models\BatchModification;
 use LdapRecord\Models\Model as LdapRecord;
 use LdapRecord\Query\Collection;
-use LdapRecord\Query\Model\Builder;
 use Ramsey\Uuid\Uuid;
 
 trait EmulatesQueries
