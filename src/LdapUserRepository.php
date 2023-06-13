@@ -50,7 +50,11 @@ class LdapUserRepository
      */
     public function findByModel(LdapAuthenticatable $model): ?Model
     {
-        return $this->findByGuid($model->getLdapGuid());
+        if (empty($guid = $model->getLdapGuid())) {
+            return null;
+        }
+
+        return $this->findByGuid($guid);
     }
 
     /**
