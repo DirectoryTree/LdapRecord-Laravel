@@ -121,6 +121,19 @@ class LdapUserRepositoryTest extends TestCase
         $this->assertSame($model, $repository->findByModel($authenticatable));
     }
 
+    public function test_find_by_model_returns_null_when_no_guid_is_present()
+    {
+        $repository = m::mock(LdapUserRepository::class, function ($repository) {
+            $repository->makePartial()->shouldAllowMockingProtectedMethods();
+            $repository->shouldNotReceive('newModelQuery');
+        });
+
+        $authenticatable = m::mock(LdapAuthenticatable::class);
+        $authenticatable->shouldReceive('getLdapGuid')->once()->andReturnNull();
+
+        $this->assertNull($repository->findByModel($authenticatable));
+    }
+
     public function test_find_by_guid_returns_model()
     {
         $model = new Entry();
