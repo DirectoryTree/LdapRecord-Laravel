@@ -173,7 +173,7 @@ class BrowseLdapServer extends Command
     {
         return $this->newLdapQuery()
             ->in($this->selectedDn)
-            ->listing()
+            ->list()
             ->paginate()
             ->sortBy(function (Model $object) {
                 return $object->getName();
