@@ -316,7 +316,7 @@ trait EmulatesQueries
     /**
      * {@inheritdoc}
      */
-    public function findOrFail($dn, $columns = ['*']): LdapRecord|array
+    public function findOrFail(string $dn, array|string $columns = ['*']): LdapRecord|array
     {
         if (! $database = $this->findEloquentModelByDn($dn)) {
             $this->throwNotFoundException($this->getUnescapedQuery(), $dn);
