@@ -11,6 +11,7 @@ use LdapRecord\Models\Model;
 trait EmulatesModelQueries
 {
     use EmulatesQueries {
+        findOrFail as baseFindOrFail;
         addFilterToDatabaseQuery as baseAddFilterToDatabaseQuery;
     }
 
@@ -137,6 +138,14 @@ trait EmulatesModelQueries
                     [$result['guid_key'] => [$result['guid']]]
                 )
             );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findOrFail(string $dn, array|string $columns = ['*']): Model
+    {
+        return $this->baseFindOrFail($dn, $columns);
     }
 
     /**
