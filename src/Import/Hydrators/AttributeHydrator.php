@@ -14,8 +14,6 @@ class AttributeHydrator extends Hydrator
     public function hydrate(LdapModel $object, EloquentModel $eloquent): void
     {
         foreach ($this->getSyncAttributes() as $eloquentField => $ldapField) {
-            ray($this->isAttributeHandler($ldapField));
-
             if ($this->isAttributeHandler($ldapField)) {
                 $handler = is_callable($ldapField) ? $ldapField : app($ldapField);
 
