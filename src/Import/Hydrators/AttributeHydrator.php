@@ -2,6 +2,7 @@
 
 namespace LdapRecord\Laravel\Import\Hydrators;
 
+use Closure;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Support\Arr;
 use LdapRecord\Models\Model as LdapModel;
@@ -18,7 +19,6 @@ class AttributeHydrator extends Hydrator
                 $handler = is_callable($ldapField) ? $ldapField : app($ldapField);
 
                 if (is_callable($handler)) {
-                    rd($handler);
                     $handler($object, $eloquent);
                     continue;
                 }
@@ -51,11 +51,11 @@ class AttributeHydrator extends Hydrator
      */
     protected function isAttributeHandler($handler): bool
     {
-        if (is_callable($handler) && !function_exists($handler)) {
+        if ($handler instanceof Closure) {
             return true;
         }
 
-        return is_string($handler) && class_exists($handler) &&
+        return (is_string($handler)) && class_exists($handler) &&
             (method_exists($handler, 'handle') || method_exists($handler, '__invoke'));
     }
 }
