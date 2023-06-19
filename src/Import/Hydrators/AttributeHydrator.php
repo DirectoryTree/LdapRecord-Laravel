@@ -18,6 +18,7 @@ class AttributeHydrator extends Hydrator
                 $handler = is_callable($ldapField) ? $ldapField : app($ldapField);
 
                 if (is_callable($handler)) {
+                    rd($handler);
                     $handler($object, $eloquent);
                     continue;
                 }
@@ -50,7 +51,7 @@ class AttributeHydrator extends Hydrator
      */
     protected function isAttributeHandler($handler): bool
     {
-        if (is_callable($handler)) {
+        if (is_callable($handler) && !function_exists($handler)) {
             return true;
         }
 
