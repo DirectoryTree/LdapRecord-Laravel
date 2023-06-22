@@ -42,8 +42,48 @@ class EloquentHydratorTest extends TestCase
     {
         $entry = new Entry(['bar' => 'baz']);
         $model = new TestHydratorModelStub;
-        AttributeHydrator::with(['sync_attributes' => ['foo' => 'bar']])
-            ->hydrate($entry, $model);
+
+        AttributeHydrator::with([
+            'sync_attributes' => ['foo' => 'bar'],
+        ])->hydrate($entry, $model);
+
+        $this->assertEquals('baz', $model->foo);
+    }
+
+    public function test_attribute_hydrator_can_use_handle_function_of_class()
+    {
+        $entry = new Entry(['bar' => 'baz']);
+        $model = new TestHydratorModelStub;
+
+        AttributeHydrator::with([
+            'sync_attributes' => [TestAttributeHandlerHandleStub::class],
+        ])->hydrate($entry, $model);
+
+        $this->assertEquals('baz', $model->foo);
+    }
+
+    public function test_attribute_hydrator_can_use_invokable_class()
+    {
+        $entry = new Entry(['bar' => 'baz']);
+        $model = new TestHydratorModelStub;
+
+        AttributeHydrator::with(['sync_attributes' => [
+            TestAttributeHandlerInvokableStub::class,
+        ]])->hydrate($entry, $model);
+
+        $this->assertEquals('baz', $model->foo);
+    }
+
+    public function test_attribute_hydrator_can_use_inline_function()
+    {
+        $entry = new Entry(['bar' => 'baz']);
+        $model = new TestHydratorModelStub;
+
+        AttributeHydrator::with(['sync_attributes' => [
+            function ($object, $eloquent) {
+                $eloquent->foo = $object->getFirstAttribute('bar');
+            },
+        ]])->hydrate($entry, $model);
 
         $this->assertEquals('baz', $model->foo);
     }
@@ -115,4 +155,20 @@ class EloquentHydratorTest extends TestCase
 class TestHydratorModelStub extends Model implements LdapAuthenticatable
 {
     use AuthenticatesWithLdap;
+}
+
+class TestAttributeHandlerHandleStub
+{
+    public function handle($object, $eloquent)
+    {
+        $eloquent->foo = $object->getFirstAttribute('bar');
+    }
+}
+
+class TestAttributeHandlerInvokableStub
+{
+    public function __invoke($object, $eloquent)
+    {
+        $eloquent->foo = $object->getFirstAttribute('bar');
+    }
 }
