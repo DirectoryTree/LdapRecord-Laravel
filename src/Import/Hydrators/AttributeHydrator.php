@@ -56,7 +56,10 @@ class AttributeHydrator extends Hydrator
      */
     protected function isAttributeHandler(mixed $value): bool
     {
-        return is_callable($value) || class_exists($value)
-            && (method_exists($value, '__invoke') || method_exists($value, 'handle'));
+        if ($value instanceof Closure) {
+            return true;
+        }
+
+        return class_exists($value) && (method_exists($value, '__invoke') || method_exists($value, 'handle'));
     }
 }
