@@ -62,6 +62,8 @@ abstract class UserProvider implements LaravelUserProvider
             return call_user_func($this->userResolver, $credentials);
         } catch (Exception $e) {
             $this->handleException($e);
+
+            return null;
         }
     }
 

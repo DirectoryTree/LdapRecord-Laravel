@@ -19,6 +19,8 @@ trait CreatesUserProvider
                 return $guard;
             }
         }
+
+        return null;
     }
 
     /**
