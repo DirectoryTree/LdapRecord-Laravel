@@ -2,6 +2,7 @@
 
 namespace LdapRecord\Laravel\Commands;
 
+use Closure;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Database\Connection;
@@ -39,7 +40,8 @@ class ImportLdapUsers extends Command
             {--chunk= : Enable chunked based importing by specifying how many records per chunk.}
             {--delete-missing : Enable soft-deleting all users that are missing from the import.}
             {--min-users : Enable requiring a of minimum number of LDAP users that must be returned to synchronize.}
-            {--no-log : Disable logging successful and unsuccessful imports.}';
+            {--no-log : Disable logging successful and unsuccessful imports.}
+            {--memory-limit= : Override the PHP memory limit for the import.}';
 
     /**
      * The description of the console command.
@@ -96,15 +98,43 @@ class ImportLdapUsers extends Command
 
         $this->applyImporterOptions($provider);
 
-        if ($perChunk = $this->option('chunk')) {
-            $db = $provider->createModel()->getConnection();
+        $import = $this->buildImportCallback($provider);
 
-            $this->beginChunkedImport($db, $perChunk);
-        } else {
-            $this->beginImport();
-        }
+        ($memoryLimit = $this->option('memory-limit'))
+                ? $this->onceWithMemoryLimit($import, $memoryLimit)
+                : $import();
 
         return static::SUCCESS;
+    }
+
+    /**
+     * Build the import callback.
+     */
+    protected function buildImportCallback(DatabaseUserProvider $provider): Closure
+    {
+        return function () use ($provider) {
+            if ($perChunk = $this->option('chunk')) {
+                $db = $provider->createModel()->getConnection();
+
+                $this->beginChunkedImport($db, $perChunk);
+            } else {
+                $this->beginImport();
+            }
+        };
+    }
+
+    /**
+     * Execute the callback once with the given memory limit.
+     */
+    protected function onceWithMemoryLimit(Closure $callback, string $limit): void
+    {
+        $default = ini_get('memory_limit');
+
+        ini_set('memory_limit', $limit);
+
+        $callback();
+
+        ini_set('memory_limit', $default);
     }
 
     /**
