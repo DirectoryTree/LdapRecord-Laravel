@@ -2,7 +2,6 @@
 
 namespace LdapRecord\Laravel\Tests;
 
-use Illuminate\Config\Repository;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\SanctumServiceProvider;
 use LdapRecord\Laravel\LdapAuthServiceProvider;
@@ -40,25 +39,25 @@ abstract class TestCase extends BaseTestCase
 
     protected function getEnvironmentSetup($app)
     {
-        tap($app->make('config'), function (Repository $config) {
-            // Database setup.
-            $config->set('database.default', 'testbench');
-            $config->set('database.connections.testbench', [
-                'driver' => 'sqlite',
-                'database' => ':memory:',
-            ]);
+        $config = $app['config'];
 
-            // LDAP mock setup.
-            $config->set('ldap.default', 'default');
-            $config->set('ldap.logging.enabled', false);
-            $config->set('ldap.connections.default', [
-                'hosts' => ['localhost'],
-                'username' => 'user',
-                'password' => 'secret',
-                'base_dn' => 'dc=local,dc=com',
-                'port' => 389,
-            ]);
-        });
+        // Database setup.
+        $config->set('database.default', 'testbench');
+        $config->set('database.connections.testbench', [
+            'driver' => 'sqlite',
+            'database' => ':memory:',
+        ]);
+
+        // LDAP mock setup.
+        $config->set('ldap.default', 'default');
+        $config->set('ldap.logging.enabled', false);
+        $config->set('ldap.connections.default', [
+            'hosts' => ['localhost'],
+            'username' => 'user',
+            'password' => 'secret',
+            'base_dn' => 'dc=local,dc=com',
+            'port' => 389,
+        ]);
     }
 
     protected function setupLdapUserProvider($guardName, array $config)
