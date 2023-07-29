@@ -95,7 +95,7 @@ class LdapUserAuthenticator
     /**
      * Attempt authentication using the given callback once.
      */
-    public function attemptOnceUsing(Closure $callback, Model $user, ?string $password = null): bool
+    public function attemptOnceUsing(Closure $callback, Model $user, string $password = null): bool
     {
         $authenticator = $this->authenticator;
 
