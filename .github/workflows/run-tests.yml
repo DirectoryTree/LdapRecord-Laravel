@@ -49,4 +49,4 @@ jobs:
                   composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction
 
             - name: Execute tests
-              run: php vendor/bin/testbench package:test
+              run: vendor/bin/phpunit --testdox
