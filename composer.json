@@ -24,7 +24,7 @@
         "spatie/ray": "^1.28",
         "laravel/sanctum": "*",
         "laravel/pint": "^1.9",
-        "nunomaduro/collision": "^7.1"
+        "nunomaduro/collision": "^7.7"
     },
     "archive": {
         "exclude": [
