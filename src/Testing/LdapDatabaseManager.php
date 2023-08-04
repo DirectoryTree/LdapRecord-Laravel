@@ -107,15 +107,7 @@ class LdapDatabaseManager
     public function teardown(): void
     {
         foreach ($this->connections as $name => $connection) {
-            if ($connection->getDatabaseName() === ':memory:') {
-                tap($connection->getSchemaBuilder(), function (Builder $builder) {
-                    $builder->dropIfExists('ldap_object_attribute_values');
-                    $builder->dropIfExists('ldap_object_attributes');
-                    $builder->dropIfExists('ldap_objects');
-                });
-            } elseif (file_exists($dbFilePath = $connection->getDatabaseName())) {
-                unlink($dbFilePath);
-            }
+            $this->rollback($connection);
 
             unset($this->connections[$name]);
         }
@@ -171,6 +163,22 @@ class LdapDatabaseManager
                 $table->unsignedBigInteger('ldap_object_attribute_id');
                 $table->string('value');
             });
+        }
+    }
+
+    /**
+     * Rollback the database migrations on the connection.
+     */
+    protected function rollback(Connection $connection): void
+    {
+        if ($connection->getDatabaseName() === ':memory:') {
+            tap($connection->getSchemaBuilder(), function (Builder $builder) {
+                $builder->dropIfExists('ldap_object_attribute_values');
+                $builder->dropIfExists('ldap_object_attributes');
+                $builder->dropIfExists('ldap_objects');
+            });
+        } elseif (file_exists($dbFilePath = $connection->getDatabaseName())) {
+            unlink($dbFilePath);
         }
     }
 }
