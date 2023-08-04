@@ -36,8 +36,8 @@ class DirectoryEmulator extends DirectoryFake
      */
     public static function tearDown(): void
     {
-        parent::tearDown();
-
         app(LdapDatabaseManager::class)->teardown();
+
+        parent::tearDown();
     }
 }

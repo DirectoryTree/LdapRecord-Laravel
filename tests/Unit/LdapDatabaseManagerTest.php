@@ -5,8 +5,6 @@ namespace LdapRecord\Laravel\Tests\Unit;
 use Illuminate\Database\Connection;
 use LdapRecord\Laravel\Testing\LdapDatabaseManager;
 use LdapRecord\Laravel\Tests\TestCase;
-use PHPUnit\Framework\Constraint\FileExists;
-use PHPUnit\Framework\Constraint\LogicalNot;
 
 class LdapDatabaseManagerTest extends TestCase
 {
@@ -52,6 +50,7 @@ class LdapDatabaseManagerTest extends TestCase
         $manager->connection('default', ['database' => $file]);
 
         $this->assertFileExists($file);
+
         $this->assertEquals([
             'driver' => 'sqlite',
             'database' => $file,
@@ -85,6 +84,6 @@ class LdapDatabaseManagerTest extends TestCase
 
         $manager->teardown();
 
-        $this->assertThat($file, new LogicalNot(new FileExists));
+        $this->assertFileDoesNotExist($file);
     }
 }

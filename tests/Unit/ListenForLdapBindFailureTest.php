@@ -59,7 +59,18 @@ class ListenForLdapBindFailureTest extends TestCase
         $fake->auth()->attempt('user', 'secret');
     }
 
-    protected function directoryThrowsValidationErrorWithCode($code)
+    /**
+     * @testWith
+     * ["525"]
+     * ["530"]
+     * ["531"]
+     * ["532"]
+     * ["533"]
+     * ["701"]
+     * ["773"]
+     * ["775"]
+     */
+    public function test_directory_throws_validation_error_with_code($code)
     {
         $fake = DirectoryEmulator::setup('default');
 
@@ -70,45 +81,5 @@ class ListenForLdapBindFailureTest extends TestCase
         $this->expectException(ValidationException::class);
 
         $fake->auth()->attempt('user', 'secret');
-    }
-
-    public function test_validation_exception_is_thrown_on_user_not_found()
-    {
-        $this->directoryThrowsValidationErrorWithCode('525');
-    }
-
-    public function test_validation_exception_when_user_is_not_permitted_to_login()
-    {
-        $this->directoryThrowsValidationErrorWithCode('530');
-    }
-
-    public function test_validation_exception_when_user_is_not_permitted_to_login_to_workstation()
-    {
-        $this->directoryThrowsValidationErrorWithCode('531');
-    }
-
-    public function test_validation_exception_when_users_password_has_expired()
-    {
-        $this->directoryThrowsValidationErrorWithCode('532');
-    }
-
-    public function test_validation_exception_when_users_account_is_disabled()
-    {
-        $this->directoryThrowsValidationErrorWithCode('533');
-    }
-
-    public function test_validation_exception_when_users_account_has_expired()
-    {
-        $this->directoryThrowsValidationErrorWithCode('701');
-    }
-
-    public function test_validation_exception_when_users_account_must_reset_password()
-    {
-        $this->directoryThrowsValidationErrorWithCode('773');
-    }
-
-    public function test_validation_exception_when_users_account_is_locked_out()
-    {
-        $this->directoryThrowsValidationErrorWithCode('775');
     }
 }

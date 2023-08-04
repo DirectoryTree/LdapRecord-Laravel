@@ -36,6 +36,13 @@ class LdapImporterTest extends TestCase
         DirectoryEmulator::setup();
     }
 
+    protected function tearDown(): void
+    {
+        Schema::dropIfExists('test_importer_group_model_stubs');
+
+        parent::tearDown();
+    }
+
     public function test_class_based_import_works()
     {
         $object = LdapGroup::create([
