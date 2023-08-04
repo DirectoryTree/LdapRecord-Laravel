@@ -36,7 +36,7 @@ class LdapSynchronizerTest extends TestCase
 
     protected function tearDown(): void
     {
-        Schema::dropIfExists('groups');
+        Schema::dropIfExists('test_synchronizer_group_model_stubs');
 
         parent::tearDown();
     }

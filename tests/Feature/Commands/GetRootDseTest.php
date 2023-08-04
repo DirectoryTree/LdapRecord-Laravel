@@ -19,13 +19,6 @@ class GetRootDseTest extends DatabaseTestCase
         $this->withoutMockingConsoleOutput();
     }
 
-    public function tearDown(): void
-    {
-        DirectoryEmulator::tearDown();
-
-        parent::tearDown();
-    }
-
     public function test_command_displays_root_dse_attributes()
     {
         RootDse::create([
@@ -88,7 +81,7 @@ class GetRootDseTest extends DatabaseTestCase
 
 class RootDse extends Entry
 {
-    public function getCreatableDn(?string $name = null, ?string $attribute = null): string
+    public function getCreatableDn(string $name = null, string $attribute = null): string
     {
         return '';
     }
