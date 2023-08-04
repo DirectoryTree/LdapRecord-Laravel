@@ -600,6 +600,19 @@ class EmulatedModelQueryTest extends TestCase
         $this->assertTrue($group->members()->exists($user));
     }
 
+    public function test_remove_has_many_relationship()
+    {
+        $group = Group::create(['cn' => 'Accounting']);
+        $user = User::create(['cn' => 'John']);
+
+        $user->groups()->attach($group);
+        // Make sure group is attached for next part of test
+        $this->assertTrue($user->groups()->exists($group));
+
+        $user->groups()->detach($group);
+        $this->assertFalse($user->groups()->exists($group));
+    }
+
     public function test_has_one_relationship()
     {
         $manager = User::create(['cn' => 'John']);

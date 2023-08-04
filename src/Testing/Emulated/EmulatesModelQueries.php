@@ -89,7 +89,7 @@ trait EmulatesModelQueries
         foreach ($attributes as $attribute => $value) {
             if (empty($value)) {
                 $model->{$attribute} = null;
-            } elseif (Arr::exists($model->{$attribute} ?? [], $attribute)) {
+            } elseif (Arr::exists($model->attributesToArray() ?? [], $attribute)) {
                 $model->{$attribute} = array_values(
                     array_diff($model->{$attribute}, (array) $value)
                 );
