@@ -7,13 +7,6 @@ use LdapRecord\Laravel\Tests\TestCase;
 
 class LdapAuthServiceProviderTest extends TestCase
 {
-    protected function getEnvironmentSetup($app)
-    {
-        parent::getEnvironmentSetup($app);
-
-        $app['config']->set('ldap.logging.enabled', true);
-    }
-
     public function test_migrations_are_publishable()
     {
         $this->artisan('vendor:publish', ['--provider' => LdapAuthServiceProvider::class, '--no-interaction' => true]);
@@ -23,5 +16,7 @@ class LdapAuthServiceProviderTest extends TestCase
         $this->assertFileExists($migrationFile);
 
         unlink($migrationFile);
+
+        $this->assertFileDoesNotExist($migrationFile);
     }
 }
