@@ -30,7 +30,7 @@ trait EmulatesModelQueries
      */
     public function add(string $dn, array $attributes): bool
     {
-        if (!$model = $this->find($dn)) {
+        if (! $model = $this->find($dn)) {
             return false;
         }
 
@@ -48,7 +48,7 @@ trait EmulatesModelQueries
      */
     public function update(string $dn, array $modifications): bool
     {
-        if (!$model = $this->findEloquentModelByDn($dn)) {
+        if (! $model = $this->findEloquentModelByDn($dn)) {
             return false;
         }
 
@@ -64,7 +64,7 @@ trait EmulatesModelQueries
      */
     public function replace(string $dn, array $attributes): bool
     {
-        if (!$model = $this->find($dn)) {
+        if (! $model = $this->find($dn)) {
             return false;
         }
 
@@ -82,7 +82,7 @@ trait EmulatesModelQueries
      */
     public function remove(string $dn, array $attributes): bool
     {
-        if (!$model = $this->find($dn)) {
+        if (! $model = $this->find($dn)) {
             return false;
         }
 
@@ -91,7 +91,7 @@ trait EmulatesModelQueries
                 $model->{$attribute} = null;
             } elseif ($model->hasAttribute($attribute)) {
                 $model->{$attribute} = array_values(
-                    array_diff($model->{$attribute}, (array)$value)
+                    array_diff($model->{$attribute}, (array) $value)
                 );
             }
         }
@@ -104,7 +104,7 @@ trait EmulatesModelQueries
     /**
      * Parse the database query results.
      *
-     * @param \Illuminate\Database\Eloquent\Collection $resource
+     * @param  \Illuminate\Database\Eloquent\Collection  $resource
      */
     public function parse(mixed $resource): array
     {
