@@ -374,6 +374,8 @@ trait EmulatesQueries
 
         $model->save();
 
+        $members = [];
+
         foreach ($attributes as $name => $values) {
             $attribute = $model->attributes()->create([
                 'name' => $this->normalizeAttributeName($name),
@@ -382,7 +384,13 @@ trait EmulatesQueries
             foreach ((array) $values as $value) {
                 $attribute->values()->create(['value' => $value]);
             }
+
+            if (config('ldap.testing.emulate_memberof') && $name === 'member') {
+                $members = Arr::wrap($values);
+            }
         }
+        
+        $this->updateMemberof($members, $dn, LDAP_MODIFY_BATCH_ADD);
 
         return true;
     }
@@ -501,7 +509,15 @@ trait EmulatesQueries
             $database->dn = implode(',', [$rdn, $newParentDn]);
             $database->parent_dn = $newParentDn;
 
-            return $database->save();
+            if ($database->save()) {
+                if (config('ldap.testing.emulate_memberof')) {
+                    $members = $database->attributes->where('name', '=', 'member')->first()?->values->pluck('value')->toArray() ?? [];
+                    $this->updateMemberof($members, $dn, LDAP_MODIFY_BATCH_REMOVE);
+                    $this->updateMemberof($members, $database->dn, LDAP_MODIFY_BATCH_ADD);
+                }
+                
+                return true;
+            }
         }
 
         return false;
@@ -516,7 +532,17 @@ trait EmulatesQueries
             return false;
         }
 
-        return $database->delete();
+        $members = config('ldap.testing.emulate_memberof') ?
+            $database->attributes->where('name', '=', 'member')->first()?->values->pluck('value')->toArray() ?? [] :
+            [];
+
+        if ($database->delete()) {
+            $this->updateMemberof($members, $dn, LDAP_MODIFY_BATCH_REMOVE);
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -590,5 +616,23 @@ trait EmulatesQueries
         })->tap(function () {
             $this->only = [];
         })->toArray();
+    }
+
+    /**
+     * Updates the memberof attribute for an array of DN's
+     */
+    private function updateMemberof(array $members, string $dn, int $modType): void
+    {
+        foreach ($members as $member) {
+            $memberModel = $this->findEloquentModelByDn($member);
+
+            if ($memberModel) {
+                $this->applyBatchModificationToModel($memberModel, [
+                    BatchModification::KEY_ATTRIB  => 'memberof',
+                    BatchModification::KEY_MODTYPE => $modType,
+                    BatchModification::KEY_VALUES  => [$dn],
+                ]);
+            }
+        }
     }
 }

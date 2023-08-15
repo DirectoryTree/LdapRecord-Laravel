@@ -5,6 +5,7 @@ namespace LdapRecord\Laravel\Testing\Emulated;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use LdapRecord\Laravel\Testing\EmulatesQueries;
+use LdapRecord\Models\BatchModification;
 use LdapRecord\Models\Collection;
 use LdapRecord\Models\Model;
 
@@ -34,11 +35,19 @@ trait EmulatesModelQueries
             return false;
         }
 
+        $members = [];
+
         foreach ($attributes as $name => $values) {
             $model->{$name} = array_merge($model->{$name} ?? [], Arr::wrap($values));
+
+            if (config('ldap.testing.emulate_memberof') && $name === 'member') {
+                $members = Arr::wrap($values);
+            }
         }
 
         $model->save();
+        
+        $this->updateMemberof($members, $dn, LDAP_MODIFY_BATCH_ADD);
 
         return true;
     }
@@ -86,17 +95,26 @@ trait EmulatesModelQueries
             return false;
         }
 
+        $members = [];
+
         foreach ($attributes as $attribute => $value) {
             if (empty($value)) {
                 $model->{$attribute} = null;
-            } elseif (Arr::exists($model->{$attribute} ?? [], $attribute)) {
+                //            } elseif (Arr::exists($model->attributes ?? [], $attribute)) {
+            } elseif ($model->hasAttribute($attribute)) {
                 $model->{$attribute} = array_values(
                     array_diff($model->{$attribute}, (array) $value)
                 );
+
+                if (config('ldap.testing.emulate_memberof') && $attribute === 'member') {
+                    $members = Arr::wrap($value);
+                }
             }
         }
 
         $model->save();
+        
+        $this->updateMemberof($members, $dn, LDAP_MODIFY_BATCH_REMOVE);
 
         return true;
     }

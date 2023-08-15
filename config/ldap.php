@@ -77,4 +77,7 @@ return [
         'driver' => env('CACHE_DRIVER', 'file'),
     ],
 
+    'testing' => [
+        'emulate_memberof' => false,
+    ],
 ];
