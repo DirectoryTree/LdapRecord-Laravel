@@ -599,6 +599,17 @@ class EmulatedModelQueryTest extends TestCase
 
         $this->assertTrue($user->groups()->exists($group));
         $this->assertTrue($group->members()->exists($user));
+
+        $user->groups()->detach($group);
+        $user->removeAttribute('memberof', $group->getDn());
+
+        $this->assertNotEquals($user->getDn(), $group->getFirstAttribute('member'));
+
+        $this->assertFalse($user->is($group->members()->first()));
+        $this->assertFalse($group->is($user->groups()->first()));
+
+        $this->assertFalse($user->groups()->exists($group));
+        $this->assertFalse($group->members()->exists($user));
     }
 
     public function test_has_many_relationship_with_memberof()
@@ -626,6 +637,75 @@ class EmulatedModelQueryTest extends TestCase
 
         $this->assertFalse($user->groups()->exists($group));
         $this->assertFalse($group->members()->exists($user));
+    }
+
+    public function test_delete_has_many_relationship_with_memberof()
+    {
+        config()->set('ldap.testing.emulate_memberof', true);
+        $group = Group::create(['cn' => 'Accounting']);
+        $user = User::create(['cn' => 'John']);
+
+        $user->groups()->attach($group);
+
+        $this->assertEquals($user->getDn(), $group->getFirstAttribute('member'));
+
+        $this->assertTrue($user->is($group->members()->first()));
+        $this->assertTrue($group->is($user->groups()->first()));
+
+        $this->assertTrue($user->groups()->exists($group));
+        $this->assertTrue($group->members()->exists($user));
+
+        $group->delete();
+
+        $this->assertFalse($user->groups()->exists($group));
+        $this->assertFalse($group->members()->exists($user));
+    }
+
+    public function test_rename_has_many_relationship_with_memberof()
+    {
+        config()->set('ldap.testing.emulate_memberof', true);
+        $group = Group::create(['cn' => 'Accounting']);
+        $user = User::create(['cn' => 'John']);
+
+        $user->groups()->attach($group);
+
+        $this->assertEquals($user->getDn(), $group->getFirstAttribute('member'));
+
+        $this->assertTrue($user->is($group->members()->first()));
+        $this->assertTrue($group->is($user->groups()->first()));
+
+        $this->assertTrue($user->groups()->exists($group));
+        $this->assertTrue($group->members()->exists($user));
+
+        $group->rename('Personnel');
+
+        $this->assertEquals($user->getDn(), $group->getFirstAttribute('member'));
+
+        $this->assertTrue($user->is($group->members()->first()));
+        $this->assertTrue($group->is($user->groups()->first()));
+
+        $this->assertTrue($user->groups()->exists($group));
+        $this->assertTrue($group->members()->exists($user));
+    }
+
+    public function test_associate_has_many_relationship_with_memberof()
+    {
+        config()->set('ldap.testing.emulate_memberof', true);
+        $group = Group::create(['cn' => 'Accounting']);
+        $user1 = User::create(['cn' => 'John']);
+        $user2 = User::create(['cn' => 'Jane']);
+
+        $group->members()->associate([$user1, $user2]);
+        $group->save();
+        $group->refresh();
+
+        $this->assertEquals(2, $group->members()->count());
+
+        $this->assertTrue($user1->groups()->exists($group));
+        $this->assertTrue($group->members()->exists($user1));
+
+        $this->assertTrue($user2->groups()->exists($group));
+        $this->assertTrue($group->members()->exists($user2));
     }
 
     public function test_has_one_relationship()

@@ -193,7 +193,7 @@ trait EmulatesQueries
         if (
             $this->nested
             && $this->nestedState = 'or'
-            && $this->fieldIsUsedMultipleTimes($type, $bindings['field'])
+                && $this->fieldIsUsedMultipleTimes($type, $bindings['field'])
         ) {
             $method = $method == 'whereDoesntHave' ?
                 'orWhereDoesntHave' :
@@ -296,18 +296,43 @@ trait EmulatesQueries
                 foreach ($values as $value) {
                     $attribute->values()->create(['value' => $value]);
                 }
+
+                if ($this->emulateMemberof($name)) {
+                    $members = $attribute->values->pluck('value')->toArray();
+                    $this->updateMemberof($members, $model->dn, LDAP_MODIFY_BATCH_ADD);
+                }
+
                 break;
             case LDAP_MODIFY_BATCH_REPLACE:
+                $membersBefore = $this->emulateMemberof($name) ? $attribute->values->pluck('value')->toArray() : [];
+
                 $attribute->values()->delete();
 
                 foreach ($values as $value) {
                     $attribute->values()->create(['value' => $value]);
                 }
+
+                if ($this->emulateMemberof($name)) {
+                    $membersAfter = $attribute->values->pluck('value')->toArray();
+                    $this->updateMemberof(array_diff($membersBefore, $membersAfter), $model->dn, LDAP_MODIFY_BATCH_REMOVE);
+                    $this->updateMemberof(array_diff($membersAfter, $membersBefore), $model->dn, LDAP_MODIFY_BATCH_ADD);
+                }
+
                 break;
             case LDAP_MODIFY_BATCH_REMOVE:
+                if ($this->emulateMemberof($name)) {
+                    $members = $attribute->values->whereIn('value', $values)->pluck('value')->toArray();
+                    $this->updateMemberof($members, $model->dn, LDAP_MODIFY_BATCH_REMOVE);
+                }
+
                 $attribute->values()->whereIn('value', $values)->delete();
                 break;
             case LDAP_MODIFY_BATCH_REMOVE_ALL:
+                if ($this->emulateMemberof($name)) {
+                    $members = $attribute->values->pluck('value')->toArray();
+                    $this->updateMemberof($members, $model->dn, LDAP_MODIFY_BATCH_REMOVE);
+                }
+
                 $attribute->delete();
                 break;
         }
@@ -374,6 +399,7 @@ trait EmulatesQueries
 
         $model->save();
 
+        // CANNOT MOVE
         $members = [];
 
         foreach ($attributes as $name => $values) {
@@ -385,12 +411,10 @@ trait EmulatesQueries
                 $attribute->values()->create(['value' => $value]);
             }
 
-            if (config('ldap.testing.emulate_memberof') && $name === 'member') {
-                $members = Arr::wrap($values);
+            if ($this->emulateMemberof($name)) {
+                $this->updateMemberof(Arr::wrap($values), $dn, LDAP_MODIFY_BATCH_ADD);
             }
         }
-        
-        $this->updateMemberof($members, $dn, LDAP_MODIFY_BATCH_ADD);
 
         return true;
     }
@@ -429,10 +453,18 @@ trait EmulatesQueries
                 'name' => $this->normalizeAttributeName($name),
             ]);
 
+            $membersBefore = $this->emulateMemberof($name) ? $attribute->values->pluck('value')->toArray() : [];
+
             $attribute->values()->delete();
 
             foreach ((array) $values as $value) {
                 $attribute->values()->create(['value' => $value]);
+            }
+
+            if ($this->emulateMemberof($name)) {
+                $membersAfter = $attribute->values->pluck('value')->toArray();
+                $this->updateMemberof(array_diff($membersBefore, $membersAfter), $dn, LDAP_MODIFY_BATCH_REMOVE);
+                $this->updateMemberof(array_diff($membersAfter, $membersBefore), $dn, LDAP_MODIFY_BATCH_ADD);
             }
         }
 
@@ -509,13 +541,14 @@ trait EmulatesQueries
             $database->dn = implode(',', [$rdn, $newParentDn]);
             $database->parent_dn = $newParentDn;
 
+            // CANNOT MOVE
             if ($database->save()) {
                 if (config('ldap.testing.emulate_memberof')) {
                     $members = $database->attributes->where('name', '=', 'member')->first()?->values->pluck('value')->toArray() ?? [];
                     $this->updateMemberof($members, $dn, LDAP_MODIFY_BATCH_REMOVE);
                     $this->updateMemberof($members, $database->dn, LDAP_MODIFY_BATCH_ADD);
                 }
-                
+
                 return true;
             }
         }
@@ -537,8 +570,10 @@ trait EmulatesQueries
             [];
 
         if ($database->delete()) {
-            $this->updateMemberof($members, $dn, LDAP_MODIFY_BATCH_REMOVE);
-
+            if (filled($members)) {
+                $this->updateMemberof($members, $dn, LDAP_MODIFY_BATCH_REMOVE);
+            }
+                
             return true;
         }
 
@@ -634,5 +669,10 @@ trait EmulatesQueries
                 ]);
             }
         }
+    }
+
+    protected function emulateMemberof(string $attributeName): bool
+    {
+        return config('ldap.testing.emulate_memberof') && $attributeName === 'member';
     }
 }
