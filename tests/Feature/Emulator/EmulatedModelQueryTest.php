@@ -29,6 +29,7 @@ class EmulatedModelQueryTest extends TestCase
         $app['config']->set('ldap.connections.default', [
             'base_dn' => 'dc=local,dc=com',
         ]);
+        $app['config']->set('ldap.testing.emulate_memberof', false);
     }
 
     public function test_file_database_can_be_used()
@@ -598,6 +599,33 @@ class EmulatedModelQueryTest extends TestCase
 
         $this->assertTrue($user->groups()->exists($group));
         $this->assertTrue($group->members()->exists($user));
+    }
+
+    public function test_has_many_relationship_with_memberof()
+    {
+        config()->set('ldap.testing.emulate_memberof', true);
+        $group = Group::create(['cn' => 'Accounting']);
+        $user = User::create(['cn' => 'John']);
+
+        $user->groups()->attach($group);
+
+        $this->assertEquals($user->getDn(), $group->getFirstAttribute('member'));
+
+        $this->assertTrue($user->is($group->members()->first()));
+        $this->assertTrue($group->is($user->groups()->first()));
+
+        $this->assertTrue($user->groups()->exists($group));
+        $this->assertTrue($group->members()->exists($user));
+
+        $user->groups()->detach($group);
+
+        $this->assertNotEquals($user->getDn(), $group->getFirstAttribute('member'));
+
+        $this->assertFalse($user->is($group->members()->first()));
+        $this->assertFalse($group->is($user->groups()->first()));
+
+        $this->assertFalse($user->groups()->exists($group));
+        $this->assertFalse($group->members()->exists($user));
     }
 
     public function test_has_one_relationship()
