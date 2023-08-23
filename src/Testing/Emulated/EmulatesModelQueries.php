@@ -5,7 +5,6 @@ namespace LdapRecord\Laravel\Testing\Emulated;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use LdapRecord\Laravel\Testing\EmulatesQueries;
-use LdapRecord\Models\BatchModification;
 use LdapRecord\Models\Collection;
 use LdapRecord\Models\Model;
 
@@ -40,7 +39,7 @@ trait EmulatesModelQueries
         }
 
         $model->save();
-        
+
         return true;
     }
 
@@ -69,7 +68,6 @@ trait EmulatesModelQueries
             return false;
         }
 
-        // CAN MOVE
         foreach ($attributes as $name => $values) {
             $model->{$name} = $values;
         }

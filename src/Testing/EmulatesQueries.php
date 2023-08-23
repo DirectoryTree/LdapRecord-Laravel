@@ -298,7 +298,7 @@ trait EmulatesQueries
                 }
 
                 if ($this->emulateMemberof($name)) {
-                    $members = $attribute->values->pluck('value')->toArray();
+                    $members = $attribute->refresh()->values->pluck('value')->toArray();
                     $this->updateMemberof($members, $model->dn, LDAP_MODIFY_BATCH_ADD);
                 }
 
@@ -313,7 +313,7 @@ trait EmulatesQueries
                 }
 
                 if ($this->emulateMemberof($name)) {
-                    $membersAfter = $attribute->values->pluck('value')->toArray();
+                    $membersAfter = $attribute->refresh()->values->pluck('value')->toArray();
                     $this->updateMemberof(array_diff($membersBefore, $membersAfter), $model->dn, LDAP_MODIFY_BATCH_REMOVE);
                     $this->updateMemberof(array_diff($membersAfter, $membersBefore), $model->dn, LDAP_MODIFY_BATCH_ADD);
                 }
