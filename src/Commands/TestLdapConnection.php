@@ -44,14 +44,16 @@ class TestLdapConnection extends Command
         }
 
         $tested = [];
+        $rv = 0;
 
         foreach ($connections as $name => $connection) {
             $tested[] = $this->performTest($name, $connection);
+            $rv += $connection->isConnected() ? static::SUCCESS : static::FAILURE;
         }
 
         $this->table(['Connection', 'Successful', 'Username', 'Message', 'Response Time'], $tested);
 
-        return static::SUCCESS;
+        return $rv;
     }
 
     /**
