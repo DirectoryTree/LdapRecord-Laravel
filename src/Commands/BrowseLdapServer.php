@@ -67,7 +67,7 @@ class BrowseLdapServer extends Command
 
         $this->info('Successfully connected.');
 
-        $this->baseDn = $this->newLdapQuery()->getDn();
+        $this->baseDn = $this->newLdapQuery()->getBaseDn();
 
         $this->selectedDn = $this->baseDn;
 
