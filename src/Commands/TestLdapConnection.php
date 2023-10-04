@@ -44,14 +44,15 @@ class TestLdapConnection extends Command
         }
 
         $tested = [];
+        $connected = [];
 
         foreach ($connections as $name => $connection) {
-            $tested[] = $this->performTest($name, $connection);
+            [,$connected[]] = $tested[] = $this->performTest($name, $connection);
         }
 
         $this->table(['Connection', 'Successful', 'Username', 'Message', 'Response Time'], $tested);
 
-        return static::SUCCESS;
+        return in_array('✘ No', $connected) ? static::FAILURE : static::SUCCESS;
     }
 
     /**
@@ -92,8 +93,8 @@ class TestLdapConnection extends Command
             $message = sprintf(
                 '%s. Error Code: [%s] Diagnostic Message: %s',
                 $e->getMessage(),
-                $errorCode,
-                $diagnosticMessage ?? 'null'
+                $errorCode ?? 'NULL',
+                $diagnosticMessage ?? 'NULL'
             );
         } catch (Exception $e) {
             $message = sprintf(
