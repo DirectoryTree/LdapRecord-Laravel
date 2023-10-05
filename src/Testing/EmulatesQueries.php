@@ -139,7 +139,7 @@ trait EmulatesQueries
      */
     public function findEloquentModelByDn(string $dn): ?LdapObject
     {
-        return $this->newEloquentQuery()->where('dn', 'like', $dn)->first();
+        return $this->newEloquentQuery()->firstWhere('dn', 'like', $dn);
     }
 
     /**
@@ -147,7 +147,7 @@ trait EmulatesQueries
      */
     public function findEloquentModelByGuid(string $guid): ?LdapObject
     {
-        return $this->newEloquentQuery()->where('guid', '=', $guid)->first();
+        return $this->newEloquentQuery()->firstWhere('guid', '=', $guid);
     }
 
     /**
