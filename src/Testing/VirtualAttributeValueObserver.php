@@ -5,9 +5,9 @@ namespace LdapRecord\Laravel\Testing;
 class VirtualAttributeValueObserver
 {
     /**
-     * The virtual attributes to emulate.
+     * The virtual attributes to update when changed.
      */
-    protected array $attributes = [
+    public static array $attributes = [
         'member' => 'memberof',
     ];
 
@@ -27,7 +27,7 @@ class VirtualAttributeValueObserver
 
         /** @var LdapObjectAttribute $attribute */
         $attribute = $object->attributes()->firstOrCreate([
-            'name' => $this->attributes[$model->attribute->name],
+            'name' => static::$attributes[$model->attribute->name],
         ]);
 
         $attribute->values()->firstOrCreate([
@@ -50,7 +50,7 @@ class VirtualAttributeValueObserver
         }
 
         /** @var LdapObjectAttribute|null $attribute */
-        if (! $attribute = $object->attributes()->firstWhere('name', $this->attributes[$model->attribute->name])) {
+        if (! $attribute = $object->attributes()->firstWhere('name', static::$attributes[$model->attribute->name])) {
             return;
         }
 
@@ -62,6 +62,6 @@ class VirtualAttributeValueObserver
      */
     protected function hasVirtualAttribute(string $attribute): bool
     {
-        return array_key_exists($attribute, $this->attributes);
+        return array_key_exists($attribute, static::$attributes);
     }
 }
