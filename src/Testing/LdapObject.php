@@ -40,7 +40,7 @@ class LdapObject extends Model
      */
     public static function booted(): void
     {
-        static::observe(VirtualObjectObserver::class);
+        static::observe(VirtualAttributeObserver::class);
     }
 
     /**

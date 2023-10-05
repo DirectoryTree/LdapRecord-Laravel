@@ -4,16 +4,13 @@ namespace LdapRecord\Laravel\Testing;
 
 use Illuminate\Database\Eloquent\Builder;
 
-class VirtualObjectObserver
+class VirtualAttributeObserver
 {
     /**
-     * The virtual attributes to observe.
+     * The attributes to and update when changed.
      */
-    protected array $attributes = [
-        'dn' => [
-            'member',
-            'memberof',
-        ],
+    public static array $attributes = [
+        'dn' => ['member', 'memberof'],
     ];
 
     /**
@@ -25,7 +22,7 @@ class VirtualObjectObserver
             return;
         }
 
-        foreach ($this->attributes as $property => $attributes) {
+        foreach (static::$attributes as $property => $attributes) {
             if (! array_key_exists($property, $changes)) {
                 continue;
             }
