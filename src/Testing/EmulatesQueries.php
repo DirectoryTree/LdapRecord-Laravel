@@ -287,6 +287,7 @@ trait EmulatesQueries
         $type = $modification[BatchModification::KEY_MODTYPE];
         $values = $modification[BatchModification::KEY_VALUES] ?? [];
 
+        /** @var LdapObjectAttribute $attribute */
         $attribute = $model->attributes()->firstOrCreate([
             'name' => $name,
         ]);
@@ -375,6 +376,7 @@ trait EmulatesQueries
         $model->save();
 
         foreach ($attributes as $name => $values) {
+            /** @var LdapObjectAttribute $attribute */
             $attribute = $model->attributes()->create([
                 'name' => $this->normalizeAttributeName($name),
             ]);
@@ -417,6 +419,7 @@ trait EmulatesQueries
         }
 
         foreach ($attributes as $name => $values) {
+            /** @var LdapObjectAttribute $attribute */
             $attribute = $model->attributes()->firstOrCreate([
                 'name' => $this->normalizeAttributeName($name),
             ]);
