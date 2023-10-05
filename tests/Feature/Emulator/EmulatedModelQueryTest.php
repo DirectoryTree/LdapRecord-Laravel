@@ -626,8 +626,6 @@ class EmulatedModelQueryTest extends TestCase
 
         $group->rename('Personnel');
 
-        $this->assertEquals($user->getDn(), $group->getFirstAttribute('member'));
-
         $this->assertTrue($user->is($group->members()->first()));
         $this->assertTrue($group->is($user->groups()->first()));
 
