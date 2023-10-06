@@ -5,18 +5,18 @@ namespace LdapRecord\Laravel\Testing;
 class VirtualAttributeValueObserver
 {
     /**
-     * The virtual attributes to update when changed.
+     * The attributes to watch with its attribute to update.
      */
     public static array $attributes = [
         'member' => 'memberof',
     ];
 
     /**
-     * Handle updating the virtual attribute in the related model.
+     * Handle updating the virtual attribute in the related model(s).
      */
-    public function saving(LdapObjectAttributeValue $model): void
+    public function saved(LdapObjectAttributeValue $model): void
     {
-        if (! $this->hasVirtualAttribute($model->attribute->name)) {
+        if (! $this->isWatchedAttribute($model->attribute->name)) {
             return;
         }
 
@@ -36,11 +36,11 @@ class VirtualAttributeValueObserver
     }
 
     /**
-     * Handle deleting the virtual attribute in the related model.
+     * Handle deleting the virtual attribute in the related model(s).
      */
-    public function deleting(LdapObjectAttributeValue $model): void
+    public function deleted(LdapObjectAttributeValue $model): void
     {
-        if (! $this->hasVirtualAttribute($model->attribute->name)) {
+        if (! $this->isWatchedAttribute($model->attribute->name)) {
             return;
         }
 
@@ -58,9 +58,9 @@ class VirtualAttributeValueObserver
     }
 
     /**
-     * Determine if a virtual attribute exists for the given attribute.
+     * Determine if the attribute is a watched attribute.
      */
-    protected function hasVirtualAttribute(string $attribute): bool
+    protected function isWatchedAttribute(string $attribute): bool
     {
         return array_key_exists($attribute, static::$attributes);
     }
