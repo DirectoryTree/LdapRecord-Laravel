@@ -139,7 +139,7 @@ trait EmulatesQueries
      */
     public function findEloquentModelByDn(string $dn): ?LdapObject
     {
-        return $this->newEloquentQuery()->firstWhere('dn', 'like', $dn);
+        return $this->newEloquentModel()->findByDn($dn);
     }
 
     /**
@@ -147,7 +147,7 @@ trait EmulatesQueries
      */
     public function findEloquentModelByGuid(string $guid): ?LdapObject
     {
-        return $this->newEloquentQuery()->firstWhere('guid', '=', $guid);
+        return $this->newEloquentModel()->findByGuid($guid);
     }
 
     /**
@@ -299,14 +299,18 @@ trait EmulatesQueries
                 }
                 break;
             case LDAP_MODIFY_BATCH_REPLACE:
-                $attribute->values()->delete();
+                $attribute->values()->each(
+                    fn (LdapObjectAttributeValue $value) => $value->delete()
+                );
 
                 foreach ($values as $value) {
                     $attribute->values()->create(['value' => $value]);
                 }
                 break;
             case LDAP_MODIFY_BATCH_REMOVE:
-                $attribute->values()->whereIn('value', $values)->delete();
+                $attribute->values()->whereIn('value', $values)->each(
+                    fn (LdapObjectAttributeValue $value) => $value->delete()
+                );
                 break;
             case LDAP_MODIFY_BATCH_REMOVE_ALL:
                 $attribute->delete();
@@ -424,7 +428,9 @@ trait EmulatesQueries
                 'name' => $this->normalizeAttributeName($name),
             ]);
 
-            $attribute->values()->delete();
+            $attribute->values()->each(
+                fn (LdapObjectAttributeValue $value) => $value->delete()
+            );
 
             foreach ((array) $values as $value) {
                 $attribute->values()->create(['value' => $value]);

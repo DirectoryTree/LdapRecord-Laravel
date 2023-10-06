@@ -36,6 +36,30 @@ class LdapObject extends Model
     protected $with = ['attributes'];
 
     /**
+     * Register the virtual object observer.
+     */
+    public static function booted(): void
+    {
+        static::observe(VirtualAttributeObserver::class);
+    }
+
+    /**
+     * Find an object by its distinguished name.
+     */
+    public static function findByDn(string $dn): ?static
+    {
+        return static::firstWhere('dn', 'like', $dn);
+    }
+
+    /**
+     * Find an object by its object guid.
+     */
+    public static function findByGuid(string $guid): ?static
+    {
+        return static::firstWhere('guid', '=', $guid);
+    }
+
+    /**
      * The hasMany attributes relation.
      */
     public function attributes(): HasMany

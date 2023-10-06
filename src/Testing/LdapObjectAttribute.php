@@ -3,12 +3,14 @@
 namespace LdapRecord\Laravel\Testing;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property int $id
  * @property int $ldap_object_id
  * @property string $name
+ * @property LdapObject $object
  * @property \Illuminate\Database\Eloquent\Collection $values
  */
 class LdapObjectAttribute extends Model
@@ -43,14 +45,24 @@ class LdapObjectAttribute extends Model
     {
         parent::boot();
 
-        static::deleted(function ($model) {
+        static::deleting(function (self $model) {
             // Delete the attribute values when deleted.
-            $model->values()->delete();
+            $model->values()->each(
+                fn (LdapObjectAttributeValue $value) => $value->delete()
+            );
         });
     }
 
     /**
-     * The hasMany values relation.
+     * The object relationship.
+     */
+    public function object(): BelongsTo
+    {
+        return $this->belongsTo(LdapObject::class, 'ldap_object_id');
+    }
+
+    /**
+     * The values relationship.
      */
     public function values(): HasMany
     {

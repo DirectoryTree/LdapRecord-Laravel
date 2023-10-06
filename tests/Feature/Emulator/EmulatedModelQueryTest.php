@@ -587,7 +587,7 @@ class EmulatedModelQueryTest extends TestCase
     public function test_has_many_relationship()
     {
         $group = Group::create(['cn' => 'Accounting']);
-        $user = User::create(['cn' => 'John', 'memberof' => [$group->getDn()]]);
+        $user = User::create(['cn' => 'John']);
 
         $user->groups()->attach($group);
 
@@ -607,6 +607,50 @@ class EmulatedModelQueryTest extends TestCase
 
         $this->assertFalse($user->groups()->exists($group));
         $this->assertFalse($group->members()->exists($user));
+    }
+
+    public function test_rename_has_many_relationship()
+    {
+        $group = Group::create(['cn' => 'Accounting']);
+        $user = User::create(['cn' => 'John']);
+
+        $user->groups()->attach($group);
+
+        $this->assertEquals($user->getDn(), $group->getFirstAttribute('member'));
+
+        $this->assertTrue($user->is($group->members()->first()));
+        $this->assertTrue($group->is($user->groups()->first()));
+
+        $this->assertTrue($user->groups()->exists($group));
+        $this->assertTrue($group->members()->exists($user));
+
+        $group->rename('Personnel');
+
+        $this->assertEquals("cn=Personnel,{$group->getBaseDn()}", $group->getDn());
+
+        $this->assertTrue($user->is($group->members()->first()));
+        $this->assertTrue($group->is($user->groups()->first()));
+
+        $this->assertTrue($user->groups()->exists($group));
+        $this->assertTrue($group->members()->exists($user));
+    }
+
+    public function test_associate_has_many_relationship()
+    {
+        $group = Group::create(['cn' => 'Accounting']);
+        $user1 = User::create(['cn' => 'John']);
+        $user2 = User::create(['cn' => 'Jane']);
+
+        $group->members()->associate([$user1, $user2]);
+        $group->save();
+
+        $this->assertEquals(2, $group->members()->count());
+
+        $this->assertTrue($user1->groups()->exists($group));
+        $this->assertTrue($group->members()->exists($user1));
+
+        $this->assertTrue($user2->groups()->exists($group));
+        $this->assertTrue($group->members()->exists($user2));
     }
 
     public function test_has_one_relationship()
