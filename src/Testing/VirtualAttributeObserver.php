@@ -14,7 +14,7 @@ class VirtualAttributeObserver
     ];
 
     /**
-     * Handle updating the virtual attribute values in related models.
+     * Handle updating the virtual attribute values in related model(s).
      */
     public function updated(LdapObject $model): void
     {
