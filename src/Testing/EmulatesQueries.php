@@ -139,7 +139,7 @@ trait EmulatesQueries
      */
     public function findEloquentModelByDn(string $dn): ?LdapObject
     {
-        return $this->newEloquentModel()->findByDn($dn);
+        return $this->newEloquentModel()->findByDn($dn, $this->model->getConnectionName());
     }
 
     /**
@@ -147,7 +147,7 @@ trait EmulatesQueries
      */
     public function findEloquentModelByGuid(string $guid): ?LdapObject
     {
-        return $this->newEloquentModel()->findByGuid($guid);
+        return $this->newEloquentModel()->findByGuid($guid, $this->model->getConnectionName());
     }
 
     /**
