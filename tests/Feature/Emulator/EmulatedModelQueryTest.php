@@ -46,8 +46,27 @@ class EmulatedModelQueryTest extends TestCase
         $this->assertNull(TestModelStub::find($dn));
 
         $user = TestModelStub::create(['cn' => 'John Doe']);
+
         TestModelStub::create(['cn' => 'Jane Doe']);
+
         $this->assertTrue($user->is(TestModelStub::find($dn)));
+    }
+
+    public function test_find_with_custom_connection()
+    {
+        Container::addConnection(new Connection([
+            'base_dn' => 'dc=foo,dc=com',
+        ]), 'foo');
+
+        DirectoryEmulator::setup('foo');
+
+        $dn = 'cn=John Doe,dc=foo,dc=com';
+
+        $this->assertNull(TestModelStubWithFooConnection::find($dn));
+
+        $user = TestModelStubWithFooConnection::create(['cn' => 'John Doe']);
+
+        $this->assertTrue($user->is(TestModelStubWithFooConnection::find($dn)));
     }
 
     public function test_find_by_guid()
@@ -713,6 +732,11 @@ class EmulatedModelQueryTest extends TestCase
 class TestModelStub extends Entry
 {
     public static array $objectClasses = ['one', 'two'];
+}
+
+class TestModelStubWithFooConnection extends TestModelStub
+{
+    protected ?string $connection = 'foo';
 }
 
 class TestHasManyInStub extends TestModelStub
