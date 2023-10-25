@@ -11,7 +11,7 @@ trait Loggable
      */
     public function getLogLevel(): string
     {
-        return 'info';
+        return Config::get('ldap.logging.level', 'info');
     }
 
     /**
