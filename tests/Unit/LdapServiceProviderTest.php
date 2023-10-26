@@ -121,6 +121,7 @@ class LdapServiceProviderTest extends TestCase
             'logging' => [
                 'enabled' => false,
                 'channel' => 'stack',
+                'level' => 'info',
             ],
             'cache' => [
                 'enabled' => false,
