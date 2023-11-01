@@ -72,6 +72,13 @@ trait ListensForLdapBindFailure
                 $this->handleLdapBindError($errorMessage);
 
                 return;
+
+            case is_null($diagnosticMessage):
+                // If there is no diagnostic message to work with, we
+                // cannot make any further attempts to determine
+                // the error. We will bail here in such case.
+                return;
+
             case $this->causedByInvalidCredentials($errorMessage, $diagnosticMessage):
                 // We'll bypass any invalid LDAP credential errors and let
                 // the login controller handle it. This is so proper

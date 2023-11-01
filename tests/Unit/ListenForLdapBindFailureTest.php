@@ -41,6 +41,7 @@ class ListenForLdapBindFailureTest extends TestCase
 
         /** @var \LdapRecord\Testing\LdapFake $ldap */
         $ldap = $fake->getLdapConnection();
+        $ldap->shouldReturnDiagnosticMessage(null);
         $ldap->shouldReturnError('Invalid credentials');
 
         $this->assertFalse($fake->auth()->attempt('user', 'secret'));
