@@ -365,8 +365,10 @@ trait EmulatesQueries
     /**
      * {@inheritdoc}
      */
-    public function insert($dn, array $attributes): bool
+    public function insertAndGetDn($dn, array $attributes): string|false
     {
+        $dn = $this->substituteBaseDn($dn);
+
         if (! Arr::get($attributes, 'objectclass')) {
             throw new Exception('LDAP objects must have object classes to be created.');
         }
@@ -390,7 +392,7 @@ trait EmulatesQueries
             }
         }
 
-        return true;
+        return $dn;
     }
 
     /**
@@ -501,8 +503,10 @@ trait EmulatesQueries
     /**
      * {@inheritdoc}
      */
-    public function rename($dn, $rdn, $newParentDn, $deleteOldRdn = true): bool
+    public function renameAndGetDn($dn, $rdn, $newParentDn, $deleteOldRdn = true): string|false
     {
+        $newParentDn = $this->substituteBaseDn($newParentDn);
+
         $database = $this->findEloquentModelByDn($dn);
 
         if ($database) {
@@ -510,7 +514,9 @@ trait EmulatesQueries
             $database->dn = implode(',', [$rdn, $newParentDn]);
             $database->parent_dn = $newParentDn;
 
-            return $database->save();
+            $database->save();
+
+            return $database->dn;
         }
 
         return false;
