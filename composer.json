@@ -14,7 +14,7 @@
         "ext-ldap": "*",
         "ext-json": "*",
         "ramsey/uuid": "*",
-        "directorytree/ldaprecord": "^v3.0",
+        "directorytree/ldaprecord": "^v3.3",
         "illuminate/support": "^8.0|^9.0|^10.0"
     },
     "require-dev": {
