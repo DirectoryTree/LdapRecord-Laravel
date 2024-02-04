@@ -3,6 +3,8 @@
 namespace LdapRecord\Laravel\Auth;
 
 use Illuminate\Database\Eloquent\Model as Eloquent;
+use LdapRecord\Laravel\Events\Auth\RuleFailed;
+use LdapRecord\Laravel\Events\Auth\RulePassed;
 use LdapRecord\Models\Model as LdapRecord;
 
 class Validator
@@ -31,8 +33,12 @@ class Validator
     {
         foreach ($this->rules as $rule) {
             if (! $rule->passes($user, $model)) {
+                event(new RuleFailed($rule, $user, $model));
+
                 return false;
             }
+
+            event(new RulePassed($rule, $user, $model));
         }
 
         return true;
