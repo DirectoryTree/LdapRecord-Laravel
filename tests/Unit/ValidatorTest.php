@@ -4,8 +4,11 @@ namespace LdapRecord\Laravel\Tests\Unit;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Model as Eloquent;
+use Illuminate\Support\Facades\Event;
 use LdapRecord\Laravel\Auth\Rule;
 use LdapRecord\Laravel\Auth\Validator;
+use LdapRecord\Laravel\Events\Auth\RuleFailed;
+use LdapRecord\Laravel\Events\Auth\RulePassed;
 use LdapRecord\Laravel\Tests\TestCase;
 use LdapRecord\Models\Entry;
 use LdapRecord\Models\Model as LdapRecord;
@@ -28,14 +31,22 @@ class ValidatorTest extends TestCase
 
     public function test_passing_validation_rule()
     {
+        Event::fake(RulePassed::class);
+
         $rule = new TestPassingRule();
         $this->assertTrue((new Validator([$rule]))->passes(new Entry, new TestRuleModelStub));
+
+        Event::assertDispatched(RulePassed::class);
     }
 
     public function test_failing_validation_rule()
     {
+        Event::fake(RuleFailed::class);
+
         $rule = new TestFailingRule();
         $this->assertFalse((new Validator([$rule]))->passes(new Entry, new TestRuleModelStub));
+
+        Event::assertDispatched(RuleFailed::class);
     }
 
     public function test_all_rules_are_validated()
