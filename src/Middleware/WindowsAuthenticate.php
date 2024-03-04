@@ -400,6 +400,6 @@ class WindowsAuthenticate
      */
     protected function account(Request $request): string
     {
-        return utf8_encode($request->server(static::$serverKey));
+        return mb_convert_encoding($request->server(static::$serverKey, ''), 'UTF-8');
     }
 }
