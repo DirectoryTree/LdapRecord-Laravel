@@ -79,9 +79,11 @@ class LdapServiceProvider extends ServiceProvider
             return;
         }
 
-        $channelName = Config::get('ldap.logging.channel');
-        $channel = $logger->channel($channelName);
-        Container::getInstance()->setLogger($channel);
+        Container::getInstance()->setLogger(
+            $logger->channel(
+                Config::get('ldap.logging.channel')
+            )
+        );
     }
 
     /**
