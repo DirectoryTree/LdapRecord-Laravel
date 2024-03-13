@@ -54,4 +54,12 @@ class NoDatabaseUserProvider extends UserProvider
 
         return true;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function rehashPasswordIfRequired(Authenticatable $user, array $credentials, bool $force = false)
+    {
+        // We can't rehash LDAP users passwords.
+    }
 }
