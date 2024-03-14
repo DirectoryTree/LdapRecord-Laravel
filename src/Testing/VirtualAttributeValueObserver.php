@@ -5,7 +5,7 @@ namespace LdapRecord\Laravel\Testing;
 class VirtualAttributeValueObserver
 {
     /**
-     * The attributes to watch with its attribute to update.
+     * The attributes to watch with their related attributes to update.
      */
     public static array $attributes = [
         'member' => 'memberof',

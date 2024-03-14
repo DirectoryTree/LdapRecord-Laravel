@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 class VirtualAttributeObserver
 {
     /**
-     * The attributes to and update when changed.
+     * The attributes to watch with their related attributes to update.
      */
     public static array $attributes = [
         'dn' => ['member', 'memberof'],
