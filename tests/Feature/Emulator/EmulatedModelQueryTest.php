@@ -5,6 +5,7 @@ namespace LdapRecord\Laravel\Tests\Feature\Emulator;
 use LdapRecord\Connection;
 use LdapRecord\Container;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
+use LdapRecord\Laravel\Testing\LdapObject;
 use LdapRecord\Laravel\Tests\TestCase;
 use LdapRecord\Models\ActiveDirectory\Group;
 use LdapRecord\Models\ActiveDirectory\User;
@@ -124,9 +125,13 @@ class EmulatedModelQueryTest extends TestCase
             $model->save();
         });
 
-        $this->assertNull($model->delete());
+        $this->assertInstanceOf(LdapObject::class, LdapObject::firstWhere('dn', $model->getDn()));
+
+        $model->delete();
+
         $this->assertFalse($model->exists);
         $this->assertNull(TestModelStub::find($model->getDn()));
+        $this->assertNull(LdapObject::firstWhere('dn', $model->getDn()));
     }
 
     public function test_delete_attribute()
