@@ -61,11 +61,13 @@ class LdapAuthServiceProvider extends ServiceProvider
                 : $this->makePlainUserProvider($config);
         });
 
-        Auth::provider('eloquent', function ($app, array $config) {
-            return array_key_exists('ldap', $config)
-                ? $this->makeDatabaseUserProvider($this->swapLdapConfig($config))
-                : $this->makeEloquentUserProvider($config);
-        });
+        if (config('ldap.eloquent_overload', false)) {
+            Auth::provider('eloquent', function ($app, array $config) {
+                return array_key_exists('ldap', $config)
+                    ? $this->makeDatabaseUserProvider($this->swapLdapConfig($config))
+                    : $this->makeEloquentUserProvider($config);
+            });
+        }
     }
 
     /**
