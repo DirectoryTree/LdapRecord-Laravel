@@ -60,6 +60,29 @@ class LdapAuthServiceProvider extends ServiceProvider
                 ? $this->makeDatabaseUserProvider($config)
                 : $this->makePlainUserProvider($config);
         });
+
+        if (config('ldap.eloquent_overload', false)) {
+            Auth::provider('eloquent', function ($app, array $config) {
+                return array_key_exists('ldap', $config)
+                    ? $this->makeDatabaseUserProvider($this->swapLdapConfig($config))
+                    : $this->makeEloquentUserProvider($config);
+            });
+        }
+    }
+
+    /**
+     * Swap config vars for alternative auth config.
+     */
+    protected function swapLdapConfig(array $config): array
+    {
+        // swap the Eloquent model with the Ldap model
+        [$config['model'], $config['ldap']['model']] = [$config['ldap']['model'], $config['model']];
+
+        // swap the config data key and remove the unused key
+        $config['database'] = $config['ldap'];
+        unset($config['ldap']);
+
+        return $config;
     }
 
     /**
