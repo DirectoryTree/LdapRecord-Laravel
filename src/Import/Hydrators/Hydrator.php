@@ -8,12 +8,12 @@ use LdapRecord\Models\Model as LdapModel;
 abstract class Hydrator
 {
     /**
-     * The attributes to hydrate.
+     * The for the hydrator configuration.
      */
     protected array $config = [];
 
     /**
-     * Extra data for the hydration process.
+     * Additional data for the hydration process.
      */
     protected array $data = [];
 
