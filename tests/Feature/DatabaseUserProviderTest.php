@@ -159,4 +159,17 @@ class DatabaseUserProviderTest extends DatabaseTestCase
 
         $provider->retrieveByCredentials([]);
     }
+
+    public function test_rehash_password_if_required_does_nothing_when_password_column_disabled()
+    {
+        $synchronizer = new UserSynchronizer(TestUserModelStub::class, [
+            'password_column' => false,
+        ]);
+
+        $provider = $this->createDatabaseUserProvider(synchronizer: $synchronizer);
+
+        $provider->rehashPasswordIfRequired($model = new TestUserModelStub, ['password' => 'secret']);
+
+        $this->assertNull($model->password);
+    }
 }
