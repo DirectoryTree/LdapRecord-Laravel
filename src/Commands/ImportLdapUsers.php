@@ -79,15 +79,15 @@ class ImportLdapUsers extends Command
         $provider = Auth::createUserProvider($providerName = $this->argument('provider'));
 
         if (is_null($provider)) {
-            $this->error("Provider [{$providerName}] does not exist.");
+            $this->error("Authentication provider [{$providerName}] does not exist. Please check your config/auth.php file.");
 
             return static::FAILURE;
         } elseif (! $provider instanceof UserProvider) {
-            $this->error("Provider [{$providerName}] is not configured for LDAP authentication.");
+            $this->error("Authentication provider [{$providerName}] is not configured for LDAP authentication. Please check your config/auth.php file.");
 
             return static::INVALID;
         } elseif (! $provider instanceof DatabaseUserProvider) {
-            $this->error("Provider [{$providerName}] is not configured for database synchronization.");
+            $this->error("Authentication provider [{$providerName}] is not configured for database synchronization. Please check your config/auth.php file.");
 
             return static::INVALID;
         }
