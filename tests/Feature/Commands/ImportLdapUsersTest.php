@@ -29,7 +29,7 @@ class ImportLdapUsersTest extends DatabaseTestCase
     public function test_command_exits_when_provider_does_not_exist()
     {
         $this->artisan('ldap:import', ['provider' => 'invalid'])
-            ->expectsOutput('Provider [invalid] does not exist.')
+            ->expectsOutput('Authentication provider [invalid] does not exist. Please check your config/auth.php file.')
             ->assertExitCode(Command::FAILURE);
     }
 
@@ -38,7 +38,7 @@ class ImportLdapUsersTest extends DatabaseTestCase
         $this->setupPlainUserProvider();
 
         $this->artisan('ldap:import', ['provider' => 'ldap-plain'])
-            ->expectsOutput('Provider [ldap-plain] is not configured for database synchronization.')
+            ->expectsOutput('Authentication provider [ldap-plain] is not configured for database synchronization. Please check your config/auth.php file.')
             ->assertExitCode(Command::INVALID);
     }
 
@@ -227,7 +227,7 @@ class ImportLdapUsersTest extends DatabaseTestCase
 
 class TestImportUserModelStub extends User implements LdapAuthenticatable
 {
-    use SoftDeletes, AuthenticatesWithLdap, HasLdapUser;
+    use AuthenticatesWithLdap, HasLdapUser, SoftDeletes;
 
     protected $guarded = [];
 
