@@ -51,7 +51,7 @@ class PasswordHydrator extends Hydrator
      * This checks if the model does not currently have a
      * password, or if the password fails a hash check.
      */
-    protected function passwordNeedsUpdate(EloquentModel $model, string $password = null): bool
+    protected function passwordNeedsUpdate(EloquentModel $model, ?string $password = null): bool
     {
         $current = $this->currentModelPassword($model);
 
