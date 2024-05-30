@@ -1,6 +1,6 @@
 <?php
 
-namespace LdapRecord\Laravel\Tests\Feature;
+namespace LdapRecord\Laravel\Tests\Feature\Emulator;
 
 use Illuminate\Database\Connection;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
