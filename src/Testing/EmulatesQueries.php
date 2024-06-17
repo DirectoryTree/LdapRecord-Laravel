@@ -162,9 +162,11 @@ trait EmulatesQueries
         }
 
         $this->query->{$relationMethod}('attributes', function ($query) use ($bindings, $operator) {
+            $field = $this->normalizeAttributeName($bindings['field']);
+
             $this->addFilterToDatabaseQuery(
                 $query,
-                $this->normalizeAttributeName($bindings['field']),
+                $field,
                 $operator,
                 $bindings['value']
             );
