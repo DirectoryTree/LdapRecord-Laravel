@@ -8,6 +8,7 @@ use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Laravel\Testing\LdapObject;
 use LdapRecord\Laravel\Tests\TestCase;
 use LdapRecord\Models\ActiveDirectory\Group;
+use LdapRecord\Models\ActiveDirectory\OrganizationalUnit;
 use LdapRecord\Models\ActiveDirectory\User;
 use LdapRecord\Models\Entry;
 use LdapRecord\Models\Relations\HasManyIn;
@@ -731,6 +732,47 @@ class EmulatedModelQueryTest extends TestCase
 
         $this->assertFalse($alphaUser->is($bravo->first()));
         $this->assertFalse($bravoUser->is($alpha->first()));
+    }
+
+    public function test_nested_or_filter()
+    {
+        DirectoryEmulator::setup('default');
+
+        // Create some other models to ensure they are not returned.
+        $customers = OrganizationalUnit::create(['ou' => 'Customers']);
+
+        $customer = (new OrganizationalUnit)->inside($customers);
+        $customer->fill(['ou' => 'Customer']);
+        $customer->save();
+
+        $users = (new OrganizationalUnit)->inside($customer);
+        $users->fill(['ou' => 'Users']);
+        $users->save();
+
+        $userWithMatchingAttribute = User::create([
+            'cn' => 'John',
+            'msExchRecipientTypeDetails' => [1],
+        ]);
+
+        $userWithoutAttribute = User::create([
+            'cn' => 'Jane',
+        ]);
+
+        $userWithoutMatchingAttribute = User::create([
+            'cn' => 'Bob',
+            'msExchRecipientTypeDetails' => [2],
+        ]);
+
+        $results = User::query()->orFilter(function ($query) {
+            $query->where('msExchRecipientTypeDetails', 1);
+            $query->whereNotHas('msExchRecipientTypeDetails');
+        })->get();
+
+        $this->assertCount(2, $results);
+
+        $this->assertTrue($results->contains($userWithoutAttribute));
+        $this->assertTrue($results->contains($userWithMatchingAttribute));
+        $this->assertTrue($results->doesntContain($userWithoutMatchingAttribute));
     }
 }
 
