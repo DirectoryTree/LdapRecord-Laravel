@@ -86,9 +86,9 @@ trait EmulatesQueries
         $query = $this->newInstance()->nested()->setNestedQueryState($state);
 
         if ($closure) {
-            $this->query->where(fn (EloquentBuilder $nested) => (
+            $this->query->where(fn (EloquentBuilder $nested) =>
                 $closure($query->setEloquentQuery($nested))
-            ));
+            );
         }
 
         return $query;
