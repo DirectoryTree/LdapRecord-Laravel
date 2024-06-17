@@ -738,6 +738,7 @@ class EmulatedModelQueryTest extends TestCase
     {
         DirectoryEmulator::setup('default');
 
+        // Create some other models to ensure they are not returned.
         $customers = OrganizationalUnit::create(['ou' => 'Customers']);
 
         $customer = (new OrganizationalUnit)->inside($customers);
