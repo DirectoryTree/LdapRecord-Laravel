@@ -81,20 +81,15 @@ trait EmulatesQueries
     /**
      * Create a new nested query builder with the given state.
      */
-    public function newNestedInstance(Closure $closure = null, string $state = 'and'): static
+    public function newNestedInstance(?Closure $closure = null, string $state = 'and'): static
     {
         $query = $this->newInstance()->nested()->setNestedQueryState($state);
 
         if ($closure) {
-            $closure($query);
+            $this->query->where(fn (EloquentBuilder $nested) => (
+                $closure($query->setEloquentQuery($nested))
+            ));
         }
-
-        // Here we will merge the constraints from the nested
-        // query instance to make sure any bindings are
-        // carried over that were applied to it.
-        $this->query->mergeConstraintsFrom(
-            $query->getEloquentQuery()
-        );
 
         return $query;
     }
@@ -157,18 +152,20 @@ trait EmulatesQueries
     {
         $relationMethod = $this->determineRelationMethod($type, $bindings);
 
+        $operator = $bindings['operator'];
+
         // If the relation method is "not has", we will flip it
         // to a "has" filter and change the relation method
         // so database results are retrieved properly.
         if (in_array($relationMethod, ['whereDoesntHave', 'orWhereDoesntHave'])) {
-            $bindings['operator'] = '*';
+            $operator = '*';
         }
 
-        $this->query->{$relationMethod}('attributes', function ($query) use ($bindings) {
+        $this->query->{$relationMethod}('attributes', function ($query) use ($bindings, $operator) {
             $this->addFilterToDatabaseQuery(
                 $query,
                 $this->normalizeAttributeName($bindings['field']),
-                $bindings['operator'],
+                $operator,
                 $bindings['value']
             );
         });
@@ -195,9 +192,9 @@ trait EmulatesQueries
             && $this->nestedState = 'or'
             && $this->fieldIsUsedMultipleTimes($type, $bindings['field'])
         ) {
-            $method = $method == 'whereDoesntHave' ?
-                'orWhereDoesntHave' :
-                'orWhereHas';
+            $method = $method == 'whereDoesntHave'
+                ? 'orWhereDoesntHave'
+                : 'orWhereHas';
         }
 
         return $method;
