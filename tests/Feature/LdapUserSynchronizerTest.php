@@ -4,6 +4,7 @@ namespace LdapRecord\Laravel\Tests\Feature;
 
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
+use LdapRecord\Container;
 use LdapRecord\Laravel\Events\Import\Importing;
 use LdapRecord\Laravel\Events\Import\Synchronized;
 use LdapRecord\Laravel\Events\Import\Synchronizing;
@@ -17,6 +18,7 @@ class LdapUserSynchronizerTest extends DatabaseUserProviderTest
 
     public function test_eloquent_model_can_be_set()
     {
+        ray(Container::getInstance());
         $synchronizer = new UserSynchronizer(TestUserModelStub::class, []);
 
         $this->assertSame(TestUserModelStub::class, $synchronizer->getEloquentModel());
@@ -25,6 +27,7 @@ class LdapUserSynchronizerTest extends DatabaseUserProviderTest
 
     public function test_config_can_be_set()
     {
+        ray(Container::getInstance());
         $synchronizer = new UserSynchronizer(TestUserModelStub::class, []);
 
         $config = ['foo' => 'bar'];
@@ -36,6 +39,7 @@ class LdapUserSynchronizerTest extends DatabaseUserProviderTest
 
     public function test_new_ldap_user_has_guid_and_domain_set()
     {
+        ray(Container::getInstance());
         Event::fake();
 
         $ldapModel = $this->getMockLdapModel();
@@ -80,6 +84,7 @@ class LdapUserSynchronizerTest extends DatabaseUserProviderTest
 
     public function test_new_ldap_user_has_attributes_synchronized_via_handler()
     {
+        ray(Container::getInstance());
         Event::fake();
 
         $ldapModel = $this->getMockLdapModel(['cn' => 'john', 'mail' => 'test@email.com']);
@@ -132,6 +137,7 @@ class LdapUserSynchronizerTest extends DatabaseUserProviderTest
 
     public function test_password_is_synchronized_when_enabled()
     {
+        ray(Container::getInstance());
         Event::fake();
 
         $ldapModel = $this->getMockLdapModel();

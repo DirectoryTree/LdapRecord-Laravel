@@ -30,7 +30,6 @@ class LdapServiceProvider extends ServiceProvider
         $this->registerLogging();
         $this->registerCommands();
         $this->registerConfiguration();
-        $this->registerEventListeners();
         $this->registerLdapConnections();
 
         if ($this->app->runningUnitTests()) {
@@ -84,6 +83,14 @@ class LdapServiceProvider extends ServiceProvider
                 Config::get('ldap.logging.channel')
             )
         );
+
+        Event::listen('LdapRecord\Laravel\Events\*', function ($eventName, array $events) {
+            collect($events)->filter(function ($event) {
+                return $event instanceof LoggableEvent && $event->shouldLogEvent();
+            })->each(function (LoggableEvent $event) {
+                Log::log($event->getLogLevel(), $event->getLogMessage());
+            });
+        });
     }
 
     /**
@@ -112,20 +119,6 @@ class LdapServiceProvider extends ServiceProvider
 
             Container::addConnection($connection, $name);
         }
-    }
-
-    /**
-     * Registers the LDAP event listeners.
-     */
-    protected function registerEventListeners(): void
-    {
-        Event::listen('LdapRecord\Laravel\Events\*', function ($eventName, array $events) {
-            collect($events)->filter(function ($event) {
-                return $event instanceof LoggableEvent && $event->shouldLogEvent();
-            })->each(function (LoggableEvent $event) {
-                Log::log($event->getLogLevel(), $event->getLogMessage());
-            });
-        });
     }
 
     /**
