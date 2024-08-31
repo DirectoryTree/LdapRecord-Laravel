@@ -191,7 +191,7 @@ trait EmulatesQueries
         // "or" which will give us proper results when changing the relation method.
         if (
             $this->nested
-            && $this->nestedState = 'or'
+            && $this->nestedState === 'or'
             && $this->fieldIsUsedMultipleTimes($type, $bindings['field'])
         ) {
             $method = $method == 'whereDoesntHave'
