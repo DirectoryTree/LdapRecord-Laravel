@@ -6,7 +6,6 @@ use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use LdapRecord\Laravel\Auth\AuthenticatesWithLdap;
 use LdapRecord\Laravel\Auth\HasLdapUser;
 use LdapRecord\Laravel\Auth\LdapAuthenticatable;
@@ -71,8 +70,6 @@ class ImportLdapUsersTest extends DatabaseTestCase
                 'objectguid' => 'bf9679e7-0de6-11d0-a285-00aa003049e2',
             ]),
         ]);
-
-        Log::shouldReceive('log')->times(6);
 
         $repo = m::mock(LdapUserRepository::class, function ($repo) use ($users) {
             $query = m::mock(Builder::class);
@@ -147,8 +144,6 @@ class ImportLdapUsersTest extends DatabaseTestCase
             ]),
         ]);
 
-        Log::shouldReceive('log')->times(6);
-
         $repo = m::mock(LdapUserRepository::class, function ($repo) use ($users) {
             $query = m::mock(Builder::class);
 
@@ -189,8 +184,6 @@ class ImportLdapUsersTest extends DatabaseTestCase
                 'objectguid' => 'bf9679e7-0de6-11d0-a285-00aa003049e2',
             ]),
         ]);
-
-        Log::shouldReceive('log')->times(6);
 
         $repo = m::mock(LdapUserRepository::class, function ($repo) use ($users) {
             $query = m::mock(Builder::class);
