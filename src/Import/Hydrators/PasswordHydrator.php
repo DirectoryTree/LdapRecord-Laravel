@@ -19,30 +19,34 @@ class PasswordHydrator extends Hydrator
             return;
         }
 
-        $password = $this->password() ?? Str::random();
+        $password = $this->getPassword() ?? Str::random();
 
         if (! $this->isSyncingPasswords()) {
             $password = Str::random();
         }
 
-        if ($this->passwordNeedsUpdate($eloquent, $password)) {
-            $this->setPassword($eloquent, $password);
+        $column = method_exists($eloquent, 'getAuthPasswordName')
+            ? $eloquent->getAuthPasswordName()
+            : $this->getPasswordColumn();
+
+        if ($this->passwordNeedsUpdate($eloquent, $column, $password)) {
+            $this->setPassword($eloquent, $column, $password);
         }
     }
 
     /**
      * Set the password on the users model.
      */
-    protected function setPassword(EloquentModel $model, string $password): void
+    protected function setPassword(EloquentModel $model, string $column, string $password): void
     {
         // If the model has a mutator for the password field, we
         // can assume hashing passwords is taken care of.
         // Otherwise, we will hash it normally.
-        $password = $model->hasSetMutator($this->passwordColumn())
+        $password = $model->hasSetMutator($column)
             ? $password
             : Hash::make($password);
 
-        $model->setAttribute($this->passwordColumn(), $password);
+        $model->setAttribute($column, $password);
     }
 
     /**
@@ -51,9 +55,9 @@ class PasswordHydrator extends Hydrator
      * This checks if the model does not currently have a
      * password, or if the password fails a hash check.
      */
-    protected function passwordNeedsUpdate(EloquentModel $model, ?string $password = null): bool
+    protected function passwordNeedsUpdate(EloquentModel $model, string $column, ?string $password = null): bool
     {
-        $current = $this->currentModelPassword($model);
+        $current = $this->getCurrentModelPassword($model, $column);
 
         // If the application is running in console, we will assume the
         // import command is being run. In this case, we do not want
@@ -77,21 +81,21 @@ class PasswordHydrator extends Hydrator
      */
     protected function hasPasswordColumn(): bool
     {
-        return $this->passwordColumn() !== false;
+        return $this->getPasswordColumn() !== false;
     }
 
     /**
      * Get the current models hashed password.
      */
-    protected function currentModelPassword(EloquentModel $model): ?string
+    protected function getCurrentModelPassword(EloquentModel $model, string $column): ?string
     {
-        return $model->getAttribute($this->passwordColumn());
+        return $model->getAttribute($column);
     }
 
     /**
      * Get the password from the current data.
      */
-    protected function password(): ?string
+    protected function getPassword(): ?string
     {
         return Arr::get($this->data, 'password');
     }
@@ -101,7 +105,7 @@ class PasswordHydrator extends Hydrator
      *
      * @return string|false
      */
-    protected function passwordColumn(): bool|string
+    protected function getPasswordColumn(): bool|string
     {
         return Arr::get($this->config, 'password_column', 'password');
     }
