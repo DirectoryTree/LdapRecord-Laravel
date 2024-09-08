@@ -30,7 +30,7 @@ Allow LDAP users to log into your application and control which users can login 
 
 🔄  **Import & Synchronize LDAP users**
 
-Import users from your directory via a [command](https://ldaprecord.com/docs/laravel/v3/auth/database/importing): `php artisan ldap:import`.
+Import users from your directory via [command](https://ldaprecord.com/docs/laravel/v3/auth/database/importing): `php artisan ldap:import`.
 
 💼  **Multi-Domain Support**
 
