@@ -24,6 +24,10 @@
 
 ---
 
+⭐️ **Developer experience first**
+
+LdapRecord focuses on clean, easy to understand syntax along with thorough documentation.
+
 🔑  **Authenticate LDAP users into your application**
 
 Allow LDAP users to log into your application and control which users can login via [Scopes](https://ldaprecord.com/docs/laravel/v3/usage/#scopes) and [Rules](https://ldaprecord.com/docs/laravel/v1/auth/configuration/#rules).
@@ -51,8 +55,6 @@ Test [authenticating](https://ldaprecord.com/docs/laravel/v3/auth/testing/#getti
 changing your application code.
 
 Create, update, and delete LDAP objects without touching a real LDAP server.
-
-Yeah, we like it too.
 
 ---
 
