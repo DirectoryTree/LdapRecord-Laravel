@@ -24,11 +24,11 @@
 
 ---
 
-⭐️ **Developer experience first**
+⭐️ **Developer Experience First**
 
 LdapRecord focuses on clean, easy to understand syntax along with thorough documentation.
 
-🔑  **Authenticate LDAP users into your application**
+🔑  **Authenticate LDAP Users**
 
 Allow LDAP users to log into your application and control which users can login via [Scopes](https://ldaprecord.com/docs/laravel/v3/usage/#scopes) and [Rules](https://ldaprecord.com/docs/laravel/v1/auth/configuration/#rules).
 
