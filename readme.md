@@ -24,13 +24,17 @@
 
 ---
 
-🔑  **Authenticate LDAP users into your application**
+⭐️ **Developer Experience First**
+
+LdapRecord focuses on clean, easy to understand syntax along with thorough documentation.
+
+🔑  **Authenticate LDAP Users**
 
 Allow LDAP users to log into your application and control which users can login via [Scopes](https://ldaprecord.com/docs/laravel/v3/usage/#scopes) and [Rules](https://ldaprecord.com/docs/laravel/v1/auth/configuration/#rules).
 
 🔄  **Import & Synchronize LDAP users**
 
-Import users from your directory via a [command](https://ldaprecord.com/docs/laravel/v3/auth/database/importing): `php artisan ldap:import`.
+Import users from your directory via [command](https://ldaprecord.com/docs/laravel/v3/auth/database/importing): `php artisan ldap:import`.
 
 💼  **Multi-Domain Support**
 
@@ -51,8 +55,6 @@ Test [authenticating](https://ldaprecord.com/docs/laravel/v3/auth/testing/#getti
 changing your application code.
 
 Create, update, and delete LDAP objects without touching a real LDAP server.
-
-Yeah, we like it too.
 
 ---
 
