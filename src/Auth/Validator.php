@@ -29,7 +29,7 @@ class Validator
     /**
      * Determine if all rules pass validation.
      */
-    public function passes(LdapRecord $user, Eloquent $model = null): bool
+    public function passes(LdapRecord $user, ?Eloquent $model = null): bool
     {
         foreach ($this->rules as $rule) {
             if (! $rule->passes($user, $model)) {

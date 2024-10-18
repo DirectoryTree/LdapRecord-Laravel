@@ -10,7 +10,7 @@ class UserDomainValidator
     /**
      * Determine if the user passes domain validation.
      */
-    public function __invoke(Model $user, string $username, string $domain = null): bool
+    public function __invoke(Model $user, string $username, ?string $domain = null): bool
     {
         if (empty($domain)) {
             return false;

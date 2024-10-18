@@ -33,7 +33,7 @@ class BindFailureListener
     /**
      * Register the bind failure listener upon resolving the given class.
      */
-    protected static function whenResolving(string $class, Closure $callback = null): void
+    protected static function whenResolving(string $class, ?Closure $callback = null): void
     {
         if (! class_exists($class)) {
             return;

@@ -146,7 +146,7 @@ class WindowsAuthenticate
     /**
      * Set the callback to resolve users by when retrieving the authenticated user fails.
      */
-    public static function fallback(Closure|string $callback = null): void
+    public static function fallback(Closure|string|null $callback = null): void
     {
         static::$userResolverFallback = $callback;
     }
@@ -208,7 +208,7 @@ class WindowsAuthenticate
     /**
      * Attempt retrieving and logging in the authenticated user.
      */
-    protected function attempt(array $guards, string $username, string $domain = null): void
+    protected function attempt(array $guards, string $username, ?string $domain = null): void
     {
         foreach ($guards as $guard) {
             $provider = $this->auth->guard($guard)->getProvider();
@@ -258,7 +258,7 @@ class WindowsAuthenticate
     /**
      * Returns the authenticatable user instance if found.
      */
-    protected function retrieveAuthenticatedUser(UserProvider $provider, string $username, string $domain = null): ?Authenticatable
+    protected function retrieveAuthenticatedUser(UserProvider $provider, string $username, ?string $domain = null): ?Authenticatable
     {
         // First, we will attempt to retrieve the user from the LDAP server
         // by their username. If we don't get any result, we can bail
@@ -346,7 +346,7 @@ class WindowsAuthenticate
     /**
      * Determine if the located user is apart of the domain.
      */
-    protected function userIsApartOfDomain(Model $user, string $username, string $domain = null): bool
+    protected function userIsApartOfDomain(Model $user, string $username, ?string $domain = null): bool
     {
         if (! static::$domainVerification) {
             return true;
@@ -360,7 +360,7 @@ class WindowsAuthenticate
     /**
      * Handle failure of retrieving the authenticated user.
      */
-    protected function failedRetrievingUser(UserProvider $provider, string $username, string $domain = null): ?Authenticatable
+    protected function failedRetrievingUser(UserProvider $provider, string $username, ?string $domain = null): ?Authenticatable
     {
         if (! static::$userResolverFallback) {
             return null;

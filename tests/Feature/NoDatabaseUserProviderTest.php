@@ -48,7 +48,7 @@ class NoDatabaseUserProviderTest extends TestCase
 
         $repo->shouldReceive('findByGuid')->once()->withArgs(['id'])->andReturn($model);
 
-        $provider = new NoDatabaseUserProvider($repo, new LdapUserAuthenticator());
+        $provider = new NoDatabaseUserProvider($repo, new LdapUserAuthenticator);
 
         $this->assertSame($model, $provider->retrieveById('id'));
     }
@@ -61,7 +61,7 @@ class NoDatabaseUserProviderTest extends TestCase
 
         $repo->shouldReceive('findByCredentials')->once()->withArgs([['username' => 'foo']])->andReturn($model);
 
-        $provider = new NoDatabaseUserProvider($repo, new LdapUserAuthenticator());
+        $provider = new NoDatabaseUserProvider($repo, new LdapUserAuthenticator);
 
         $this->assertSame($model, $provider->retrieveByCredentials(['username' => 'foo']));
     }

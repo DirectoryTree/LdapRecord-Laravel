@@ -166,7 +166,7 @@ class Synchronizer
     /**
      * Get the sync scope option from the config array.
      */
-    protected function getSyncScopeOption(array|string $config, string $option, array|string $default = null): array|string
+    protected function getSyncScopeOption(array|string $config, string $option, array|string|null $default = null): array|string
     {
         return is_array($config) ? $config[$option] : $default;
     }

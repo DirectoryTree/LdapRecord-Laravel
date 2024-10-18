@@ -18,7 +18,7 @@ trait EmulatesModelQueries
     /**
      * {@inheritdoc}
      */
-    public function newInstance(string $baseDn = null): static
+    public function newInstance(?string $baseDn = null): static
     {
         return (new self($this->connection))
             ->setModel($this->model)

@@ -16,7 +16,7 @@ abstract class RuleEvent extends Event
     /**
      * Constructor.
      */
-    public function __construct(Rule $rule, LdapModel $object, EloquentModel $eloquent = null)
+    public function __construct(Rule $rule, LdapModel $object, ?EloquentModel $eloquent = null)
     {
         parent::__construct($object, $eloquent);
 

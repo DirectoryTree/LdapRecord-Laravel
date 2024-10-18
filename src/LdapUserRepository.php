@@ -156,7 +156,7 @@ class LdapUserRepository
     /**
      * Get a new query builder for the model instance.
      */
-    protected function newModelQuery(Model $model = null): Builder
+    protected function newModelQuery(?Model $model = null): Builder
     {
         $model = is_null($model) ? $this->createModel() : $model;
 

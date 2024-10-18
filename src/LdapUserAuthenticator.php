@@ -49,7 +49,7 @@ class LdapUserAuthenticator
     /**
      * Set the authenticating eloquent model.
      */
-    public function setEloquentModel(Eloquent $model = null): static
+    public function setEloquentModel(?Eloquent $model = null): static
     {
         $this->eloquentModel = $model;
 
@@ -59,7 +59,7 @@ class LdapUserAuthenticator
     /**
      * Attempt authenticating against the LDAP domain.
      */
-    public function attempt(Model $user, string $password = null): bool
+    public function attempt(Model $user, ?string $password = null): bool
     {
         $this->attempting($user);
 
@@ -95,7 +95,7 @@ class LdapUserAuthenticator
     /**
      * Attempt authentication using the given callback once.
      */
-    public function attemptOnceUsing(Closure $callback, Model $user, string $password = null): bool
+    public function attemptOnceUsing(Closure $callback, Model $user, ?string $password = null): bool
     {
         $authenticator = $this->authenticator;
 

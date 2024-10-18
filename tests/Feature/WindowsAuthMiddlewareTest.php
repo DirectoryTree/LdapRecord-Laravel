@@ -493,7 +493,7 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
 
 class WindowsAuthRuleStub implements Rule
 {
-    public function passes(Model $user, Eloquent $model = null): bool
+    public function passes(Model $user, ?Eloquent $model = null): bool
     {
         $_SERVER[self::class] = true;
 

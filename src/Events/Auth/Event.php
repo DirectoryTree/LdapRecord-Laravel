@@ -20,7 +20,7 @@ abstract class Event
     /**
      * Constructor.
      */
-    public function __construct(LdapModel $object, EloquentModel $eloquent = null)
+    public function __construct(LdapModel $object, ?EloquentModel $eloquent = null)
     {
         $this->object = $object;
         $this->eloquent = $eloquent;

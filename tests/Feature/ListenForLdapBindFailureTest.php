@@ -63,13 +63,13 @@ class ListenForLdapBindFailureTest extends TestCase
             LdapFake::operation('bind')
                 ->with('user', 'secret')
                 ->once()
-                ->andReturn(new LdapResultResponse()),
+                ->andReturn(new LdapResultResponse),
 
             // Bind is attempted with the authenticating user and passes.
             LdapFake::operation('bind')
                 ->with('cn=jdoe,dc=local,dc=com', 'secret')
                 ->once()
-                ->andReturn(new LdapResultResponse()),
+                ->andReturn(new LdapResultResponse),
 
             // Rebind is attempted with configured user account.
             LdapFake::operation('bind')
@@ -85,7 +85,7 @@ class ListenForLdapBindFailureTest extends TestCase
 
             LdapFake::operation('parseResult')
                 ->once()
-                ->andReturn(new LdapResultResponse()),
+                ->andReturn(new LdapResultResponse),
         ])->shouldReturnError("Can't contact LDAP server");
 
         $result = Auth::attempt([

@@ -57,7 +57,7 @@ class LdapDatabaseManager
     /**
      * Create the eloquent database model.
      */
-    public function createModel(string $connection = null): Model
+    public function createModel(?string $connection = null): Model
     {
         $class = '\\'.ltrim(static::$model, '\\');
 
@@ -67,7 +67,7 @@ class LdapDatabaseManager
     /**
      * Get the LDAP database connection.
      */
-    public function connection(string $name = null, array $config = []): Connection
+    public function connection(?string $name = null, array $config = []): Connection
     {
         $name = $name ?? Config::get('ldap.default', 'default');
 

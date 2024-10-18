@@ -10,5 +10,5 @@ interface Rule
     /**
      * Determine if the rule passes validation.
      */
-    public function passes(LdapRecord $user, Eloquent $model = null): bool;
+    public function passes(LdapRecord $user, ?Eloquent $model = null): bool;
 }

@@ -9,7 +9,7 @@ trait CreatesTestUsers
     /**
      * Create a new test user.
      */
-    protected function createTestUser(array $attributes = [], string $model = null): Model
+    protected function createTestUser(array $attributes = [], ?string $model = null): Model
     {
         $model = $model ?? TestUserModelStub::class;
 

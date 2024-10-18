@@ -22,7 +22,7 @@ class ValidatorTest extends TestCase
 
     public function test_rules_can_be_added()
     {
-        $rule = new TestPassingRule();
+        $rule = new TestPassingRule;
         $validator = new Validator([$rule]);
 
         $this->assertCount(1, $validator->getRules());
@@ -33,7 +33,7 @@ class ValidatorTest extends TestCase
     {
         Event::fake(RulePassed::class);
 
-        $rule = new TestPassingRule();
+        $rule = new TestPassingRule;
         $this->assertTrue((new Validator([$rule]))->passes(new Entry, new TestRuleModelStub));
 
         Event::assertDispatched(RulePassed::class);
@@ -43,7 +43,7 @@ class ValidatorTest extends TestCase
     {
         Event::fake(RuleFailed::class);
 
-        $rule = new TestFailingRule();
+        $rule = new TestFailingRule;
         $this->assertFalse((new Validator([$rule]))->passes(new Entry, new TestRuleModelStub));
 
         Event::assertDispatched(RuleFailed::class);
@@ -51,13 +51,13 @@ class ValidatorTest extends TestCase
 
     public function test_all_rules_are_validated()
     {
-        $rule = new TestPassingRule();
+        $rule = new TestPassingRule;
 
         $validator = new Validator([$rule]);
 
         $this->assertTrue($validator->passes(new Entry, new TestRuleModelStub));
 
-        $validator->addRule(new TestFailingRule());
+        $validator->addRule(new TestFailingRule);
 
         $this->assertFalse($validator->passes(new Entry, new TestRuleModelStub));
     }
@@ -70,7 +70,7 @@ class TestRuleModelStub extends Model
 
 class TestPassingRule implements Rule
 {
-    public function passes(LdapRecord $user, Eloquent $model = null): bool
+    public function passes(LdapRecord $user, ?Eloquent $model = null): bool
     {
         return true;
     }
@@ -78,7 +78,7 @@ class TestPassingRule implements Rule
 
 class TestFailingRule implements Rule
 {
-    public function passes(LdapRecord $user, Eloquent $model = null): bool
+    public function passes(LdapRecord $user, ?Eloquent $model = null): bool
     {
         return false;
     }

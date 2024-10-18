@@ -46,7 +46,7 @@ class LdapObject extends Model
     /**
      * Find an object by its distinguished name.
      */
-    public static function findByDn(string $dn, string $connection = null): ?static
+    public static function findByDn(string $dn, ?string $connection = null): ?static
     {
         return static::on($connection)->firstWhere('dn', 'like', $dn);
     }
@@ -54,7 +54,7 @@ class LdapObject extends Model
     /**
      * Find an object by its object guid.
      */
-    public static function findByGuid(string $guid, string $connection = null): ?static
+    public static function findByGuid(string $guid, ?string $connection = null): ?static
     {
         return static::on($connection)->firstWhere('guid', '=', $guid);
     }

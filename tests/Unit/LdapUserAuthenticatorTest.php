@@ -144,7 +144,7 @@ class TestLdapUserAuthenticatedModelStub extends EloquentModel
 
 class TestLdapAuthRuleWithEloquentModel implements Rule
 {
-    public function passes(LdapRecord $user, Eloquent $model = null): bool
+    public function passes(LdapRecord $user, ?Eloquent $model = null): bool
     {
         return ! is_null($model);
     }
@@ -152,7 +152,7 @@ class TestLdapAuthRuleWithEloquentModel implements Rule
 
 class TestFailingLdapAuthRule implements Rule
 {
-    public function passes(LdapRecord $user, Eloquent $model = null): bool
+    public function passes(LdapRecord $user, ?Eloquent $model = null): bool
     {
         return false;
     }

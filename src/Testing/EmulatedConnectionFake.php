@@ -14,7 +14,7 @@ class EmulatedConnectionFake extends ConnectionFake
     /**
      * Get or set the name of the connection fake.
      */
-    public function name(string $name = null): string|static|null
+    public function name(?string $name = null): string|static|null
     {
         if (is_null($name)) {
             return $this->name;

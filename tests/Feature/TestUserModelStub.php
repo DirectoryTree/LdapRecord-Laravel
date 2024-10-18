@@ -10,7 +10,7 @@ use LdapRecord\Laravel\Auth\LdapAuthenticatable;
 
 class TestUserModelStub extends User implements LdapAuthenticatable
 {
-    use SoftDeletes, AuthenticatesWithLdap, HasLdapUser;
+    use AuthenticatesWithLdap, HasLdapUser, SoftDeletes;
 
     protected $guarded = [];
 

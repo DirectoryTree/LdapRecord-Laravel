@@ -90,7 +90,7 @@ class LdapUserImporter extends Importer
     /**
      * Load the import's objects from the LDAP repository.
      */
-    public function loadObjectsFromRepository(string $username = null): Collection
+    public function loadObjectsFromRepository(?string $username = null): Collection
     {
         $query = $this->applyLdapQueryConstraints(
             $this->repository->query()

@@ -58,7 +58,7 @@ class LdapUserRepositoryTest extends TestCase
 
     public function test_find_by_credentials_returns_model()
     {
-        $user = new Entry();
+        $user = new Entry;
 
         $repository = m::mock(LdapUserRepository::class, function ($repository) use ($user) {
             $query = m::mock(Builder::class);
@@ -74,7 +74,7 @@ class LdapUserRepositoryTest extends TestCase
 
     public function test_find_by_credentials_with_fallback_returns_model()
     {
-        $user = new Entry();
+        $user = new Entry;
 
         $repository = m::mock(LdapUserRepository::class, function ($repository) use ($user) {
             $query = m::mock(Builder::class);
@@ -90,7 +90,7 @@ class LdapUserRepositoryTest extends TestCase
 
     public function test_find_by_attribute_and_value_returns_model()
     {
-        $model = new Entry();
+        $model = new Entry;
 
         $repository = m::mock(LdapUserRepository::class, function ($repository) use ($model) {
             $query = m::mock(Builder::class);
@@ -105,7 +105,7 @@ class LdapUserRepositoryTest extends TestCase
 
     public function test_find_by_model_returns_model()
     {
-        $model = new Entry();
+        $model = new Entry;
 
         $repository = m::mock(LdapUserRepository::class, function ($repository) use ($model) {
             $query = m::mock(Builder::class);
@@ -136,7 +136,7 @@ class LdapUserRepositoryTest extends TestCase
 
     public function test_find_by_guid_returns_model()
     {
-        $model = new Entry();
+        $model = new Entry;
 
         $repository = m::mock(LdapUserRepository::class, function ($repository) use ($model) {
             $query = m::mock(Builder::class);

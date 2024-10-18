@@ -11,7 +11,7 @@ class OnlyImported implements Rule
     /**
      * {@inheritdoc}
      */
-    public function passes(LdapRecord $user, Eloquent $model = null): bool
+    public function passes(LdapRecord $user, ?Eloquent $model = null): bool
     {
         return $model?->exists;
     }

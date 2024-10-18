@@ -65,7 +65,7 @@ trait ListensForLdapBindFailure
      *
      * @throws ValidationException
      */
-    protected function ldapBindFailed(string $errorMessage, string $diagnosticMessage = null): void
+    protected function ldapBindFailed(string $errorMessage, ?string $diagnosticMessage = null): void
     {
         switch (true) {
             case $this->causedByLostConnection($errorMessage):
@@ -98,7 +98,7 @@ trait ListensForLdapBindFailure
      *
      * @throws ValidationException
      */
-    protected function handleLdapBindError(string $message, string $code = null): void
+    protected function handleLdapBindError(string $message, ?string $code = null): void
     {
         logger()->error($message, compact('code'));
 
