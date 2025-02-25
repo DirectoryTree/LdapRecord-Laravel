@@ -8,12 +8,10 @@ on:
 
 jobs:
     run-tests:
-        runs-on: ${{ matrix.os }}
+        runs-on: ubuntu-latest
         strategy:
             fail-fast: false
             matrix:
-                os: [ubuntu-latest]
-                dependency-version: [prefer-stable]
                 include:
                     - php: 8.4
                       laravel: 12.*
@@ -35,7 +33,7 @@ jobs:
                       laravel: 8.*
                       testbench: 6.*
 
-        name: ${{ matrix.os }} - P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.dependency-version }}
+        name: P${{ matrix.php }} - L${{ matrix.laravel }}
 
         steps:
             - name: Checkout code
@@ -57,7 +55,7 @@ jobs:
             - name: Install dependencies
               run: |
                   composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update --dev
-                  composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction
+                  composer update --prefer-stable --prefer-dist --no-interaction
 
             - name: Execute tests
               run: vendor/bin/phpunit --testdox
