@@ -2,7 +2,6 @@
 
 namespace LdapRecord\Laravel\Tests\Feature;
 
-use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -14,7 +13,6 @@ use LdapRecord\Models\ActiveDirectory\User as LdapUser;
 class SanctumTest extends DatabaseTestCase
 {
     use CreatesTestUsers;
-    use DatabaseMigrations;
 
     protected function setUp(): void
     {
@@ -36,10 +34,16 @@ class SanctumTest extends DatabaseTestCase
 
         Route::post('api/sanctum/token', function (Request $request) {
             if (Auth::validate($request->only('mail', 'password'))) {
-                return ['token' => Auth::getLastAttempted()->createToken($request->device_name)->plainTextToken];
+                return [
+                    'token' => Auth::getLastAttempted()
+                        ->createToken($request->device_name)
+                        ->plainTextToken,
+                ];
             }
 
-            throw ValidationException::withMessages(['email' => 'The provided credentials are incorrect.']);
+            throw ValidationException::withMessages([
+                'email' => 'The provided credentials are incorrect.',
+            ]);
         });
     }
 

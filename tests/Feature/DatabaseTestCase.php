@@ -4,6 +4,7 @@ namespace LdapRecord\Laravel\Tests\Feature;
 
 use Illuminate\Auth\EloquentUserProvider;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;
 use LdapRecord\Laravel\Auth\DatabaseUserProvider;
 use LdapRecord\Laravel\Import\UserSynchronizer;
@@ -13,33 +14,26 @@ use LdapRecord\Laravel\Tests\TestCase;
 use LdapRecord\Models\ActiveDirectory\User;
 use LdapRecord\Models\Model;
 use Mockery as m;
+use Orchestra\Testbench\Attributes\WithMigration;
 
+#[WithMigration]
 class DatabaseTestCase extends TestCase
 {
+    use RefreshDatabase;
+
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->createUsersTable();
+        Schema::table('users', function (Blueprint $table) {
+            $table->softDeletes();
+        });
     }
 
-    protected function createUsersTable()
+    protected function defineDatabaseMigrations()
     {
-        // Setup the users database table.
-        Schema::create('users', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->rememberToken();
-            $table->timestamps();
-            $table->softDeletes();
-
-            // Additional fields for LdapRecord.
-            $table->string('guid')->unique()->nullable();
-            $table->string('domain')->nullable();
-        });
+        $this->loadMigrationsFrom(__DIR__.'/../../database/migrations');
+        $this->loadMigrationsFrom(__DIR__.'/../../vendor/laravel/sanctum/database/migrations');
     }
 
     protected function getMockLdapModel(array $attributes = [])
