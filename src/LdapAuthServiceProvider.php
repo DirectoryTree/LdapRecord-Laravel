@@ -43,9 +43,9 @@ class LdapAuthServiceProvider extends ServiceProvider
             return;
         }
 
-        $this->publishesMigrations([
+        $this->publishes([
             __DIR__.'/../database/migrations' => database_path('migrations'),
-        ]);
+        ], 'migrations');
     }
 
     /**
