@@ -36,7 +36,7 @@ abstract class UserProvider implements LaravelUserProvider
         $this->users = $users;
         $this->auth = $auth;
 
-        $this->userResolver = function ($credentials) {
+        $this->userResolver = function (array $credentials) {
             return $this->users->findByCredentials($credentials);
         };
     }
