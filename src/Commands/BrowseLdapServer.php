@@ -179,7 +179,7 @@ class BrowseLdapServer extends Command
                 return $object->getName();
             })->map(function (Model $object) {
                 return $object->getDn();
-            })->values()->toArray();
+            })->values()->all();
     }
 
     /**

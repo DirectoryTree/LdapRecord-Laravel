@@ -280,7 +280,7 @@ class ImportLdapUsers extends Command
                 'dn' => $object->getDn(),
                 'name' => $object->getRdn(),
             ];
-        })->toArray();
+        })->all();
 
         $this->table(['Name', 'Distinguished Name'], $rows);
     }

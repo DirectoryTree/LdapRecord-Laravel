@@ -396,7 +396,7 @@ class Importer
         $deleted = $eloquent->newQuery()
             ->whereNotNull($eloquent->getLdapGuidColumn())
             ->where($eloquent->getLdapDomainColumn(), $domain)
-            ->whereIn($eloquent->getLdapGuidColumn(), $toDelete->toArray())
+            ->whereIn($eloquent->getLdapGuidColumn(), $toDelete->all())
             ->touch($eloquent->getDeletedAtColumn());
 
         if ($deleted > 0) {

@@ -205,7 +205,7 @@ class LdapServiceProvider extends ServiceProvider
                 $option = str_replace($replace, '_', $key);
 
                 return [constant($option) => $value];
-            })->toArray();
+            })->all();
     }
 
     /**
