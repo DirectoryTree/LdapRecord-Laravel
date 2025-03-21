@@ -587,13 +587,13 @@ trait EmulatesQueries
      */
     public function parse(mixed $resource): array
     {
-        return $resource->all();
+        return $resource->toArray();
     }
 
     /**
      * Transform the database attributes into a single array.
      */
-    protected function transform($attributes): array
+    protected function transform(array $attributes): array
     {
         return collect(Arr::pull($attributes, 'attributes'))->mapWithKeys(function ($attribute) {
             return [$attribute['name'] => collect($attribute['values'])->map->value->all()];
