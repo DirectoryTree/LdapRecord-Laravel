@@ -8,6 +8,13 @@ use Symfony\Component\Console\Input\InputArgument;
 class MakeLdapRule extends GeneratorCommand
 {
     /**
+     * The type of class being generated.
+     *
+     * @var string
+     */
+    protected $type = 'LDAP Rule';
+
+    /**
      * The console command name.
      *
      * @var string
@@ -20,13 +27,6 @@ class MakeLdapRule extends GeneratorCommand
      * @var string
      */
     protected $description = 'Create a new LDAP authentication rule.';
-
-    /**
-     * The type of class being generated.
-     *
-     * @var string
-     */
-    protected $type = 'LDAP Rule';
 
     /**
      * {@inheritdoc}

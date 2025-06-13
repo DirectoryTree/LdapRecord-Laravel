@@ -8,6 +8,13 @@ use Symfony\Component\Console\Input\InputArgument;
 class MakeLdapScope extends GeneratorCommand
 {
     /**
+     * The type of class being generated.
+     *
+     * @var string
+     */
+    protected $type = 'LDAP Scope';
+
+    /**
      * The console command name.
      *
      * @var string
@@ -20,13 +27,6 @@ class MakeLdapScope extends GeneratorCommand
      * @var string
      */
     protected $description = 'Create a new LDAP query scope.';
-
-    /**
-     * The type of class being generated.
-     *
-     * @var string
-     */
-    protected $type = 'LDAP Scope';
 
     /**
      * {@inheritdoc}
