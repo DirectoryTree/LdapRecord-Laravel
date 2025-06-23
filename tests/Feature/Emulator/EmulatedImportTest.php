@@ -48,7 +48,7 @@ class EmulatedImportTest extends DatabaseTestCase
             'provider' => 'ldap-database',
             '--attributes' => 'cn,mail,objectguid',
             '--no-interaction',
-        ])->assertExitCode(0);
+        ])->assertSuccessful();
 
         $imported = TestUserModelStub::get();
 
@@ -74,7 +74,7 @@ class EmulatedImportTest extends DatabaseTestCase
         $this->artisan('ldap:import', [
             'provider' => 'ldap-database',
             '--no-interaction',
-        ])->assertExitCode(0);
+        ])->assertSuccessful();
 
         Event::assertDispatched(ImportFailed::class);
     }
@@ -92,7 +92,7 @@ class EmulatedImportTest extends DatabaseTestCase
             'provider' => 'ldap-database',
             '--no-interaction',
             '--delete' => true,
-        ])->assertExitCode(0);
+        ])->assertSuccessful();
 
         $created = TestUserModelStub::withTrashed()->first();
 
@@ -123,7 +123,7 @@ class EmulatedImportTest extends DatabaseTestCase
             '--no-interaction',
             '--delete' => true,
             '--restore' => true,
-        ])->assertExitCode(0);
+        ])->assertSuccessful();
 
         $this->assertFalse($database->fresh()->trashed());
     }
@@ -180,7 +180,7 @@ class EmulatedImportTest extends DatabaseTestCase
             'provider' => 'ldap-database',
             '--no-interaction',
             '--delete-missing',
-        ])->assertExitCode(0);
+        ])->assertSuccessful();
 
         $this->assertFalse($missingLdapUser->fresh()->trashed());
 
@@ -193,7 +193,7 @@ class EmulatedImportTest extends DatabaseTestCase
             'provider' => 'ldap-database',
             '--no-interaction',
             '--delete-missing' => true,
-        ])->assertExitCode(0);
+        ])->assertSuccessful();
 
         Event::assertDispatched(DeletedMissing::class, function (DeletedMissing $event) use ($missingLdapUser) {
             return $event->deleted->count() == 1
@@ -236,7 +236,7 @@ class EmulatedImportTest extends DatabaseTestCase
         $this->artisan('ldap:import', [
             'provider' => 'ldap-database',
             '--no-interaction',
-        ])->assertExitCode(0);
+        ])->assertSuccessful();
 
         $database->refresh();
 
@@ -274,7 +274,7 @@ class EmulatedImportTest extends DatabaseTestCase
         $this->artisan('ldap:import', [
             'provider' => 'ldap-database',
             '--no-interaction',
-        ])->assertExitCode(0);
+        ])->assertSuccessful();
 
         $database->refresh();
 
@@ -308,7 +308,7 @@ class EmulatedImportTest extends DatabaseTestCase
         $this->artisan('ldap:import', [
             'provider' => 'ldap-database',
             '--no-interaction',
-        ])->assertExitCode(0);
+        ])->assertSuccessful();
 
         $database->refresh();
 
@@ -341,7 +341,7 @@ class EmulatedImportTest extends DatabaseTestCase
             'provider' => 'ldap-database',
             '--scopes' => TestImportUserModelScope::class,
             '--no-interaction',
-        ])->assertExitCode(0);
+        ])->assertSuccessful();
 
         $this->assertCount(1, $users = TestUserModelStub::get());
         $this->assertEquals('Bar', $users->first()->name);
