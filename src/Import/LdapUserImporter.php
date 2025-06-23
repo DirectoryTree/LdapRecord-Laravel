@@ -162,7 +162,7 @@ class LdapUserImporter extends Importer
      */
     protected function userIsEnabled(LdapRecord $object): bool
     {
-        return $this->getUserAccountControl($object) === null ? false : ! $this->userIsDisabled($object);
+        return ! ($this->getUserAccountControl($object) === null) && ! $this->userIsDisabled($object);
     }
 
     /**
