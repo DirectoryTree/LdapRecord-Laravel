@@ -2,6 +2,7 @@
 
 namespace LdapRecord\Laravel\Testing;
 
+use LdapRecord\Configuration\ConfigurationException;
 use LdapRecord\Testing\ConnectionFake;
 
 class EmulatedConnectionFake extends ConnectionFake
@@ -28,7 +29,7 @@ class EmulatedConnectionFake extends ConnectionFake
     /**
      * Create a new Eloquent LDAP query builder.
      *
-     * @throws \LdapRecord\Configuration\ConfigurationException
+     * @throws ConfigurationException
      */
     public function query(): EmulatedBuilder
     {

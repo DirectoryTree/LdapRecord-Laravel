@@ -2,6 +2,7 @@
 
 namespace LdapRecord\Laravel\Testing;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $ldap_object_id
  * @property string $name
  * @property LdapObject $object
- * @property \Illuminate\Database\Eloquent\Collection $values
+ * @property Collection $values
  */
 class LdapObjectAttribute extends Model
 {

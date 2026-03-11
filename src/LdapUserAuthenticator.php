@@ -5,6 +5,7 @@ namespace LdapRecord\Laravel;
 use Closure;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Support\Collection;
+use LdapRecord\Laravel\Auth\Rule;
 use LdapRecord\Laravel\Auth\Validator;
 use LdapRecord\Laravel\Events\Auth\BindFailed;
 use LdapRecord\Laravel\Events\Auth\Binding;
@@ -20,7 +21,7 @@ class LdapUserAuthenticator
     /**
      * The LDAP authentication rules.
      *
-     * @var \LdapRecord\Laravel\Auth\Rule[]
+     * @var Rule[]
      */
     protected array $rules = [];
 

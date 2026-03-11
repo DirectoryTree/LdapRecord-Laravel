@@ -12,7 +12,7 @@ class Validator
     /**
      * The validation rules.
      *
-     * @var \LdapRecord\Laravel\Auth\Rule[]
+     * @var Rule[]
      */
     protected array $rules = [];
 

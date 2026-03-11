@@ -2,6 +2,7 @@
 
 namespace LdapRecord\Laravel;
 
+use Illuminate\Log\LogManager;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Event;
@@ -73,7 +74,7 @@ class LdapServiceProvider extends ServiceProvider
             return;
         }
 
-        /** @var \Illuminate\Log\LogManager|null $logger */
+        /** @var LogManager|null $logger */
         if (is_null($logger = Log::getFacadeRoot())) {
             return;
         }
