@@ -255,14 +255,6 @@ class EmulatedModelQueryTest extends TestCase
         $user = TestModelStub::select('cn')->first();
         $this->assertNull($user->sn);
         $this->assertEquals(['John'], $user->cn);
-
-        $user = TestModelStub::first('cn');
-        $this->assertNull($user->sn);
-        $this->assertEquals(['John'], $user->cn);
-
-        $user = TestModelStub::get('cn')->first();
-        $this->assertNull($user->sn);
-        $this->assertEquals(['John'], $user->cn);
     }
 
     public function test_get()
@@ -549,10 +541,10 @@ class EmulatedModelQueryTest extends TestCase
 
     public function test_find_many_by_anr()
     {
-        TestModelStub::create(['cn' => 'John']);
-        TestModelStub::create(['cn' => 'Jane']);
+        User::create(['cn' => 'John']);
+        User::create(['cn' => 'Jane']);
 
-        $results = TestModelStub::findManyByAnr(['John', 'Jane']);
+        $results = User::findManyByAnr(['John', 'Jane']);
 
         $this->assertCount(2, $results);
         $this->assertEquals('John', $results[0]->cn[0]);

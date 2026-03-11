@@ -2,7 +2,7 @@
 
 namespace LdapRecord\Laravel\Testing;
 
-use LdapRecord\Models\Attributes\EscapedValue;
+use LdapRecord\Query\EscapedValue;
 
 class UnescapedValue extends EscapedValue
 {
