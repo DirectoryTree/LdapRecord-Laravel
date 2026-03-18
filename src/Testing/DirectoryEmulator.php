@@ -2,6 +2,7 @@
 
 namespace LdapRecord\Laravel\Testing;
 
+use LdapRecord\ContainerException;
 use LdapRecord\Testing\ConnectionFake;
 use LdapRecord\Testing\DirectoryFake;
 
@@ -12,7 +13,7 @@ class DirectoryEmulator extends DirectoryFake
      *
      * @return EmulatedConnectionFake
      *
-     * @throws \LdapRecord\ContainerException
+     * @throws ContainerException
      */
     public static function setup(?string $name = null, array $config = []): ConnectionFake
     {

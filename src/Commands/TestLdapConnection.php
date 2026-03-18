@@ -7,6 +7,7 @@ use Illuminate\Console\Command;
 use LdapRecord\Auth\BindException;
 use LdapRecord\Connection;
 use LdapRecord\Container;
+use LdapRecord\ContainerException;
 
 class TestLdapConnection extends Command
 {
@@ -27,7 +28,7 @@ class TestLdapConnection extends Command
     /**
      * Execute the console command.
      *
-     * @throws \LdapRecord\ContainerException
+     * @throws ContainerException
      */
     public function handle(): int
     {

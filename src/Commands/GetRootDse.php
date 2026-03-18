@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use LdapRecord\Container;
 use LdapRecord\Models\Entry;
+use LdapRecord\Models\ModelNotFoundException;
 
 class GetRootDse extends Command
 {
@@ -28,7 +29,7 @@ class GetRootDse extends Command
     /**
      * Execute the console command.
      *
-     * @throws \LdapRecord\Models\ModelNotFoundException
+     * @throws ModelNotFoundException
      */
     public function handle(): int
     {

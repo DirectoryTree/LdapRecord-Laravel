@@ -2,6 +2,8 @@
 
 namespace LdapRecord\Laravel\Testing;
 
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -13,9 +15,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $name
  * @property string $domain
  * @property string $parent_dn
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
- * @property \Illuminate\Database\Eloquent\Collection $attributes
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ * @property Collection $attributes
  */
 class LdapObject extends Model
 {
