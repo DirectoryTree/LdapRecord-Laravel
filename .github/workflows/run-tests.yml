@@ -29,10 +29,6 @@ jobs:
                       laravel: 10.*
                       testbench: 8.*
 
-                    - php: 8.2
-                      laravel: 9.*
-                      testbench: 7.*
-
         name: P${{ matrix.php }} - L${{ matrix.laravel }}
 
         steps:
