@@ -19,6 +19,7 @@ use LdapRecord\Laravel\Events\Import\Started;
 use LdapRecord\Laravel\Import\LdapUserImporter;
 use LdapRecord\Models\Collection;
 use LdapRecord\Models\Model;
+use LdapRecord\Models\ModelNotFoundException;
 use Symfony\Component\Console\Helper\ProgressBar;
 
 class ImportLdapUsers extends Command
@@ -63,7 +64,7 @@ class ImportLdapUsers extends Command
     /**
      * Execute the console command.
      *
-     * @throws \LdapRecord\Models\ModelNotFoundException
+     * @throws ModelNotFoundException
      */
     public function handle(LdapUserImporter $importer, Repository $config): int
     {
@@ -75,7 +76,7 @@ class ImportLdapUsers extends Command
 
         $config->set('ldap.logging.enabled', $this->isLogging());
 
-        /** @var \LdapRecord\Laravel\Auth\DatabaseUserProvider $provider */
+        /** @var DatabaseUserProvider $provider */
         $provider = Auth::createUserProvider($providerName = $this->argument('provider'));
 
         if (is_null($provider)) {

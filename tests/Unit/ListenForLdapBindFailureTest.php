@@ -6,6 +6,7 @@ use Illuminate\Validation\ValidationException;
 use LdapRecord\Laravel\Auth\ListensForLdapBindFailure;
 use LdapRecord\Laravel\Testing\DirectoryEmulator;
 use LdapRecord\Laravel\Tests\TestCase;
+use LdapRecord\Testing\LdapFake;
 
 class ListenForLdapBindFailureTest extends TestCase
 {
@@ -39,7 +40,7 @@ class ListenForLdapBindFailureTest extends TestCase
     {
         $fake = DirectoryEmulator::setup('default');
 
-        /** @var \LdapRecord\Testing\LdapFake $ldap */
+        /** @var LdapFake $ldap */
         $ldap = $fake->getLdapConnection();
         $ldap->shouldReturnDiagnosticMessage(null);
         $ldap->shouldReturnError('Invalid credentials');
@@ -51,7 +52,7 @@ class ListenForLdapBindFailureTest extends TestCase
     {
         $fake = DirectoryEmulator::setup('default');
 
-        /** @var \LdapRecord\Testing\LdapFake $ldap */
+        /** @var LdapFake $ldap */
         $ldap = $fake->getLdapConnection();
         $ldap->shouldReturnError("Can't contact LDAP server");
 
@@ -75,7 +76,7 @@ class ListenForLdapBindFailureTest extends TestCase
     {
         $fake = DirectoryEmulator::setup('default');
 
-        /** @var \LdapRecord\Testing\LdapFake $ldap */
+        /** @var LdapFake $ldap */
         $ldap = $fake->getLdapConnection();
         $ldap->shouldReturnDiagnosticMessage($this->makeDiagnosticErrorMessage($code));
 

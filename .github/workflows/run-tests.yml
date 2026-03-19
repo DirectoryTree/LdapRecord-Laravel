@@ -14,6 +14,10 @@ jobs:
             matrix:
                 include:
                     - php: 8.4
+                      laravel: 13.*
+                      testbench: 11.*
+
+                    - php: 8.4
                       laravel: 12.*
                       testbench: 10.*
 

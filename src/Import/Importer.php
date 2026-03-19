@@ -16,6 +16,7 @@ use LdapRecord\Laravel\Events\Import\ImportFailed;
 use LdapRecord\Laravel\Events\Import\Restored;
 use LdapRecord\Laravel\Events\Import\Saved;
 use LdapRecord\Laravel\Events\Import\Started;
+use LdapRecord\LdapRecordException;
 use LdapRecord\Models\Model as LdapRecord;
 use LdapRecord\Query\Collection as LdapRecordCollection;
 use LdapRecord\Query\Model\Builder as LdapQuery;
@@ -208,7 +209,7 @@ class Importer
      * Execute the import.
      *
      * @throws ImportException
-     * @throws \LdapRecord\LdapRecordException
+     * @throws LdapRecordException
      */
     public function execute(): ?Collection
     {
