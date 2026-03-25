@@ -2,6 +2,7 @@
 
 namespace LdapRecord\Laravel\Testing;
 
+use LdapRecord\Container;
 use LdapRecord\ContainerException;
 use LdapRecord\Testing\ConnectionFake;
 use LdapRecord\Testing\DirectoryFake;
@@ -39,6 +40,16 @@ class DirectoryEmulator extends DirectoryFake
     {
         app(LdapDatabaseManager::class)->teardown();
 
-        parent::tearDown();
+        foreach (static::$replaced as $name => $connection) {
+            $fake = Container::getConnection($name);
+
+            if ($fake instanceof ConnectionFake) {
+                $fake->tearDown();
+            }
+        }
+
+        Container::flush();
+
+        static::$replaced = [];
     }
 }
