@@ -22,9 +22,7 @@ class EmulatedBuilder extends Builder
     {
         $builder = $this->determineBuilderFromModel($model);
 
-        return (new $builder($this->connection))
-            ->setBaseDn($this->baseDn)
-            ->setModel($model);
+        return (new $builder($model, $this))->setBaseDn($this->baseDn);
     }
 
     /**
@@ -66,10 +64,17 @@ class EmulatedBuilder extends Builder
      */
     protected function retrieveExtraAttributes(array $result): array
     {
-        $attributes = array_filter(['dn', $result['guid_key'] ?? null]);
+        $extra = [];
 
-        return array_map(function ($value) {
-            return Arr::wrap($value);
-        }, Arr::only($result, $attributes));
+        if (isset($result['dn'])) {
+            $extra['dn'] = Arr::wrap($result['dn']);
+        }
+
+        // Map the GUID to its correct key (e.g., 'objectguid')
+        if (isset($result['guid_key'], $result['guid'])) {
+            $extra[$result['guid_key']] = Arr::wrap($result['guid']);
+        }
+
+        return $extra;
     }
 }
