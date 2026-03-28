@@ -7,25 +7,37 @@ use Exception;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
+use InvalidArgumentException;
 use LdapRecord\Connection;
 use LdapRecord\Models\Attributes\DistinguishedName;
 use LdapRecord\Models\Attributes\Guid;
 use LdapRecord\Models\BatchModification;
-use LdapRecord\Models\Model as LdapRecord;
 use LdapRecord\Query\Collection;
+use LdapRecord\Query\Filter\ApproximatelyEquals;
+use LdapRecord\Query\Filter\ConditionFilter;
+use LdapRecord\Query\Filter\Contains;
+use LdapRecord\Query\Filter\EndsWith;
+use LdapRecord\Query\Filter\Equals;
+use LdapRecord\Query\Filter\Filter;
+use LdapRecord\Query\Filter\GreaterThanOrEquals;
+use LdapRecord\Query\Filter\GroupFilter;
+use LdapRecord\Query\Filter\Has;
+use LdapRecord\Query\Filter\LessThanOrEquals;
+use LdapRecord\Query\Filter\Not;
+use LdapRecord\Query\Filter\StartsWith;
 use Ramsey\Uuid\Uuid;
 
 trait EmulatesQueries
 {
     /**
-     * The underlying database query.
-     */
-    protected EloquentBuilder $query;
-
-    /**
      * The LDAP attributes to include in results due to a 'select' statement.
      */
     protected array $only = [];
+
+    /**
+     * The underlying database query.
+     */
+    protected EloquentBuilder $eloquent;
 
     /**
      * The nested query state.
@@ -39,7 +51,7 @@ trait EmulatesQueries
     {
         parent::__construct($connection);
 
-        $this->query = $this->newEloquentQuery();
+        $this->eloquent = $this->newEloquentQuery();
     }
 
     /**
@@ -65,7 +77,7 @@ trait EmulatesQueries
      */
     public function setEloquentQuery(EloquentBuilder $query): static
     {
-        $this->query = $query;
+        $this->eloquent = $query;
 
         return $this;
     }
@@ -75,20 +87,21 @@ trait EmulatesQueries
      */
     public function getEloquentQuery(): EloquentBuilder
     {
-        return $this->query;
+        return $this->eloquent;
     }
 
     /**
      * Create a new nested query builder with the given state.
      */
-    public function newNestedInstance(?Closure $closure = null, string $state = 'and'): static
+    public function newNestedInstance(?Closure $closure = null): static
     {
-        $query = $this->newInstance()->nested()->setNestedQueryState($state);
+        $query = $this->newInstance()->nested()->setNestedQueryState($this->nestedState ?? 'and');
 
         if ($closure) {
-            $this->query->where(function (EloquentBuilder $nested) use ($closure, $query) {
-                $closure($query->setEloquentQuery($nested));
-            });
+            // Call the closure on the nested query so it builds its filter.
+            // We do NOT apply to the Eloquent query here - that happens in run()
+            // when we re-apply $this->filter to a fresh Eloquent query.
+            $closure($query);
         }
 
         return $query;
@@ -102,7 +115,7 @@ trait EmulatesQueries
         // When clear filters is called, we must clear the
         // current Eloquent query instance with it to
         // ensure no bindings are carried over.
-        $this->query = $this->newEloquentQuery();
+        $this->eloquent = $this->newEloquentQuery();
 
         return parent::clearFilters();
     }
@@ -115,18 +128,6 @@ trait EmulatesQueries
         $this->nestedState = $state;
 
         return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function orFilter(Closure $closure): static
-    {
-        $query = $this->newNestedInstance($closure, 'or');
-
-        return $this->rawFilter(
-            $this->grammar->compileOr($query->getQuery())
-        );
     }
 
     /**
@@ -146,13 +147,62 @@ trait EmulatesQueries
     }
 
     /**
-     * {@inheritdoc}
+     * Apply the LDAP filter to the underlying Eloquent query.
      */
-    public function addFilter($type, array $bindings): static
+    protected function applyFilterToEloquentQuery(Filter $filter, string $boolean = 'and'): void
     {
-        $relationMethod = $this->determineRelationMethod($type, $bindings);
+        // Handle Not filters by unwrapping them
+        if ($filter instanceof Not) {
+            $innerFilter = $filter->getFilter();
 
-        $operator = $bindings['operator'];
+            if ($innerFilter instanceof ConditionFilter) {
+                $this->applyConditionFilterToEloquentQuery($innerFilter, $boolean, isNegated: true);
+            } elseif ($innerFilter instanceof GroupFilter) {
+                $this->applyGroupFilterToEloquentQuery($innerFilter, $boolean, isNegated: true);
+            }
+
+            return;
+        }
+
+        // Handle condition filters (Equals, Has, Contains, etc.)
+        if ($filter instanceof ConditionFilter) {
+            $this->applyConditionFilterToEloquentQuery($filter, $boolean);
+
+            return;
+        }
+
+        // Handle group filters (AndGroup, OrGroup)
+        if ($filter instanceof GroupFilter) {
+            $this->applyGroupFilterToEloquentQuery($filter, $boolean);
+        }
+    }
+
+    /**
+     * Apply a condition filter to the Eloquent query.
+     */
+    protected function applyConditionFilterToEloquentQuery(ConditionFilter $filter, string $boolean = 'and', bool $isNegated = false): void
+    {
+        $operator = $this->getFilterOperatorForDatabase($filter, $isNegated);
+        $attribute = $filter->getAttribute();
+        $value = $filter->getValue();
+
+        // Handle GUID attribute searches specially - the GUID is stored
+        // directly on the LdapObject model, not in the attributes table
+        if ($this->isGuidAttribute($attribute) && $value !== null) {
+            $this->applyGuidFilterToEloquentQuery($value, $boolean, $isNegated);
+
+            return;
+        }
+
+        // Handle ANR (Ambiguous Name Resolution) attribute searches
+        if (strtolower($attribute) === 'anr' && $value !== null) {
+            $this->applyAnrFilterToEloquentQuery($value, $boolean, $isNegated);
+
+            return;
+        }
+
+        // Determine the relationship method based on the operator and boolean
+        $relationMethod = $this->determineRelationMethod($operator, $boolean, $isNegated);
 
         // If the relation method is "not has", we will flip it
         // to a "has" filter and change the relation method
@@ -161,40 +211,166 @@ trait EmulatesQueries
             $operator = '*';
         }
 
-        $this->query->{$relationMethod}('attributes', function ($query) use ($bindings, $operator) {
-            $field = $this->normalizeAttributeName($bindings['field']);
+        $this->eloquent->{$relationMethod}('attributes', function ($query) use ($attribute, $operator, $value) {
+            $field = $this->normalizeAttributeName($attribute);
 
-            $this->addFilterToDatabaseQuery(
-                $query,
-                $field,
-                $operator,
-                $bindings['value']
-            );
+            $this->addFilterToDatabaseQuery($query, $field, $operator, $value);
         });
-
-        return parent::addFilter($type, $bindings);
     }
 
     /**
-     * Determine the relationship method to use for the given bindings.
+     * Determine if the given attribute is a GUID attribute.
      */
-    protected function determineRelationMethod(string $type, array $bindings): string
+    protected function isGuidAttribute(string $attribute): bool
     {
-        $method = $bindings['operator'] == '!*' ? 'whereDoesntHave' : 'whereHas';
+        return in_array(strtolower($attribute), ['objectguid', 'entryuuid', 'nsuniqueid', 'ipauniqueid', 'guid']);
+    }
 
-        if ($type == 'or') {
-            $method = 'orWhereHas';
+    /**
+     * Apply a GUID filter to the Eloquent query.
+     */
+    protected function applyGuidFilterToEloquentQuery(string $value, string $boolean, bool $isNegated): void
+    {
+        // Try to convert encoded hex GUID to UUID string
+        $guid = $this->convertGuidValueToUuid($value);
+
+        $method = $boolean === 'or' ? 'orWhere' : 'where';
+
+        if ($isNegated) {
+            $this->eloquent->{$method}('guid', '!=', $guid);
+        } else {
+            $this->eloquent->{$method}('guid', '=', $guid);
+        }
+    }
+
+    /**
+     * Convert a GUID value (possibly encoded hex) to a UUID string.
+     */
+    protected function convertGuidValueToUuid(string $value): string
+    {
+        // If the value contains backslashes, it's an encoded hex GUID (e.g., \70\1a\3c\c4...)
+        if (str_contains($value, '\\')) {
+            try {
+                // Remove backslashes to get the hex string, then convert to binary
+                $hexOnly = str_replace('\\', '', $value);
+                $binary = hex2bin($hexOnly);
+
+                if ($binary !== false && strlen($binary) === 16) {
+                    return (new Guid($binary))->getValue();
+                }
+            } catch (InvalidArgumentException) {
+                // Fall through to return original value
+            }
+        }
+
+        // If it's already a valid UUID or GUID string, try to normalize it
+        if (Guid::isValid($value)) {
+            try {
+                return (new Guid($value))->getValue();
+            } catch (InvalidArgumentException) {
+                // Fall through to return original value
+            }
+        }
+
+        return $value;
+    }
+
+    /**
+     * Apply an ANR (Ambiguous Name Resolution) filter to the Eloquent query.
+     *
+     * ANR searches across multiple common attributes like cn, sn, mail, etc.
+     */
+    protected function applyAnrFilterToEloquentQuery(string $value, string $boolean, bool $isNegated): void
+    {
+        $anrAttributes = ['cn', 'sn', 'uid', 'name', 'mail', 'givenname', 'displayname'];
+
+        $method = $boolean === 'or' ? 'orWhere' : 'where';
+
+        $this->eloquent->{$method}(function ($query) use ($anrAttributes, $value, $isNegated) {
+            foreach ($anrAttributes as $attribute) {
+                $relationMethod = $isNegated ? 'orWhereDoesntHave' : 'orWhereHas';
+
+                $query->{$relationMethod}('attributes', function ($q) use ($attribute, $value, $isNegated) {
+                    $q->where('name', $attribute);
+
+                    if ($isNegated) {
+                        $q->whereHas('values', function ($vq) use ($value) {
+                            $vq->where('value', '=', $value);
+                        });
+                    } else {
+                        $q->whereHas('values', function ($vq) use ($value) {
+                            $vq->where('value', '=', $value);
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+    /**
+     * Get the database operator for the given filter.
+     */
+    protected function getFilterOperatorForDatabase(ConditionFilter $filter, bool $isNegated = false): string
+    {
+        return match (true) {
+            $filter instanceof Has => $isNegated ? '!*' : '*',
+            $filter instanceof Contains => $isNegated ? 'not_contains' : 'contains',
+            $filter instanceof StartsWith => $isNegated ? 'not_starts_with' : 'starts_with',
+            $filter instanceof EndsWith => $isNegated ? 'not_ends_with' : 'ends_with',
+            $filter instanceof Equals => $isNegated ? '!=' : '=',
+            $filter instanceof GreaterThanOrEquals => '>=',
+            $filter instanceof LessThanOrEquals => '<=',
+            $filter instanceof ApproximatelyEquals => '~=',
+            default => $filter->getOperator(),
+        };
+    }
+
+    /**
+     * Apply a group filter to the Eloquent query.
+     */
+    protected function applyGroupFilterToEloquentQuery(GroupFilter $filter, string $boolean = 'and', bool $isNegated = false): void
+    {
+        $groupBoolean = $filter->getOperator() === '|' ? 'or' : 'and';
+
+        // Determine the method to use for the outer where clause
+        $method = $boolean === 'or' ? 'orWhere' : 'where';
+
+        // Wrap all group filters in a where clause to ensure proper SQL grouping.
+        // This is especially important for OR groups to prevent incorrect precedence.
+        $this->eloquent->{$method}(function (EloquentBuilder $query) use ($filter, $groupBoolean, $isNegated) {
+            $originalQuery = $this->eloquent;
+            $this->eloquent = $query;
+
+            foreach ($filter->getFilters() as $innerFilter) {
+                if ($isNegated) {
+                    $this->applyFilterToEloquentQuery(new Not($innerFilter), $groupBoolean);
+                } else {
+                    $this->applyFilterToEloquentQuery($innerFilter, $groupBoolean);
+                }
+            }
+
+            $this->eloquent = $originalQuery;
+        });
+    }
+
+    /**
+     * Determine the relationship method to use for the given filter.
+     */
+    protected function determineRelationMethod(string $operator, string $boolean, bool $isNegated): string
+    {
+        $isNotHas = $operator === '!*' || ($isNegated && $operator === '*');
+
+        $method = $isNotHas ? 'whereDoesntHave' : 'whereHas';
+
+        if ($boolean === 'or') {
+            $method = $isNotHas ? 'orWhereDoesntHave' : 'orWhereHas';
         }
 
         // We're doing some trickery here for compatibility with nested LDAP filters. The
         // nested state is used to determine if the query being nested is an "and" or
         // "or" which will give us proper results when changing the relation method.
-        if (
-            $this->nested
-            && $this->nestedState === 'or'
-            && $this->fieldIsUsedMultipleTimes($type, $bindings['field'])
-        ) {
-            $method = $method == 'whereDoesntHave'
+        if ($this->nested && $this->nestedState === 'or') {
+            $method = $method === 'whereDoesntHave'
                 ? 'orWhereDoesntHave'
                 : 'orWhereHas';
         }
@@ -270,14 +446,6 @@ trait EmulatesQueries
     }
 
     /**
-     * Determine if a certain field is used multiple times in a query.
-     */
-    protected function fieldIsUsedMultipleTimes(string $type, string $field): bool
-    {
-        return collect($this->filters[$type])->where('field', '=', $field)->isNotEmpty();
-    }
-
-    /**
      * Applies the batch modification to the given model.
      */
     protected function applyBatchModificationToModel(Model $model, array $modification): void
@@ -320,24 +488,10 @@ trait EmulatesQueries
     /**
      * {@inheritdoc}
      */
-    public function findOrFail(string $dn, array|string $columns = ['*']): LdapRecord|array
+    public function findOrFail(string $dn, array|string $selects = ['*']): array
     {
         if (! $database = $this->findEloquentModelByDn($dn)) {
             $this->throwNotFoundException($this->getUnescapedQuery(), $dn);
-        }
-
-        return $this->getFirstRecordFromResult(
-            $this->process([$this->getArrayableResult($database)])
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function findByGuidOrFail(string $guid, array|string $columns = ['*']): LdapRecord
-    {
-        if (! $database = $this->findEloquentModelByGuid($guid)) {
-            $this->throwNotFoundException($this->getUnescapedQuery(), $this->dn);
         }
 
         return $this->getFirstRecordFromResult(
@@ -424,15 +578,29 @@ trait EmulatesQueries
         }
 
         foreach ($attributes as $name => $values) {
-            /** @var LdapObjectAttribute $attribute */
-            $attribute = $model->attributes()->firstOrCreate([
-                'name' => $this->normalizeAttributeName($name),
-            ]);
+            $normalizedName = $this->normalizeAttributeName($name);
 
+            /** @var LdapObjectAttribute|null $attribute */
+            $attribute = $model->attributes()->where('name', $normalizedName)->first();
+
+            // If values are empty, delete the attribute entirely
+            if (empty($values)) {
+                $attribute?->delete();
+
+                continue;
+            }
+
+            // Create or retrieve the attribute
+            if (! $attribute) {
+                $attribute = $model->attributes()->create(['name' => $normalizedName]);
+            }
+
+            // Delete existing values
             $attribute->values()->each(
                 fn (LdapObjectAttributeValue $value) => $value->delete()
             );
 
+            // Add new values
             foreach ((array) $values as $value) {
                 $attribute->values()->create(['value' => $value]);
             }
@@ -480,13 +648,24 @@ trait EmulatesQueries
      */
     protected function determineGuidKeyFromAttributes(array $attributes): ?string
     {
+        // First, check if any attribute contains a valid GUID value
         foreach ($attributes as $attribute => $values) {
-            if (Guid::isValid($this->attributeValueIsGuid($values))) {
-                return $attribute;
+            if ($this->attributeValueIsGuid($values)) {
+                return strtolower($attribute);
             }
         }
 
-        return null;
+        // Fall back to checking for well-known GUID attribute keys
+        $knownGuidKeys = ['objectguid', 'entryuuid', 'nsuniqueid', 'ipauniqueid', 'guid'];
+
+        foreach ($knownGuidKeys as $key) {
+            if (Arr::has($attributes, $key)) {
+                return $key;
+            }
+        }
+
+        // Default to 'objectguid' as the most common GUID key
+        return 'objectguid';
     }
 
     /**
@@ -544,7 +723,7 @@ trait EmulatesQueries
     /**
      * {@inheritdoc}
      */
-    public function paginate(int $pageSize = 1000, bool $isCritical = false): Collection|array
+    public function paginate(int $pageSize = 1000, bool $isCritical = false): array
     {
         return $this->get();
     }
@@ -554,30 +733,42 @@ trait EmulatesQueries
      */
     public function run(string $filter): mixed
     {
-        if ($this->limit > 0) {
-            $this->query->limit($this->limit);
+        // Reset the Eloquent query to ensure fresh state for each run.
+        // This is necessary because the same builder may be used for
+        // multiple queries (e.g., findMany calling find() in a loop).
+        $this->eloquent = $this->newEloquentQuery();
+
+        // Re-apply the filter that was built during query building
+        if ($this->filter !== null) {
+            $this->applyFilterToEloquentQuery($this->filter);
         }
 
-        if (! in_array('*', $this->columns)) {
-            $this->only = $this->columns;
+        if ($this->limit > 0) {
+            $this->eloquent->limit($this->limit);
+        }
+
+        if (! in_array('*', $this->selects ?? ['*'])) {
+            $this->only = $this->selects;
         }
 
         switch ($this->type) {
             case 'read':
                 // Emulate performing a single "read" operation.
-                $this->query->where('dn', '=', $this->dn);
+                $this->eloquent->where('dn', '=', $this->dn);
                 break;
             case 'list':
                 // Emulate performing a directory "listing" operation.
-                $this->query->where('parent_dn', '=', $this->dn);
+                $this->eloquent->where('parent_dn', '=', $this->dn);
                 break;
             case 'search':
                 // Emulate performing a global directory "search" operation.
-                $this->query->where('dn', 'like', "%{$this->dn}");
+                if ($this->dn) {
+                    $this->eloquent->where('dn', 'like', "%{$this->dn}");
+                }
                 break;
         }
 
-        return $this->query->get();
+        return $this->eloquent->get();
     }
 
     /**
@@ -604,5 +795,87 @@ trait EmulatesQueries
         })->tap(function () {
             $this->only = [];
         })->all();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function add(string $dn, array $attributes): bool
+    {
+        if (! $model = $this->findEloquentModelByDn($dn)) {
+            return false;
+        }
+
+        foreach ($attributes as $name => $values) {
+            $normalizedName = $this->normalizeAttributeName($name);
+
+            /** @var LdapObjectAttribute $attribute */
+            $attribute = $model->attributes()->firstOrCreate([
+                'name' => $normalizedName,
+            ]);
+
+            foreach ((array) $values as $value) {
+                $attribute->values()->create(['value' => $value]);
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function update(string $dn, array $modifications): bool
+    {
+        if (! $model = $this->findEloquentModelByDn($dn)) {
+            return false;
+        }
+
+        foreach ($modifications as $modification) {
+            $this->applyBatchModificationToModel($model, $modification);
+        }
+
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function replace(string $dn, array $attributes): bool
+    {
+        return $this->updateAttributes($dn, $attributes);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function remove(string $dn, array $attributes): bool
+    {
+        if (! $model = $this->findEloquentModelByDn($dn)) {
+            return false;
+        }
+
+        foreach ($attributes as $attribute => $values) {
+            $normalizedName = $this->normalizeAttributeName($attribute);
+
+            /** @var LdapObjectAttribute|null $attr */
+            $attr = $model->attributes()->where('name', $normalizedName)->first();
+
+            if (! $attr) {
+                continue;
+            }
+
+            if (empty($values)) {
+                // Remove the entire attribute
+                $attr->delete();
+            } else {
+                // Remove specific values
+                foreach ((array) $values as $value) {
+                    $attr->values()->where('value', $value)->delete();
+                }
+            }
+        }
+
+        return true;
     }
 }
