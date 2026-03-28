@@ -7,7 +7,6 @@ use Exception;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
-use InvalidArgumentException;
 use LdapRecord\Connection;
 use LdapRecord\Models\Attributes\DistinguishedName;
 use LdapRecord\Models\Attributes\Guid;
@@ -232,7 +231,7 @@ trait EmulatesQueries
     protected function applyGuidFilterToEloquentQuery(string $value, string $boolean, bool $isNegated): void
     {
         // Try to convert encoded hex GUID to UUID string
-        $guid = $this->convertGuidValueToUuid($value);
+        $guid = GuidValue::toUuid($value);
 
         $method = $boolean === 'or' ? 'orWhere' : 'where';
 
@@ -241,38 +240,6 @@ trait EmulatesQueries
         } else {
             $this->eloquent->{$method}('guid', '=', $guid);
         }
-    }
-
-    /**
-     * Convert a GUID value (possibly encoded hex) to a UUID string.
-     */
-    protected function convertGuidValueToUuid(string $value): string
-    {
-        // If the value contains backslashes, it's an encoded hex GUID (e.g., \70\1a\3c\c4...)
-        if (str_contains($value, '\\')) {
-            try {
-                // Remove backslashes to get the hex string, then convert to binary
-                $hexOnly = str_replace('\\', '', $value);
-                $binary = hex2bin($hexOnly);
-
-                if ($binary !== false && strlen($binary) === 16) {
-                    return (new Guid($binary))->getValue();
-                }
-            } catch (InvalidArgumentException) {
-                // Fall through to return original value
-            }
-        }
-
-        // If it's already a valid UUID or GUID string, try to normalize it
-        if (Guid::isValid($value)) {
-            try {
-                return (new Guid($value))->getValue();
-            } catch (InvalidArgumentException) {
-                // Fall through to return original value
-            }
-        }
-
-        return $value;
     }
 
     /**
