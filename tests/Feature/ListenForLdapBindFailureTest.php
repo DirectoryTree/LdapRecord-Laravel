@@ -40,8 +40,8 @@ class ListenForLdapBindFailureTest extends TestCase
                 ['objectclass', '=', 'person'],
                 ['objectclass', '=', 'organizationalperson'],
                 ['objectclass', '=', 'user'],
-                ['mail', '=', 'jdoe@local.com'],
                 ['objectclass', '!=', 'computer'],
+                ['mail', '=', 'jdoe@local.com'],
             ])
             ->getQuery();
 

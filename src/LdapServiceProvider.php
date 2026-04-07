@@ -177,8 +177,8 @@ class LdapServiceProvider extends ServiceProvider
             'port' => env($this->makeEnvVariable('LDAP_{name}_PORT', $connection), 389),
             'base_dn' => env($this->makeEnvVariable('LDAP_{name}_BASE_DN', $connection)),
             'timeout' => env($this->makeEnvVariable('LDAP_{name}_TIMEOUT', $connection), 5),
-            'use_ssl' => env($this->makeEnvVariable('LDAP_{name}_SSL', $connection), false),
             'use_tls' => env($this->makeEnvVariable('LDAP_{name}_TLS', $connection), false),
+            'use_starttls' => env($this->makeEnvVariable('LDAP_{name}_STARTTLS', $connection), false),
             'options' => $this->makeCustomOptionsFromEnv($connection),
         ]);
     }

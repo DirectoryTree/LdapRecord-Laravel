@@ -20,8 +20,7 @@ trait EmulatesModelQueries
      */
     public function newInstance(?string $baseDn = null): static
     {
-        return (new self($this->connection))
-            ->setModel($this->model)
+        return (new self($this->model, $this->query->newInstance()))
             ->setBaseDn($baseDn);
     }
 
@@ -143,9 +142,9 @@ trait EmulatesModelQueries
     /**
      * {@inheritdoc}
      */
-    public function findOrFail(string $dn, array|string $columns = ['*']): Model
+    public function findOrFail(string $dn, array|string $selects = ['*']): Model
     {
-        return $this->baseFindOrFail($dn, $columns);
+        return $this->baseFindOrFail($dn, $selects);
     }
 
     /**
