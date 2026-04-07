@@ -97,9 +97,6 @@ trait EmulatesQueries
         $query = $this->newInstance()->nested()->setNestedQueryState($this->nestedState ?? 'and');
 
         if ($closure) {
-            // Call the closure on the nested query so it builds its filter.
-            // We do NOT apply to the Eloquent query here - that happens in run()
-            // when we re-apply $this->filter to a fresh Eloquent query.
             $closure($query);
         }
 
@@ -111,9 +108,6 @@ trait EmulatesQueries
      */
     public function clearFilters(): static
     {
-        // When clear filters is called, we must clear the
-        // current Eloquent query instance with it to
-        // ensure no bindings are carried over.
         $this->eloquent = $this->newEloquentQuery();
 
         return parent::clearFilters();
@@ -150,7 +144,7 @@ trait EmulatesQueries
      */
     protected function applyFilterToEloquentQuery(Filter $filter, string $boolean = 'and'): void
     {
-        // Handle Not filters by unwrapping them
+        // Handle Not filters by unwrapping them.
         if ($filter instanceof Not) {
             $innerFilter = $filter->getFilter();
 
@@ -185,22 +179,23 @@ trait EmulatesQueries
         $attribute = $filter->getAttribute();
         $value = $filter->getValue();
 
-        // Handle GUID attribute searches specially - the GUID is stored
-        // directly on the LdapObject model, not in the attributes table
+        // We handle GUID attribute searches as a special case since the
+        // GUID is stored directly on the LdapObject model rather than
+        // in the attributes table like all other attribute values are.
         if ($this->isGuidAttribute($attribute) && $value !== null) {
             $this->applyGuidFilterToEloquentQuery($value, $boolean, $isNegated);
 
             return;
         }
 
-        // Handle ANR (Ambiguous Name Resolution) attribute searches
+        // Handle ANR (Ambiguous Name Resolution) attribute searches.
         if (strtolower($attribute) === 'anr' && $value !== null) {
             $this->applyAnrFilterToEloquentQuery($value, $boolean, $isNegated);
 
             return;
         }
 
-        // Determine the relationship method based on the operator and boolean
+        // Determine the relationship method based on the operator and boolean.
         $relationMethod = $this->determineRelationMethod($operator, $boolean, $isNegated);
 
         // If the relation method is "not has", we will flip it
@@ -230,7 +225,7 @@ trait EmulatesQueries
      */
     protected function applyGuidFilterToEloquentQuery(string $value, string $boolean, bool $isNegated): void
     {
-        // Try to convert encoded hex GUID to UUID string
+        // Try to convert encoded hex GUID to UUID string.
         $guid = GuidValue::toUuid($value);
 
         $method = $boolean === 'or' ? 'orWhere' : 'where';
@@ -299,11 +294,12 @@ trait EmulatesQueries
     {
         $groupBoolean = $filter->getOperator() === '|' ? 'or' : 'and';
 
-        // Determine the method to use for the outer where clause
+        // Determine the method to use for the outer where clause.
         $method = $boolean === 'or' ? 'orWhere' : 'where';
 
-        // Wrap all group filters in a where clause to ensure proper SQL grouping.
-        // This is especially important for OR groups to prevent incorrect precedence.
+        // We need to wrap the group's filters in a where clause so that the
+        // SQL grouping is correct, particularly for "or" groups where the
+        // lack of explicit grouping would result in incorrect precedence.
         $this->eloquent->{$method}(function (EloquentBuilder $query) use ($filter, $groupBoolean, $isNegated) {
             $originalQuery = $this->eloquent;
             $this->eloquent = $query;
@@ -550,24 +546,24 @@ trait EmulatesQueries
             /** @var LdapObjectAttribute|null $attribute */
             $attribute = $model->attributes()->where('name', $normalizedName)->first();
 
-            // If values are empty, delete the attribute entirely
+            // If values are empty, delete the attribute entirely.
             if (empty($values)) {
                 $attribute?->delete();
 
                 continue;
             }
 
-            // Create or retrieve the attribute
+            // Create or retrieve the attribute.
             if (! $attribute) {
                 $attribute = $model->attributes()->create(['name' => $normalizedName]);
             }
 
-            // Delete existing values
+            // Delete existing values.
             $attribute->values()->each(
                 fn (LdapObjectAttributeValue $value) => $value->delete()
             );
 
-            // Add new values
+            // Add new values.
             foreach ((array) $values as $value) {
                 $attribute->values()->create(['value' => $value]);
             }
@@ -615,14 +611,14 @@ trait EmulatesQueries
      */
     protected function determineGuidKeyFromAttributes(array $attributes): ?string
     {
-        // First, check if any attribute contains a valid GUID value
+        // First, check if any attribute contains a valid GUID value.
         foreach ($attributes as $attribute => $values) {
             if ($this->attributeValueIsGuid($values)) {
                 return strtolower($attribute);
             }
         }
 
-        // Fall back to checking for well-known GUID attribute keys
+        // Fall back to checking for well-known GUID attribute keys.
         $knownGuidKeys = ['objectguid', 'entryuuid', 'nsuniqueid', 'ipauniqueid', 'guid'];
 
         foreach ($knownGuidKeys as $key) {
@@ -631,7 +627,7 @@ trait EmulatesQueries
             }
         }
 
-        // Default to 'objectguid' as the most common GUID key
+        // Default to 'objectguid' as the most common GUID key.
         return 'objectguid';
     }
 
@@ -705,7 +701,7 @@ trait EmulatesQueries
         // multiple queries (e.g., findMany calling find() in a loop).
         $this->eloquent = $this->newEloquentQuery();
 
-        // Re-apply the filter that was built during query building
+        // Re-apply the filter that was built during query building.
         if ($this->filter !== null) {
             $this->applyFilterToEloquentQuery($this->filter);
         }
@@ -833,10 +829,10 @@ trait EmulatesQueries
             }
 
             if (empty($values)) {
-                // Remove the entire attribute
+                // Remove the entire attribute.
                 $attr->delete();
             } else {
-                // Remove specific values
+                // Remove specific values.
                 foreach ((array) $values as $value) {
                     $attr->values()->where('value', $value)->delete();
                 }
