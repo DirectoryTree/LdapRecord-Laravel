@@ -626,6 +626,22 @@ class EmulatedModelQueryTest extends TestCase
         $this->assertFalse($group->members()->exists($user));
     }
 
+    public function test_detach_has_many_relationship_removes_reciprocal_attribute()
+    {
+        $group = Group::create(['cn' => 'Accounting']);
+        $user = User::create(['cn' => 'John']);
+
+        $group->members()->attach($user);
+
+        $this->assertEquals($user->getDn(), $group->getFirstAttribute('member'));
+        $this->assertEquals($group->getDn(), $user->fresh()->getFirstAttribute('memberof'));
+
+        $group->members()->detach($user);
+
+        $this->assertNull($group->fresh()->getFirstAttribute('member'));
+        $this->assertNull($user->fresh()->getFirstAttribute('memberof'));
+    }
+
     public function test_rename_has_many_relationship()
     {
         $group = Group::create(['cn' => 'Accounting']);
