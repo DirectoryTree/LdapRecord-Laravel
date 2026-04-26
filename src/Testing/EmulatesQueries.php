@@ -834,7 +834,9 @@ trait EmulatesQueries
             } else {
                 // Remove specific values.
                 foreach ((array) $values as $value) {
-                    $attr->values()->where('value', $value)->delete();
+                    $attr->values()->where('value', $value)->each(
+                        fn (LdapObjectAttributeValue $attrValue) => $attrValue->delete()
+                    );
                 }
             }
         }
