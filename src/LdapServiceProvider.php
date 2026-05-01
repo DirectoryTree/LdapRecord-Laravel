@@ -89,7 +89,9 @@ class LdapServiceProvider extends ServiceProvider
             collect($events)->filter(function ($event) {
                 return $event instanceof LoggableEvent && $event->shouldLogEvent();
             })->each(function (LoggableEvent $event) {
-                Log::log($event->getLogLevel(), $event->getLogMessage());
+                Log::channel(
+                    Config::get('ldap.logging.channel')
+                )->log($event->getLogLevel(), $event->getLogMessage());
             });
         });
     }

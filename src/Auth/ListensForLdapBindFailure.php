@@ -3,6 +3,8 @@
 namespace LdapRecord\Laravel\Auth;
 
 use Closure;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use LdapRecord\Auth\Events\Failed as BindFailed;
 use LdapRecord\Container;
@@ -100,7 +102,9 @@ trait ListensForLdapBindFailure
      */
     protected function handleLdapBindError(string $message, ?string $code = null): void
     {
-        logger()->error($message, compact('code'));
+        Log::channel(
+            Config::get('ldap.logging.channel')
+        )->error($message, compact('code'));
 
         ($callback = static::$bindErrorHandler)
             ? $callback($message, $code)
