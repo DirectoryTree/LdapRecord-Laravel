@@ -111,7 +111,7 @@ class TestLdapConnection extends Command
     /**
      * Get the elapsed time since a given starting point.
      */
-    protected function getElapsedTime(int $start): int|float
+    protected function getElapsedTime(float $start): int|float
     {
         return round((microtime(true) - $start) * 1000, 2);
     }
