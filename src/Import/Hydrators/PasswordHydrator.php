@@ -39,14 +39,24 @@ class PasswordHydrator extends Hydrator
      */
     protected function setPassword(EloquentModel $model, string $column, string $password): void
     {
-        // If the model has a mutator for the password field, we
-        // can assume hashing passwords is taken care of.
-        // Otherwise, we will hash it normally.
-        $password = $model->hasSetMutator($column)
-            ? $password
-            : Hash::make($password);
+        $model->setAttribute(
+            $column,
+            $this->passwordNeedsHash($model, $column)
+                ? Hash::make($password)
+                : $password
+        );
+    }
 
-        $model->setAttribute($column, $password);
+    /**
+     * Determine if the password needs to be hashed before setting it.
+     */
+    protected function passwordNeedsHash(EloquentModel $model, string $column): bool
+    {
+        if ($model->hasSetMutator($column)) {
+            return false;
+        }
+
+        return ! method_exists($model, 'hasAttributeSetMutator') || ! $model->hasAttributeSetMutator($column);
     }
 
     /**
