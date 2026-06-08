@@ -107,7 +107,7 @@ trait EmulatesModelQueries
      */
     public function parse(mixed $resource): array
     {
-        return $resource->toArray();
+        return $resource->all();
     }
 
     /**
