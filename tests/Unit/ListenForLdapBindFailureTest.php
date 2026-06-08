@@ -84,4 +84,22 @@ class ListenForLdapBindFailureTest extends TestCase
 
         $fake->auth()->attempt('user', 'secret');
     }
+
+    public function test_directory_diagnostic_codes_are_matched_from_the_data_field()
+    {
+        try {
+            $this->ldapBindFailed(
+                'Invalid credentials',
+                '80090308: LdapErr: DSID-0C090530, comment: AcceptSecurityContext error, data 773, v4563'
+            );
+        } catch (ValidationException $e) {
+            $this->assertSame([
+                'email' => [trans('ldap::errors.user_must_reset_password')],
+            ], $e->errors());
+
+            return;
+        }
+
+        $this->fail('The expected validation exception was not thrown.');
+    }
 }

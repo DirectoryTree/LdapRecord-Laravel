@@ -88,7 +88,7 @@ trait ListensForLdapBindFailure
                 return;
             default:
                 foreach ($this->ldapDiagnosticCodeErrorMap() as $code => $message) {
-                    if ($this->errorContainsMessage($diagnosticMessage, (string) $code)) {
+                    if ($this->diagnosticMessageContainsCode($diagnosticMessage, (string) $code)) {
                         $this->handleLdapBindError($message, $code);
                     }
                 }
@@ -140,6 +140,14 @@ trait ListensForLdapBindFailure
     {
         return $this->errorContainsMessage($errorMessage, 'Invalid credentials')
             && $this->errorContainsMessage($diagnosticMessage, '52e');
+    }
+
+    /**
+     * Determine if the Active Directory diagnostic message contains the given code.
+     */
+    protected function diagnosticMessageContainsCode(string $diagnosticMessage, string $code): bool
+    {
+        return preg_match('/\bdata\s+'.preg_quote($code, '/').'\b/i', $diagnosticMessage) === 1;
     }
 
     /**
