@@ -32,6 +32,7 @@ class EmulatedConnectionFake extends ConnectionFake
     public function replicate(): static
     {
         $replica = parent::replicate()->shouldBeConnected();
+
         $replica->name = $this->name;
 
         return $replica;
