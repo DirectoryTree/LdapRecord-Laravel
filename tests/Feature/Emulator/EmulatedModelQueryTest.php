@@ -601,6 +601,84 @@ class EmulatedModelQueryTest extends TestCase
         $this->assertCount(2, TestModelStub::paginate());
     }
 
+    public function test_chunk()
+    {
+        TestModelStub::create(['cn' => 'John']);
+        TestModelStub::create(['cn' => 'Jane']);
+        TestModelStub::create(['cn' => 'Bob']);
+
+        $chunks = [];
+
+        $result = TestModelStub::chunk(2, function ($models) use (&$chunks) {
+            $chunks[] = $models;
+        });
+
+        $this->assertTrue($result);
+        $this->assertCount(2, $chunks);
+        $this->assertCount(2, $chunks[0]);
+        $this->assertCount(1, $chunks[1]);
+    }
+
+    public function test_chunk_can_be_isolated()
+    {
+        TestModelStub::create(['cn' => 'John']);
+        TestModelStub::create(['cn' => 'Jane']);
+        TestModelStub::create(['cn' => 'Bob']);
+
+        $chunks = [];
+
+        $result = TestModelStub::chunk(2, function ($models) use (&$chunks) {
+            $chunks[] = $models;
+        }, isolate: true);
+
+        $this->assertTrue($result);
+        $this->assertCount(2, $chunks);
+        $this->assertCount(2, $chunks[0]);
+        $this->assertCount(1, $chunks[1]);
+    }
+
+    public function test_isolated_chunk_uses_model_connection()
+    {
+        Container::addConnection(new Connection([
+            'base_dn' => 'dc=foo,dc=com',
+        ]), 'foo');
+
+        DirectoryEmulator::setup('foo');
+
+        TestModelStubWithFooConnection::create(['cn' => 'John']);
+        TestModelStubWithFooConnection::create(['cn' => 'Jane']);
+        TestModelStubWithFooConnection::create(['cn' => 'Bob']);
+
+        $chunks = [];
+
+        $result = TestModelStubWithFooConnection::chunk(2, function ($models) use (&$chunks) {
+            $chunks[] = $models;
+        }, isolate: true);
+
+        $this->assertTrue($result);
+        $this->assertCount(2, $chunks);
+        $this->assertCount(2, $chunks[0]);
+        $this->assertCount(1, $chunks[1]);
+    }
+
+    public function test_chunk_stops_when_callback_returns_false()
+    {
+        TestModelStub::create(['cn' => 'John']);
+        TestModelStub::create(['cn' => 'Jane']);
+        TestModelStub::create(['cn' => 'Bob']);
+
+        $callbacks = 0;
+
+        $result = TestModelStub::chunk(2, function () use (&$callbacks) {
+            $callbacks++;
+
+            return false;
+        });
+
+        $this->assertFalse($result);
+        $this->assertSame(1, $callbacks);
+    }
+
     public function test_has_many_relationship()
     {
         $group = Group::create(['cn' => 'Accounting']);

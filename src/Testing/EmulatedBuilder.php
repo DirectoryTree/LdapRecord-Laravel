@@ -2,12 +2,24 @@
 
 namespace LdapRecord\Laravel\Testing;
 
+use Generator;
 use Illuminate\Support\Arr;
 use LdapRecord\Query\Builder;
 
 class EmulatedBuilder extends Builder
 {
     use EmulatesQueries;
+
+    /**
+     * Runs the chunk operation with the given filter.
+     */
+    protected function runChunk(string $filter, int $perPage, bool $isCritical): Generator
+    {
+        yield from array_chunk(
+            $this->parse($this->run($filter)),
+            $perPage
+        );
+    }
 
     /**
      * Process the database query results into an LDAP result set.
