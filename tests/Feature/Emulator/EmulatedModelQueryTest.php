@@ -601,6 +601,44 @@ class EmulatedModelQueryTest extends TestCase
         $this->assertCount(2, TestModelStub::paginate());
     }
 
+    public function test_chunk_can_be_isolated()
+    {
+        $model = TestModelStub::create(['cn' => 'John']);
+
+        $chunks = [];
+
+        $result = TestModelStub::chunk(100, function ($models) use (&$chunks) {
+            $chunks[] = $models;
+        }, isolate: true);
+
+        $this->assertTrue($result);
+        $this->assertCount(1, $chunks);
+        $this->assertCount(1, $chunks[0]);
+        $this->assertTrue($model->is($chunks[0]->first()));
+    }
+
+    public function test_isolated_chunk_uses_model_connection()
+    {
+        Container::addConnection(new Connection([
+            'base_dn' => 'dc=foo,dc=com',
+        ]), 'foo');
+
+        DirectoryEmulator::setup('foo');
+
+        $model = TestModelStubWithFooConnection::create(['cn' => 'John']);
+
+        $chunks = [];
+
+        $result = TestModelStubWithFooConnection::chunk(100, function ($models) use (&$chunks) {
+            $chunks[] = $models;
+        }, isolate: true);
+
+        $this->assertTrue($result);
+        $this->assertCount(1, $chunks);
+        $this->assertCount(1, $chunks[0]);
+        $this->assertTrue($model->is($chunks[0]->first()));
+    }
+
     public function test_has_many_relationship()
     {
         $group = Group::create(['cn' => 'Accounting']);

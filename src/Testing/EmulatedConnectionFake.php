@@ -27,6 +27,17 @@ class EmulatedConnectionFake extends ConnectionFake
     }
 
     /**
+     * Clone the connection.
+     */
+    public function replicate(): static
+    {
+        $replica = parent::replicate()->shouldBeConnected();
+        $replica->name = $this->name;
+
+        return $replica;
+    }
+
+    /**
      * Create a new Eloquent LDAP query builder.
      *
      * @throws ConfigurationException
