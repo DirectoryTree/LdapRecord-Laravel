@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Support\Facades\Event;
 use LdapRecord\Auth\Guard;
+use LdapRecord\Auth\PasswordRequiredException;
 use LdapRecord\Connection;
 use LdapRecord\Laravel\Auth\Rule;
 use LdapRecord\Laravel\Events\Auth\BindFailed;
@@ -66,6 +67,35 @@ class LdapUserAuthenticatorTest extends TestCase
         Event::fake();
 
         $this->assertFalse($auth->attempt($model, 'password'));
+
+        Event::assertDispatched(Binding::class);
+        Event::assertDispatched(BindFailed::class);
+        Event::assertNotDispatched(Bound::class);
+    }
+
+    public function test_attempt_failed_when_password_required_exception_is_thrown()
+    {
+        $dn = 'cn=John Doe,dc=local,dc=com';
+
+        $model = $this->getAuthenticatingModelMock($dn);
+
+        $model->shouldReceive('getConnection')->once()->andReturn(
+            m::mock(Connection::class, function ($connection) use ($dn) {
+                $auth = m::mock(Guard::class);
+                $auth->shouldReceive('attempt')
+                    ->once()
+                    ->withArgs([$dn, '0'])
+                    ->andThrow(new PasswordRequiredException('A password must be specified.'));
+
+                $connection->shouldReceive('auth')->once()->andReturn($auth);
+            })
+        );
+
+        $auth = new LdapUserAuthenticator;
+
+        Event::fake();
+
+        $this->assertFalse($auth->attempt($model, '0'));
 
         Event::assertDispatched(Binding::class);
         Event::assertDispatched(BindFailed::class);

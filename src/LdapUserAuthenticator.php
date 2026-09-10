@@ -5,6 +5,7 @@ namespace LdapRecord\Laravel;
 use Closure;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Support\Collection;
+use LdapRecord\Auth\PasswordRequiredException;
 use LdapRecord\Laravel\Auth\Rule;
 use LdapRecord\Laravel\Auth\Validator;
 use LdapRecord\Laravel\Events\Auth\BindFailed;
@@ -73,7 +74,13 @@ class LdapUserAuthenticator
         // Here we will attempt to bind the authenticating LDAP
         // user to our connection to ensure their password is
         // correct, using the defined authenticator closure.
-        if (! call_user_func($this->authenticator, $user, $password)) {
+        try {
+            $authenticated = call_user_func($this->authenticator, $user, $password);
+        } catch (PasswordRequiredException) {
+            $authenticated = false;
+        }
+
+        if (! $authenticated) {
             $this->failed($user);
 
             return false;
