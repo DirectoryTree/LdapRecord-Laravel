@@ -32,14 +32,12 @@ class UserDomainValidator
     }
 
     /**
-     * Determine if the domain exists in the given components.
+     * Determine if the domain matches the first domain component.
      */
     protected function domainExistsInComponents(string $domain, array $components): bool
     {
-        return collect($components)->map(function ($component) {
-            [,$value] = $component;
+        [, $value] = reset($components);
 
-            return strtolower($value);
-        })->contains(strtolower($domain));
+        return strcasecmp($domain, $value) === 0;
     }
 }
