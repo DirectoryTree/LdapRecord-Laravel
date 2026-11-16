@@ -293,6 +293,53 @@ class WindowsAuthMiddlewareTest extends DatabaseTestCase
         });
     }
 
+    public function test_parent_domain_account_cannot_sign_in_as_child_domain_user()
+    {
+        Event::fake();
+
+        $this->setupDatabaseUserProvider([
+            'database' => [
+                'model' => TestUserModelStub::class,
+            ],
+        ]);
+
+        $user = new User([
+            'cn' => 'Alice',
+            'mail' => 'alice@evil.example.com',
+            'samaccountname' => 'alice',
+            'objectguid' => 'bf9679e7-0de6-11d0-a285-00aa003049e2',
+        ]);
+
+        $user->setDn('cn=alice,ou=users,dc=evil,dc=example,dc=com');
+
+        $victim = TestUserModelStub::create([
+            'name' => 'Alice',
+            'email' => 'alice@evil.example.com',
+            'password' => 'secret',
+            'guid' => $user->getConvertedGuid(),
+            'domain' => 'default',
+        ]);
+
+        LdapRecord::locateUsersUsing(function () use ($user) {
+            $repository = m::mock(LdapUserRepository::class);
+
+            $repository->shouldReceive('findBy')->once()->withArgs(['samaccountname', 'alice'])->andReturn($user);
+
+            return $repository;
+        });
+
+        $request = tap(new Request, function ($request) {
+            $request->server->set('AUTH_USER', 'EXAMPLE\\alice');
+        });
+
+        app(WindowsAuthenticate::class)->handle($request, function () use ($victim) {
+            $this->assertNull(auth()->user(), 'The parent-domain account was logged in as local user '.$victim->id);
+        });
+
+        Event::assertNotDispatched(Synchronizing::class);
+        Event::assertNotDispatched(CompletedWithWindows::class);
+    }
+
     public function test_domain_verification_can_be_disabled()
     {
         WindowsAuthenticate::bypassDomainVerification();

@@ -42,7 +42,7 @@ class UserDomainValidator
     }
 
     /**
-     * Determine if the domain exists in the given components.
+     * Determine if the domain matches the first domain component.
      *
      * @param string $domain
      * @param array  $components
@@ -51,10 +51,8 @@ class UserDomainValidator
      */
     protected function domainExistsInComponents($domain, array $components)
     {
-        return collect($components)->map(function ($component) {
-            [,$value] = $component;
+        [, $value] = reset($components);
 
-            return strtolower($value);
-        })->contains(strtolower($domain));
+        return strcasecmp($domain, $value) === 0;
     }
 }
