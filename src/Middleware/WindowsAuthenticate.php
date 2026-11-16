@@ -315,28 +315,12 @@ class WindowsAuthenticate
             return false;
         }
 
-        // To start, we will explode the users distinguished name into relative distinguished
-        // names. This will allow us to identify and pull the domain components from it
-        // which may contain the single-sign-on users authenticated domain name.
-        $components = array_map(function ($rdn) {
-            return strtolower($rdn);
-        }, ldap_explode_dn($user->getDn(), $onlyValues = false));
-
-        // Now we will filter the users relative distinguished names and ensure we are
-        // searching through domain components only. We don't want other attributes
-        // included in this check, otherwise it could result in false positives.
-        $domainComponents = array_filter($components, function ($rdn) {
-            return strpos($rdn, 'dc') !== false;
-        });
-
-        // Here we will determine if the single sign on users domain is contained inside of
-        // one of the domain components. This verifies that the user we have located from
-        // the LDAP directory is in-fact the user who is signed in through single sign
-        // on. If we do not check this, a user from another domain may have the same
-        // sAMAccount name as another user on another domain, which we will avoid.
-        foreach ($domainComponents as $component) {
-            if (strpos($component, strtolower($domain)) !== false) {
-                return true;
+        // Only the first domain component identifies the user's domain. Matching
+        // a parent component could allow users with the same account name in
+        // different domains to sign in as each other.
+        foreach (ldap_explode_dn($user->getDn(), false) as $component) {
+            if (stripos($component, 'dc=') === 0) {
+                return strcasecmp(substr($component, 3), $domain) === 0;
             }
         }
 
